@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <html lang="en">
 
 <head>
@@ -18,9 +19,7 @@
 	src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
 <script
 	src="<%=request.getContextPath()%>/resources/js/bootstrap-datepicker.js"></script>
-	
 <style>
-
 .dpHeaderWrap {
 	position: relative;
 	width: auto;
@@ -45,14 +44,13 @@ legend {
 	border-bottom: 0px !important;
 }
 
-.side_nav_btns {
-	margin-top: 10px;
 }
-
-}
-
 .top-height {
 	margin-top: 2%;
+}
+
+.side_nav_btns {
+	margin-top: 10px;
 }
 
 .side_nav_btns a {
@@ -63,6 +61,7 @@ legend {
 	color: #ffffff;
 	margin-top: 12px;
 }
+
 .form_submit {
 	margin-top: 14px;
 	text-align: right;
@@ -73,10 +72,8 @@ legend {
 <body>
 	<!-- Header -->
 	<header class="dpHeaderWrap">
-        <div class="text-center">
-            Header part
-        </div>
-    </header>
+		<div class="text-center">Header part</div>
+	</header>
 	<!-- Header -->
 	<div class="container">
 		<!-- Links -->
@@ -91,159 +88,181 @@ legend {
 			<div class="col-md-8 ">
 				<h2>Add New Customer</h2>
 				<form:form modelAttribute="customer" method="post"
-					action="/crm/customerWeb/save">
+					action="/crm/customerWeb/update">
 					<fieldset>
 						<legend>Customer Details</legend>
 						<div class="form-group">
 							<label>Name</label>
-							<form:input name="name" cssClass="form-control" path="name" />
+							<form:input name="name" cssClass="form-control" path="name"
+								value="${customer.name}" />
 						</div>
 						<div class="form-group">
 							<label>Description</label>
 							<form:input name="description" cssClass="form-control"
-								path="description" />
+								path="description" value="${customer.description}" />
 						</div>
-						<!-- div class="form-group">
-							<label>Visit Date</label>
-							<form:input name="visitDate" cssClass="form-control"
-								path="visitDate" />
-						</div -->
+						<form:hidden name="customerID" path="customerID"
+							value="${ customer.customerID }" />
+						<form:hidden name="resellerID" path="resellerID"
+							value="${ customer.resellerID }" />
 					</fieldset>
 
 					<fieldset>
 						<legend>Customer Main Address</legend>
 						<form:hidden name="addrressType" value="1"
 							path="address[0].addrressType" />
+						<form:hidden name="id" value="${ customer.address[0].id }"
+							path="address[0].id" />
 						<div class="form-group">
 							<label>Contact Person</label>
 							<form:input name="contactPerson" cssClass="form-control"
-								path="address[0].contactPerson" />
+								path="address[0].contactPerson"
+								value="${customer.address[0].contactPerson}" />
 						</div>
 						<div class="form-group">
 							<label>Address Line 1</label>
 							<form:input name="addressLine1" cssClass="form-control"
-								path="address[0].addressLine1" />
+								path="address[0].addressLine1"
+								value="${ customer.address[0].addressLine1 }" />
 						</div>
 						<div class="form-group">
 							<label>Address Line 2</label>
 							<form:input name="addressLine2" cssClass="form-control"
-								path="address[0].addressLine2" />
+								path="address[0].addressLine2"
+								value="${ customer.address[0].addressLine2 }" />
 						</div>
 						<div class="form-group">
 							<label>Street</label>
 							<form:input name="street" cssClass="form-control"
-								path="address[0].street" />
+								path="address[0].street" value="${ customer.address[0].street }" />
 						</div>
 						<div class="form-group">
 							<label>City</label>
 							<form:input name="city" cssClass="form-control"
-								path="address[0].city" />
+								path="address[0].city" value="${ customer.address[0].city }" />
 						</div>
 						<div class="form-group">
 							<label>State</label>
 							<form:input name="state" cssClass="form-control"
-								path="address[0].state" />
+								path="address[0].state" value="${ customer.address[0].state }" />
 						</div>
 						<div class="form-group">
 							<label>Country</label>
 							<form:input name="country" cssClass="form-control"
-								path="address[0].country" />
+								path="address[0].country"
+								value="${ customer.address[0].country }" />
 						</div>
 						<div class="form-group">
 							<label>Postal Code</label>
 							<form:input name="postalCode" cssClass="form-control"
-								path="address[0].postalCode" />
+								path="address[0].postalCode"
+								value="${ customer.address[0].postalCode }" />
 						</div>
 						<div class="form-group">
 							<label>Phone Number</label>
 							<form:input name="phoneNumber" cssClass="form-control"
-								path="address[0].phoneNumber" />
+								path="address[0].phoneNumber"
+								value="${ customer.address[0].phoneNumber }" />
 						</div>
 						<div class="form-group">
 							<label>Mobile Number(Primary)</label>
 							<form:input name="mobileNumberPrimary" cssClass="form-control"
-								path="address[0].mobileNumberPrimary" />
+								path="address[0].mobileNumberPrimary"
+								value="${ customer.address[0].mobileNumberPrimary }" />
 						</div>
 						<div class="form-group">
 							<label>Mobile Number(Secondary)</label>
 							<form:input name="mobileNumberSecondary" cssClass="form-control"
-								path="address[0].mobileNumberSecondary" />
+								path="address[0].mobileNumberSecondary"
+								value="${ customer.address[0].mobileNumberSecondary }" />
 						</div>
 					</fieldset>
 					<fieldset>
 						<legend>Customer Billing Address</legend>
 						<form:hidden name="addrressType" value="2"
 							path="address[1].addrressType" />
+						<form:hidden name="id" value="${ customer.address[1].id }"
+							path="address[1].id" />
 						<div class="form-group">
 							<label>Contact Person</label>
 							<form:input name="contactPerson" cssClass="form-control"
-								path="address[1].contactPerson" />
+								path="address[1].contactPerson"
+								value="${ customer.address[1].contactPerson }" />
 						</div>
 						<div class="form-group">
 							<label>Address Line 1</label>
 							<form:input name="addressLine1" cssClass="form-control"
-								path="address[1].addressLine1" />
+								path="address[1].addressLine1"
+								value="${ customer.address[1].addressLine1 }" />
 						</div>
 						<div class="form-group">
 							<label>Address Line 2</label>
 							<form:input name="addressLine2" cssClass="form-control"
-								path="address[1].addressLine2" />
+								path="address[1].addressLine2"
+								value="${ customer.address[1].addressLine2 }" />
 						</div>
 						<div class="form-group">
 							<label>Street</label>
 							<form:input name="street" cssClass="form-control"
-								path="address[1].street" />
+								path="address[1].street" value="${ customer.address[1].street }" />
 						</div>
 						<div class="form-group">
 							<label>City</label>
 							<form:input name="city" cssClass="form-control"
-								path="address[1].city" />
+								path="address[1].city" value="${ customer.address[1].city }" />
 						</div>
 						<div class="form-group">
 							<label>State</label>
 							<form:input name="state" cssClass="form-control"
-								path="address[1].state" />
+								path="address[1].state" value="${ customer.address[1].state }" />
 						</div>
 						<div class="form-group">
 							<label>Country</label>
 							<form:input name="country" cssClass="form-control"
-								path="address[1].country" />
+								path="address[1].country"
+								value="${ customer.address[1].country }" />
 						</div>
 						<div class="form-group">
 							<label>Postal Code</label>
 							<form:input name="postalCode" cssClass="form-control"
-								path="address[1].postalCode" />
+								path="address[1].postalCode"
+								value="${ customer.address[1].postalCode }" />
 						</div>
 						<div class="form-group">
 							<label>Phone Number</label>
 							<form:input name="phoneNumber" cssClass="form-control"
-								path="address[1].phoneNumber" />
+								path="address[1].phoneNumber"
+								value="${ customer.address[1].phoneNumber }" />
 						</div>
 						<div class="form-group">
 							<label>Mobile Number(Primary)</label>
 							<form:input name="mobileNumberPrimary" cssClass="form-control"
-								path="address[1].mobileNumberPrimary" />
+								path="address[1].mobileNumberPrimary"
+								value="${ customer.address[1].mobileNumberPrimary }" />
 						</div>
 						<div class="form-group">
 							<label>Mobile Number(Secondary)</label>
 							<form:input name="mobileNumberSecondary" cssClass="form-control"
-								path="address[1].mobileNumberSecondary" />
+								path="address[1].mobileNumberSecondary"
+								value="${ customer.address[1].mobileNumberSecondary }" />
 						</div>
 					</fieldset>
 					<fieldset>
 						<legend>Sales Activity</legend>
 						<div class="form-group">
 							<label>Sales Executive</label>
-							<form:select path="salesExec" cssClass="form-control">
+							<form:select path="salesExec.salesExecID" cssClass="form-control">
 								<form:option value="-1" label="--- Select ---" />
 								<form:options items="${salesExecs}" itemValue="salesExecID"
-									itemLabel="name" />
+									itemLabel="name" selected="${ customer.salesExec.name }" />
 							</form:select>
 						</div>
 						<div class="form-group">
+							<fmt:formatDate value="${ customer.visitDate }" type="date"
+								pattern="dd/MM/yyyy" var="theFormattedDate" />
 							<label>Visit Date</label>
 							<form:input id="dp" name="visitDate" cssClass="dp form-control"
-								path="visitDate" />
+								path="visitDate" value="${theFormattedDate}" />
 						</div>
 					</fieldset>
 

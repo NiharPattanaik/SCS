@@ -4,13 +4,14 @@ import java.util.List;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -38,8 +39,13 @@ public class SalesExec extends BusinessEntity{
 	@Column(name = "RESELLER_ID")
 	long resellerID;
 	
-	@OneToMany(orphanRemoval=true, cascade=CascadeType.ALL, fetch=FetchType.EAGER)
-	List<Customer> customers;
+	//@OneToMany(orphanRemoval=true, cascade=CascadeType.ALL, fetch=FetchType.EAGER)
+	//@OneToMany(fetch=FetchType.LAZY)
+	//@JoinTable(name="SALES_EXEC_CUSTOMER", 
+	//    joinColumns={@JoinColumn(name="SALES_EXEC_ID")},
+	//    inverseJoinColumns={@JoinColumn(name="CUSTOMER_ID")}
+	//)
+	//List<Customer> customers;
 	
 	public long getSalesExecID() {
 		return salesExecID;
@@ -65,17 +71,5 @@ public class SalesExec extends BusinessEntity{
 	public void setResellerID(long resellerID) {
 		this.resellerID = resellerID;
 	}
-	public List<Customer> getCustomers() {
-		return customers;
-	}
-	public void setCustomers(List<Customer> customers) {
-		this.customers = customers;
-	}
-
 	
-	
-	
-	
-	
-
 }

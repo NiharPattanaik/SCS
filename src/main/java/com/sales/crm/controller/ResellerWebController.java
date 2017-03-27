@@ -1,12 +1,10 @@
 package com.sales.crm.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
@@ -32,15 +30,24 @@ public class ResellerWebController {
 		return new ModelAndView("/createReseller");
 	}
 	
-	public Reseller get(@PathVariable long resellerID){
-		return resellerService.getReseller(resellerID);
+	@GetMapping(value="/{resellerID}")
+	public ModelAndView get(@PathVariable long resellerID){
+		Reseller reseller = resellerService.getReseller(resellerID);
+		return new ModelAndView("/reseller_details", "reseller", reseller);
+		
 	}
 	
-	public ResponseEntity<Reseller> update(@RequestBody Reseller reseller){
+	@RequestMapping(value="/editResellerForm/{resellerID}", method = RequestMethod.GET)  
+	public ModelAndView editCustomerForm(@PathVariable long resellerID){
+		Reseller reseller = resellerService.getReseller(resellerID);
+		return new ModelAndView("/edit_reseller", "reseller", reseller);
+	}
+	
+	@RequestMapping(value="/update",method = RequestMethod.POST) 
+	public ModelAndView update(@ModelAttribute("reseller") Reseller reseller){
 		resellerService.updateReseller(reseller);
-		return new ResponseEntity<Reseller>(reseller, HttpStatus.OK);
-	}
-	
+		return get(reseller.getResellerID());
+	}	
 	public void delete(@PathVariable long resellerID){
 		resellerService.deleteReseller(resellerID);
 	}

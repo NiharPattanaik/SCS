@@ -13,6 +13,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -45,6 +47,17 @@ public class Customer extends BusinessEntity{
 	
 	@OneToMany(orphanRemoval=true, cascade=CascadeType.ALL, fetch=FetchType.EAGER)
 	List<Address> address;
+	
+	@ManyToOne(cascade=CascadeType.ALL, fetch=FetchType.EAGER)
+	@JoinTable(name="SALES_EXEC_CUSTOMER", 
+	    joinColumns={@JoinColumn(name="CUSTOMER_ID")},
+	    inverseJoinColumns={@JoinColumn(name="SALES_EXEC_ID")})
+	SalesExec salesExec;
+	//@Transient
+	//Long salesExecID;
+	
+	//@Transient
+	//String salesExecName;
 	
 	public long getCustomerID() {
 		return customerID;
@@ -82,7 +95,30 @@ public class Customer extends BusinessEntity{
 	public void setAddress(List<Address> address) {
 		this.address = address;
 	}
+	public SalesExec getSalesExec() {
+		return salesExec;
+	}
+	public void setSalesExec(SalesExec salesExec) {
+		this.salesExec = salesExec;
+	}
 	
+	
+	
+	/**
+	public Long getSalesExecID() {
+		return salesExecID;
+	}
+	public void setSalesExecID(Long salesExecID) {
+		this.salesExecID = salesExecID;
+	}
+	public String getSalesExecName() {
+		return salesExecName;
+	}
+	public void setSalesExecName(String salesExecName) {
+		this.salesExecName = salesExecName;
+	}
+	
+	**/
 	
 
 }

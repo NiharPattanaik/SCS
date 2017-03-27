@@ -118,6 +118,10 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 			salesExecs = query.list();
 		}catch(Exception exception){
 			exception.printStackTrace();
+		}finally{
+			if(session != null){
+				session.close();
+			}
 		}
 		return salesExecs;
 	}

@@ -1,55 +1,93 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html><head><meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+<!DOCTYPE html>
+<html>
+<style>
+form {
+    border: 3px solid #f1f1f1;
+}
 
-<title>index</title></head><body>&nbsp; <br>
-<br>
-<hr style="width: 100%; height: 2px;">
-<div style="text-align: right;">Profile&nbsp; Customers&nbsp; Sales Executives<br>
-</div>
-<hr style="width: 100%; height: 2px;">
-<br>
-<div style="text-align: right;">
-<div style="text-align: left;"><span style="font-weight: bold;"><big><big>Profile Details&nbsp;</big></big>&nbsp; </span><br>
-</div>
-<span style="font-weight: bold;"></span></div>
-<span style="font-weight: bold;"><br>
-</span>Name<br>
-<br>
-Description<br>
-<br>
-<span style="text-decoration: underline; font-weight: bold;">Main Address</span><br>
-<br>
-Contact Person <br>
-Address Line1&nbsp; <br>
-Address Line 2 <br>
-City&nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp; <br>
-State&nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp; <br>
-State&nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp; <br>
-Postal Code&nbsp;&nbsp;  &nbsp;&nbsp;  <br>
-Phone Number<br>
-Mobile Number (Primary)<br>
-Mobile Number (Secondary) <br>
-<br>
-<span style="font-weight: bold; text-decoration: underline;">Billing Address</span><br>
+input[type=text], input[type=password] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
 
-<br>
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
 
-Contact Person <br>
+button:hover {
+    opacity: 0.8;
+}
 
-Address Line1&nbsp; <br>
+.cancelbtn {
+    width: auto;
+    padding: 10px 18px;
+    background-color: #f44336;
+}
 
-Address Line 2 <br>
+.imgcontainer {
+    text-align: center;
+    margin: 24px 0 12px 0;
+}
 
-City&nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp; <br>
-State&nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp; <br>
+img.avatar {
+    width: 40%;
+    border-radius: 50%;
+}
 
-State&nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp; <br>
+.container {
+    padding: 16px;
+}
 
-Postal Code&nbsp;&nbsp;  &nbsp;&nbsp;&nbsp;  <br>
+span.psw {
+    float: right;
+    padding-top: 16px;
+}
 
-Phone Number<br>
+/* Change styles for span and cancel button on extra small screens */
+@media screen and (max-width: 300px) {
+    span.psw {
+       display: block;
+       float: none;
+    }
+    .cancelbtn {
+       width: 100%;
+    }
+}
+</style>
+<body>
 
-Mobile Number (Primary)<br>
+<h2>Login Form</h2>
 
-Mobile Number (Secondary) <span style="font-weight: bold;"><br>
-</span></body></html>
+<form action="/action_page.php">
+  <div class="imgcontainer">
+  </div>
+
+  <div class="container">
+    <label><b>Username</b></label>
+    <input type="text" placeholder="Enter Username" name="uname" required>
+
+    <label><b>Password</b></label>
+    <input type="password" placeholder="Enter Password" name="psw" required>
+        
+    <button type="submit">Login</button>
+    <input type="checkbox" checked="checked"> Remember me
+  </div>
+
+  <div class="container" style="background-color:#f1f1f1">
+    <button type="button" class="cancelbtn">Cancel</button>
+    <span class="psw">Forgot <a href="#">password?</a></span>
+  </div>
+</form>
+
+</body>
+</html>

@@ -2,12 +2,12 @@ package com.sales.crm.controller;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -16,16 +16,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.sales.crm.model.Customer;
+import com.sales.crm.model.SalesExec;
 import com.sales.crm.service.CustomerService;
+import com.sales.crm.service.SalesExecService;
 
 @Controller
 @RequestMapping("/customerWeb")
@@ -34,34 +32,57 @@ public class CustomerWebController {
 	@Autowired
 	CustomerService customerService;
 	
+	@Autowired
+	SalesExecService salesExecService;
+	
 	@GetMapping(value="/{customerID}")
-	public Customer get(@PathVariable long customerID){
-		return customerService.getCustomer(customerID);
+	public ModelAndView get(@PathVariable long customerID){
+		Customer customer = customerService.getCustomer(customerID);
+		return new ModelAndView("/customer_details", "customer", customer);
+		
 	}
 	
 	@RequestMapping(value="/createCustomerForm", method = RequestMethod.GET)  
-	public ModelAndView createResellerForm(Model model){
-		model.addAttribute("customer", new Customer());
-		return new ModelAndView("/create_customer");
+	public ModelAndView createCustomerForm(Model model){
+		List<SalesExec> salesExecs = salesExecService.getResellerSalesExecs(13);
+		Map<String, Object> modelMap = new HashMap<String, Object>();
+		modelMap.put("customer", new Customer());
+		modelMap.put("salesExecs", salesExecs);
+		return new ModelAndView("/create_customer", modelMap);
+	}
+	
+	@RequestMapping(value="/editCustomerForm/{customerID}", method = RequestMethod.GET)  
+	public ModelAndView editCustomerForm(@PathVariable long customerID){
+		Customer customer = customerService.getCustomer(customerID);
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+		List<SalesExec> salesExecs = salesExecService.getResellerSalesExecs(13);
+		Map<String, Object> modelMap = new HashMap<String, Object>();
+		modelMap.put("customer", customer);
+		modelMap.put("salesExecs", salesExecs);
+		return new ModelAndView("/edit_customer", modelMap);
 	}
 	
 	@RequestMapping(value="/save",method = RequestMethod.POST)  
-	public ResponseEntity<Customer> create(@ModelAttribute("customer") Customer customer){
+	public ModelAndView create(@ModelAttribute("customer") Customer customer){
 		customerService.createCustomer(customer);
-		return new ResponseEntity<Customer>(customer, HttpStatus.CREATED);
+		List<Customer> customers = customerService.getResellerCustomers(customer.getResellerID());
+		return new ModelAndView("/customer_list","customers", customers); 
 	}
 	
 	@InitBinder
     public void initBinder(WebDataBinder webDataBinder) {
-     SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
      dateFormat.setLenient(false);
      webDataBinder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
      }
 	
-	@PostMapping
-	public ResponseEntity<Customer> update(@RequestBody Customer customer){
+	@RequestMapping(value="/update",method = RequestMethod.POST) 
+	public ModelAndView update(@ModelAttribute("customer") Customer customer){
+		SalesExec salesExec = salesExecService.getSalesExec(customer.getSalesExec().getSalesExecID());
+		customer.setSalesExec(salesExec);
 		customerService.updateCustomer(customer);
-		return new ResponseEntity<Customer>(customer, HttpStatus.OK);
+		List<Customer> customers = customerService.getResellerCustomers(customer.getResellerID());
+		return new ModelAndView("/customer_list","customers", customers); 
 	}
 	
 	@DeleteMapping(value="/{customerID}")
@@ -70,7 +91,8 @@ public class CustomerWebController {
 	}
 	
 	@GetMapping(value="/list/{resellerID}")
-	public List<Customer> list(@PathVariable long resellerID){
-		return customerService.getResellerCustomers(resellerID);
+	public ModelAndView list(@PathVariable long resellerID){
+		List<Customer> customers = customerService.getResellerCustomers(resellerID);
+		return new ModelAndView("/customer_list","customers", customers);  
 	}
 }

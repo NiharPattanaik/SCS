@@ -32,6 +32,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 			for(Address address : customer.getAddress()){
 				address.setDateCreated(new Date());
 			}
+			customer.getSalesExec().setDateCreated(new Date());
 			session.save(customer);
 			transaction.commit();
 		}catch(Exception e){
@@ -75,6 +76,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 			for(Address address : customer.getAddress()){
 				address.setDateModified(new Date());
 			}
+			customer.getSalesExec().setDateModified(new Date());
 			session.update(customer);
 			transaction.commit();
 		}catch(Exception e){
@@ -121,11 +123,15 @@ public class CustomerDAOImpl implements CustomerDAO{
 		List<Customer> customers = null; 
 		try{
 			session = sessionFactory.openSession();
-			Query query = session.createQuery("from Customer where resellerID = :resellerID ");
+			Query query = session.createQuery("from Customer where resellerID = :resellerID order by DATE_CREATED DESC");
 			query.setParameter("resellerID", resellerID);
 			customers = query.list();
 		}catch(Exception exception){
 			exception.printStackTrace();
+		}finally{
+			if(session != null){
+				session.close();
+			}
 		}
 		return customers;
 	}

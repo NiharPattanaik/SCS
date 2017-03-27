@@ -25,6 +25,7 @@ import com.sales.crm.model.Address;
 import com.sales.crm.model.Customer;
 import com.sales.crm.model.Reseller;
 import com.sales.crm.model.SalesExec;
+import com.sales.crm.service.CustomerService;
 import com.sales.crm.util.HibernateUtil;
 
 public class ResellerCustomerDataTest {
@@ -51,6 +52,7 @@ public class ResellerCustomerDataTest {
 	static ResellerDAO dao;
 	static CustomerDAO customerDAO;
 	static SalesExecDAO salesExecDAO;
+	static CustomerService customerService;
 
 	@BeforeClass
 	public static void init() {
@@ -59,6 +61,7 @@ public class ResellerCustomerDataTest {
 			dao = (ResellerDAO) context.getBean("resellerDAO");
 			customerDAO = (CustomerDAO) context.getBean("customerDAO");
 			salesExecDAO = (SalesExecDAO)context.getBean("salesExecDAO");
+			customerService = (CustomerService)context.getBean("customerService");
 		}catch(Exception exception){
 			exception.printStackTrace();
 		}
@@ -153,12 +156,22 @@ public class ResellerCustomerDataTest {
 		reseller.setName("Res");
 		reseller.setDescription("Res_Des");
 		reseller.setDateCreated(new Date());
+		
+		salesExec = new SalesExec();
+		salesExec.setName("salesExec1");
+		salesExec.setDescription("salesExecDesc");
+		salesExec.setResellerID(13);
 
 		customer1 = new Customer();
 		customer1.setName("cust1");
 		customer1.setDescription("cust1_desc");
 		customer1.setVisitDate(new Date());
 		customer1.setDateCreated(new Date());
+		List<Address> address = new ArrayList<Address>();
+		address.add(main_customer1Add);
+		//address.add(bill_customer1Add);
+		customer1.setAddress(address);
+		customer1.setSalesExec(salesExec);
 
 		customer2 = new Customer();
 		customer2.setName("cust2");
@@ -167,10 +180,7 @@ public class ResellerCustomerDataTest {
 		customer2.setDateCreated(new Date());
 		
 		
-		salesExec = new SalesExec();
-		salesExec.setName("salesExec1");
-		salesExec.setDescription("salesExecDesc");
-		salesExec.setResellerID(13);
+		
 	}
 	
 	@AfterClass
@@ -194,6 +204,11 @@ public class ResellerCustomerDataTest {
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+	}
+	
+	@Test
+	public void testGetCustomer(){
+		customerDAO.get(22);
 	}
 
 	@Test
@@ -274,36 +289,7 @@ public class ResellerCustomerDataTest {
 	@Test
 	public void testCreateCustomerPassWithParent() {
 		try {
-			// Insert
-			session.beginTransaction();
-			//session.save(reseller);
-			//long resellerId = reseller.getResellerID();
-			customer1.setResellerID(13);
-			customer2.setResellerID(13);
-			session.save(customer1);
-			session.save(customer2);
-			//long id = customer1.getCustomerID();
-
-			// Fetch
-			//Customer customer11 = (Customer) session.load(Customer.class, id);
-			
-			//Reseller reseller1 = (Reseller)session.load(Reseller.class, resellerId);
-
-			// Test
-			//assertEquals(customer1.getName(), customer11.getName());
-
-			// Delete
-			//session.delete(customer11);
-
-			// Fetch
-			/*try {
-				session.load(Customer.class, id);
-				assertTrue(false);
-			} catch (org.hibernate.ObjectNotFoundException e) {
-				assertTrue(true);
-			}*/
-
-			session.getTransaction().commit();
+			customerService.createCustomer(customer1);
 		} catch (Exception e) {
 			assertFalse(true);
 		}

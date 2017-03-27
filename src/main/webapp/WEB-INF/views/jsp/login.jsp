@@ -3,8 +3,6 @@
 <style>
 form {
     border: 3px solid #f1f1f1;
-    width: 557px;
-    margin-left: 27%;
 }
 
 input[type=text], input[type=password] {
@@ -48,18 +46,11 @@ img.avatar {
 
 .container {
     padding: 16px;
-    width: 500px;
-    margin-left: 1%;
-    margin-bottom: 26px;
 }
 
 span.psw {
     float: right;
     padding-top: 16px;
-}
-.form_header{
-margin-left:41%;
-display:block;
 }
 
 /* Change styles for span and cancel button on extra small screens */
@@ -75,11 +66,13 @@ display:block;
 </style>
 <body>
 
-<h2 class="form_header">Login Form</h2>
+<h2>Login Form</h2>
 
 <form method="post" action="/crm/user/login" modelAttribute="error">
   <div class="imgcontainer">
-  	${error}"
+   <font color="Red">
+  	${msg}
+  	</font>
   </div>
 
   <div class="container">
