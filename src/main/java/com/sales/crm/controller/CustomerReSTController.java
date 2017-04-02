@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sales.crm.model.Customer;
+import com.sales.crm.model.TrimmedCustomer;
 import com.sales.crm.service.CustomerService;
 
 @RestController
@@ -49,5 +50,10 @@ public class CustomerReSTController {
 	@GetMapping(value="/list/{resellerID}")
 	public List<Customer> list(@PathVariable long resellerID){
 		return customerService.getResellerCustomers(resellerID);
+	}
+	
+	@GetMapping(value="/trimmedCustomers/{resellerID}")
+	public List<TrimmedCustomer> trimmedCustomerslist(@PathVariable long resellerID){
+		return customerService.getResellerTrimmedCustomers(resellerID);
 	}
 }

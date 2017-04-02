@@ -4,7 +4,7 @@
 <html lang="en">
 
 <head>
-    <title>Customers</title>
+    <title>Roles</title>
     <!-- Bootstrap Core CSS -->
  <link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet">
  
@@ -72,30 +72,23 @@
         <div class="row top-height">
         	<div class="row customer_list">
         		<div class="col-md-8">
-            		<h2>Customers List</h2>   
+            		<h2>Roles List</h2>   
             	</div>
-	        	<div class="col-md-4 add_customer">
-						<button type="submit" class="btn btn-primary" onclick="location.href='<%=request.getContextPath()%>/customerWeb/createCustomerForm';">Add New Customer</button>
-				</div>
-			</div>        
+	        </div>        
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Customer ID</th>
-                        <th>Name</th>
-                        <th>Sales Executive</th>
-                        <th>Visit Date</th>
-                        <th>City</th>
+                        <th>Role ID</th>
+                        <th>Role Name</th>
+                        <th>Description</th>
                     </tr>
                 </thead>
                 <tbody>
-                	<c:forEach var="customer" items="${customers}">  
+                	<c:forEach var="role" items="${roles}">  
                     <tr>
-                    	<td><a href="<%=request.getContextPath()%>/customerWeb/${customer.customerID}">${customer.customerID}</a></td>
-                        <td>${customer.name}</td>
-                        <td>${customer.salesExec.name}</td>
-                        <td>${customer.visitDate}</td>
-                        <td>${customer.address[0].city}</td>
+                    	<td>${role.roleID}</td>
+                        <td>${role.roleName}</td>
+                        <td>${role.description}</td>
                     </tr>
                     </c:forEach>
                 </tbody>

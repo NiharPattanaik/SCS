@@ -75,27 +75,31 @@
             		<h2>Customers List</h2>   
             	</div>
 	        	<div class="col-md-4 add_customer">
-						<button type="submit" class="btn btn-primary" onclick="location.href='<%=request.getContextPath()%>/customerWeb/createCustomerForm';">Add New Customer</button>
+						<button type="submit" class="btn btn-primary" onclick="location.href='<%=request.getContextPath()%>/userWeb/createUserForm';">Add New User</button>
 				</div>
 			</div>        
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Customer ID</th>
-                        <th>Name</th>
-                        <th>Sales Executive</th>
-                        <th>Visit Date</th>
-                        <th>City</th>
+                        <th>User ID</th>
+                        <th>User Name</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>EMail ID</th>
+                        <th>Mobile No</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                	<c:forEach var="customer" items="${customers}">  
+                	<c:forEach var="user" items="${users}">  
                     <tr>
-                    	<td><a href="<%=request.getContextPath()%>/customerWeb/${customer.customerID}">${customer.customerID}</a></td>
-                        <td>${customer.name}</td>
-                        <td>${customer.salesExec.name}</td>
-                        <td>${customer.visitDate}</td>
-                        <td>${customer.address[0].city}</td>
+                    	<td><a href="<%=request.getContextPath()%>/userWeb/${user.userID}">${user.userID}</a></td>
+                        <td>${user.userName}</td>
+                        <td>${user.firstName}</td>
+                        <td>${user.lastName}</td>
+                        <td>${user.emailID}</td>
+                        <td>${user.mobileNo}</td>
+                        <td>${user.status}</td>
                     </tr>
                     </c:forEach>
                 </tbody>

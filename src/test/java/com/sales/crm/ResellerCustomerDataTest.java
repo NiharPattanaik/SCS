@@ -25,7 +25,9 @@ import com.sales.crm.model.Address;
 import com.sales.crm.model.Customer;
 import com.sales.crm.model.Reseller;
 import com.sales.crm.model.SalesExec;
+import com.sales.crm.model.User;
 import com.sales.crm.service.CustomerService;
+import com.sales.crm.service.UserService;
 import com.sales.crm.util.HibernateUtil;
 
 public class ResellerCustomerDataTest {
@@ -53,6 +55,7 @@ public class ResellerCustomerDataTest {
 	static CustomerDAO customerDAO;
 	static SalesExecDAO salesExecDAO;
 	static CustomerService customerService;
+	static UserService userService;
 
 	@BeforeClass
 	public static void init() {
@@ -62,6 +65,7 @@ public class ResellerCustomerDataTest {
 			customerDAO = (CustomerDAO) context.getBean("customerDAO");
 			salesExecDAO = (SalesExecDAO)context.getBean("salesExecDAO");
 			customerService = (CustomerService)context.getBean("customerService");
+			userService = (UserService)context.getBean("userService");
 		}catch(Exception exception){
 			exception.printStackTrace();
 		}
@@ -187,7 +191,6 @@ public class ResellerCustomerDataTest {
 	public static void classCleanUp(){
 	}
 
-	@Before
 	public void setUp() {
 		session = HibernateUtil.getSessionFactory().openSession();
 	}
@@ -198,9 +201,26 @@ public class ResellerCustomerDataTest {
 	}
 	
 	@Test
-	public void testCreateSalesExec(){
+	public void testCreateUser(){
+		User user = new User();
+		
+		user.setUserName("test_user");
+		user.setDescription("test_desc");
+		user.setEmailID("test_email");
+		user.setFirstName("test_f_name");
+		user.setLastName("test_n_name");
+		user.setMobileNo("test_m_number");
+		user.setPassword("test_pass");
+		user.setResellerID(13);
+		
+		userService.createUser(user);
+	}
+	
+	
+	@Test
+	public void getTrimmedCustomers(){
 		try{
-			salesExecDAO.create(salesExec);
+			customerService.getResellerTrimmedCustomers(13);
 		}catch(Exception e){
 			e.printStackTrace();
 		}

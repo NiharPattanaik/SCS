@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.sales.crm.dao.CustomerDAO;
 import com.sales.crm.model.Customer;
+import com.sales.crm.model.TrimmedCustomer;
 
 @Service("customerService")
 public class CustomerService {
@@ -32,5 +33,9 @@ public class CustomerService {
 	
 	public List<Customer> getResellerCustomers(long resellerID){
 		return customerDAO.getResellerCustomers(resellerID);
+	}
+	
+	public List<TrimmedCustomer> getResellerTrimmedCustomers(long resellerID) {
+		return customerDAO.getResellerTrimmedCustomers(resellerID);
 	}
 }

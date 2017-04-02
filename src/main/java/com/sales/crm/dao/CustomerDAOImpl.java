@@ -1,9 +1,11 @@
 package com.sales.crm.dao;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import com.sales.crm.model.Address;
 import com.sales.crm.model.Customer;
+import com.sales.crm.model.TrimmedCustomer;
 
 
 @Repository("customerDAO")
@@ -136,4 +139,31 @@ public class CustomerDAOImpl implements CustomerDAO{
 		return customers;
 	}
 
+	@Override
+	public List<TrimmedCustomer> getResellerTrimmedCustomers(long resellerID) {
+		Session session = null;
+		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
+		try{
+			session = sessionFactory.openSession();
+			SQLQuery query = session.createSQLQuery("SELECT ID, NAME FROM CUSTOMER WHERE RESELLER_ID=?");
+			query.setParameter( 0, resellerID);
+			List results = query.list();
+			for(Object obj : results){
+				Object[] objs = (Object[])obj;
+				TrimmedCustomer trimmedCustomer = new TrimmedCustomer();
+				trimmedCustomer.setCustomerID(Long.valueOf(String.valueOf(objs[0])));
+				trimmedCustomer.setCustomerName(String.valueOf(objs[1]));
+				customers.add(trimmedCustomer);
+			}
+		}catch(Exception exception){
+			exception.printStackTrace();
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		return customers;
+	}
+
+	
 }

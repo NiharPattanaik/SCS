@@ -30,6 +30,10 @@
 				<value>com.sales.crm.model.Reseller</value>
 				<value>com.sales.crm.model.Employee</value>
 				<value>com.sales.crm.model.SalesExec</value>
+				<value>com.sales.crm.model.User</value>
+				<value>com.sales.crm.model.Role</value>
+				<value>com.sales.crm.model.Area</value>
+				<value>com.sales.crm.model.Beat</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">

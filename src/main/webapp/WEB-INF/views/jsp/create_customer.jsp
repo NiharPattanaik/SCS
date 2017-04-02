@@ -18,9 +18,8 @@
 	src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
 <script
 	src="<%=request.getContextPath()%>/resources/js/bootstrap-datepicker.js"></script>
-	
-<style>
 
+<style>
 .dpHeaderWrap {
 	position: relative;
 	width: auto;
@@ -50,7 +49,6 @@ legend {
 }
 
 }
-
 .top-height {
 	margin-top: 2%;
 }
@@ -63,6 +61,7 @@ legend {
 	color: #ffffff;
 	margin-top: 12px;
 }
+
 .form_submit {
 	margin-top: 14px;
 	text-align: right;
@@ -73,19 +72,18 @@ legend {
 <body>
 	<!-- Header -->
 	<header class="dpHeaderWrap">
-        <div class="text-center">
-            Header part
-        </div>
-    </header>
+		<div class="text-center">Header part</div>
+	</header>
 	<!-- Header -->
 	<div class="container">
 		<!-- Links -->
 		<div class="row pull-right side_nav_btns">
-			<a href="<%=request.getContextPath()%>/resellerWeb/13">Profile</a> <a
-				href="<%=request.getContextPath()%>/customerWeb/list/13">Customers</a>
-			<a href="<%=request.getContextPath()%>/salesexecWeb/list/13">Sales
-				Executive</a>
-			<!-- Links -->
+			<a href="<%=request.getContextPath()%>/resellerWeb/13">Profile</a> 
+			<a href="<%=request.getContextPath()%>/customerWeb/list/13">Customers</a>
+			<a href="<%=request.getContextPath()%>/userWeb/list/13">Users</a>
+			<a href="<%=request.getContextPath()%>/role/list">Roles</a>
+			<a href="<%=request.getContextPath()%>/areaWeb/list/13">Areas</a>
+			<a href="<%=request.getContextPath()%>/beatWeb/list/13">Beats</a> 
 		</div>
 		<div class="row top-height">
 			<div class="col-md-8 ">
