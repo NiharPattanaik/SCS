@@ -13,7 +13,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -31,7 +30,7 @@ public class User extends BusinessEntity{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID", unique = true, nullable = false)
-	private long userID;
+	private int userID;
 	
 	@Column(name = "USER_NAME")
 	private String userName;
@@ -57,20 +56,20 @@ public class User extends BusinessEntity{
 	@Column(name = "STATUS")
 	private int status;
 	
-	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER)
-	@JoinTable(name="USER_ROLE", 
-	    joinColumns={@JoinColumn(name="USER_ID")},
-	    inverseJoinColumns={@JoinColumn(name="ROLE_ID")})
+	@Transient
 	private List<Role> roles;
 	
 	@Transient
-	private long resellerID;
+	private List<Integer> roleIDs;
+	
+	@Transient
+	private int resellerID;
 
-	public long getUserID() {
+	public int getUserID() {
 		return userID;
 	}
 
-	public void setUserID(long userID) {
+	public void setUserID(int userID) {
 		this.userID = userID;
 	}
 
@@ -146,12 +145,20 @@ public class User extends BusinessEntity{
 		this.roles = roles;
 	}
 
-	public long getResellerID() {
+	public int getResellerID() {
 		return resellerID;
 	}
 
-	public void setResellerID(long resellerID) {
+	public void setResellerID(int resellerID) {
 		this.resellerID = resellerID;
+	}
+
+	public List<Integer> getRoleIDs() {
+		return roleIDs;
+	}
+
+	public void setRoleIDs(List<Integer> roleIDs) {
+		this.roleIDs = roleIDs;
 	}
 	
 	

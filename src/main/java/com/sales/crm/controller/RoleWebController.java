@@ -25,7 +25,7 @@ public class RoleWebController {
 	
 	
 	@GetMapping(value="/{roleID}")
-	public ModelAndView get(@PathVariable long roleID){
+	public ModelAndView get(@PathVariable int roleID){
 		Role role = roleService.getRole(roleID);
 		return new ModelAndView("/role_details", "role", role);
 		
@@ -37,7 +37,7 @@ public class RoleWebController {
 	}
 	
 	@RequestMapping(value="/editRoleForm/{userID}", method = RequestMethod.GET)  
-	public ModelAndView editRoleForm(@PathVariable long roleID){
+	public ModelAndView editRoleForm(@PathVariable int roleID){
 		Role role = roleService.getRole(roleID);
 		return new ModelAndView("/edit_role", "role", role);
 	}
@@ -55,7 +55,7 @@ public class RoleWebController {
 	}
 	
 	@DeleteMapping(value="/{roleID}")
-	public void delete(@PathVariable long roleID){
+	public void delete(@PathVariable int roleID){
 		roleService.deleteRole(roleID);
 	}
 	

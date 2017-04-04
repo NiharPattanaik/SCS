@@ -3,10 +3,13 @@ package com.sales.crm.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomCollectionEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +28,7 @@ public class AreaWebController {
 	
 	
 	@GetMapping(value="/{areaID}")
-	public ModelAndView get(@PathVariable long areaID){
+	public ModelAndView get(@PathVariable int areaID){
 		Area area = areaService.getArea(areaID);
 		return new ModelAndView("/area_details", "area", area);
 		
@@ -37,7 +40,7 @@ public class AreaWebController {
 	}
 	
 	@RequestMapping(value="/editAreaForm/{areaID}", method = RequestMethod.GET)  
-	public ModelAndView editAreaForm(@PathVariable long areaID){
+	public ModelAndView editAreaForm(@PathVariable int areaID){
 		Area area = areaService.getArea(areaID);
 		return new ModelAndView("/edit_area", "area", area);
 	}
@@ -55,12 +58,12 @@ public class AreaWebController {
 	}
 	
 	@DeleteMapping(value="/{areaID}")
-	public void delete(@PathVariable long areaID){
+	public void delete(@PathVariable int areaID){
 		areaService.deleteArea(areaID);
 	}
 	
 	@GetMapping(value="/list/{resellerID}")
-	public ModelAndView list(@PathVariable long resellerID){
+	public ModelAndView list(@PathVariable int resellerID){
 		List<Area> areas = areaService.getResellerAreas(resellerID);
 		return new ModelAndView("/area_list","areas", areas);  
 	}

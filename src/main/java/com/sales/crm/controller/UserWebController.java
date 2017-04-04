@@ -8,10 +8,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomCollectionEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,7 +42,7 @@ public class UserWebController {
 	RoleService roleService;
 	
 	@GetMapping(value="/{userID}")
-	public ModelAndView get(@PathVariable long userID){
+	public ModelAndView get(@PathVariable int userID){
 		User user = userService.getUser(userID);
 		return new ModelAndView("/user_details", "user", user);
 		
@@ -55,9 +58,13 @@ public class UserWebController {
 	}
 	
 	@RequestMapping(value="/editUserForm/{userID}", method = RequestMethod.GET)  
-	public ModelAndView editUserForm(@PathVariable long userID){
+	public ModelAndView editUserForm(@PathVariable int userID){
+		List<Role> roles = roleService.getRoles();
 		User user = userService.getUser(userID);
-		return new ModelAndView("/edit_user", "user", user);
+		Map<String, Object> modelMap = new HashMap<String, Object>();
+		modelMap.put("user", user);
+		modelMap.put("roles", roles);
+		return new ModelAndView("/edit_user", modelMap);
 	}
 	
 	@RequestMapping(value="/save",method = RequestMethod.POST)  
@@ -73,12 +80,12 @@ public class UserWebController {
 	}
 	
 	@DeleteMapping(value="/{userID}")
-	public void delete(@PathVariable long userID){
+	public void delete(@PathVariable int userID){
 		userService.deleteUser(userID);
 	}
 	
 	@GetMapping(value="/list/{resellerID}")
-	public ModelAndView list(@PathVariable long resellerID){
+	public ModelAndView list(@PathVariable int resellerID){
 		List<User> users = userService.getResellerUsers(resellerID);
 		return new ModelAndView("/users_list","users", users);  
 	}
@@ -96,5 +103,25 @@ public class UserWebController {
 		}
 	}
 	
+	
+	/**
+	@InitBinder
+	  public void initBinder(WebDataBinder  binder){
+	    binder.registerCustomEditor(List.class, "roles", new CustomCollectionEditor(List.class)
+	    {
+	      @Override
+	      protected Object convertElement(Object element)
+	      {
+	         Role role = new Role();
+	         role.setRoleID(Integer.valueOf(String.valueOf(element)));
+
+	       
+	        return role;
+	      }
+
+
+	    });  
+	}
+	**/
 	
 }

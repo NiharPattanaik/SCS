@@ -42,7 +42,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 	}
 
 	@Override
-	public SalesExec get(long salesExecID) {
+	public SalesExec get(int salesExecID) {
 		Session session = null;
 		SalesExec salesExec = null;
 		try{
@@ -85,7 +85,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 	}
 
 	@Override
-	public void delete(long salesExecID) {
+	public void delete(int salesExecID) {
 		Session session = null;
 		Transaction transaction = null;
 		try{
@@ -108,7 +108,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 	}
 
 	@Override
-	public List<SalesExec> getResellerSalesExecs(long resellerID) {
+	public List<SalesExec> getResellerSalesExecs(int resellerID) {
 		Session session = null;
 		List<SalesExec> salesExecs = null; 
 		try{

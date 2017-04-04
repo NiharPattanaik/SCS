@@ -30,7 +30,7 @@ public class ResellerReSTController {
 	}
 	
 	@GetMapping(value="/{resellerID}")
-	public Reseller get(@PathVariable long resellerID){
+	public Reseller get(@PathVariable int resellerID){
 		return resellerService.getReseller(resellerID);
 	}
 	
@@ -41,7 +41,7 @@ public class ResellerReSTController {
 	}
 	
 	@DeleteMapping(value="/{resellerID}")
-	public void delete(@PathVariable long resellerID){
+	public void delete(@PathVariable int resellerID){
 		resellerService.deleteReseller(resellerID);
 	}
 	

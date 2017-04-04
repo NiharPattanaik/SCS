@@ -9,14 +9,14 @@ public interface CustomerDAO {
 	
 	void create(Customer customer);
 	
-	Customer get(long customerID);
+	Customer get(int customerID);
 	
 	void update(Customer customer);
 	
-	void delete(long customerID);
+	void delete(int customerID);
 	
-	List<Customer> getResellerCustomers(long resellerID);
+	List<Customer> getResellerCustomers(int resellerID);
 	
-	List<TrimmedCustomer> getResellerTrimmedCustomers(long resellerID);
+	List<TrimmedCustomer> getResellerTrimmedCustomers(int resellerID);
 
 }

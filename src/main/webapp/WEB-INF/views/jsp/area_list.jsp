@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>    
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>    
+<%@ page import="com.sales.crm.model.Role" %>
 <html lang="en">
 
 <head>
-    <title>Customers</title>
+    <title>Areas</title>
     <!-- Bootstrap Core CSS -->
  <link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet">
  
@@ -72,30 +73,30 @@
         <div class="row top-height">
         	<div class="row customer_list">
         		<div class="col-md-8">
-            		<h2>Customers List</h2>   
+            		<h2>Area List</h2>   
             	</div>
 	        	<div class="col-md-4 add_customer">
-						<button type="submit" class="btn btn-primary" onclick="location.href='<%=request.getContextPath()%>/customerWeb/createCustomerForm';">Add New Customer</button>
+						<button type="submit" class="btn btn-primary" onclick="location.href='<%=request.getContextPath()%>/areaWeb/createAreaForm';">Add New Area</button>
 				</div>
 			</div>        
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Customer ID</th>
+                        <th>ID</th>
                         <th>Name</th>
-                        <th>Sales Executive</th>
-                        <th>Visit Date</th>
-                        <th>City</th>
-                    </tr>
+                        <th>Description</th>
+                        <th>Word No.</th>
+                        <th>Pin Code</th>
+                  </tr>
                 </thead>
                 <tbody>
-                	<c:forEach var="customer" items="${customers}">  
+                	<c:forEach var="area" items="${areas}">  
                     <tr>
-                    	<td><a href="<%=request.getContextPath()%>/customerWeb/${customer.customerID}">${customer.customerID}</a></td>
-                        <td>${customer.name}</td>
-                        <td>${customer.salesExecName}</td>
-                        <td>${customer.visitDate}</td>
-                        <td>${customer.address[0].city}</td>
+                    	<td><a href="<%=request.getContextPath()%>/areaWeb/${area.areaID}">${area.areaID}</a></td>
+                        <td>${area.name}</td>
+                        <td>${area.description}</td>
+                        <td>${area.wordNo}</td>
+                        <td>${area.pinCode}</td>
                     </tr>
                     </c:forEach>
                 </tbody>

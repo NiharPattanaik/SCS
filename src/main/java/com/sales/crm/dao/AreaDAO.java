@@ -8,13 +8,14 @@ public interface AreaDAO {
 	
 	void create(Area area);
 	
-	Area get(long areaID);
+	Area get(int areaID);
 	
 	void update(Area area);
 	
-	void delete(long areaID);
+	void delete(int areaID);
 	
-	List<Area> getResellerAreas(long resellerID);
+	List<Area> getResellerAreas(int resellerID);
 	
+	List<Area> getBeatAreas(int beatID);
 
 }

@@ -16,7 +16,7 @@ public class ResellerService {
 	@Autowired
 	private CustomerDAO customerService;
 	
-	public Reseller getReseller(long resellerID){
+	public Reseller getReseller(int resellerID){
 		Reseller reseller = resellerDAO.get(resellerID);
 		reseller.setCustomers(customerService.getResellerCustomers(resellerID));
 		return reseller;
@@ -30,7 +30,7 @@ public class ResellerService {
 		resellerDAO.update(reseller);
 	}
 	
-	public void deleteReseller(long resellerID){
+	public void deleteReseller(int resellerID){
 		resellerDAO.delete(resellerID);
 	}
 

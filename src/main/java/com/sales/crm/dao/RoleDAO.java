@@ -8,11 +8,11 @@ public interface RoleDAO {
 	
 	void create(Role role);
 	
-	Role get(long roleID);
+	Role get(int roleID);
 	
 	void update(Role role);
 	
-	void delete(long roleID);
+	void delete(int roleID);
 	
 	List<Role> getRoles();
 

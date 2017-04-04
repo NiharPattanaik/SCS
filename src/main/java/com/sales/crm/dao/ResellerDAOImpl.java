@@ -44,7 +44,7 @@ public class ResellerDAOImpl implements ResellerDAO{
 	}
 	
 	@Override
-	public Reseller get(long resellerID) {
+	public Reseller get(int resellerID) {
 		Session session = null;
 		Reseller reseller = null;
 		try{
@@ -91,7 +91,7 @@ public class ResellerDAOImpl implements ResellerDAO{
 
 
 	@Override
-	public void delete(long resellerID) {
+	public void delete(int resellerID) {
 		Session session = null;
 		Transaction transaction = null;
 		try{

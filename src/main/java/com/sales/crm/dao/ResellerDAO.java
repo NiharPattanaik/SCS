@@ -6,10 +6,10 @@ public interface ResellerDAO {
 	
 	void create(Reseller reseller);
 	
-	Reseller get(long resellerID);
+	Reseller get(int resellerID);
 	
 	void update(Reseller reseller);
 	
-	void delete(long resellerID);
+	void delete(int resellerID);
 
 }

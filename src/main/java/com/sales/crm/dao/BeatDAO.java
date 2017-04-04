@@ -8,13 +8,13 @@ public interface BeatDAO {
 	
 	void create(Beat beat);
 	
-	Beat get(long beatID);
+	Beat get(int beatID);
 	
 	void update(Beat beat);
 	
-	void delete(long beatID);
+	void delete(int beatID);
 	
-	List<Beat> getResellerBeats(long resellerID);
+	List<Beat> getResellerBeats(int resellerID);
 	
 
 }

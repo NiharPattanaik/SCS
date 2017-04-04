@@ -11,7 +11,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -30,7 +29,7 @@ public class Reseller extends BusinessEntity{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID", unique = true, nullable = false)
-	long resellerID;
+	int resellerID;
 	
 	@Column(name = "NAME")
 	String name;
@@ -50,10 +49,10 @@ public class Reseller extends BusinessEntity{
 	@Transient
 	List<Area> areas;
 	
-	public long getResellerID() {
+	public int getResellerID() {
 		return resellerID;
 	}
-	public void setResellerID(long resellerID) {
+	public void setResellerID(int resellerID) {
 		this.resellerID = resellerID;
 	}
 	public String getName() {

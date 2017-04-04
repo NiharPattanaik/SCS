@@ -4,7 +4,7 @@
 <html lang="en">
 
 <head>
-<title>Create User</title>
+<title>Create Beat</title>
 <!-- Bootstrap Core CSS -->
 <link
 	href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css"
@@ -78,28 +78,23 @@ legend {
 	<div class="container">
 		<!-- Links -->
 		<div class="row pull-right side_nav_btns">
-			<a href="<%=request.getContextPath()%>/resellerWeb/13">Profile</a> 
-			<a href="<%=request.getContextPath()%>/customerWeb/list/13">Customers</a>
-			<a href="<%=request.getContextPath()%>/userWeb/list/13">Users</a>
-			<a href="<%=request.getContextPath()%>/role/list">Roles</a>
-			<a href="<%=request.getContextPath()%>/areaWeb/list/13">Areas</a>
-			<a href="<%=request.getContextPath()%>/beatWeb/list/13">Beats</a> 
+			<a href="<%=request.getContextPath()%>/resellerWeb/13">Profile</a> <a
+				href="<%=request.getContextPath()%>/customerWeb/list/13">Customers</a>
+			<a href="<%=request.getContextPath()%>/userWeb/list/13">Users</a> <a
+				href="<%=request.getContextPath()%>/role/list">Roles</a> <a
+				href="<%=request.getContextPath()%>/areaWeb/list/13">Areas</a> <a
+				href="<%=request.getContextPath()%>/beatWeb/list/13">Beats</a>
 		</div>
 		<div class="row top-height">
 			<div class="col-md-8 ">
-				<h2>Add New User</h2>
-				<form:form modelAttribute="user" method="post"
-					action="/crm/userWeb/save">
+				<h2>Add New Beat</h2>
+				<form:form modelAttribute="beat" method="post"
+					action="/crm/beatWeb/save">
 					<fieldset>
-						<legend>User Details</legend>
+						<legend>Beat Details</legend>
 						<div class="form-group">
-							<label>First Name</label>
-							<form:input name="firstName" cssClass="form-control" path="firstName" />
-						</div>
-						<div class="form-group">
-							<label>Last Name</label>
-							<form:input name="lastName" cssClass="form-control"
-								path="lastName" />
+							<label>Beat Name</label>
+							<form:input name="name" cssClass="form-control" path="name" />
 						</div>
 						<div class="form-group">
 							<label>Description</label>
@@ -107,42 +102,32 @@ legend {
 								path="description" />
 						</div>
 						<div class="form-group">
-							<label>Email ID</label>
-							<form:input name="emailID" cssClass="form-control"
-								path="emailID" />
-						</div>
-						<div class="form-group">
-							<label>Mobile Number</label>
-							<form:input name="mobileNo" cssClass="form-control"
-								path="mobileNo" />
-						</div>
-					</fieldset>
-					
-					<fieldset>
-						<legend>Login Details</legend>
-						<div class="form-group">
-							<label>User Name</label>
-							<form:input name="userName" cssClass="form-control" path="userName" />
-						</div>
-						<div class="form-group">
-							<label>Password</label>
-							<form:input name="password" cssClass="form-control"
-								path="password" />
-						</div>
-					</fieldset>
-					
-					<fieldset>
-						<legend>Role Details</legend>
-						<div class="form-group">
-							<label>Roles</label>
-							<form:select path="roleIDs" cssClass="form-control" multiple="true">
+							<label>Coverage Schedule</label>
+							<form:select path="coverageSchedule" cssClass="form-control">
 								<form:option value="-1" label="--- Select ---" />
-								<form:options items="${roles}" itemValue="roleID"
-									itemLabel="roleName" />
+								<form:option value="Daily" label="Daily" />
+								<form:option value="Weekly" label="Weekly" />
+								<form:option value="Fortnightly" label="Fortnightly" />
+								<form:option value="Monthly" label="Monthly" />
+								<form:option value="Other" label="Other" />
+							</form:select>
+						</div>
+						<div class="form-group">
+							<label>Distance</label>
+							<form:input name="distance" cssClass="form-control" path="distance" />
+						</div>
+					</fieldset>
+					<fieldset>
+						<legend>Areas Covered</legend>
+						<div class="form-group">
+							<label>Areas</label>
+							<form:select path="areas" cssClass="form-control" multiple="true">
+								<form:option value="-1" label="--- Select ---" />
+								<form:options items="${areas}" itemValue="areaID"
+									itemLabel="name" />
 							</form:select>
 						</div>
 					</fieldset>
-					<form:hidden path="status" name="status" value="1"/>
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</div>

@@ -74,7 +74,6 @@ legend {
 	<div class="container">
 		<!-- Links -->
 		<div class="row pull-right side_nav_btns">
-		<div class="row pull-right side_nav_btns">
 			<a href="<%=request.getContextPath()%>/resellerWeb/13">Profile</a> 
 			<a href="<%=request.getContextPath()%>/customerWeb/list/13">Customers</a>
 			<a href="<%=request.getContextPath()%>/userWeb/list/13">Users</a>
@@ -92,6 +91,9 @@ legend {
 						<button type="submit" class="btn btn-primary"
 							onclick="location.href='<%=request.getContextPath()%>/customerWeb/editCustomerForm/${customer.customerID}';">
 							Modify Customer</button>
+						<button type="submit" class="btn btn-primary"
+							onclick="location.href='<%=request.getContextPath()%>/customerWeb/${customer.customerID}';">
+							Delete Customer</button>
 					</div>
 				</div>
 				<fieldset>
@@ -181,7 +183,8 @@ legend {
 				<fieldset>
 					<legend>Sales Activity</legend>
 					<div class="form-group">
-						<label>Sales Executive Name :</label> <span>${customer.salesExec.name}</span>
+						<label>Sales Executive Name :</label> 
+						<span>${customer.salesExecName}</span>
 					</div>
 					<div class="form-group">
 						<fmt:formatDate value="${ customer.visitDate }" type="date"

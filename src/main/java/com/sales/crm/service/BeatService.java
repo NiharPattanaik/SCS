@@ -14,7 +14,7 @@ public class BeatService {
 	@Autowired
 	private BeatDAO beatDAO;
 	
-	public Beat getBeat(long beatID){
+	public Beat getBeat(int beatID){
 		return beatDAO.get(beatID);
 	}
 	
@@ -26,11 +26,11 @@ public class BeatService {
 		beatDAO.update(beat);
 	}
 	
-	public void deleteBeat(long beatID){
+	public void deleteBeat(int beatID){
 		beatDAO.delete(beatID);
 	}
 	
-	public List<Beat> getResellerBeats(long resellerID){
+	public List<Beat> getResellerBeats(int resellerID){
 		return beatDAO.getResellerBeats(resellerID);
 	}
 }

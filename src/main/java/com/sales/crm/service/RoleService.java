@@ -14,7 +14,7 @@ public class RoleService {
 	@Autowired
 	private RoleDAO roleDAO;
 	
-	public Role getRole(long roleID){
+	public Role getRole(int roleID){
 		return roleDAO.get(roleID);
 	}
 	
@@ -26,7 +26,7 @@ public class RoleService {
 		roleDAO.update(role);
 	}
 	
-	public void deleteRole(long roleID){
+	public void deleteRole(int roleID){
 		roleDAO.delete(roleID);
 	}
 	

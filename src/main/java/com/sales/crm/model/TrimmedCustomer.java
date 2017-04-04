@@ -2,12 +2,12 @@ package com.sales.crm.model;
 
 public class TrimmedCustomer {
 
-	long customerID;
+	int customerID;
 	String customerName;
-	public long getCustomerID() {
+	public int getCustomerID() {
 		return customerID;
 	}
-	public void setCustomerID(long customerID) {
+	public void setCustomerID(int customerID) {
 		this.customerID = customerID;
 	}
 	public String getCustomerName() {

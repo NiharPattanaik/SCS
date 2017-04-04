@@ -15,7 +15,7 @@ public class CustomerService {
 	@Autowired
 	private CustomerDAO customerDAO;
 	
-	public Customer getCustomer(long customerID){
+	public Customer getCustomer(int customerID){
 		return customerDAO.get(customerID);
 	}
 	
@@ -27,15 +27,15 @@ public class CustomerService {
 		customerDAO.update(customer);
 	}
 	
-	public void deleteCustomer(long customerID){
+	public void deleteCustomer(int customerID){
 		customerDAO.delete(customerID);
 	}
 	
-	public List<Customer> getResellerCustomers(long resellerID){
+	public List<Customer> getResellerCustomers(int resellerID){
 		return customerDAO.getResellerCustomers(resellerID);
 	}
 	
-	public List<TrimmedCustomer> getResellerTrimmedCustomers(long resellerID) {
+	public List<TrimmedCustomer> getResellerTrimmedCustomers(int resellerID) {
 		return customerDAO.getResellerTrimmedCustomers(resellerID);
 	}
 }

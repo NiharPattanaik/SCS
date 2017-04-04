@@ -1,9 +1,11 @@
 package com.sales.crm.dao;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.sales.crm.model.Area;
+import com.sales.crm.model.Beat;
 
 @Repository("areaDAO")
 public class AreaDAOImpl implements AreaDAO {
@@ -43,7 +46,7 @@ public class AreaDAOImpl implements AreaDAO {
 	}
 
 	@Override
-	public Area get(long areaID) {
+	public Area get(int areaID) {
 
 		Session session = null;
 		Area area = null;
@@ -88,7 +91,7 @@ public class AreaDAOImpl implements AreaDAO {
 	}
 
 	@Override
-	public void delete(long areaID) {
+	public void delete(int areaID) {
 		Session session = null;
 		Transaction transaction = null;
 		try{
@@ -111,7 +114,7 @@ public class AreaDAOImpl implements AreaDAO {
 	}
 
 	@Override
-	public List<Area> getResellerAreas(long resellerID) {
+	public List<Area> getResellerAreas(int resellerID) {
 		Session session = null;
 		List<Area> areas = null; 
 		try{
@@ -127,6 +130,39 @@ public class AreaDAOImpl implements AreaDAO {
 			}
 		}
 		return areas;
+	}
+
+	@Override
+	public List<Area> getBeatAreas(int beatID) {
+
+		Session session = null;
+		List<Area> areaList = new ArrayList<Area>();
+		try {
+			session = sessionFactory.openSession();
+			//Get Areas
+			SQLQuery areasQuery = session.createSQLQuery("SELECT b.BEAT_ID, a.* FROM AREA A, BEAT_AREA b WHERE a.ID = b.AREA_ID AND b.BEAT_ID= ?");
+			areasQuery.setParameter(0, beatID);
+			List areas = areasQuery.list();
+			for (Object obj : areas) {
+				Object[] objs = (Object[]) obj;
+				Area area = new Area();
+				area.setAreaID(Integer.valueOf(String.valueOf(objs[1])));
+				area.setResellerID(Integer.valueOf(String.valueOf(objs[2])));
+				area.setName(String.valueOf(objs[3]));
+				area.setDescription(String.valueOf(objs[4]));
+				area.setWordNo(String.valueOf(objs[5]));
+				area.setPinCode(String.valueOf(objs[6]));
+				areaList.add(area);
+			}
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+		return areaList;
+
 	}
 
 }

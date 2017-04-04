@@ -23,7 +23,7 @@ public class SalesExecWebController {
 	SalesExecService salesExecService;
 	
 	@GetMapping(value="/{salesExecID}")
-	public ModelAndView get(@PathVariable long salesExecID){
+	public ModelAndView get(@PathVariable int salesExecID){
 		SalesExec salesExec = salesExecService.getSalesExec(salesExecID);
 		return new ModelAndView("/salesExec_details", "salesExec", salesExec);
 		
@@ -35,7 +35,7 @@ public class SalesExecWebController {
 	}
 	
 	@RequestMapping(value="/editSalesExecForm/{salesExecID}", method = RequestMethod.GET)  
-	public ModelAndView editSalesExecForm(@PathVariable long salesExecID){
+	public ModelAndView editSalesExecForm(@PathVariable int salesExecID){
 		SalesExec salesExec = salesExecService.getSalesExec(salesExecID);
 		return new ModelAndView("/edit_salesExec", "salesExec", salesExec);
 	}
@@ -55,7 +55,7 @@ public class SalesExecWebController {
 	}
 	
 	@GetMapping(value="/list/{resellerID}")
-	public ModelAndView list(@PathVariable long resellerID){
+	public ModelAndView list(@PathVariable int resellerID){
 		List<SalesExec> salesExecs = salesExecService.getResellerSalesExecs(resellerID);
 		return new ModelAndView("/salesExecs_list","salesExecs", salesExecs);  
 	}

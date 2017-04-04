@@ -33,17 +33,14 @@ private static final long serialVersionUID = 0l;
 	@Column(name = "DESCRIPTION")
 	private String description;
 	
-	@Column(name = "AREA_ID")
-	private int areaID;
-	
 	@Column(name = "COVERAGE_SCHEDULE")
-	private int coverageSchedule;
+	private String coverageSchedule;
 	
 	@Column(name = "DISTANCE")
 	private int distance;
 
 	@Column(name = "RESELLER_ID")
-	private long resellerID;
+	private int resellerID;
 	
 	@Transient
 	private List<Area> areas;
@@ -72,19 +69,12 @@ private static final long serialVersionUID = 0l;
 		this.description = description;
 	}
 
-	public int getAreaID() {
-		return areaID;
-	}
-
-	public void setAreaID(int areaID) {
-		this.areaID = areaID;
-	}
-
-	public int getCoverageSchedule() {
+	
+	public String getCoverageSchedule() {
 		return coverageSchedule;
 	}
 
-	public void setCoverageSchedule(int coverageSchedule) {
+	public void setCoverageSchedule(String coverageSchedule) {
 		this.coverageSchedule = coverageSchedule;
 	}
 
@@ -96,11 +86,11 @@ private static final long serialVersionUID = 0l;
 		this.distance = distance;
 	}
 
-	public long getResellerID() {
+	public int getResellerID() {
 		return resellerID;
 	}
 
-	public void setResellerID(long resellerID) {
+	public void setResellerID(int resellerID) {
 		this.resellerID = resellerID;
 	}
 

@@ -41,7 +41,7 @@ public class RoleDAOImpl implements RoleDAO {
 	}
 
 	@Override
-	public Role get(long roleID) {
+	public Role get(int roleID) {
 
 		Session session = null;
 		Role role = null;
@@ -86,7 +86,7 @@ public class RoleDAOImpl implements RoleDAO {
 	}
 
 	@Override
-	public void delete(long roleID) {
+	public void delete(int roleID) {
 		Session session = null;
 		Transaction transaction = null;
 		try{

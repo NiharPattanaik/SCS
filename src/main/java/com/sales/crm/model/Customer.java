@@ -14,9 +14,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "CUSTOMER")
@@ -31,10 +32,10 @@ public class Customer extends BusinessEntity{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID", unique = true, nullable = false)
-	long customerID;
+	int customerID;
 	
 	@Column(name = "RESELLER_ID")
-	long resellerID;
+	int resellerID;
 	
 	@Column(name = "NAME")
 	String name;
@@ -48,27 +49,22 @@ public class Customer extends BusinessEntity{
 	@OneToMany(orphanRemoval=true, cascade=CascadeType.ALL, fetch=FetchType.EAGER)
 	List<Address> address;
 	
-	@ManyToOne(cascade=CascadeType.ALL, fetch=FetchType.EAGER)
-	@JoinTable(name="SALES_EXEC_CUSTOMER", 
-	    joinColumns={@JoinColumn(name="CUSTOMER_ID")},
-	    inverseJoinColumns={@JoinColumn(name="SALES_EXEC_ID")})
-	SalesExec salesExec;
-	//@Transient
-	//Long salesExecID;
+	@Transient
+	int salesExecID;
 	
-	//@Transient
-	//String salesExecName;
+	@Transient
+	String salesExecName;
 	
-	public long getCustomerID() {
+	public int getCustomerID() {
 		return customerID;
 	}
-	public void setCustomerID(long customerID) {
+	public void setCustomerID(int customerID) {
 		this.customerID = customerID;
 	}
-	public long getResellerID() {
+	public int getResellerID() {
 		return resellerID;
 	}
-	public void setResellerID(long resellerID) {
+	public void setResellerID(int resellerID) {
 		this.resellerID = resellerID;
 	}
 	public String getName() {
@@ -95,20 +91,10 @@ public class Customer extends BusinessEntity{
 	public void setAddress(List<Address> address) {
 		this.address = address;
 	}
-	public SalesExec getSalesExec() {
-		return salesExec;
-	}
-	public void setSalesExec(SalesExec salesExec) {
-		this.salesExec = salesExec;
-	}
-	
-	
-	
-	/**
-	public Long getSalesExecID() {
+	public int getSalesExecID() {
 		return salesExecID;
 	}
-	public void setSalesExecID(Long salesExecID) {
+	public void setSalesExecID(int salesExecID) {
 		this.salesExecID = salesExecID;
 	}
 	public String getSalesExecName() {
@@ -118,7 +104,4 @@ public class Customer extends BusinessEntity{
 		this.salesExecName = salesExecName;
 	}
 	
-	**/
-	
-
 }

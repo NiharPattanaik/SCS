@@ -31,14 +31,14 @@ public class ResellerWebController {
 	}
 	
 	@GetMapping(value="/{resellerID}")
-	public ModelAndView get(@PathVariable long resellerID){
+	public ModelAndView get(@PathVariable int resellerID){
 		Reseller reseller = resellerService.getReseller(resellerID);
 		return new ModelAndView("/reseller_details", "reseller", reseller);
 		
 	}
 	
 	@RequestMapping(value="/editResellerForm/{resellerID}", method = RequestMethod.GET)  
-	public ModelAndView editCustomerForm(@PathVariable long resellerID){
+	public ModelAndView editCustomerForm(@PathVariable int resellerID){
 		Reseller reseller = resellerService.getReseller(resellerID);
 		return new ModelAndView("/edit_reseller", "reseller", reseller);
 	}
@@ -48,7 +48,7 @@ public class ResellerWebController {
 		resellerService.updateReseller(reseller);
 		return get(reseller.getResellerID());
 	}	
-	public void delete(@PathVariable long resellerID){
+	public void delete(@PathVariable int resellerID){
 		resellerService.deleteReseller(resellerID);
 	}
 	

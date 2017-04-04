@@ -4,7 +4,7 @@
 <html lang="en">
 
 <head>
-<title>Create User</title>
+<title>Edit User</title>
 <!-- Bootstrap Core CSS -->
 <link
 	href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css"
@@ -78,71 +78,69 @@ legend {
 	<div class="container">
 		<!-- Links -->
 		<div class="row pull-right side_nav_btns">
-			<a href="<%=request.getContextPath()%>/resellerWeb/13">Profile</a> 
-			<a href="<%=request.getContextPath()%>/customerWeb/list/13">Customers</a>
-			<a href="<%=request.getContextPath()%>/userWeb/list/13">Users</a>
-			<a href="<%=request.getContextPath()%>/role/list">Roles</a>
-			<a href="<%=request.getContextPath()%>/areaWeb/list/13">Areas</a>
-			<a href="<%=request.getContextPath()%>/beatWeb/list/13">Beats</a> 
+			<a href="<%=request.getContextPath()%>/resellerWeb/13">Profile</a> <a
+				href="<%=request.getContextPath()%>/customerWeb/list/13">Customers</a>
+			<a href="<%=request.getContextPath()%>/userWeb/list/13">Users</a> <a
+				href="<%=request.getContextPath()%>/role/list">Roles</a> <a
+				href="<%=request.getContextPath()%>/areaWeb/list/13">Areas</a> <a
+				href="<%=request.getContextPath()%>/beatWeb/list/13">Beats</a>
 		</div>
 		<div class="row top-height">
 			<div class="col-md-8 ">
-				<h2>Add New User</h2>
+				<h2>Edit User</h2>
 				<form:form modelAttribute="user" method="post"
-					action="/crm/userWeb/save">
+					action="/crm/userWeb/update">
 					<fieldset>
 						<legend>User Details</legend>
 						<div class="form-group">
 							<label>First Name</label>
-							<form:input name="firstName" cssClass="form-control" path="firstName" />
+							<form:input name="firstName" cssClass="form-control"
+								path="firstName" value="${ user.firstName }" />
 						</div>
 						<div class="form-group">
 							<label>Last Name</label>
 							<form:input name="lastName" cssClass="form-control"
-								path="lastName" />
+								path="lastName" value="${ user.lastName }" />
 						</div>
 						<div class="form-group">
 							<label>Description</label>
 							<form:input name="description" cssClass="form-control"
-								path="description" />
+								path="description" value="${ user.description }" />
 						</div>
 						<div class="form-group">
 							<label>Email ID</label>
-							<form:input name="emailID" cssClass="form-control"
-								path="emailID" />
+							<form:input name="emailID" cssClass="form-control" path="emailID"
+								value="${ user.emailID }" />
 						</div>
 						<div class="form-group">
 							<label>Mobile Number</label>
 							<form:input name="mobileNo" cssClass="form-control"
-								path="mobileNo" />
+								path="mobileNo" value="${ user.mobileNo }" />
 						</div>
 					</fieldset>
-					
+
 					<fieldset>
 						<legend>Login Details</legend>
 						<div class="form-group">
 							<label>User Name</label>
-							<form:input name="userName" cssClass="form-control" path="userName" />
-						</div>
-						<div class="form-group">
-							<label>Password</label>
-							<form:input name="password" cssClass="form-control"
-								path="password" />
+							<form:input name="userName" cssClass="form-control"
+								path="userName" value="${ user.userName }" />
 						</div>
 					</fieldset>
-					
+
 					<fieldset>
 						<legend>Role Details</legend>
 						<div class="form-group">
 							<label>Roles</label>
-							<form:select path="roleIDs" cssClass="form-control" multiple="true">
-								<form:option value="-1" label="--- Select ---" />
+							<form:select path="roleIDs" cssClass="form-control"
+								multiple="true">
 								<form:options items="${roles}" itemValue="roleID"
-									itemLabel="roleName" />
+									itemLabel="description" />
 							</form:select>
 						</div>
 					</fieldset>
-					<form:hidden path="status" name="status" value="1"/>
+					<form:hidden path="status" name="status" value="1" />
+					<form:hidden path="userID" name="userID" value="${ user.userID }" />
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</div>

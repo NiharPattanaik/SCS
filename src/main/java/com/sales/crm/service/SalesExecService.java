@@ -14,7 +14,7 @@ public class SalesExecService {
 	@Autowired
 	private SalesExecDAO salesExecDAO;
 	
-	public SalesExec getSalesExec(long salesExecID){
+	public SalesExec getSalesExec(int salesExecID){
 		return salesExecDAO.get(salesExecID);
 	}
 	
@@ -26,11 +26,11 @@ public class SalesExecService {
 		salesExecDAO.update(salesExec);
 	}
 	
-	public void deleteSalesExec(long salesExecID){
+	public void deleteSalesExec(int salesExecID){
 		salesExecDAO.delete(salesExecID);
 	}
 	
-	public List<SalesExec> getResellerSalesExecs(long resellerID){
+	public List<SalesExec> getResellerSalesExecs(int resellerID){
 		return salesExecDAO.getResellerSalesExecs(resellerID);
 	}
 }

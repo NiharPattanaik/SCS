@@ -34,10 +34,10 @@ private static final long serialVersionUID = 0l;
 	private String wordNo;
 	
 	@Column(name = "PIN_CODE")
-	private String pinNo;
+	private String pinCode;
 	
 	@Column(name = "RESELLER_ID")
-	private long resellerID;
+	private int resellerID;
 
 	public int getAreaID() {
 		return areaID;
@@ -71,19 +71,19 @@ private static final long serialVersionUID = 0l;
 		this.wordNo = wordNo;
 	}
 
-	public String getPinNo() {
-		return pinNo;
+	public String getPinCode() {
+		return pinCode;
 	}
 
-	public void setPinNo(String pinNo) {
-		this.pinNo = pinNo;
+	public void setPinCode(String pinCode) {
+		this.pinCode = pinCode;
 	}
 
-	public long getResellerID() {
+	public int getResellerID() {
 		return resellerID;
 	}
 
-	public void setResellerID(long resellerID) {
+	public void setResellerID(int resellerID) {
 		this.resellerID = resellerID;
 	}
 	

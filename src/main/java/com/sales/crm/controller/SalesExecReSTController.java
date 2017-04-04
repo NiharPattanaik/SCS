@@ -14,9 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sales.crm.model.Customer;
 import com.sales.crm.model.SalesExec;
-import com.sales.crm.service.CustomerService;
 import com.sales.crm.service.SalesExecService;
 
 @RestController
@@ -27,7 +25,7 @@ public class SalesExecReSTController {
 	SalesExecService salesExecService;
 	
 	@GetMapping(value="/{salesExecID}")
-	public SalesExec get(@PathVariable long salesExecID){
+	public SalesExec get(@PathVariable int salesExecID){
 		return salesExecService.getSalesExec(salesExecID);
 	}
 	
@@ -44,12 +42,12 @@ public class SalesExecReSTController {
 	}
 	
 	@DeleteMapping(value="/{salesExecID}")
-	public void delete(@PathVariable long salesExecID){
+	public void delete(@PathVariable int salesExecID){
 		salesExecService.deleteSalesExec(salesExecID);
 	}
 	
 	@GetMapping(value="/list/{resellerID}")
-	public List<SalesExec> list(@PathVariable long resellerID){
+	public List<SalesExec> list(@PathVariable int resellerID){
 		return salesExecService.getResellerSalesExecs(resellerID);
 	}
 }

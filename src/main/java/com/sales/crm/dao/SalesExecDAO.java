@@ -8,12 +8,12 @@ public interface SalesExecDAO {
 	
 	void create(SalesExec salesExec);
 	
-	SalesExec get(long salesExecID);
+	SalesExec get(int salesExecID);
 	
 	void update(SalesExec salesExec);
 	
-	void delete(long salesExecID);
+	void delete(int salesExecID);
 	
-	List<SalesExec> getResellerSalesExecs(long resellerID);
+	List<SalesExec> getResellerSalesExecs(int resellerID);
 
 }

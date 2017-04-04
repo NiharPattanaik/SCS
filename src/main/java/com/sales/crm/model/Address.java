@@ -22,7 +22,7 @@ public class Address extends BusinessEntity{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID", unique = true, nullable = false)
-	long id;
+	int id;
 	
 	@Column(name = "ADDRESS_LINE1")
 	String addressLine1;
@@ -120,10 +120,10 @@ public class Address extends BusinessEntity{
 	public void setAddrressType(int addrressType) {
 		this.addrressType = addrressType;
 	}
-	public long getId() {
+	public int getId() {
 		return id;
 	}
-	public void setId(long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 	public String getMobileNumberPrimary() {

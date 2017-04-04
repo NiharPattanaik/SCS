@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>    
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>    
+<%@ page import="com.sales.crm.model.Role" %>
 <html lang="en">
 
 <head>
-    <title>Customers</title>
+    <title>Users</title>
     <!-- Bootstrap Core CSS -->
  <link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet">
  
@@ -72,7 +73,7 @@
         <div class="row top-height">
         	<div class="row customer_list">
         		<div class="col-md-8">
-            		<h2>Customers List</h2>   
+            		<h2>Users List</h2>   
             	</div>
 	        	<div class="col-md-4 add_customer">
 						<button type="submit" class="btn btn-primary" onclick="location.href='<%=request.getContextPath()%>/userWeb/createUserForm';">Add New User</button>
@@ -87,6 +88,7 @@
                         <th>Last Name</th>
                         <th>EMail ID</th>
                         <th>Mobile No</th>
+                        <th>Role</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -99,8 +101,26 @@
                         <td>${user.lastName}</td>
                         <td>${user.emailID}</td>
                         <td>${user.mobileNo}</td>
-                        <td>${user.status}</td>
-                    </tr>
+                        <% String values=""; %>
+						<c:forEach var="role" items="${user.roles}">
+  								<%
+  									if(values.isEmpty()){
+  										if((Role)pageContext.getAttribute("role") != null  && ((Role)pageContext.getAttribute("role")).getDescription() != null){
+  											values = values+ ((Role)pageContext.getAttribute("role")).getDescription();
+  										}
+  									}else{
+  										values = values + " ,";
+  										if((Role)pageContext.getAttribute("role") != null  && ((Role)pageContext.getAttribute("role")).getDescription() != null){
+  											values = values+ ((Role)pageContext.getAttribute("role")).getDescription();
+  										}
+  									}
+  								%>
+						</c:forEach>
+						<td><%= values %></td>
+                        <c:if test="${user.status == 1}">
+   							<td>Active</td>
+						</c:if>
+                     </tr>
                     </c:forEach>
                 </tbody>
             </table>

@@ -14,7 +14,7 @@ public class UserService {
 	@Autowired
 	private UserDAO userDAO;
 	
-	public User getUser(long userID){
+	public User getUser(int userID){
 		return userDAO.get(userID);
 	}
 	
@@ -26,11 +26,15 @@ public class UserService {
 		userDAO.update(user);
 	}
 	
-	public void deleteUser(long userID){
+	public void deleteUser(int userID){
 		userDAO.delete(userID);
 	}
 	
-	public List<User> getResellerUsers(long userID){
+	public List<User> getResellerUsers(int userID){
 		return userDAO.getResellerUsers(userID);
+	}
+	
+	public List<User> getSalesExecutives(int resellerID){
+		return userDAO.getUserByRole(resellerID, 2);
 	}
 }

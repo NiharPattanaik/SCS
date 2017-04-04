@@ -1,23 +1,18 @@
+<%@page import="com.sales.crm.model.Role"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<%@taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ page import="com.sales.crm.model.Role" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <html lang="en">
 
 <head>
-<title>Create User</title>
+<title>User Details</title>
 <!-- Bootstrap Core CSS -->
 <link
 	href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css"
 	rel="stylesheet">
-<link
-	href="<%=request.getContextPath()%>/resources/css/bootstrap-datepicker.css"
-	rel="stylesheet">
-<script
-	src="<%=request.getContextPath()%>/resources/js/jquery-1.12.4.min.js"></script>
-<script
-	src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
-<script
-	src="<%=request.getContextPath()%>/resources/js/bootstrap-datepicker.js"></script>
 
 <style>
 .dpHeaderWrap {
@@ -44,13 +39,22 @@ legend {
 	border-bottom: 0px !important;
 }
 
-.side_nav_btns {
-	margin-top: 10px;
-}
-
 }
 .top-height {
 	margin-top: 2%;
+}
+
+.customer_list {
+	margin-bottom: 20px;
+}
+
+.add_customer {
+	text-align: right;
+	margin-top: 31px;
+}
+
+.side_nav_btns {
+	margin-top: 10px;
 }
 
 .side_nav_btns a {
@@ -60,11 +64,6 @@ legend {
 	border-radius: 12px;
 	color: #ffffff;
 	margin-top: 12px;
-}
-
-.form_submit {
-	margin-top: 14px;
-	text-align: right;
 }
 </style>
 </head>
@@ -87,69 +86,79 @@ legend {
 		</div>
 		<div class="row top-height">
 			<div class="col-md-8 ">
-				<h2>Add New User</h2>
-				<form:form modelAttribute="user" method="post"
-					action="/crm/userWeb/save">
-					<fieldset>
+				<div class="row customer_list">
+					<div class="col-md-8">
+						<h2>User Details</h2>
+					</div>
+					<div class="col-md-4 add_customer">
+						<button type="submit" class="btn btn-primary"
+							onclick="location.href='<%=request.getContextPath()%>/userWeb/editUserForm/${user.userID}';">
+							Modify User</button>
+					</div>
+				</div>
+				<fieldset>
 						<legend>User Details</legend>
 						<div class="form-group">
-							<label>First Name</label>
-							<form:input name="firstName" cssClass="form-control" path="firstName" />
+							<label>First Name : </label>
+							<span>${ user.firstName }</span>
 						</div>
 						<div class="form-group">
-							<label>Last Name</label>
-							<form:input name="lastName" cssClass="form-control"
-								path="lastName" />
+							<label>Last Name : </label>
+							<span>${ user.lastName }</span>
 						</div>
 						<div class="form-group">
-							<label>Description</label>
-							<form:input name="description" cssClass="form-control"
-								path="description" />
+							<label>Description : </label>
+							<span>${ user.description }</span>
 						</div>
 						<div class="form-group">
-							<label>Email ID</label>
-							<form:input name="emailID" cssClass="form-control"
-								path="emailID" />
+							<label>Email ID : </label>
+							<span>${ user.emailID }</span>
 						</div>
 						<div class="form-group">
-							<label>Mobile Number</label>
-							<form:input name="mobileNo" cssClass="form-control"
-								path="mobileNo" />
+							<label>Mobile Number : </label>
+							<span>${ user.mobileNo }</span>
 						</div>
 					</fieldset>
 					
 					<fieldset>
 						<legend>Login Details</legend>
 						<div class="form-group">
-							<label>User Name</label>
-							<form:input name="userName" cssClass="form-control" path="userName" />
+							<label>User Name : </label>
+							<span>${ user.userName }</span>
 						</div>
 						<div class="form-group">
-							<label>Password</label>
-							<form:input name="password" cssClass="form-control"
-								path="password" />
+							<label>Status : </label>
+							<c:if test="${user.status == 1}">
+   							<span>Active</span>
+						</c:if>
 						</div>
 					</fieldset>
 					
 					<fieldset>
 						<legend>Role Details</legend>
 						<div class="form-group">
-							<label>Roles</label>
-							<form:select path="roleIDs" cssClass="form-control" multiple="true">
-								<form:option value="-1" label="--- Select ---" />
-								<form:options items="${roles}" itemValue="roleID"
-									itemLabel="roleName" />
-							</form:select>
+							<label>Roles : </label>
+							<% String values=""; %>
+							<c:forEach var="role" items="${user.roles}">
+   								<%
+   									if(values.isEmpty()){
+   										values = values+ ((Role)pageContext.getAttribute("role")).getDescription();
+   									}else{
+   										values = values + " ,";
+   										values = values+ ((Role)pageContext.getAttribute("role")).getDescription();
+   									}
+   								%>
+							</c:forEach>
+							<c:if test="${fn:length(user.roles) gt 0}">
+								<span><%= values %></span>
+							</c:if>
+							<c:if test="${fn:length(user.roles) eq 0}">
+								<span>None</span>
+							</c:if>
 						</div>
 					</fieldset>
-					<form:hidden path="status" name="status" value="1"/>
-					<div class="form_submit">
-						<button type="submit" class="btn btn-primary">Submit</button>
-					</div>
-				</form:form>
 			</div>
 		</div>
 	</div>
 </body>
-
 </html>

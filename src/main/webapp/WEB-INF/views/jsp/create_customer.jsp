@@ -232,10 +232,10 @@ legend {
 						<legend>Sales Activity</legend>
 						<div class="form-group">
 							<label>Sales Executive</label>
-							<form:select path="salesExec" cssClass="form-control">
+							<form:select path="salesExecID" cssClass="form-control">
 								<form:option value="-1" label="--- Select ---" />
-								<form:options items="${salesExecs}" itemValue="salesExecID"
-									itemLabel="name" />
+								<form:options items="${salesExecs}" itemValue="userID"
+									itemLabel="userName" />
 							</form:select>
 						</div>
 						<div class="form-group">

@@ -26,7 +26,7 @@ public class CustomerReSTController {
 	CustomerService customerService;
 	
 	@GetMapping(value="/{customerID}")
-	public Customer get(@PathVariable long customerID){
+	public Customer get(@PathVariable int customerID){
 		return customerService.getCustomer(customerID);
 	}
 	
@@ -43,17 +43,17 @@ public class CustomerReSTController {
 	}
 	
 	@DeleteMapping(value="/{customerID}")
-	public void delete(@PathVariable long customerID){
+	public void delete(@PathVariable int customerID){
 		customerService.deleteCustomer(customerID);
 	}
 	
 	@GetMapping(value="/list/{resellerID}")
-	public List<Customer> list(@PathVariable long resellerID){
+	public List<Customer> list(@PathVariable int resellerID){
 		return customerService.getResellerCustomers(resellerID);
 	}
 	
 	@GetMapping(value="/trimmedCustomers/{resellerID}")
-	public List<TrimmedCustomer> trimmedCustomerslist(@PathVariable long resellerID){
+	public List<TrimmedCustomer> trimmedCustomerslist(@PathVariable int resellerID){
 		return customerService.getResellerTrimmedCustomers(resellerID);
 	}
 }

@@ -14,7 +14,7 @@ public class AreaService {
 	@Autowired
 	private AreaDAO areaDAO;
 	
-	public Area getArea(long areaID){
+	public Area getArea(int areaID){
 		return areaDAO.get(areaID);
 	}
 	
@@ -26,11 +26,15 @@ public class AreaService {
 		areaDAO.update(area);
 	}
 	
-	public void deleteArea(long areaID){
+	public void deleteArea(int areaID){
 		areaDAO.delete(areaID);
 	}
 	
-	public List<Area> getResellerAreas(long resellerID){
+	public List<Area> getResellerAreas(int resellerID){
 		return areaDAO.getResellerAreas(resellerID);
+	}
+	
+	public List<Area> getBeatAreas(int beatID){
+		return areaDAO.getBeatAreas(beatID);
 	}
 }

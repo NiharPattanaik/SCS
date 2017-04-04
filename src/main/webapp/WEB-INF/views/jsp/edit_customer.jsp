@@ -5,7 +5,7 @@
 <html lang="en">
 
 <head>
-<title>Page one</title>
+<title>Edit Customer</title>
 <!-- Bootstrap Core CSS -->
 <link
 	href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css"
@@ -87,7 +87,7 @@ legend {
 		</div>
 		<div class="row top-height">
 			<div class="col-md-8 ">
-				<h2>Add New Customer</h2>
+				<h2>Edit Customer</h2>
 				<form:form modelAttribute="customer" method="post"
 					action="/crm/customerWeb/update">
 					<fieldset>
@@ -252,10 +252,10 @@ legend {
 						<legend>Sales Activity</legend>
 						<div class="form-group">
 							<label>Sales Executive</label>
-							<form:select path="salesExec.salesExecID" cssClass="form-control">
+							<form:select path="salesExecID" cssClass="form-control">
 								<form:option value="-1" label="--- Select ---" />
-								<form:options items="${salesExecs}" itemValue="salesExecID"
-									itemLabel="name" selected="${ customer.salesExec.name }" />
+								<form:options items="${salesExecs}" itemValue="userID"
+									itemLabel="userName" />	
 							</form:select>
 						</div>
 						<div class="form-group">

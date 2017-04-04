@@ -175,7 +175,7 @@ public class ResellerCustomerDataTest {
 		address.add(main_customer1Add);
 		//address.add(bill_customer1Add);
 		customer1.setAddress(address);
-		customer1.setSalesExec(salesExec);
+		//customer1.setSalesExec(salesExec);
 
 		customer2 = new Customer();
 		customer2.setName("cust2");
@@ -216,6 +216,12 @@ public class ResellerCustomerDataTest {
 		userService.createUser(user);
 	}
 	
+	@Test
+	public void getResellerUsers(){
+		List<User> users = userService.getResellerUsers(13);
+		System.out.println(users);
+	}
+	
 	
 	@Test
 	public void getTrimmedCustomers(){
@@ -242,7 +248,7 @@ public class ResellerCustomerDataTest {
 
 			// Insert
 			dao.create(reseller);
-			long id = reseller.getResellerID();
+			int id = reseller.getResellerID();
 
 			// Fetch
 			Reseller reseller1 = dao.get(id);
@@ -269,7 +275,7 @@ public class ResellerCustomerDataTest {
 			// Insert
 			session.beginTransaction();
 			session.save(customer1);
-			long id = customer1.getCustomerID();
+			int id = customer1.getCustomerID();
 
 			// Fetch
 			Customer customer11 = (Customer) session.load(Customer.class, id);
@@ -322,7 +328,7 @@ public class ResellerCustomerDataTest {
 			// Insert
 			session.beginTransaction();
 			session.save(main_resellerAdd);
-			long id = main_resellerAdd.getId();
+			int id = main_resellerAdd.getId();
 
 			// Fetch
 			Address address = (Address) session.load(Address.class, id);
@@ -362,7 +368,7 @@ public class ResellerCustomerDataTest {
 			reseller.setAddress(addresses);
 			//Save Reseller
 			session.save(reseller);
-			long id = reseller.getResellerID();
+			int id = reseller.getResellerID();
 
 			// Fetch Reseller
 			Reseller reseller = (Reseller) session.load(Reseller.class, id);
@@ -377,7 +383,7 @@ public class ResellerCustomerDataTest {
 				}
 			}
 			
-			long addressId = reseller.getAddress().get(0).getId();
+			int addressId = reseller.getAddress().get(0).getId();
 			
 			// Delete
 			session.delete(reseller);
@@ -405,7 +411,7 @@ public class ResellerCustomerDataTest {
 			session.beginTransaction();
 			//Save Reseller
 			session.save(reseller);
-			long resellerId = reseller.getResellerID();
+			int resellerId = reseller.getResellerID();
 			
 			customer1.setResellerID(resellerId);
 			customer2.setResellerID(resellerId);
@@ -418,7 +424,7 @@ public class ResellerCustomerDataTest {
 			
 			assertEquals(2, reseller1.getCustomers().size());
 			
-			long customerId = reseller1.getCustomers().get(0).getCustomerID();
+			int customerId = reseller1.getCustomers().get(0).getCustomerID();
 			
 			try {
 				session.load(Customer.class, customerId);

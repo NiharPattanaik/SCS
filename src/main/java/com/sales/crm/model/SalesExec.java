@@ -28,7 +28,7 @@ public class SalesExec extends BusinessEntity{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID", unique = true, nullable = false)
-	long salesExecID;
+	int salesExecID;
 	
 	@Column(name = "NAME")
 	String name;
@@ -37,20 +37,20 @@ public class SalesExec extends BusinessEntity{
 	String description;
 	
 	@Column(name = "RESELLER_ID")
-	long resellerID;
+	int resellerID;
 	
 	//@OneToMany(orphanRemoval=true, cascade=CascadeType.ALL, fetch=FetchType.EAGER)
 	//@OneToMany(fetch=FetchType.LAZY)
-	//@JoinTable(name="SALES_EXEC_CUSTOMER", 
+	//@JoinTable(name="CUSTOMER_SALES_EXEC", 
 	//    joinColumns={@JoinColumn(name="SALES_EXEC_ID")},
 	//    inverseJoinColumns={@JoinColumn(name="CUSTOMER_ID")}
 	//)
 	//List<Customer> customers;
 	
-	public long getSalesExecID() {
+	public int getSalesExecID() {
 		return salesExecID;
 	}
-	public void setSalesExecID(long salesExecID) {
+	public void setSalesExecID(int salesExecID) {
 		this.salesExecID = salesExecID;
 	}
 	public String getName() {
@@ -65,10 +65,10 @@ public class SalesExec extends BusinessEntity{
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public long getResellerID() {
+	public int getResellerID() {
 		return resellerID;
 	}
-	public void setResellerID(long resellerID) {
+	public void setResellerID(int resellerID) {
 		this.resellerID = resellerID;
 	}
 	

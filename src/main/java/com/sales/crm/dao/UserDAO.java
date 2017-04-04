@@ -8,13 +8,13 @@ public interface UserDAO {
 	
 	void create(User user);
 	
-	User get(long userID);
+	User get(int userID);
 	
 	void update(User user);
 	
-	void delete(long userID);
+	void delete(int userID);
 	
-	List<User> getResellerUsers(long resellerID);
+	List<User> getResellerUsers(int resellerID);
 	
-
+	List<User> getUserByRole(int resellerID, int roleID);
 }
