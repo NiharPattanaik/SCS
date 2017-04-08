@@ -19,7 +19,7 @@ import com.sales.crm.model.TrimmedCustomer;
 import com.sales.crm.service.CustomerService;
 
 @RestController
-@RequestMapping("/customer")
+@RequestMapping("/rest/customer")
 public class CustomerReSTController {
 
 	@Autowired

@@ -77,7 +77,7 @@ display:block;
 
 <h2 class="form_header">Login Form</h2>
 
-<form method="post" action="/crm/userWeb/login" modelAttribute="error">
+<form method="post" action="/crm/web/userWeb/login" modelAttribute="error">
   <div class="imgcontainer">
   	${error}"
   </div>

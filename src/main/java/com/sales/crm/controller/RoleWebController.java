@@ -17,7 +17,7 @@ import com.sales.crm.model.Role;
 import com.sales.crm.service.RoleService;
 
 @Controller
-@RequestMapping("/role")
+@RequestMapping("/web/role")
 public class RoleWebController {
 
 	@Autowired

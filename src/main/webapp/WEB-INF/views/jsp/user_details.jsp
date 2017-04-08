@@ -3,16 +3,18 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
-<%@ page import="com.sales.crm.model.Role" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ page import="com.sales.crm.model.Role"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <html lang="en">
 
 <head>
-<title>User Details</title>
-<!-- Bootstrap Core CSS -->
-<link
-	href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css"
-	rel="stylesheet">
+	<title>User Details</title>
+	<!-- Bootstrap Core CSS -->
+	<meta charset="utf-8">	
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
+	<script src="<%=request.getContextPath()%>/resources/js/jquery-3.2.0.min.js"></script>
+	<script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
 
 <style>
 .dpHeaderWrap {
@@ -75,88 +77,107 @@ legend {
 	</header>
 	<!-- Header -->
 	<div class="container">
-		<!-- Links -->
-		<div class="row pull-right side_nav_btns">
-			<a href="<%=request.getContextPath()%>/resellerWeb/13">Profile</a> 
-			<a href="<%=request.getContextPath()%>/customerWeb/list/13">Customers</a>
-			<a href="<%=request.getContextPath()%>/userWeb/list/13">Users</a>
-			<a href="<%=request.getContextPath()%>/role/list">Roles</a>
-			<a href="<%=request.getContextPath()%>/areaWeb/list/13">Areas</a>
-			<a href="<%=request.getContextPath()%>/beatWeb/list/13">Beats</a> 
+		<nav class="navbar navbar-inverse">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="#"></a>
+				</div>
+				<ul class="nav navbar-nav">
+					<li><a href="<%=request.getContextPath()%>/web/customerWeb/list/<%=Integer.valueOf(String.valueOf(session.getAttribute("resellerID")))%>">Customers</a></li>
+					<li><a href="<%=request.getContextPath()%>/web/supplierWeb/list/<%=Integer.valueOf(String.valueOf(session.getAttribute("resellerID")))%>">Suppliers</a></li>
+					<li><a href="<%=request.getContextPath()%>/web/areaWeb/list/<%=Integer.valueOf(String.valueOf(session.getAttribute("resellerID")))%>">Areas</a></li>
+					<li><a href="<%=request.getContextPath()%>/web/beatWeb/list/<%=Integer.valueOf(String.valueOf(session.getAttribute("resellerID")))%>">Beats</a></li>
+					<li class="dropdown">
+		        	<a class="dropdown-toggle" data-toggle="dropdown" href="#">Administration
+		        	<span class="caret"></span></a>
+		      			<ul class="dropdown-menu">
+		        			<li><a href="<%=request.getContextPath()%>/web/resellerWeb/<%=Integer.valueOf(String.valueOf(session.getAttribute("resellerID")))%>">Profile</a></li>
+		          			<li><a href="<%=request.getContextPath()%>/web/userWeb/list/<%=Integer.valueOf(String.valueOf(session.getAttribute("resellerID")))%>">Users</a></li>
+							<li><a href="<%=request.getContextPath()%>/web/role/list">Roles</a></li>
+							<li><a href="<%=request.getContextPath()%>/web/salesExecWeb/beatlist/<%=Integer.valueOf(String.valueOf(session.getAttribute("resellerID")))%>">Sales Executive-Beats</a></li>
+		          			<li><a href="<%=request.getContextPath()%>/web/beatWeb/beat-customers/list">Beat - Customer</a></li>
+		          			<li><a href="<%=request.getContextPath()%>/web/salesExecWeb/salesExecBeatsCustList">Scheduled Visit</a></li>
+		      			</ul>
+      				</li>
+				</ul>		
+				<ul class="nav navbar-nav navbar-right ">	
+					<li><a href="<%=request.getContextPath()%>/logout">logout</a></li>
+				</ul>
+			</div>
+		</nav>
+		<div class="row customer_list">
+			<div class="col-md-4">
+				<h2>User Details</h2>
+			</div>
+			<div class="col-md-4 add_customer">
+				<button type="submit" class="btn btn-primary"
+					onclick="location.href='<%=request.getContextPath()%>/web/userWeb/editUserForm/${user.userID}';">
+					Modify User</button>
+				
+				<button type="submit" class="btn btn-primary"
+					onclick="location.href='<%=request.getContextPath()%>/web/userWeb/delete/${user.userID}';">
+					Delete User</button>	
+			</div>
 		</div>
 		<div class="row top-height">
 			<div class="col-md-8 ">
-				<div class="row customer_list">
-					<div class="col-md-8">
-						<h2>User Details</h2>
-					</div>
-					<div class="col-md-4 add_customer">
-						<button type="submit" class="btn btn-primary"
-							onclick="location.href='<%=request.getContextPath()%>/userWeb/editUserForm/${user.userID}';">
-							Modify User</button>
-					</div>
-				</div>
 				<fieldset>
-						<legend>User Details</legend>
-						<div class="form-group">
-							<label>First Name : </label>
-							<span>${ user.firstName }</span>
-						</div>
-						<div class="form-group">
-							<label>Last Name : </label>
-							<span>${ user.lastName }</span>
-						</div>
-						<div class="form-group">
-							<label>Description : </label>
-							<span>${ user.description }</span>
-						</div>
-						<div class="form-group">
-							<label>Email ID : </label>
-							<span>${ user.emailID }</span>
-						</div>
-						<div class="form-group">
-							<label>Mobile Number : </label>
-							<span>${ user.mobileNo }</span>
-						</div>
-					</fieldset>
-					
-					<fieldset>
-						<legend>Login Details</legend>
-						<div class="form-group">
-							<label>User Name : </label>
-							<span>${ user.userName }</span>
-						</div>
-						<div class="form-group">
-							<label>Status : </label>
-							<c:if test="${user.status == 1}">
-   							<span>Active</span>
+					<legend>User Details</legend>
+					<div class="form-group">
+						<label>First Name : </label> <span>${ user.firstName }</span>
+					</div>
+					<div class="form-group">
+						<label>Last Name : </label> <span>${ user.lastName }</span>
+					</div>
+					<div class="form-group">
+						<label>Description : </label> <span>${ user.description }</span>
+					</div>
+					<div class="form-group">
+						<label>Email ID : </label> <span>${ user.emailID }</span>
+					</div>
+					<div class="form-group">
+						<label>Mobile Number : </label> <span>${ user.mobileNo }</span>
+					</div>
+				</fieldset>
+
+				<fieldset>
+					<legend>Login Details</legend>
+					<div class="form-group">
+						<label>User Name : </label> <span>${ user.userName }</span>
+					</div>
+					<div class="form-group">
+						<label>Status : </label>
+						<c:if test="${user.status == 1}">
+							<span>Active</span>
 						</c:if>
-						</div>
-					</fieldset>
-					
-					<fieldset>
-						<legend>Role Details</legend>
-						<div class="form-group">
-							<label>Roles : </label>
-							<% String values=""; %>
-							<c:forEach var="role" items="${user.roles}">
-   								<%
-   									if(values.isEmpty()){
-   										values = values+ ((Role)pageContext.getAttribute("role")).getDescription();
-   									}else{
-   										values = values + " ,";
-   										values = values+ ((Role)pageContext.getAttribute("role")).getDescription();
-   									}
-   								%>
-							</c:forEach>
-							<c:if test="${fn:length(user.roles) gt 0}">
-								<span><%= values %></span>
-							</c:if>
-							<c:if test="${fn:length(user.roles) eq 0}">
-								<span>None</span>
-							</c:if>
-						</div>
-					</fieldset>
+					</div>
+				</fieldset>
+
+				<fieldset>
+					<legend>Role Details</legend>
+					<div class="form-group">
+						<label>Roles : </label>
+						<%
+							String values = "";
+						%>
+						<c:forEach var="role" items="${user.roles}">
+							<%
+								if (values.isEmpty()) {
+										values = values + ((Role) pageContext.getAttribute("role")).getDescription();
+									} else {
+										values = values + " ,";
+										values = values + ((Role) pageContext.getAttribute("role")).getDescription();
+									}
+							%>
+						</c:forEach>
+						<c:if test="${fn:length(user.roles) gt 0}">
+							<span><%=values%></span>
+						</c:if>
+						<c:if test="${fn:length(user.roles) eq 0}">
+							<span>None</span>
+						</c:if>
+					</div>
+				</fieldset>
 			</div>
 		</div>
 	</div>

@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sales.crm.dao.UserDAO;
+import com.sales.crm.model.Reseller;
+import com.sales.crm.model.SalesExecutive;
 import com.sales.crm.model.User;
 
 @Service("userService")
@@ -16,6 +18,10 @@ public class UserService {
 	
 	public User getUser(int userID){
 		return userDAO.get(userID);
+	}
+	
+	public User getUser(String userName){
+		return userDAO.getUser(userName);
 	}
 	
 	public void createUser(User user){
@@ -34,7 +40,12 @@ public class UserService {
 		return userDAO.getResellerUsers(userID);
 	}
 	
-	public List<User> getSalesExecutives(int resellerID){
-		return userDAO.getUserByRole(resellerID, 2);
+	public Reseller getUserReseller(int userId){
+		return userDAO.getUserReseller(userId);
 	}
+	
+	public boolean validateUserCredential(String userName, String password){
+		return userDAO.validateUserCredential(userName, password);
+	}
+	
 }

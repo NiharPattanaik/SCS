@@ -1,20 +1,20 @@
 package com.sales.crm.controller;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.propertyeditors.CustomCollectionEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,13 +23,14 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.sales.crm.model.Customer;
 import com.sales.crm.model.Role;
+import com.sales.crm.model.SalesExecutive;
 import com.sales.crm.model.User;
 import com.sales.crm.service.CustomerService;
 import com.sales.crm.service.RoleService;
 import com.sales.crm.service.UserService;
 
 @Controller
-@RequestMapping("/userWeb")
+@RequestMapping("/web/userWeb")
 public class UserWebController {
 
 	@Autowired
@@ -40,6 +41,9 @@ public class UserWebController {
 	
 	@Autowired
 	RoleService roleService;
+	
+	@Autowired
+	HttpSession httpSession;
 	
 	@GetMapping(value="/{userID}")
 	public ModelAndView get(@PathVariable int userID){
@@ -61,6 +65,7 @@ public class UserWebController {
 	public ModelAndView editUserForm(@PathVariable int userID){
 		List<Role> roles = roleService.getRoles();
 		User user = userService.getUser(userID);
+		Set<Integer> rolesIDSet = new HashSet<Integer>();
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		modelMap.put("user", user);
 		modelMap.put("roles", roles);
@@ -69,6 +74,7 @@ public class UserWebController {
 	
 	@RequestMapping(value="/save",method = RequestMethod.POST)  
 	public ModelAndView create(@ModelAttribute("user") User user){
+		user.setResellerID(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
 		userService.createUser(user);
 		return list(user.getResellerID());
 	}
@@ -79,9 +85,11 @@ public class UserWebController {
 		return get(user.getUserID());
 	}
 	
-	@DeleteMapping(value="/{userID}")
-	public void delete(@PathVariable int userID){
+	@GetMapping(value="/delete/{userID}")
+	public ModelAndView delete(@PathVariable int userID){
 		userService.deleteUser(userID);
+		List<User> users = userService.getResellerUsers(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		return new ModelAndView("/users_list","users", users);  
 	}
 	
 	@GetMapping(value="/list/{resellerID}")
@@ -92,15 +100,35 @@ public class UserWebController {
 	
 	@RequestMapping(value="/login",method = RequestMethod.POST)  
 	public ModelAndView login(HttpServletRequest request, HttpServletResponse response){
-		if(request.getParameter("uname").equals("admin") &&
-				request.getParameter("psw").equals("admin")){
-			List<Customer> customers = customerService.getResellerCustomers(13);
-			return new ModelAndView("/customer_list","customers", customers); 
-		}else{
+		String userName = request.getParameter("uname");
+		//String password = request.getParameter("psw");
+		User user = userService.getUser(userName);
+		/**
+		if(!userService.validateUserCredential(userName, password)){
 			Map<String, Object> modelMap = new HashMap<String, Object>();
 			modelMap.put("msg", "Invalid user name or password.");
 			return new ModelAndView("/login", modelMap); 
+		}else if (!isAdminUser(user)){
+			Map<String, Object> modelMap = new HashMap<String, Object>();
+			modelMap.put("msg", "User <b>"+ userName +"</b> not having required previligaes to access the application");
+			return new ModelAndView("/login", modelMap); 
+		}else{ **/
+			httpSession.setAttribute("user", user);
+			httpSession.setAttribute("resellerID", user.getResellerID());
+			List<Customer> customers = customerService.getResellerCustomers(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+			return new ModelAndView("/customer_list","customers", customers); 
+		//}
+	}
+	
+	private boolean isAdminUser(User user){
+		List<Role> roles = user.getRoles();
+		for(Role role : roles){
+			if(role.getRoleID() == 1){
+				return true;
+			}
 		}
+		
+		return false;
 	}
 	
 	

@@ -2,29 +2,24 @@ package com.sales.crm;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import org.hibernate.Session;
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.sales.crm.dao.CustomerDAO;
 import com.sales.crm.dao.ResellerDAO;
-import com.sales.crm.dao.SalesExecDAO;
 import com.sales.crm.model.Address;
 import com.sales.crm.model.Customer;
 import com.sales.crm.model.Reseller;
-import com.sales.crm.model.SalesExec;
 import com.sales.crm.model.User;
 import com.sales.crm.service.CustomerService;
 import com.sales.crm.service.UserService;
@@ -46,14 +41,12 @@ public class ResellerCustomerDataTest {
 	static Address main_customer2Add;
 	static Address bill_customer2Add;
 	
-	static SalesExec salesExec;
-
+	
 	Session session;
 	
 	static ClassPathXmlApplicationContext context ;
 	static ResellerDAO dao;
 	static CustomerDAO customerDAO;
-	static SalesExecDAO salesExecDAO;
 	static CustomerService customerService;
 	static UserService userService;
 
@@ -63,7 +56,6 @@ public class ResellerCustomerDataTest {
 		try{
 			dao = (ResellerDAO) context.getBean("resellerDAO");
 			customerDAO = (CustomerDAO) context.getBean("customerDAO");
-			salesExecDAO = (SalesExecDAO)context.getBean("salesExecDAO");
 			customerService = (CustomerService)context.getBean("customerService");
 			userService = (UserService)context.getBean("userService");
 		}catch(Exception exception){
@@ -161,12 +153,7 @@ public class ResellerCustomerDataTest {
 		reseller.setDescription("Res_Des");
 		reseller.setDateCreated(new Date());
 		
-		salesExec = new SalesExec();
-		salesExec.setName("salesExec1");
-		salesExec.setDescription("salesExecDesc");
-		salesExec.setResellerID(13);
-
-		customer1 = new Customer();
+				customer1 = new Customer();
 		customer1.setName("cust1");
 		customer1.setDescription("cust1_desc");
 		customer1.setVisitDate(new Date());

@@ -34,7 +34,6 @@ public class CustomerDAOImpl implements CustomerDAO{
 			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
 			customer.setDateCreated(new Date());
-			customer.setResellerID(13);
 			for(Address address : customer.getAddress()){
 				address.setDateCreated(new Date());
 			}
@@ -133,6 +132,11 @@ public class CustomerDAOImpl implements CustomerDAO{
 			session = sessionFactory.openSession();
 			Customer customer = (Customer)session.get(Customer.class, customerID);
 			transaction = session.beginTransaction();
+			//Remove Customer_Sales_Executive Link
+			SQLQuery removeCustSalesExecLink = session.createSQLQuery(" DELETE FROM CUSTOMER_SALES_EXEC WHERE CUSTOMER_ID=?");
+			removeCustSalesExecLink.setParameter(0, customer.getCustomerID());
+			removeCustSalesExecLink.executeUpdate();
+			//Remove Customer
 			session.delete(customer);
 			transaction.commit();
 		}catch(Exception exception){

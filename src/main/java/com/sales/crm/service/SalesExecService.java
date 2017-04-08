@@ -6,31 +6,41 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sales.crm.dao.SalesExecDAO;
-import com.sales.crm.model.SalesExec;
+import com.sales.crm.model.Beat;
+import com.sales.crm.model.SalesExecBeatCustomer;
+import com.sales.crm.model.SalesExecutive;
 
 @Service("salesExecService")
 public class SalesExecService {
 	
 	@Autowired
-	private SalesExecDAO salesExecDAO;
+	SalesExecDAO salesExecDAO;
 	
-	public SalesExec getSalesExec(int salesExecID){
+	public SalesExecutive getSalesExecutive(int salesExecID){
 		return salesExecDAO.get(salesExecID);
 	}
-	
-	public void createSalesExec(SalesExec salesExec){
-		salesExecDAO.create(salesExec);
+
+	public List<SalesExecutive> getSalesExecutives(int resellerID){
+		return salesExecDAO.getSalesExecutives(resellerID);
 	}
 	
-	public void updateSalesExec(SalesExec salesExec){
-		salesExecDAO.update(salesExec);
+	public void assignBeats(final int salesExecID, final List<Integer> beatIDs){
+		salesExecDAO.assignBeats(salesExecID, beatIDs);
+	}
+
+	public void updateAssignedBeats(final int salesExecID, final List<Integer> beatIDs){
+		salesExecDAO.updateAssignedBeats(salesExecID, beatIDs);
 	}
 	
-	public void deleteSalesExec(int salesExecID){
-		salesExecDAO.delete(salesExecID);
+	public List<SalesExecutive> getSalesExecMapsBeatsCustomers(int resellerID){
+		return salesExecDAO.getSalesExecMapsBeatsCustomers(resellerID);
 	}
 	
-	public List<SalesExec> getResellerSalesExecs(int resellerID){
-		return salesExecDAO.getResellerSalesExecs(resellerID);
+	public List<Beat> getAssignedBeats(int salesExecID){
+		return salesExecDAO.getAssignedBeats(salesExecID);
+	}
+	
+	public void scheduleVistit(SalesExecBeatCustomer salesExecBeatCustomer){
+		salesExecDAO.scheduleVistit( salesExecBeatCustomer);
 	}
 }

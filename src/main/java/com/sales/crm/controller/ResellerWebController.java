@@ -13,7 +13,7 @@ import com.sales.crm.model.Reseller;
 import com.sales.crm.service.ResellerService;
 
 @Controller
-@RequestMapping("/resellerWeb")
+@RequestMapping("/web/resellerWeb")
 public class ResellerWebController {
 	
 	@Autowired

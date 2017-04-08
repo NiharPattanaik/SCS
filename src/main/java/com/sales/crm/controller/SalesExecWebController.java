@@ -1,62 +1,123 @@
 package com.sales.crm.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
+import org.springframework.beans.propertyeditors.CustomCollectionEditor;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.sales.crm.model.SalesExec;
+import com.sales.crm.model.Beat;
+import com.sales.crm.model.SalesExecBeatCustomer;
+import com.sales.crm.model.SalesExecutive;
+import com.sales.crm.model.TrimmedCustomer;
+import com.sales.crm.service.BeatService;
 import com.sales.crm.service.SalesExecService;
 
-@RestController
-@RequestMapping("/salesexecWeb")
+@Controller
+@RequestMapping("/web/salesExecWeb")
 public class SalesExecWebController {
-
+	
 	@Autowired
 	SalesExecService salesExecService;
 	
-	@GetMapping(value="/{salesExecID}")
-	public ModelAndView get(@PathVariable int salesExecID){
-		SalesExec salesExec = salesExecService.getSalesExec(salesExecID);
-		return new ModelAndView("/salesExec_details", "salesExec", salesExec);
-		
+	@Autowired
+	BeatService beatService;
+	
+	@Autowired
+	HttpSession httpSession;
+	
+	@GetMapping(value="/beatlist/{resellerID}")
+	public ModelAndView salesExecBeatsList(@PathVariable int resellerID){
+		List<SalesExecutive> salesExecs = salesExecService.getSalesExecutives(resellerID);
+		return new ModelAndView("/salesexec_beats_list","salesExecs", salesExecs);  
 	}
 	
-	@RequestMapping(value="/createSalesExecForm", method = RequestMethod.GET)  
-	public ModelAndView createSalesExecForm(Model model){
-		return new ModelAndView("/create_salesExec", "salesExec", new SalesExec());
+	
+	@GetMapping(value="/assignBeatForm") 
+	public ModelAndView assignBeatToSalesExecForm(){
+		Map<String, Object> modelMap = new HashMap<String, Object>();
+		List<SalesExecutive> salesExecs = salesExecService.getSalesExecutives(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		List<Beat> beats = beatService.getResellerBeats(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")))) ;
+		modelMap.put("salesExecs", salesExecs);
+		modelMap.put("beats", beats);
+		modelMap.put("salesExec", new SalesExecutive());
+		return new ModelAndView("/assign_beats", modelMap);
 	}
 	
-	@RequestMapping(value="/editSalesExecForm/{salesExecID}", method = RequestMethod.GET)  
-	public ModelAndView editSalesExecForm(@PathVariable int salesExecID){
-		SalesExec salesExec = salesExecService.getSalesExec(salesExecID);
-		return new ModelAndView("/edit_salesExec", "salesExec", salesExec);
+	@PostMapping(value="/assignBeat") 
+	public ModelAndView assignBeatToSalesExec(@ModelAttribute("salesExec") SalesExecutive salesExec){
+		salesExecService.assignBeats(salesExec.getUserID(),salesExec.getBeatIDLists());
+		return salesExecBeatsList(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
 	}
 	
-	@RequestMapping(value="/save",method = RequestMethod.POST)  
-	public ModelAndView create(@ModelAttribute("salesExec") SalesExec salesExec){
-		salesExec.setResellerID(13);
-		salesExecService.createSalesExec(salesExec);
-		List<SalesExec> salesExecs = salesExecService.getResellerSalesExecs(salesExec.getResellerID());
-		return new ModelAndView("/salesExecs_list","salesExecs", salesExecs); 
+	
+	@GetMapping(value="/assignBeatEditForm/{salesExecID}") 
+	public ModelAndView assignBeatToSalesExecEditForm(@PathVariable int salesExecID){
+		Map<String, Object> modelMap = new HashMap<String, Object>();
+		SalesExecutive salesExec = salesExecService.getSalesExecutive(salesExecID);
+		List<Beat> beats = beatService.getResellerBeats(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		modelMap.put("salesExec", salesExec);
+		modelMap.put("beats", beats);
+		return new ModelAndView("/edit_assigned_beats", modelMap);
 	}
 	
-	@RequestMapping(value="/update",method = RequestMethod.POST) 
-	public ModelAndView update(@ModelAttribute("salesExec") SalesExec salesExec){
-		salesExecService.updateSalesExec(salesExec);
-		return get(salesExec.getSalesExecID());
+	@PostMapping(value="/updateAssignedBeats") 
+	public ModelAndView updateAssignedBeat(@ModelAttribute("salesExec") SalesExecutive salesExec){
+		salesExecService.updateAssignedBeats(salesExec.getUserID(), salesExec.getBeatIDLists());
+		return salesExecBeatsList(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
 	}
 	
-	@GetMapping(value="/list/{resellerID}")
-	public ModelAndView list(@PathVariable int resellerID){
-		List<SalesExec> salesExecs = salesExecService.getResellerSalesExecs(resellerID);
-		return new ModelAndView("/salesExecs_list","salesExecs", salesExecs);  
+	@GetMapping(value="/salesExecBeatsCustList")
+	public ModelAndView getSalesExecBeatsCustomersList(){
+		List<SalesExecutive> salesExecs = salesExecService.getSalesExecMapsBeatsCustomers(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		Map<String, Object> modelMap = new HashMap<String, Object>();
+		modelMap.put("salesExecs", salesExecs);
+		modelMap.put("salesExecutive", new SalesExecutive());
+		return new ModelAndView("/salesexec_beats_customers_list", modelMap);
+	}
+	
+	@GetMapping(value="/salesExecScheduleForm")
+	public ModelAndView getSalesExecScheduleForm(){
+		List<SalesExecutive> salesExecs = salesExecService.getSalesExecutives(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		Map<String, Object> modelMap = new HashMap<String, Object>();
+		modelMap.put("salesExecs", salesExecs);
+		modelMap.put("salesExecBeatCustomer", new SalesExecBeatCustomer());
+		return new ModelAndView("/salesexec_schedule_visit", modelMap);
+	}
+	
+	@PostMapping(value="/scheduleVisit") 
+	public ModelAndView scheduleSalesExecVisit(@ModelAttribute("salesExecBeatCustomer") SalesExecBeatCustomer salesExecBeatCustomer){
+		salesExecService.scheduleVistit(salesExecBeatCustomer);
+		return getSalesExecBeatsCustomersList();
+	}
+	
+	@InitBinder
+	 public void initBinder(WebDataBinder  binder){
+	 binder.registerCustomEditor(List.class, "beats", new CustomCollectionEditor(List.class)
+	    {
+	      @Override
+	      protected Object convertElement(Object element)
+	      {
+	         Beat beat = new Beat();
+	         beat.setBeatID(Integer.valueOf(String.valueOf(element)));
+
+	       
+	        return beat;
+	      }
+
+
+	    }); 
 	}
 }

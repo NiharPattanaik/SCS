@@ -1,6 +1,7 @@
 package com.sales.crm.model;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
@@ -60,7 +61,7 @@ public class User extends BusinessEntity{
 	private List<Role> roles;
 	
 	@Transient
-	private List<Integer> roleIDs;
+	private Set<Integer> roleIDs;
 	
 	@Transient
 	private int resellerID;
@@ -153,11 +154,11 @@ public class User extends BusinessEntity{
 		this.resellerID = resellerID;
 	}
 
-	public List<Integer> getRoleIDs() {
+	public Set<Integer> getRoleIDs() {
 		return roleIDs;
 	}
 
-	public void setRoleIDs(List<Integer> roleIDs) {
+	public void setRoleIDs(Set<Integer> roleIDs) {
 		this.roleIDs = roleIDs;
 	}
 	

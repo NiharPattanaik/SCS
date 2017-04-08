@@ -45,6 +45,12 @@ private static final long serialVersionUID = 0l;
 	@Transient
 	private List<Area> areas;
 	
+	@Transient
+	private List<TrimmedCustomer> customers;
+	
+	@Transient
+	private List<Integer> customerIDs;
+	
 	public int getBeatID() {
 		return beatID;
 	}
@@ -101,6 +107,23 @@ private static final long serialVersionUID = 0l;
 	public void setAreas(List<Area> areas) {
 		this.areas = areas;
 	}
+
+	public List<TrimmedCustomer> getCustomers() {
+		return customers;
+	}
+
+	public void setCustomers(List<TrimmedCustomer> customers) {
+		this.customers = customers;
+	}
+
+	public List<Integer> getCustomerIDs() {
+		return customerIDs;
+	}
+
+	public void setCustomerIDs(List<Integer> customerIDs) {
+		this.customerIDs = customerIDs;
+	}
+	
 	
 	
 }

@@ -16,7 +16,7 @@ import com.sales.crm.model.Reseller;
 import com.sales.crm.service.ResellerService;
 
 @RestController
-@RequestMapping("/reseller")
+@RequestMapping("/rest/reseller")
 public class ResellerReSTController {
 	
 	@Autowired

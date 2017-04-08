@@ -4,31 +4,33 @@ import java.util.List;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "SALES_EXEC")
+@Table(name = "SUPPLIER")
 @AttributeOverrides({
 	@AttributeOverride(name = "companyID", column = @Column(name = "COMPANY_ID")),
 	@AttributeOverride(name = "dateCreated", column = @Column(name = "DATE_CREATED")),
 	@AttributeOverride(name = "dateModified", column = @Column(name = "DATE_MODIFIED"))})
-public class SalesExec extends BusinessEntity{
+public class Supplier extends BusinessEntity{
 	
 	private static final long serialVersionUID = 0l;
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID", unique = true, nullable = false)
-	int salesExecID;
+	int supplierID;
+	
+	@Column(name = "RESELLER_ID")
+	int resellerID;
 	
 	@Column(name = "NAME")
 	String name;
@@ -36,22 +38,20 @@ public class SalesExec extends BusinessEntity{
 	@Column(name = "DESCRIPTION")
 	String description;
 	
-	@Column(name = "RESELLER_ID")
-	int resellerID;
+	@OneToMany(orphanRemoval=true, cascade=CascadeType.ALL, fetch=FetchType.EAGER)
+	List<Address> address;
 	
-	//@OneToMany(orphanRemoval=true, cascade=CascadeType.ALL, fetch=FetchType.EAGER)
-	//@OneToMany(fetch=FetchType.LAZY)
-	//@JoinTable(name="CUSTOMER_SALES_EXEC", 
-	//    joinColumns={@JoinColumn(name="SALES_EXEC_ID")},
-	//    inverseJoinColumns={@JoinColumn(name="CUSTOMER_ID")}
-	//)
-	//List<Customer> customers;
-	
-	public int getSalesExecID() {
-		return salesExecID;
+	public int getSupplierID() {
+		return supplierID;
 	}
-	public void setSalesExecID(int salesExecID) {
-		this.salesExecID = salesExecID;
+	public void setSupplierID(int supplierID) {
+		this.supplierID = supplierID;
+	}
+	public int getResellerID() {
+		return resellerID;
+	}
+	public void setResellerID(int resellerID) {
+		this.resellerID = resellerID;
 	}
 	public String getName() {
 		return name;
@@ -65,11 +65,11 @@ public class SalesExec extends BusinessEntity{
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public int getResellerID() {
-		return resellerID;
+	public List<Address> getAddress() {
+		return address;
 	}
-	public void setResellerID(int resellerID) {
-		this.resellerID = resellerID;
+	public void setAddress(List<Address> address) {
+		this.address = address;
 	}
 	
 }

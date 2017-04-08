@@ -2,18 +2,23 @@ package com.sales.crm.dao;
 
 import java.util.List;
 
-import com.sales.crm.model.SalesExec;
+import com.sales.crm.model.Beat;
+import com.sales.crm.model.SalesExecBeatCustomer;
+import com.sales.crm.model.SalesExecutive;
 
 public interface SalesExecDAO {
 	
-	void create(SalesExec salesExec);
+	SalesExecutive get(int salesExecID);
 	
-	SalesExec get(int salesExecID);
+	List<SalesExecutive> getSalesExecutives(int resellerID);
 	
-	void update(SalesExec salesExec);
+	void assignBeats(int salesExecID, List<Integer> beatIDs);
 	
-	void delete(int salesExecID);
+	void updateAssignedBeats(final int salesExecID, final List<Integer> beatIDs);
 	
-	List<SalesExec> getResellerSalesExecs(int resellerID);
-
+	List<SalesExecutive> getSalesExecMapsBeatsCustomers(int resellerID);
+	
+	List<Beat> getAssignedBeats(int salesExecID);
+	
+	void scheduleVistit(SalesExecBeatCustomer salesExecBeatCustomer);
 }

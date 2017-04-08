@@ -30,7 +30,6 @@ public class AreaDAOImpl implements AreaDAO {
 			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
 			area.setDateCreated(new Date());
-			area.setResellerID(13);
 			session.save(area);
 			transaction.commit();
 		}catch(Exception e){
@@ -98,6 +97,11 @@ public class AreaDAOImpl implements AreaDAO {
 			session = sessionFactory.openSession();
 			Area area = (Area)session.get(Area.class, areaID);
 			transaction = session.beginTransaction();
+			//Remove from BEAT_AREA
+			SQLQuery beatAreaQuery = session.createSQLQuery("DELETE FROM BEAT_AREA WHERE AREA_ID= ?");
+			beatAreaQuery.setParameter(0, areaID);
+			beatAreaQuery.executeUpdate();
+			//Delete Area
 			session.delete(area);
 			transaction.commit();
 		}catch(Exception exception){
