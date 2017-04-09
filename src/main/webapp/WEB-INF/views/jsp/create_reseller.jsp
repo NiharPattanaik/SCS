@@ -4,7 +4,7 @@
 <html lang="en">
 
 <head>
-	<title>Create Reseller</title>
+	<title>Page one</title>
 	<!-- Bootstrap Core CSS -->
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -71,6 +71,14 @@ legend {
 	</header>
 	<!-- Header -->
 	<div class="container">
+		<nav class="navbar navbar-inverse">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="#"></a>
+				</div>
+				
+			</div>
+		</nav>
 		<div class="row top-height">
 			<div class="col-md-8 ">
 				<h2>Add New Reseller</h2>
@@ -209,6 +217,7 @@ legend {
 								path="address[1].mobileNumberSecondary" />
 						</div>
 					</fieldset>
+					
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</div>
@@ -217,8 +226,4 @@ legend {
 		</div>
 	</div>
 </body>
-<script type="text/javascript">
-$('#dp').datepicker({format: 'dd/mm/yyyy'});
-</script>
-
 </html>
