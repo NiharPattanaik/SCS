@@ -25,9 +25,22 @@ public class ResellerWebController {
 		return new ModelAndView("resSuccess");
 	}
 	
+	
+	/**
+	 * Used without login
+	 * 
+	 * @param reseller
+	 * @return
+	 */
+	@RequestMapping(value="/saveReseller",method = RequestMethod.POST)  
+	public ModelAndView createReseller(@ModelAttribute("reseller") Reseller reseller){
+		resellerService.createReseller(reseller);
+		return new ModelAndView("/message", "message", "Reseller is created with ID "+ reseller.getResellerID());
+	}
+	
 	@RequestMapping(value="/createResellerForm", method = RequestMethod.GET)  
 	public ModelAndView createResellerForm(){
-		return new ModelAndView("/createReseller");
+		return new ModelAndView("/create_reseller", "reseller", new Reseller());
 	}
 	
 	@GetMapping(value="/{resellerID}")

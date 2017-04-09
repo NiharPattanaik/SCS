@@ -13,7 +13,6 @@ import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,7 +22,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.sales.crm.model.Customer;
 import com.sales.crm.model.Role;
-import com.sales.crm.model.SalesExecutive;
 import com.sales.crm.model.User;
 import com.sales.crm.service.CustomerService;
 import com.sales.crm.service.RoleService;
@@ -118,6 +116,22 @@ public class UserWebController {
 			List<Customer> customers = customerService.getResellerCustomers(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
 			return new ModelAndView("/customer_list","customers", customers); 
 		//}
+	}
+	
+	
+	@GetMapping(value="/createAdminUser/{resellerID}")  
+	public ModelAndView createAdminUser(@PathVariable int resellerID){
+		User user = new User();
+		user.setUserName("user"+resellerID);
+		user.setPassword("pass"+resellerID);
+		user.setFirstName("firstName");
+		user.setLastName("lastName");
+		user.setResellerID(resellerID);
+		Set<Integer> roleIDList = new HashSet<Integer>();
+		roleIDList.add(1);
+		user.setRoleIDs(roleIDList);
+		userService.createUser(user);
+		return new ModelAndView("/message", "message", "Admin User is successfully created. <br><b>User Name</b> - "+ user.getUserName() +"<br><b>password</b> - "+ user.getPassword());
 	}
 	
 	private boolean isAdminUser(User user){

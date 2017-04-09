@@ -40,6 +40,9 @@ public class LoginFilter implements Filter {
         boolean loggedIn = false;
         boolean loginRequest = false;
         boolean restRequest = false;
+        boolean createResellerForm = false;
+        boolean saveReseller = false;
+        boolean createAdminUser = false;
         
         if(request.getRequestURI().equals(logoutURI)){
 			session.invalidate();
@@ -47,10 +50,14 @@ public class LoginFilter implements Filter {
 			loggedIn = session != null && session.getAttribute("user") != null;
 			loginRequest = request.getRequestURI().equals(loginURI);
 			restRequest = request.getRequestURI().contains("/crm/rest/") ? true : false;
-			
+			createResellerForm = request.getRequestURI().contains("/web/resellerWeb/createResellerForm") ? true : false;
+			saveReseller = request.getRequestURI().contains("/web/resellerWeb/saveReseller") ? true : false;
+			createAdminUser = request.getRequestURI().contains("createAdminUser") ? true : false;
 		}
 		
-        if(loginRequest && !loggedIn){
+        if(createResellerForm || saveReseller || createAdminUser){
+        	chain.doFilter(request, response);
+        }else if(loginRequest && !loggedIn){
         	String userName = request.getParameter("uname");
     		String password = request.getParameter("psw");
     		User user = userService.getUser(userName);
@@ -83,6 +90,9 @@ public class LoginFilter implements Filter {
     
     private boolean isAdminUser(User user){
 		List<Role> roles = user.getRoles();
+		if(roles == null){
+			return false;
+		}
 		for(Role role : roles){
 			if(role.getRoleID() == 1){
 				return true;
