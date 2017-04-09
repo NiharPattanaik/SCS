@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
@@ -21,6 +22,8 @@ public class AreaDAOImpl implements AreaDAO {
 	@Autowired
 	private SessionFactory sessionFactory;
 	
+	private static Logger logger = Logger.getLogger(AreaDAOImpl.class);
+	
 	
 	@Override
 	public void create(Area area) {
@@ -33,7 +36,7 @@ public class AreaDAOImpl implements AreaDAO {
 			session.save(area);
 			transaction.commit();
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("Error while creating area", e);
 			if(transaction != null){
 				transaction.rollback();
 			}
@@ -46,14 +49,13 @@ public class AreaDAOImpl implements AreaDAO {
 
 	@Override
 	public Area get(int areaID) {
-
 		Session session = null;
 		Area area = null;
 		try{
 			session = sessionFactory.openSession();
 			area = (Area)session.get(Area.class, areaID);
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while fetching area details.", exception);
 		}finally{
 			if(session != null){
 				session.close();
@@ -75,7 +77,7 @@ public class AreaDAOImpl implements AreaDAO {
 			session.update(area);
 			transaction.commit();
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("Error while updating area", e);
 			if(transaction != null){
 				transaction.rollback();
 			}
@@ -105,7 +107,7 @@ public class AreaDAOImpl implements AreaDAO {
 			session.delete(area);
 			transaction.commit();
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while deleting area.", exception);
 			if(transaction != null){
 				transaction.rollback();
 			}
@@ -127,7 +129,7 @@ public class AreaDAOImpl implements AreaDAO {
 			query.setParameter("resellerID", resellerID);
 			areas = query.list();
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while getting reseller Areas", exception);
 		}finally{
 			if(session != null){
 				session.close();
@@ -159,7 +161,7 @@ public class AreaDAOImpl implements AreaDAO {
 				areaList.add(area);
 			}
 		} catch (Exception exception) {
-			exception.printStackTrace();
+			logger.error("Error while getting areas for beat.", exception);
 		} finally {
 			if (session != null) {
 				session.close();

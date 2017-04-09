@@ -3,6 +3,7 @@ package com.sales.crm.dao;
 
 import java.util.Date;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -17,6 +18,8 @@ public class ResellerDAOImpl implements ResellerDAO{
 
 	@Autowired
 	private SessionFactory sessionFactory;
+	
+	private static Logger logger = Logger.getLogger(ResellerDAOImpl.class);
 
 	@Override
 	public void create(Reseller reseller) {
@@ -32,7 +35,7 @@ public class ResellerDAOImpl implements ResellerDAO{
 			session.save(reseller);
 			transaction.commit();
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("Error while creating reseller.", e);
 			if(transaction != null){
 				transaction.rollback();
 			}
@@ -51,7 +54,7 @@ public class ResellerDAOImpl implements ResellerDAO{
 			session = sessionFactory.openSession();
 			reseller = (Reseller)session.get(Reseller.class, resellerID);
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while fetching reseller details", exception);
 		}finally{
 			if(session != null){
 				session.close();
@@ -76,7 +79,7 @@ public class ResellerDAOImpl implements ResellerDAO{
 			session.update(reseller);
 			transaction.commit();
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("Error while updating reseller", e);
 			if(transaction != null){
 				transaction.rollback();
 			}
@@ -101,7 +104,7 @@ public class ResellerDAOImpl implements ResellerDAO{
 			session.delete(reseller);
 			transaction.commit();
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while deleting reseller", exception);
 			if(transaction != null){
 				transaction.rollback();
 			}
@@ -113,14 +116,6 @@ public class ResellerDAOImpl implements ResellerDAO{
 		
 	}
 	
-
-
-//	public void setSessionFactory(SessionFactory sessionFactory) {
-//		this.sessionFactory = sessionFactory;
-//	}
-
-
-
 
 	
 }

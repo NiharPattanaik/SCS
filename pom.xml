@@ -6,7 +6,7 @@
 	<artifactId>crm</artifactId>
 	<name>SalesCRM</name>
 	<packaging>war</packaging>
-	<version>1.0.0-BUILD-SNAPSHOT</version>
+	<version>1.0.0-ALPHA</version>
 	<properties>
 		<java-version>1.6</java-version>
 		<org.springframework-version>4.3.0.RELEASE</org.springframework-version>
@@ -98,7 +98,6 @@
 					<artifactId>jmxri</artifactId>
 				</exclusion>
 			</exclusions>
-			<scope>runtime</scope>
 		</dependency>
 
 		<!-- MySQL database driver -->

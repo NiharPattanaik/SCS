@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -31,6 +32,8 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 	
 	@Autowired
 	private SessionFactory sessionFactory;
+	
+	private static Logger logger = Logger.getLogger(SalesExecDAOImpl.class);
 	
 	private static SimpleDateFormat dbFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -91,7 +94,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 			salesExec.setBeats(beatList);
 			salesExec.setBeatIDLists(beatIDsList);
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while fetching sales executive details.", exception);
 		}finally{
 			if(session != null){
 				session.close();
@@ -172,7 +175,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 			}
 			
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while fetching list of sales executives", exception);
 		}finally{
 			if(session != null){
 				session.close();
@@ -208,7 +211,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 			});
 			transaction.commit();
 		} catch (Exception exception) {
-			exception.printStackTrace();
+			logger.error("Error while assigning beats.", exception);
 		} finally {
 			if (session != null) {
 				session.close();
@@ -247,7 +250,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 			});
 			transaction.commit();
 		} catch (Exception exception) {
-			exception.printStackTrace();
+			logger.error("Error while updating assigned beats", exception);
 		} finally {
 			if (session != null) {
 				session.close();
@@ -276,7 +279,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 			}
 			return salesExecList;
 		} catch (Exception exception) {
-			exception.printStackTrace();
+			logger.error("Error fetching sales executives mapped to beat and customer.", exception);
 		} finally {
 			if (session != null) {
 				session.close();
@@ -312,7 +315,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 			}
 			return beats;
 		} catch (Exception exception) {
-			exception.printStackTrace();
+			logger.error("Error while fetching assigned beats.", exception);
 		} finally {
 			if (session != null) {
 				session.close();
@@ -352,7 +355,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 			});
 			transaction.commit();
 		} catch (Exception exception) {
-			exception.printStackTrace();
+			logger.error("Error while scheduling sales executives visti.", exception);
 		} finally {
 			if (session != null) {
 				session.close();

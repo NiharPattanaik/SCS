@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
@@ -22,7 +23,6 @@ import org.springframework.stereotype.Repository;
 
 import com.sales.crm.model.Area;
 import com.sales.crm.model.Beat;
-import com.sales.crm.model.Customer;
 import com.sales.crm.model.TrimmedCustomer;
 
 @Repository("beatDAO")
@@ -33,7 +33,8 @@ public class BeatDAOImpl implements BeatDAO {
 	
 	private static SimpleDateFormat dbFormat = new SimpleDateFormat("yyyy-MM-dd");
 	
-
+	private static Logger logger = Logger.getLogger(BeatDAOImpl.class);
+	
 	@Override
 	public void create(Beat beat) {
 		Session session = null;
@@ -54,7 +55,7 @@ public class BeatDAOImpl implements BeatDAO {
 			}
 			transaction.commit();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error while creating beat.", e);
 			if (transaction != null) {
 				transaction.rollback();
 			}
@@ -109,7 +110,7 @@ public class BeatDAOImpl implements BeatDAO {
 				beat.setCustomerIDs(customerIDs);
 			}
 		} catch (Exception exception) {
-			exception.printStackTrace();
+			logger.error("Error while fetching beat details.", exception);
 		} finally {
 			if (session != null) {
 				session.close();
@@ -144,7 +145,7 @@ public class BeatDAOImpl implements BeatDAO {
 			}
 			transaction.commit();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error while updating beat.", e);
 			if (transaction != null) {
 				transaction.rollback();
 			}
@@ -172,7 +173,7 @@ public class BeatDAOImpl implements BeatDAO {
 			session.delete(beat);
 			transaction.commit();
 		} catch (Exception exception) {
-			exception.printStackTrace();
+			logger.error("Error while deleting beat.", exception);
 			if (transaction != null) {
 				transaction.rollback();
 			}
@@ -260,7 +261,7 @@ public class BeatDAOImpl implements BeatDAO {
 			}
 
 		} catch (Exception exception) {
-			exception.printStackTrace();
+			logger.error("Error while fetching reseller beats.", exception);
 		} finally {
 			if (session != null) {
 				session.close();
@@ -298,7 +299,7 @@ public class BeatDAOImpl implements BeatDAO {
 			});
 			transaction.commit();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error while assigning beat to customer.", e);
 		} finally {
 			if (session != null) {
 				session.close();
@@ -340,7 +341,7 @@ public class BeatDAOImpl implements BeatDAO {
 			});
 			transaction.commit();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error while updating assigned beats to customer", e);
 		} finally {
 			if (session != null) {
 				session.close();
@@ -366,7 +367,7 @@ public class BeatDAOImpl implements BeatDAO {
 			}
 			return customers;
 		} catch (Exception exception) {
-			exception.printStackTrace();
+			logger.error("Error while getting customers for beat.", exception);
 		} finally {
 			if (session != null) {
 				session.close();

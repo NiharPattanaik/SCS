@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
@@ -30,6 +31,8 @@ public class UserDAOImpl implements UserDAO {
 	
 	@Autowired
 	private SessionFactory sessionFactory;
+	
+	private static Logger logger = Logger.getLogger(UserDAOImpl.class);
 	
 	private static SimpleDateFormat dbFormat = new SimpleDateFormat("yyyy-MM-dd");
 	
@@ -59,7 +62,7 @@ public class UserDAOImpl implements UserDAO {
 			}
 			transaction.commit();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error while creating user", e);
 			if (transaction != null) {
 				transaction.rollback();
 			}
@@ -105,7 +108,7 @@ public class UserDAOImpl implements UserDAO {
 				user.setRoleIDs(roleIDs);
 			}
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while getting user", exception);
 		}finally{
 			if(session != null){
 				session.close();
@@ -140,7 +143,7 @@ public class UserDAOImpl implements UserDAO {
 			}
 			transaction.commit();
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("Error while updating user", e);
 			if(transaction != null){
 				transaction.rollback();
 			}
@@ -177,7 +180,7 @@ public class UserDAOImpl implements UserDAO {
 			session.delete(user);
 			transaction.commit();
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while deleting user", exception);
 			if(transaction != null){
 				transaction.rollback();
 			}
@@ -233,7 +236,7 @@ public class UserDAOImpl implements UserDAO {
 				}
 			}
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while getting reseller users", exception);
 		}finally{
 			if(session != null){
 				session.close();
@@ -276,7 +279,7 @@ public class UserDAOImpl implements UserDAO {
 				users.add(user);
 			}
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while getting user by Role.", exception);
 		}finally{
 			if(session != null){
 				session.close();
@@ -299,7 +302,7 @@ public class UserDAOImpl implements UserDAO {
 				return (Reseller)session.get(Reseller.class, Integer.valueOf(String.valueOf(ids.get(0))));
 			}
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while getting user's reseller.", exception);
 		}finally{
 			if(session != null){
 				session.close();
@@ -345,7 +348,7 @@ public class UserDAOImpl implements UserDAO {
 				}
 			}
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while getting user by user name.", exception);
 		}finally{
 			if(session != null){
 				session.close();
@@ -367,7 +370,7 @@ public class UserDAOImpl implements UserDAO {
 				return true;
 			}
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while validating user credential", exception);
 		}finally{
 			if(session != null){
 				session.close();

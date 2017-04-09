@@ -3,6 +3,7 @@ package com.sales.crm.dao;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -20,6 +21,8 @@ public class SupplierDAOImpl implements SupplierDAO{
 	@Autowired
 	private SessionFactory sessionFactory;
 	
+	private static Logger logger = Logger.getLogger(SupplierDAOImpl.class);
+	
 	@Override
 	public void create(Supplier supplier) {
 		Session session = null;
@@ -34,7 +37,7 @@ public class SupplierDAOImpl implements SupplierDAO{
 			session.save(supplier);
 			transaction.commit();
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("Error while creating supplier.", e);
 			if(transaction != null){
 				transaction.rollback();
 			}
@@ -53,7 +56,7 @@ public class SupplierDAOImpl implements SupplierDAO{
 			session = sessionFactory.openSession();
 			supplier = (Supplier)session.get(Supplier.class, supplierID);
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while fetching supplier details", exception);
 		}finally{
 			if(session != null){
 				session.close();
@@ -77,7 +80,7 @@ public class SupplierDAOImpl implements SupplierDAO{
 			session.update(supplier);
 			transaction.commit();
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("Error while updating supplier", e);
 			if(transaction != null){
 				transaction.rollback();
 			}
@@ -103,7 +106,7 @@ public class SupplierDAOImpl implements SupplierDAO{
 			session.delete(supplier);
 			transaction.commit();
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while deleting supplier", exception);
 			if(transaction != null){
 				transaction.rollback();
 			}
@@ -125,7 +128,7 @@ public class SupplierDAOImpl implements SupplierDAO{
 			query.setParameter("resellerID", resellerID);
 			suppliers = query.list();
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while fetching resellers suppliers", exception);
 		}finally{
 			if(session != null){
 				session.close();

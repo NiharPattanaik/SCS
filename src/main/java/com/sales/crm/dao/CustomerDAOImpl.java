@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
@@ -25,6 +26,8 @@ public class CustomerDAOImpl implements CustomerDAO{
 
 	@Autowired
 	private SessionFactory sessionFactory;
+	
+	private static Logger logger = Logger.getLogger(CustomerDAOImpl.class);
 	
 	@Override
 	public void create(Customer customer) {
@@ -47,7 +50,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 			}
 			transaction.commit();
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("Error while creating customer", e);
 			if(transaction != null){
 				transaction.rollback();
 			}
@@ -75,7 +78,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 				customer.setSalesExecName(String.valueOf(objs[1]));
 			}
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while fetching customer details", exception);
 		}finally{
 			if(session != null){
 				session.close();
@@ -110,7 +113,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 			}
 			transaction.commit();
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("Error while updating customer", e);
 			if(transaction != null){
 				transaction.rollback();
 			}
@@ -140,7 +143,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 			session.delete(customer);
 			transaction.commit();
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while deleting customer.", exception);
 			if(transaction != null){
 				transaction.rollback();
 			}
@@ -183,7 +186,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 				}
 			}
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while fetching customer List.", exception);
 		}finally{
 			if(session != null){
 				session.close();
@@ -209,7 +212,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 				customers.add(trimmedCustomer);
 			}
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while getting Trimmed customer", exception);
 		}finally{
 			if(session != null){
 				session.close();

@@ -3,6 +3,7 @@ package com.sales.crm.dao;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -17,6 +18,8 @@ public class RoleDAOImpl implements RoleDAO {
 	
 	@Autowired
 	private SessionFactory sessionFactory;
+	
+	private static Logger logger = Logger.getLogger(RoleDAOImpl.class);
 
 	@Override
 	public void create(Role role) {
@@ -29,7 +32,7 @@ public class RoleDAOImpl implements RoleDAO {
 			session.save(role);
 			transaction.commit();
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("Error while creating Role.", e);
 			if(transaction != null){
 				transaction.rollback();
 			}
@@ -49,7 +52,7 @@ public class RoleDAOImpl implements RoleDAO {
 			session = sessionFactory.openSession();
 			role = (Role)session.get(Role.class, roleID);
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while fetching role", exception);
 		}finally{
 			if(session != null){
 				session.close();
@@ -71,7 +74,7 @@ public class RoleDAOImpl implements RoleDAO {
 			session.update(role);
 			transaction.commit();
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("Error while updating role.", e);
 			if(transaction != null){
 				transaction.rollback();
 			}
@@ -96,7 +99,7 @@ public class RoleDAOImpl implements RoleDAO {
 			session.delete(role);
 			transaction.commit();
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while deleting role", exception);
 			if(transaction != null){
 				transaction.rollback();
 			}
@@ -117,7 +120,7 @@ public class RoleDAOImpl implements RoleDAO {
 			Query query = session.createQuery("from Role");
 			roles = query.list();
 		}catch(Exception exception){
-			exception.printStackTrace();
+			logger.error("Error while fetching roles", exception);
 		}finally{
 			if(session != null){
 				session.close();
