@@ -1,5 +1,7 @@
 package com.sales.crm.controller;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +10,7 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomCollectionEditor;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -104,20 +107,20 @@ public class SalesExecWebController {
 	}
 	
 	@InitBinder
-	 public void initBinder(WebDataBinder  binder){
-	 binder.registerCustomEditor(List.class, "beats", new CustomCollectionEditor(List.class)
-	    {
-	      @Override
-	      protected Object convertElement(Object element)
-	      {
-	         Beat beat = new Beat();
-	         beat.setBeatID(Integer.valueOf(String.valueOf(element)));
+	public void initBinder(WebDataBinder binder) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+		dateFormat.setLenient(false);
+		binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
+		
+		binder.registerCustomEditor(List.class, "beats", new CustomCollectionEditor(List.class) {
+			@Override
+			protected Object convertElement(Object element) {
+				Beat beat = new Beat();
+				beat.setBeatID(Integer.valueOf(String.valueOf(element)));
 
-	       
-	        return beat;
-	      }
+				return beat;
+			}
 
-
-	    }); 
+		});
 	}
 }

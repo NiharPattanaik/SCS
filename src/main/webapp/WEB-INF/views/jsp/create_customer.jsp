@@ -249,7 +249,7 @@ legend {
 							<form:select path="salesExecID" cssClass="form-control">
 								<form:option value="-1" label="--- Select ---" />
 								<form:options items="${salesExecs}" itemValue="userID"
-									itemLabel="userName" />
+									itemLabel="name" />
 							</form:select>
 						</div>
 						<div class="form-group">

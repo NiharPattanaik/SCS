@@ -44,6 +44,10 @@ public class UserDAOImpl implements UserDAO {
 			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
 			user.setDateCreated(new Date());
+			//If user name is empty set that to null
+			if(user.getUserName() != null && user.getUserName().trim().isEmpty()){
+				user.setUserName(null);
+			}
 			// save user
 			session.save(user);
 			// create reseller_user

@@ -1,5 +1,7 @@
 package com.sales.crm.controller;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -11,9 +13,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -146,24 +151,11 @@ public class UserWebController {
 	}
 	
 	
-	/**
 	@InitBinder
-	  public void initBinder(WebDataBinder  binder){
-	    binder.registerCustomEditor(List.class, "roles", new CustomCollectionEditor(List.class)
-	    {
-	      @Override
-	      protected Object convertElement(Object element)
-	      {
-	         Role role = new Role();
-	         role.setRoleID(Integer.valueOf(String.valueOf(element)));
-
-	       
-	        return role;
-	      }
-
-
-	    });  
+	public void initBinder(WebDataBinder webDataBinder) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+		dateFormat.setLenient(false);
+		webDataBinder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
 	}
-	**/
 	
 }

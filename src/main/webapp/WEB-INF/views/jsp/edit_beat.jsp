@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <html lang="en">
 
 <head>
@@ -141,7 +142,20 @@ legend {
 						</div>
 					</fieldset>
 					<form:hidden path="beatID" name="beatID" value="${ beat.beatID }"/>
-						<form:hidden path="resellerID" name="resellerID" value="${ beat.resellerID }"/>
+					<form:hidden path="resellerID" name="resellerID" value="${ beat.resellerID }"/>
+					<div>
+						<fmt:formatDate value="${ beat.dateCreated }" type="date"
+								pattern="dd/MM/yyyy" var="createdDate" />
+						<form:hidden path="dateCreated" value="${createdDate}"/>
+					</div>
+					<div>
+						<fmt:formatDate value="${ beat.dateModified }" type="date"
+								pattern="dd/MM/yyyy" var="modifiedDate" />
+						<form:hidden path="dateModified" value="${modifiedDate}"/>
+					</div>
+					<div>
+						<form:hidden path="companyID" value="${ beat.companyID }"/>
+					</div>
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</div>

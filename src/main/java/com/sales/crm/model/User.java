@@ -65,6 +65,9 @@ public class User extends BusinessEntity{
 	
 	@Transient
 	private int resellerID;
+	
+	@Transient
+	private String name;
 
 	public int getUserID() {
 		return userID;
@@ -160,6 +163,14 @@ public class User extends BusinessEntity{
 
 	public void setRoleIDs(Set<Integer> roleIDs) {
 		this.roleIDs = roleIDs;
+	}
+
+	public String getName() {
+		return firstName +" "+lastName;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 	

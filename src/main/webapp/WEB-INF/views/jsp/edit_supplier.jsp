@@ -262,6 +262,19 @@ legend {
 								value="${ supplier.address[1].mobileNumberSecondary }" />
 						</div>
 					</fieldset>
+					<div>
+						<fmt:formatDate value="${ supplier.dateCreated }" type="date"
+								pattern="dd/MM/yyyy" var="createdDate" />
+						<form:hidden path="dateCreated" value="${createdDate}"/>
+					</div>
+					<div>
+						<fmt:formatDate value="${ supplier.dateModified }" type="date"
+								pattern="dd/MM/yyyy" var="modifiedDate" />
+						<form:hidden path="dateModified" value="${modifiedDate}"/>
+					</div>
+					<div>
+						<form:hidden path="companyID" value="${ supplier.companyID }"/>
+					</div>
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</div>

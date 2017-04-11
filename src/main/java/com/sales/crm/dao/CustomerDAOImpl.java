@@ -69,13 +69,13 @@ public class CustomerDAOImpl implements CustomerDAO{
 			session = sessionFactory.openSession();
 			customer = (Customer)session.get(Customer.class, customerID);
 			//Get Sales exec details
-			SQLQuery salesExecQuery = session.createSQLQuery("SELECT a.ID, a.USER_NAME FROM USER a, CUSTOMER_SALES_EXEC b WHERE b.SALES_EXEC_ID=a.ID AND b.CUSTOMER_ID= ?");
+			SQLQuery salesExecQuery = session.createSQLQuery("SELECT a.ID, a.FIRST_NAME, a.LAST_NAME FROM USER a, CUSTOMER_SALES_EXEC b WHERE b.SALES_EXEC_ID=a.ID AND b.CUSTOMER_ID= ?");
 			salesExecQuery.setParameter(0, customer.getCustomerID());
 			List salesExecs = salesExecQuery.list();
 			if(salesExecs != null && salesExecs.size() == 1){
 				Object[] objs = (Object[])salesExecs.get(0);
 				customer.setSalesExecID(Integer.valueOf(String.valueOf(objs[0])));
-				customer.setSalesExecName(String.valueOf(objs[1]));
+				customer.setSalesExecName(String.valueOf(objs[1]) + " " + String.valueOf(objs[2]) );
 			}
 		}catch(Exception exception){
 			logger.error("Error while fetching customer details", exception);
@@ -167,7 +167,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 			
 			//Fetch Sales Execs
 			Map<Integer, User> salesExecMap = new HashMap<Integer, User>();
-			SQLQuery salesExecQry = session.createSQLQuery("SELECT d.CUSTOMER_ID, a.ID, a.USER_NAME FROM USER a, USER_ROLE b, RESELLER_USER c, CUSTOMER_SALES_EXEC d  WHERE a.ID=b.USER_ID AND a.ID=c.USER_ID AND d.SALES_EXEC_ID=a.ID AND b.ROLE_ID= 2 AND c.RESELLER_ID= ?");
+			SQLQuery salesExecQry = session.createSQLQuery("SELECT d.CUSTOMER_ID, a.ID, a.USER_NAME, a.FIRST_NAME, a.LAST_NAME FROM USER a, USER_ROLE b, RESELLER_USER c, CUSTOMER_SALES_EXEC d  WHERE a.ID=b.USER_ID AND a.ID=c.USER_ID AND d.SALES_EXEC_ID=a.ID AND b.ROLE_ID= 2 AND c.RESELLER_ID= ?");
 			salesExecQry.setParameter(0, resellerID);
 			List results = salesExecQry.list();
 			for(Object obj : results){
@@ -176,13 +176,15 @@ public class CustomerDAOImpl implements CustomerDAO{
 				User user = new User();
 				user.setUserID(Integer.valueOf(String.valueOf(objs[1])));
 				user.setUserName(String.valueOf(objs[2]));
+				user.setFirstName(String.valueOf(objs[3]));
+				user.setLastName(String.valueOf(objs[4]));
 				salesExecMap.put(customerId, user);
 			}
 			//Set Sales Execs in customer
 			for(Customer customer : customers){
 				if(salesExecMap.containsKey(customer.getCustomerID())){
 					customer.setSalesExecID(salesExecMap.get(customer.getCustomerID()).getUserID());
-					customer.setSalesExecName(salesExecMap.get(customer.getCustomerID()).getUserName());
+					customer.setSalesExecName(salesExecMap.get(customer.getCustomerID()).getFirstName() +" "+salesExecMap.get(customer.getCustomerID()).getLastName());
 				}
 			}
 		}catch(Exception exception){

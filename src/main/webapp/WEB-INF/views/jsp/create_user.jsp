@@ -132,29 +132,31 @@ legend {
 					</fieldset>
 					
 					<fieldset>
-						<legend>Login Details</legend>
-						<div class="form-group">
-							<label>User Name</label>
-							<form:input name="userName" cssClass="form-control" path="userName" />
-						</div>
-						<div class="form-group">
-							<label>Password</label>
-							<form:input name="password" cssClass="form-control"
-								path="password" />
-						</div>
-					</fieldset>
-					
-					<fieldset>
 						<legend>Role Details</legend>
 						<div class="form-group">
 							<label>Roles</label>
-							<form:select path="roleIDs" cssClass="form-control" multiple="true">
+							<form:select path="roleIDs" cssClass="form-control" multiple="true" id="roles">
 								<form:option value="-1" label="--- Select ---" />
 								<form:options items="${roles}" itemValue="roleID"
 									itemLabel="roleName" />
 							</form:select>
 						</div>
 					</fieldset>
+					
+					<div id="login" style="display:none">
+						<fieldset>
+							<legend>Login Details</legend>
+							<div class="form-group">
+								<label>User Name</label>
+								<form:input name="userName" cssClass="form-control" path="userName" />
+							</div>
+							<div class="form-group">
+								<label>Password</label>
+								<form:input name="password" cssClass="form-control"
+									path="password" />
+							</div>
+						</fieldset>
+					</div>
 					<form:hidden path="status" name="status" value="1"/>
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary">Submit</button>
@@ -163,6 +165,19 @@ legend {
 			</div>
 		</div>
 	</div>
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#roles').change(function() {
+				console.log($('#roles').val().includes("1"));
+				if ($('#roles').val().includes("1")) {
+					$("#login").show();
+				} else {
+					$("#login").hide();
+				}
+			});
+		});
+	</script>
 </body>
 
 </html>

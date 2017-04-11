@@ -145,6 +145,7 @@
 							url : "/crm/rest/salesExecReST/"+$('#sales_exec').val(),
 							dataType : "json",
 							success : function(data) {
+								$('#beats').empty();
 								$.each(data,function(i,obj) {
 									var div_data = "<option value="+obj.beatID+">"+ obj.name+ "</option>";
 									$(div_data).appendTo('#beats');
@@ -161,8 +162,10 @@
 							url : "/crm/rest/beatReST/"+$('#beats').val(),
 							dataType : "json",
 							success : function(data) {
+								$('#customers').empty();
 								$.each(data,function(i,obj) {
-									var div_data =  "<li>"+obj.customerName+"<li>";
+									console.log(obj.customerName);
+									var div_data =  "<li>"+obj.customerName+"</li>";
 									$(div_data).appendTo('#customers');
 								});
 							}

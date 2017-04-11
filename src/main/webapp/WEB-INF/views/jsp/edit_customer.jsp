@@ -271,7 +271,7 @@ legend {
 							<form:select path="salesExecID" cssClass="form-control">
 								<form:option value="-1" label="--- Select ---" />
 								<form:options items="${salesExecs}" itemValue="userID"
-									itemLabel="userName" />	
+									itemLabel="name" />	
 							</form:select>
 						</div>
 						<div class="form-group">
@@ -282,7 +282,19 @@ legend {
 								path="visitDate" value="${theFormattedDate}" />
 						</div>
 					</fieldset>
-
+					<div>
+						<fmt:formatDate value="${ customer.dateCreated }" type="date"
+								pattern="dd/MM/yyyy" var="createdDate" />
+						<form:hidden path="dateCreated" value="${createdDate}"/>
+					</div>
+					<div>
+						<fmt:formatDate value="${ customer.dateModified }" type="date"
+								pattern="dd/MM/yyyy" var="modifiedDate" />
+						<form:hidden path="dateModified" value="${modifiedDate}"/>
+					</div>
+					<div>
+						<form:hidden path="companyID" value="${ customer.companyID }"/>
+					</div>
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</div>
