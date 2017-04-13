@@ -59,6 +59,13 @@ legend {
 	margin-top: 14px;
 	text-align: right;
 }
+
+.form-group.required .control-label:after { 
+   content:"*";
+   color:red;
+}
+
+
 </style>
 </head>
 
@@ -105,10 +112,11 @@ legend {
 					action="/crm/web/userWeb/save">
 					<fieldset>
 						<legend>User Details</legend>
-						<div class="form-group">
-							<label>First Name</label>
-							<form:input name="firstName" cssClass="form-control" path="firstName" />
+						<div class="form-group required" >
+							<label class='control-label'>First Name</label>
+							<form:input name="firstName" cssClass="form-control" path="firstName" required="required"/>
 						</div>
+						
 						<div class="form-group">
 							<label>Last Name</label>
 							<form:input name="lastName" cssClass="form-control"
@@ -119,10 +127,10 @@ legend {
 							<form:input name="description" cssClass="form-control"
 								path="description" />
 						</div>
-						<div class="form-group">
-							<label>Email ID</label>
+						<div class="form-group required" >
+							<label class='control-label'>Email ID</label>
 							<form:input name="emailID" cssClass="form-control"
-								path="emailID" />
+								path="emailID" required="required"/>
 						</div>
 						<div class="form-group">
 							<label>Mobile Number</label>
@@ -133,27 +141,27 @@ legend {
 					
 					<fieldset>
 						<legend>Role Details</legend>
-						<div class="form-group">
-							<label>Roles</label>
+						<div class="form-group required">
+							<label class='control-label'>Roles</label>
 							<form:select path="roleIDs" cssClass="form-control" multiple="true" id="roles">
 								<form:option value="-1" label="--- Select ---" />
 								<form:options items="${roles}" itemValue="roleID"
-									itemLabel="roleName" />
+									itemLabel="roleName" required="required"/>
 							</form:select>
 						</div>
 					</fieldset>
 					
-					<div id="login" style="display:none">
+					<div id="login">
 						<fieldset>
 							<legend>Login Details</legend>
-							<div class="form-group">
-								<label>User Name</label>
-								<form:input name="userName" cssClass="form-control" path="userName" />
+							<div class="form-group required">
+								<label class='control-label'>User Name</label>
+								<form:input name="userName" cssClass="form-control" path="userName" required="required"/>
 							</div>
-							<div class="form-group">
-								<label>Password</label>
+							<div class="form-group required">
+								<label class='control-label'>Password</label>
 								<form:input name="password" cssClass="form-control"
-									path="password" />
+									path="password" required="required"/>
 							</div>
 						</fieldset>
 					</div>
@@ -167,15 +175,35 @@ legend {
 	</div>
 
 	<script type="text/javascript">
+	
+		//$(document).ready(function() {
+		//	$('#roles').change(function() {
+		//		console.log($('#roles').val().includes("1"));
+		//		if ($('#roles').val().includes("1")) {
+		//			$("#login").show();
+		//		} else {
+		//			$("#login").hide();
+		//		}
+		//	});
+		//});
 		$(document).ready(function() {
-			$('#roles').change(function() {
-				console.log($('#roles').val().includes("1"));
-				if ($('#roles').val().includes("1")) {
-					$("#login").show();
-				} else {
-					$("#login").hide();
-				}
-			});
+       		$("#firstName").prop('required',true);
+		});
+		
+		$(document).ready(function() {
+       		$("#emailID").prop('required',true);
+		});
+		
+		$(document).ready(function() {
+       		$("#roles").prop('required',true);
+		});
+		
+		$(document).ready(function() {
+       		$("#userName").prop('required',true);
+		});
+		
+		$(document).ready(function() {
+       		$("#password").prop('required',true);
 		});
 	</script>
 </body>

@@ -71,7 +71,7 @@ span.psw {
 <form method="post" action="/crm/web/userWeb/login" modelAttribute="error">
   <div class="imgcontainer">
    <font color="Red">
-  	${msg}
+  	${request.msg}
   	</font>
   </div>
 

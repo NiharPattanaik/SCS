@@ -210,7 +210,7 @@ public class BeatDAOImpl implements BeatDAO {
 			if (beatIDs != null && beatIDs.size() > 0) {
 				// Get Areas
 				SQLQuery areasQuery = session.createSQLQuery(
-						"SELECT b.BEAT_ID, a.* FROM AREA A, BEAT_AREA b WHERE a.ID = b.AREA_ID AND b.BEAT_ID IN ("
+						"SELECT b.BEAT_ID, a.* FROM AREA a, BEAT_AREA b WHERE a.ID = b.AREA_ID AND b.BEAT_ID IN ("
 								+ StringUtils.join(beatIDs, ",") + ")");
 				List areas = areasQuery.list();
 				for (Object obj : areas) {

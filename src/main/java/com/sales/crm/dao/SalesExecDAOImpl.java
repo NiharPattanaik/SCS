@@ -266,7 +266,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 		try {
 			session = sessionFactory.openSession();
 			SQLQuery query = session.createSQLQuery(
-					"SELECT a.ID, a.FIRST_NAME, a.LAST_NAME FROM USER a, BEAT b, CUSTOMER c, SALES_EXEC_BEATS_CUSTOMERS d, RESELLER_USER e  WHERE a.ID=D.SALES_EXEC_ID AND b.ID=d.BEAT_ID AND c.ID=d.CUSTOMER_ID AND e.USER_ID=a.ID AND e.RESELLER_ID=? group by a.ID");
+					"SELECT a.ID, a.FIRST_NAME, a.LAST_NAME FROM USER a, BEAT b, CUSTOMER c, SALES_EXEC_BEATS_CUSTOMERS d, RESELLER_USER e  WHERE a.ID=d.SALES_EXEC_ID AND b.ID=d.BEAT_ID AND c.ID=d.CUSTOMER_ID AND e.USER_ID=a.ID AND e.RESELLER_ID=? group by a.ID");
 			query.setParameter(0, resellerID);
 			List salesExecs = query.list();
 			for(Object obj : salesExecs){
