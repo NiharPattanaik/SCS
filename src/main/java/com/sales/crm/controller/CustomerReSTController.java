@@ -2,6 +2,7 @@ package com.sales.crm.controller;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,8 @@ import com.sales.crm.service.CustomerService;
 @RequestMapping("/rest/customer")
 public class CustomerReSTController {
 
+	private static Logger logger = Logger.getLogger(CustomerReSTController.class);
+	
 	@Autowired
 	CustomerService customerService;
 	
@@ -35,7 +38,7 @@ public class CustomerReSTController {
 		try{
 			customerService.createCustomer(customer);
 		}catch(Exception exception){
-			
+			logger.error("Error while creating a new customer.", exception);
 		}
 		return new ResponseEntity<Customer>(customer, HttpStatus.CREATED);
 	}
@@ -45,14 +48,18 @@ public class CustomerReSTController {
 		try{
 			customerService.updateCustomer(customer);
 		}catch(Exception exception){
-			
+			logger.error("Error while updating a customer.", exception);
 		}
 		return new ResponseEntity<Customer>(customer, HttpStatus.OK);
 	}
 	
 	@DeleteMapping(value="/{customerID}")
 	public void delete(@PathVariable int customerID){
-		customerService.deleteCustomer(customerID);
+		try{
+			customerService.deleteCustomer(customerID);
+		}catch(Exception exception){
+			logger.error("Error while deleting a customer.", exception);
+		}
 	}
 	
 	@GetMapping(value="/list/{resellerID}")
