@@ -90,9 +90,13 @@ public class SupplierWebController {
 	
 	@GetMapping(value="/delete/{supplierID}")
 	public ModelAndView delete(@PathVariable int supplierID){
-		supplierService.deleteSupplier(supplierID);
-		List<Supplier> suppliers = supplierService.getResellerSuppliers(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
-		return new ModelAndView("/supplier_list","suppliers", suppliers); 
+		String msg = "";
+		try{
+			supplierService.deleteSupplier(supplierID);
+		}catch(Exception exception){
+			msg = "Supplier could not be successfully removed, please contact System Administrator";
+		}
+		return new ModelAndView("/delete_supplier_conf","msg", msg); 
 	}
 	
 	@GetMapping(value="/list/{resellerID}")

@@ -101,9 +101,13 @@ public class CustomerWebController {
 	
 	@GetMapping(value="/delete/{customerID}")
 	public ModelAndView delete(@PathVariable int customerID){
-		customerService.deleteCustomer(customerID);
-		List<Customer> customers = customerService.getResellerCustomers(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
-		return new ModelAndView("/customer_list","customers", customers); 
+		String msg = "";
+		try{
+			customerService.deleteCustomer(customerID);
+		}catch(Exception exception){
+			msg = "Customer could not be successfully removed, please contact System Administrator";
+		}
+		return new ModelAndView("/delete_customer_conf","msg", msg); 
 	}
 	
 	@GetMapping(value="/list/{resellerID}")

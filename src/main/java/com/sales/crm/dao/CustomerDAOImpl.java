@@ -112,7 +112,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 	}
 
 	@Override
-	public void delete(int customerID) {
+	public void delete(int customerID) throws Exception{
 		Session session = null;
 		Transaction transaction = null;
 		try{
@@ -120,9 +120,11 @@ public class CustomerDAOImpl implements CustomerDAO{
 			Customer customer = (Customer)session.get(Customer.class, customerID);
 			transaction = session.beginTransaction();
 			//Remove Customer_Sales_Executive Link
+			/**
 			SQLQuery removeCustSalesExecLink = session.createSQLQuery(" DELETE FROM CUSTOMER_SALES_EXEC WHERE CUSTOMER_ID=?");
 			removeCustSalesExecLink.setParameter(0, customer.getCustomerID());
 			removeCustSalesExecLink.executeUpdate();
+			**/
 			//Remove Customer
 			session.delete(customer);
 			transaction.commit();
@@ -131,6 +133,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 			if(transaction != null){
 				transaction.rollback();
 			}
+			throw exception;
 		}finally{
 			if(session != null){
 				session.close();

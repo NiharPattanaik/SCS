@@ -26,7 +26,7 @@ public class AreaService {
 		areaDAO.update(area);
 	}
 	
-	public void deleteArea(int areaID){
+	public void deleteArea(int areaID) throws Exception{
 		areaDAO.delete(areaID);
 	}
 	

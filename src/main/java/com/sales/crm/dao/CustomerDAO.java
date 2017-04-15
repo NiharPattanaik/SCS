@@ -13,7 +13,7 @@ public interface CustomerDAO {
 	
 	void update(Customer customer) throws Exception;
 	
-	void delete(int customerID);
+	void delete(int customerID) throws Exception;
 	
 	List<Customer> getResellerCustomers(int resellerID);
 	

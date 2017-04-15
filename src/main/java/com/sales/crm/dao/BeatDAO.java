@@ -14,7 +14,7 @@ public interface BeatDAO {
 	
 	void update(Beat beat) throws Exception;
 	
-	void delete(int beatID);
+	void delete(int beatID) throws Exception;
 	
 	List<Beat> getResellerBeats(int resellerID);
 	

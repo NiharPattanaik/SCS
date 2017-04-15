@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.sales.crm.model.Area;
-import com.sales.crm.model.Beat;
 
 @Repository("areaDAO")
 public class AreaDAOImpl implements AreaDAO {
@@ -94,7 +93,7 @@ public class AreaDAOImpl implements AreaDAO {
 	}
 
 	@Override
-	public void delete(int areaID) {
+	public void delete(int areaID) throws Exception{
 		Session session = null;
 		Transaction transaction = null;
 		try{
@@ -113,6 +112,7 @@ public class AreaDAOImpl implements AreaDAO {
 			if(transaction != null){
 				transaction.rollback();
 			}
+			throw exception;
 		}finally{
 			if(session != null){
 				session.close();

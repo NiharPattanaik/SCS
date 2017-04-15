@@ -161,7 +161,7 @@ public class BeatDAOImpl implements BeatDAO {
 	}
 
 	@Override
-	public void delete(int beatID) {
+	public void delete(int beatID) throws Exception{
 		Session session = null;
 		Transaction transaction = null;
 		try {
@@ -180,6 +180,7 @@ public class BeatDAOImpl implements BeatDAO {
 			if (transaction != null) {
 				transaction.rollback();
 			}
+			throw exception;
 		} finally {
 			if (session != null) {
 				session.close();

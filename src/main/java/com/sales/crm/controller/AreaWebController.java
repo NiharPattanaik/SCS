@@ -80,9 +80,13 @@ public class AreaWebController {
 	
 	@GetMapping(value="/delete/{areaID}")
 	public ModelAndView delete(@PathVariable int areaID){
-		areaService.deleteArea(areaID);
-		List<Area> areas = areaService.getResellerAreas(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
-		return new ModelAndView("/area_list","areas", areas);  
+		String msg = "";
+		try{
+			areaService.deleteArea(areaID);
+		}catch(Exception exception){
+			msg = "Area could not be successfully removed, please contact System Administrator";
+		}
+		return new ModelAndView("/delete_area_conf", "msg", msg);
 	}
 	
 	@GetMapping(value="/list/{resellerID}")

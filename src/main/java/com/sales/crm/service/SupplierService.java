@@ -26,7 +26,7 @@ public class SupplierService {
 		supplierDAO.update(supplier);
 	}
 	
-	public void deleteSupplier(int supplierID){
+	public void deleteSupplier(int supplierID) throws Exception{
 		supplierDAO.delete(supplierID);
 	}
 	

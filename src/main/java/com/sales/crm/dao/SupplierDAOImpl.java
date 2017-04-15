@@ -97,7 +97,7 @@ public class SupplierDAOImpl implements SupplierDAO{
 	}
 
 	@Override
-	public void delete(int supplierID) {
+	public void delete(int supplierID) throws Exception{
 		Session session = null;
 		Transaction transaction = null;
 		try{
@@ -112,6 +112,7 @@ public class SupplierDAOImpl implements SupplierDAO{
 			if(transaction != null){
 				transaction.rollback();
 			}
+			throw exception; 
 		}finally{
 			if(session != null){
 				session.close();

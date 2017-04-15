@@ -115,9 +115,13 @@ public class BeatWebController {
 	
 	@GetMapping(value="/delete/{beatID}")
 	public ModelAndView delete(@PathVariable int beatID){
-		beatService.deleteBeat(beatID);
-		List<Beat> beats = beatService.getResellerBeats(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
-		return new ModelAndView("/beat_list","beats", beats);  
+		String msg = "";
+		try{
+			beatService.deleteBeat(beatID);
+		}catch(Exception exception){
+			msg = "Beat could not be successfully removed, please contact System Administrator";
+		}
+		return new ModelAndView("/delete_beat_conf","msg", msg);  
 	}
 	
 	@GetMapping(value="/list/{resellerID}")

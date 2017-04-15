@@ -32,13 +32,21 @@ public class CustomerReSTController {
 	
 	@PutMapping
 	public ResponseEntity<Customer> create(@RequestBody Customer customer){
-		customerService.createCustomer(customer);
+		try{
+			customerService.createCustomer(customer);
+		}catch(Exception exception){
+			
+		}
 		return new ResponseEntity<Customer>(customer, HttpStatus.CREATED);
 	}
 	
 	@PostMapping
 	public ResponseEntity<Customer> update(@RequestBody Customer customer){
-		customerService.updateCustomer(customer);
+		try{
+			customerService.updateCustomer(customer);
+		}catch(Exception exception){
+			
+		}
 		return new ResponseEntity<Customer>(customer, HttpStatus.OK);
 	}
 	

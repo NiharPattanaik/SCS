@@ -57,7 +57,11 @@ public class ResellerWebController {
 		Set<Integer> roleIDList = new HashSet<Integer>();
 		roleIDList.add(1);
 		user.setRoleIDs(roleIDList);
-		userService.createUser(user);
+		try{
+			userService.createUser(user);
+		}catch(Exception exception){
+			exception.printStackTrace();
+		}
 		return new ModelAndView("/message", "message", "Admin User is successfully created. <br><b>User Name</b> - "+ user.getUserName() +"<br><b>password</b> - "+ user.getPassword());
 	
 	}

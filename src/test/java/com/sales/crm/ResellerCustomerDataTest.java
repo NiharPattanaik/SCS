@@ -199,8 +199,11 @@ public class ResellerCustomerDataTest {
 		user.setMobileNo("test_m_number");
 		user.setPassword("test_pass");
 		user.setResellerID(13);
-		
-		userService.createUser(user);
+		try{
+			userService.createUser(user);
+		}catch(Exception exception){
+			exception.printStackTrace();
+		}
 	}
 	
 	@Test

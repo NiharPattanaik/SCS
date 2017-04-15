@@ -110,9 +110,13 @@ public class UserWebController {
 	
 	@GetMapping(value="/delete/{userID}")
 	public ModelAndView delete(@PathVariable int userID){
-		userService.deleteUser(userID);
-		List<User> users = userService.getResellerUsers(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
-		return new ModelAndView("/users_list","users", users);  
+		String msg = "";
+		try{
+			userService.deleteUser(userID);
+		}catch(Exception exception){
+			msg = "User could not be successfully removed, please contact System Administrator";
+		}
+		return new ModelAndView("/delete_user_conf","msg", msg);  
 	}
 	
 	@GetMapping(value="/list/{resellerID}")

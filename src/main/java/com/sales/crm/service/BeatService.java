@@ -27,7 +27,7 @@ public class BeatService {
 		beatDAO.update(beat);
 	}
 	
-	public void deleteBeat(int beatID){
+	public void deleteBeat(int beatID) throws Exception{
 		beatDAO.delete(beatID);
 	}
 	

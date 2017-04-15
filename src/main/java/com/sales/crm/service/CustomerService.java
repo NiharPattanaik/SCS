@@ -27,7 +27,7 @@ public class CustomerService {
 		customerDAO.update(customer);
 	}
 	
-	public void deleteCustomer(int customerID){
+	public void deleteCustomer(int customerID) throws Exception{
 		customerDAO.delete(customerID);
 	}
 	

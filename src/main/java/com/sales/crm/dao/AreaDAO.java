@@ -12,7 +12,7 @@ public interface AreaDAO {
 	
 	void update(Area area) throws Exception;
 	
-	void delete(int areaID);
+	void delete(int areaID) throws Exception;
 	
 	List<Area> getResellerAreas(int resellerID);
 	

@@ -12,7 +12,7 @@ public interface SupplierDAO {
 	
 	void update(Supplier supplier) throws Exception;
 	
-	void delete(int supplierID);
+	void delete(int supplierID) throws Exception;
 	
 	List<Supplier> getResellerSupplier(int resellerID);
 	
