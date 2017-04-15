@@ -2,7 +2,9 @@ package com.sales.crm.controller;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
@@ -53,14 +55,27 @@ public class AreaWebController {
 	@RequestMapping(value="/save",method = RequestMethod.POST)  
 	public ModelAndView create(@ModelAttribute("area") Area area){
 		area.setResellerID(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
-		areaService.createArea(area);
-		return list(area.getResellerID());
+		String msg = "";
+		try{
+			areaService.createArea(area);
+		}catch(Exception exception){
+			msg = "New Area could not be created successfully, please contact System Administrator. ";
+		}
+		return new ModelAndView("/create_area_conf", "msg", msg);
 	}
 	
 	@RequestMapping(value="/update",method = RequestMethod.POST) 
 	public ModelAndView update(@ModelAttribute("area") Area area){
-		areaService.updateArea(area);
-		return get(area.getAreaID());
+		String msg = "";
+		try{
+			areaService.updateArea(area);
+		}catch(Exception exception){
+			msg = "Area details could not be updated successfully, please contact System Administrator. ";
+		}
+		Map<String, String> modelMap = new HashMap<String, String>();
+		modelMap.put("msg", msg);
+		modelMap.put("areaID", String.valueOf(area.getAreaID()));
+		return new ModelAndView("/edit_area_conf", "map", modelMap);
 	}
 	
 	@GetMapping(value="/delete/{areaID}")

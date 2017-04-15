@@ -42,7 +42,6 @@ public class LoginFilter implements Filter {
         boolean restRequest = false;
         boolean createResellerForm = false;
         boolean saveReseller = false;
-        boolean createAdminUser = false;
         
         if(request.getRequestURI().equals(logoutURI)){
 			session.invalidate();
@@ -52,37 +51,17 @@ public class LoginFilter implements Filter {
 			restRequest = request.getRequestURI().contains("/crm/rest/") ? true : false;
 			createResellerForm = request.getRequestURI().contains("/web/resellerWeb/createResellerForm") ? true : false;
 			saveReseller = request.getRequestURI().contains("/web/resellerWeb/saveReseller") ? true : false;
-			createAdminUser = request.getRequestURI().contains("createAdminUser") ? true : false;
 		}
 		
-        if(createResellerForm || saveReseller || createAdminUser){
+        if(createResellerForm || saveReseller || loginRequest || loggedIn){
         	chain.doFilter(request, response);
-        }else if(loginRequest && !loggedIn){
-        	String userName = request.getParameter("uname");
-    		String password = request.getParameter("psw");
-    		User user = userService.getUser(userName);
-    		if(!userService.validateUserCredential(userName, password)){
-    			Map<String, Object> modelMap = new HashMap<String, Object>();
-    			modelMap.put("msg", "Invalid user name or password.");
-    			RequestDispatcher rd=req.getRequestDispatcher("/index.jsp");  
-            	rd.include(req, res);
-    		}else if (!isAdminUser(user)){
-    			Map<String, Object> modelMap = new HashMap<String, Object>();
-    			modelMap.put("msg", "User <b>"+ userName +"</b> not having required previligaes to access the application");
-    			RequestDispatcher rd=req.getRequestDispatcher("/index.jsp");  
-            	rd.include(req, res);
-    		}else{
-    			chain.doFilter(request, response);
-    		}
-        }else if(restRequest && !loggedIn){
+        }else if(restRequest){
         	if(validateRESTCredential(request, response)){
         		chain.doFilter(request, response);
         	}else{
         		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         	}
-        }else if(loggedIn ) {
-            chain.doFilter(request, response);
-        } else {
+        }else {
         	RequestDispatcher rd=req.getRequestDispatcher("/index.jsp");  
         	rd.include(req, res); 
         }

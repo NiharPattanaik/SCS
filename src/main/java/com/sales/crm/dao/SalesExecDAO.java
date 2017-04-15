@@ -1,10 +1,12 @@
 package com.sales.crm.dao;
 
+import java.util.Date;
 import java.util.List;
 
 import com.sales.crm.model.Beat;
 import com.sales.crm.model.SalesExecBeatCustomer;
 import com.sales.crm.model.SalesExecutive;
+import com.sales.crm.model.TrimmedCustomer;
 
 public interface SalesExecDAO {
 	
@@ -12,13 +14,25 @@ public interface SalesExecDAO {
 	
 	List<SalesExecutive> getSalesExecutives(int resellerID);
 	
-	void assignBeats(int salesExecID, List<Integer> beatIDs);
+	void assignBeats(int salesExecID, List<Integer> beatIDs) throws Exception;
 	
-	void updateAssignedBeats(final int salesExecID, final List<Integer> beatIDs);
+	void updateAssignedBeats(final int salesExecID, final List<Integer> beatIDs) throws Exception;
 	
 	List<SalesExecutive> getSalesExecMapsBeatsCustomers(int resellerID);
 	
 	List<Beat> getAssignedBeats(int salesExecID);
 	
+	List<Beat> getScheduledVisitSalesExecBeats(int salesExecID, Date visitDate);
+	
 	void scheduleVistit(SalesExecBeatCustomer salesExecBeatCustomer);
+	
+	List<String> alreadyScheduledCustomer(SalesExecBeatCustomer salesExecBeatCustomer) throws Exception;
+	
+	List<SalesExecutive> getScheduledVisitSalesExecs(Date visitDate);
+	
+	List<TrimmedCustomer> getScheduledVisitBeatCustomers(int salesExecID, Date visitDate, int beatID);
+	
+	void deleteBeatAssignment(int salesExecID) throws Exception;
+	
+	List<SalesExecutive> getSalesExecutivesHavingBeatsAssigned(int resellerID);
 }

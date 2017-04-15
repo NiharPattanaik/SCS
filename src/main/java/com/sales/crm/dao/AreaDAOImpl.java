@@ -26,7 +26,7 @@ public class AreaDAOImpl implements AreaDAO {
 	
 	
 	@Override
-	public void create(Area area) {
+	public void create(Area area) throws Exception{
 		Session session = null;
 		Transaction transaction = null;
 		try{
@@ -40,6 +40,7 @@ public class AreaDAOImpl implements AreaDAO {
 			if(transaction != null){
 				transaction.rollback();
 			}
+			throw e;
 		}finally{
 			if(session != null){
 				session.close();
@@ -66,7 +67,7 @@ public class AreaDAOImpl implements AreaDAO {
 	}
 
 	@Override
-	public void update(Area area) {
+	public void update(Area area) throws Exception{
 
 		Session session = null;
 		Transaction transaction = null;
@@ -81,6 +82,7 @@ public class AreaDAOImpl implements AreaDAO {
 			if(transaction != null){
 				transaction.rollback();
 			}
+			throw e;
 		}finally{
 			if(session != null){
 				session.close();

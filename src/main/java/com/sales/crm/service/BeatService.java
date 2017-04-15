@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import com.sales.crm.dao.BeatDAO;
 import com.sales.crm.model.Beat;
@@ -20,11 +19,11 @@ public class BeatService {
 		return beatDAO.get(beatID);
 	}
 	
-	public void createBeat(Beat beat){
+	public void createBeat(Beat beat) throws Exception{
 		beatDAO.create(beat);
 	}
 	
-	public void updateBeat(Beat beat){
+	public void updateBeat(Beat beat) throws Exception{
 		beatDAO.update(beat);
 	}
 	
@@ -36,7 +35,7 @@ public class BeatService {
 		return beatDAO.getResellerBeats(resellerID);
 	}
 	
-	public void assignBeatToCustomers(int beatID, List<Integer> customerIDs){
+	public void assignBeatToCustomers(int beatID, List<Integer> customerIDs) throws Exception{
 		beatDAO.assignBeatToCustomers(beatID, customerIDs);	
 	}
 	
@@ -46,5 +45,9 @@ public class BeatService {
 	
 	public List<TrimmedCustomer> getBeatCustomers(int beatID){
 		return beatDAO.getBeatCustomers( beatID);
+	}
+	
+	public void deleteAssignedBeatCustomerLink(int beatID) throws Exception{
+		beatDAO.deleteAssignedBeatCustomerLink(beatID);
 	}
 }

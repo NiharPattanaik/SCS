@@ -64,17 +64,28 @@ public class SupplierWebController {
 	@RequestMapping(value="/save",method = RequestMethod.POST)  
 	public ModelAndView create(@ModelAttribute("supplier") Supplier supplier){
 		supplier.setResellerID(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
-		supplierService.createSupplier(supplier);
-		List<Supplier> suppliers = supplierService.getResellerSuppliers(supplier.getResellerID());
-		return new ModelAndView("/supplier_list","suppliers", suppliers); 
+		String msg = "";
+		try{
+			supplierService.createSupplier(supplier);
+		}catch(Exception exception){
+			msg = "Creation of new supplier is not successfull, please contact System Administrator";
+		}
+		return new ModelAndView("/create_supplier_conf","msg", msg); 
 	}
 	
 	
 	@RequestMapping(value="/update",method = RequestMethod.POST) 
 	public ModelAndView update(@ModelAttribute("supplier") Supplier supplier){
-		supplierService.updateSupplier(supplier);
-		List<Supplier> suppliers = supplierService.getResellerSuppliers(supplier.getResellerID());
-		return new ModelAndView("/supplier_list","suppliers", suppliers); 
+		String msg = "";
+		try{
+			supplierService.updateSupplier(supplier);
+		}catch(Exception exception){
+			msg = "Supplier details could not be updated successfully, please contact System Administrator. ";
+		}
+		Map<String, String> modelMap = new HashMap<String, String>();
+		modelMap.put("msg", msg);
+		modelMap.put("supplierID", String.valueOf(supplier.getSupplierID()));
+		return new ModelAndView("/edit_supplier_conf", "map", modelMap);
 	}
 	
 	@GetMapping(value="/delete/{supplierID}")

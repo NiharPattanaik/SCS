@@ -87,17 +87,30 @@ public class BeatWebController {
 			beat.setCoverageSchedule("");
 		}
 		beat.setResellerID(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
-		beatService.createBeat(beat);
-		return list(beat.getResellerID());
+		String msg = "";
+		try{
+			beatService.createBeat(beat);
+		}catch(Exception exception){
+			msg = "New Beat could not be created successfully, please contact System Administrator. ";
+		}
+		return new ModelAndView("/create_beat_conf", "msg", msg);
 	}
 	
 	@RequestMapping(value="/update",method = RequestMethod.POST) 
-	public ModelAndView update(@ModelAttribute("beat") Beat beat){
-		if(beat.getCoverageSchedule().equals("-1")){
+	public ModelAndView update(@ModelAttribute("beat") Beat beat) {
+		if (beat.getCoverageSchedule().equals("-1")) {
 			beat.setCoverageSchedule("");
 		}
-		beatService.updateBeat(beat);
-		return get(beat.getBeatID());
+		String msg = "";
+		try {
+			beatService.updateBeat(beat);
+		} catch (Exception exception) {
+			msg = "Beat details could not be updated successfully, please contact System Administrator. ";
+		}
+		Map<String, String> modelMap = new HashMap<String, String>();
+		modelMap.put("msg", msg);
+		modelMap.put("beatID", String.valueOf(beat.getBeatID()));
+		return new ModelAndView("/edit_beat_conf", "map", modelMap);
 	}
 	
 	@GetMapping(value="/delete/{beatID}")
@@ -133,8 +146,13 @@ public class BeatWebController {
 	
 	@PostMapping(value="/assignBeatToCustomers")
 	public ModelAndView assignBeatToCustomers(@ModelAttribute("beat") Beat beat){
-		beatService.assignBeatToCustomers(beat.getBeatID(), beat.getCustomerIDs());
-		return getBeatCustomers();
+		String msg = "";
+		try{
+			beatService.assignBeatToCustomers(beat.getBeatID(), beat.getCustomerIDs());
+		}catch(Exception exception){
+			msg = "Customers could not be successfully assigned to beat. Please contact System Administrator";
+		}
+		return new ModelAndView("/assign_beat_customers_conf", "msg", msg);
 	}
 	
 	@GetMapping(value="/assignedBeatCustomerEditForm/{beatID}") 
@@ -150,9 +168,26 @@ public class BeatWebController {
 	
 	@PostMapping(value="/updateAssignedBeatToCustomers")
 	public ModelAndView updateAssignedBeatToCustomers(@ModelAttribute("beat") Beat beat){
-		beatService.updateAssignedBeatToCustomers(beat.getBeatID(), beat.getCustomerIDs());
-		return getBeatCustomers();
+		String msg = "";
+		try{
+			beatService.updateAssignedBeatToCustomers(beat.getBeatID(), beat.getCustomerIDs());
+		}catch(Exception exception){
+			msg = "Assigned customers to beat could not be updated successfully. Please contact System Administrator";
+		}
+		return new ModelAndView("/update_beat_customers_conf", "msg", msg);
 	}
+	
+	@GetMapping(value="/deleteAssignedBeatCustomerLink/{beatID}")
+	public ModelAndView deleteAssignedBeatCustomerLink(@PathVariable int beatID){
+		String msg = "";
+		try{
+			beatService.deleteAssignedBeatCustomerLink(beatID);
+		}catch(Exception exception){
+			msg = "Beats associated to Sales Executive could not be removed successfully. Please contact System Administrator.";
+		}
+		return new ModelAndView("/remove_beat_customers_conf","msg", msg); 
+	}
+	
 	
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {

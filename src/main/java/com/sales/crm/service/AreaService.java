@@ -18,11 +18,11 @@ public class AreaService {
 		return areaDAO.get(areaID);
 	}
 	
-	public void createArea(Area area){
+	public void createArea(Area area) throws Exception{
 		areaDAO.create(area);
 	}
 	
-	public void updateArea(Area area){
+	public void updateArea(Area area) throws Exception{
 		areaDAO.update(area);
 	}
 	

@@ -7,11 +7,11 @@ import com.sales.crm.model.TrimmedCustomer;
 
 public interface CustomerDAO {
 	
-	void create(Customer customer);
+	void create(Customer customer) throws Exception;
 	
 	Customer get(int customerID);
 	
-	void update(Customer customer);
+	void update(Customer customer) throws Exception;
 	
 	void delete(int customerID);
 	

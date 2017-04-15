@@ -6,11 +6,11 @@ import com.sales.crm.model.Area;
 
 public interface AreaDAO {
 	
-	void create(Area area);
+	void create(Area area) throws Exception;
 	
 	Area get(int areaID);
 	
-	void update(Area area);
+	void update(Area area) throws Exception;
 	
 	void delete(int areaID);
 	

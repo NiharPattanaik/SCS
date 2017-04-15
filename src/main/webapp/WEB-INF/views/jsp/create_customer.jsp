@@ -61,6 +61,13 @@ legend {
 	margin-top: 14px;
 	text-align: right;
 }
+
+.form-group.required .control-label:after { 
+   content:"*";
+   color:red;
+}
+
+
 </style>
 </head>
 
@@ -106,8 +113,8 @@ legend {
 					action="/crm/web/customerWeb/save">
 					<fieldset>
 						<legend>Customer Details</legend>
-						<div class="form-group">
-							<label>Name</label>
+						<div class="form-group required">
+							<label class='control-label'>Name</label>
 							<form:input name="name" cssClass="form-control" path="name" />
 						</div>
 						<div class="form-group">
@@ -115,11 +122,6 @@ legend {
 							<form:input name="description" cssClass="form-control"
 								path="description" />
 						</div>
-						<!-- div class="form-group">
-							<label>Visit Date</label>
-							<form:input name="visitDate" cssClass="form-control"
-								path="visitDate" />
-						</div -->
 					</fieldset>
 
 					<fieldset>
@@ -242,23 +244,6 @@ legend {
 								path="address[1].mobileNumberSecondary" />
 						</div>
 					</fieldset>
-					<fieldset>
-						<legend>Sales Activity</legend>
-						<div class="form-group">
-							<label>Sales Executive</label>
-							<form:select path="salesExecID" cssClass="form-control">
-								<form:option value="-1" label="--- Select ---" />
-								<form:options items="${salesExecs}" itemValue="userID"
-									itemLabel="name" />
-							</form:select>
-						</div>
-						<div class="form-group">
-							<label>Visit Date</label>
-							<form:input id="dp" name="visitDate" cssClass="dp form-control"
-								path="visitDate" />
-						</div>
-					</fieldset>
-
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</div>
@@ -268,7 +253,9 @@ legend {
 	</div>
 </body>
 <script type="text/javascript">
-$('#dp').datepicker({format: 'dd/mm/yyyy'});
+	$(document).ready(function() {
+			$("#name").prop('required',true);
+	});
 </script>
 
 </html>

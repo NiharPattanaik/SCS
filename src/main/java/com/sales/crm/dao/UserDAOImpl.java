@@ -20,10 +20,8 @@ import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.sales.crm.model.Beat;
 import com.sales.crm.model.Reseller;
 import com.sales.crm.model.Role;
-import com.sales.crm.model.SalesExecutive;
 import com.sales.crm.model.User;
 
 @Repository("userDAO")
@@ -37,7 +35,7 @@ public class UserDAOImpl implements UserDAO {
 	private static SimpleDateFormat dbFormat = new SimpleDateFormat("yyyy-MM-dd");
 	
 	@Override
-	public void create(User user) {
+	public void create(User user) throws Exception{
 		Session session = null;
 		Transaction transaction = null;
 		try {
@@ -65,11 +63,12 @@ public class UserDAOImpl implements UserDAO {
 				}
 			}
 			transaction.commit();
-		} catch (Exception e) {
-			logger.error("Error while creating user", e);
+		} catch (Exception exception) {
+			logger.error("Error while creating user", exception);
 			if (transaction != null) {
 				transaction.rollback();
 			}
+			throw exception;
 		} finally {
 			if (session != null) {
 				session.close();
@@ -123,7 +122,7 @@ public class UserDAOImpl implements UserDAO {
 	}
 
 	@Override
-	public void update(User user) {
+	public void update(User user) throws Exception{
 
 		Session session = null;
 		Transaction transaction = null;
@@ -146,11 +145,12 @@ public class UserDAOImpl implements UserDAO {
 				}
 			}
 			transaction.commit();
-		}catch(Exception e){
-			logger.error("Error while updating user", e);
+		}catch(Exception exception){
+			logger.error("Error while updating user", exception);
 			if(transaction != null){
 				transaction.rollback();
 			}
+			throw exception;
 		}finally{
 			if(session != null){
 				session.close();
@@ -383,6 +383,36 @@ public class UserDAOImpl implements UserDAO {
 		return false;
 	}
 	
-	
+	@Override
+	public int[] isUserNameEmailIDPresent(String userName, String email){
+		Session session = null;
+		int[] values = new int[2];
+		values[0] = 0;
+		values[1] = 0;
+		try{
+			session = sessionFactory.openSession();
+			//user name
+			SQLQuery userQuery = session.createSQLQuery("SELECT COUNT(*) FROM USER WHERE USER_NAME=? ");
+			userQuery.setParameter(0, userName);
+			List userCounts = userQuery.list();
+			if(userCounts != null && userCounts.size() == 1 && ((BigInteger)userCounts.get(0)).intValue() == 1){
+				values[0] = 1;
+			}
+			//email
+			SQLQuery emailQuery = session.createSQLQuery("SELECT COUNT(*) FROM USER WHERE EMAIL_ID=? ");
+			emailQuery.setParameter(0, email);
+			List emailCounts = emailQuery.list();
+			if(emailCounts != null && emailCounts.size() == 1 && ((BigInteger)emailCounts.get(0)).intValue() == 1){
+				values[1] = 1;
+			}
+		}catch(Exception exception){
+			logger.error("Error while validating user credential", exception);
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		return values;
+	}
 
 }

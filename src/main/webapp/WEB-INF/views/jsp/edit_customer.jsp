@@ -63,6 +63,13 @@ legend {
 	margin-top: 14px;
 	text-align: right;
 }
+
+.form-group.required .control-label:after { 
+   content:"*";
+   color:red;
+}
+
+
 </style>
 </head>
 
@@ -108,8 +115,8 @@ legend {
 					action="/crm/web/customerWeb/update">
 					<fieldset>
 						<legend>Customer Details</legend>
-						<div class="form-group">
-							<label>Name</label>
+						<div class="form-group required">
+							<label class='control-label'>Name</label>
 							<form:input name="name" cssClass="form-control" path="name"
 								value="${customer.name}" />
 						</div>
@@ -264,24 +271,6 @@ legend {
 								value="${ customer.address[1].mobileNumberSecondary }" />
 						</div>
 					</fieldset>
-					<fieldset>
-						<legend>Sales Activity</legend>
-						<div class="form-group">
-							<label>Sales Executive</label>
-							<form:select path="salesExecID" cssClass="form-control">
-								<form:option value="-1" label="--- Select ---" />
-								<form:options items="${salesExecs}" itemValue="userID"
-									itemLabel="name" />	
-							</form:select>
-						</div>
-						<div class="form-group">
-							<fmt:formatDate value="${ customer.visitDate }" type="date"
-								pattern="dd/MM/yyyy" var="theFormattedDate" />
-							<label>Visit Date</label>
-							<form:input id="dp" name="visitDate" cssClass="dp form-control"
-								path="visitDate" value="${theFormattedDate}" />
-						</div>
-					</fieldset>
 					<div>
 						<fmt:formatDate value="${ customer.dateCreated }" type="date"
 								pattern="dd/MM/yyyy" var="createdDate" />
@@ -304,7 +293,9 @@ legend {
 	</div>
 </body>
 <script type="text/javascript">
-$('#dp').datepicker({format: 'dd/mm/yyyy'});
+	$(document).ready(function() {
+		$("#name").prop('required',true);
+	});
 </script>
 
 </html>

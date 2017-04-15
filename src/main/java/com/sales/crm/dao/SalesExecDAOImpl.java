@@ -183,9 +183,66 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 		}
 		return new ArrayList<SalesExecutive>(salesExecs.values());
 	}
+	
+	
+	@Override
+	public List<SalesExecutive> getSalesExecutivesHavingBeatsAssigned(int resellerID){
+		Session session = null;
+		Map<Integer, SalesExecutive> salesExecsMap = new HashMap<Integer, SalesExecutive>(); 
+		try{
+			Set<Integer> userIDs = new HashSet<Integer>();
+			session = sessionFactory.openSession();
+			SQLQuery query = session.createSQLQuery("SELECT a.*, b.ID BEAT_ID, b.NAME BEAT_NAME FROM USER a, BEAT b, SALES_EXEC_BEATS c WHERE a.ID=c.SALES_EXEC_ID AND b.ID=c.BEAT_ID;");
+			List results = query.list();
+			for(Object obj : results){
+				Object[] objs = (Object[])obj;
+				SalesExecutive salesExec = new SalesExecutive();
+				salesExec.setUserID(Integer.valueOf(String.valueOf(objs[0])));
+				salesExec.setUserName(String.valueOf(objs[1]));
+				salesExec.setDescription(String.valueOf(objs[3]));
+				salesExec.setEmailID(String.valueOf(objs[4]));
+				salesExec.setMobileNo(String.valueOf(objs[5]));
+				salesExec.setFirstName(String.valueOf(objs[6]));
+				salesExec.setLastName(String.valueOf(objs[7]));
+				salesExec.setStatus(Integer.valueOf(String.valueOf(objs[8])));
+				if(objs[9] != null){
+					salesExec.setDateCreated(new Date(dbFormat.parse(String.valueOf(objs[9])).getTime()));
+				}
+				
+				if(objs[10] != null){
+					salesExec.setDateModified(new Date(dbFormat.parse(String.valueOf(objs[10])).getTime()));
+				}
+				salesExec.setCompanyID(Integer.valueOf(String.valueOf(objs[11])));
+				salesExec.setResellerID(resellerID);
+				
+				if(!salesExecsMap.containsKey(salesExec.getUserID())){
+					salesExecsMap.put(salesExec.getUserID(), salesExec);
+				}
+				
+				//Add Beats
+				Beat beat = new Beat();
+				beat.setBeatID(Integer.valueOf(String.valueOf(objs[12])));
+				beat.setName(String.valueOf(objs[13]));
+				if(salesExecsMap.get(salesExec.getUserID()).getBeats() == null){
+					salesExecsMap.get(salesExec.getUserID()).setBeats(new ArrayList<Beat>());
+				}
+				salesExecsMap.get(salesExec.getUserID()).getBeats().add(beat);
+			}
+			
+			
+			
+		}catch(Exception exception){
+			logger.error("Error while fetching list of sales executives", exception);
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		return new ArrayList<SalesExecutive>(salesExecsMap.values());
+	}
 
 	@Override
-	public void assignBeats(final int salesExecID, final List<Integer> beatIDs) {
+	public void assignBeats(final int salesExecID, final List<Integer> beatIDs) throws Exception{
 		Session session = null;
 		try {
 			session = sessionFactory.openSession();
@@ -212,6 +269,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 			transaction.commit();
 		} catch (Exception exception) {
 			logger.error("Error while assigning beats.", exception);
+			throw exception;
 		} finally {
 			if (session != null) {
 				session.close();
@@ -220,7 +278,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 	}
 	
 	@Override
-	public void updateAssignedBeats(final int salesExecID, final List<Integer> beatIDs) {
+	public void updateAssignedBeats(final int salesExecID, final List<Integer> beatIDs) throws Exception{
 		Session session = null;
 		try {
 			session = sessionFactory.openSession();
@@ -251,6 +309,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 			transaction.commit();
 		} catch (Exception exception) {
 			logger.error("Error while updating assigned beats", exception);
+			throw exception;
 		} finally {
 			if (session != null) {
 				session.close();
@@ -331,6 +390,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 			final int salesExecID = salesExecBeatCustomer.getSalesExecutiveID();
 			final int beatID = salesExecBeatCustomer.getBeatID();
 			final List<Integer> custIDList = salesExecBeatCustomer.getCustomerIDs();
+			final Date visitDate = salesExecBeatCustomer.getVisitDate();
 			session = sessionFactory.openSession();
 			Transaction transaction = session.beginTransaction();
 			// get Connction from Session
@@ -339,12 +399,13 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 				public void execute(Connection connection) throws SQLException {
 					PreparedStatement pstmt = null;
 					try {
-						String sqlInsert = "INSERT INTO SALES_EXEC_BEATS_CUSTOMERS VALUES (?, ?, ?)";
+						String sqlInsert = "INSERT INTO SALES_EXEC_BEATS_CUSTOMERS VALUES (?, ?, ?, ?)";
 						pstmt = connection.prepareStatement(sqlInsert);
 						for (int i = 0; i < custIDList.size(); i++) {
 							pstmt.setInt(1, salesExecID);
 							pstmt.setInt(2, beatID);
 							pstmt.setInt(3, custIDList.get(i));
+							pstmt.setDate(4, new java.sql.Date(visitDate.getTime()));
 							pstmt.addBatch();
 						}
 						pstmt.executeBatch();
@@ -356,6 +417,141 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 			transaction.commit();
 		} catch (Exception exception) {
 			logger.error("Error while scheduling sales executives visti.", exception);
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	}
+
+	@Override
+	public List<Beat> getScheduledVisitSalesExecBeats(int salesExecID, Date visitDate) {
+		Session session = null;
+		List<Beat> beats = new ArrayList<Beat>();
+		try {
+			session = sessionFactory.openSession();
+			SQLQuery query = session.createSQLQuery(
+					"SELECT b.ID, b.NAME FROM USER a, BEAT b, SALES_EXEC_BEATS_CUSTOMERS c  WHERE a.ID=c.SALES_EXEC_ID AND b.ID=c.BEAT_ID AND a.ID=? AND c.VISIT_DATE = ? group by b.ID");
+			query.setParameter(0, salesExecID);
+			query.setParameter(1, visitDate);
+			List lists = query.list();
+			for(Object obj : lists){
+				Object[] objs = (Object[])obj;
+				Beat beat = new Beat();
+				beat.setBeatID(Integer.valueOf(String.valueOf(objs[0])));
+				beat.setName(String.valueOf(objs[1]));
+				beats.add(beat);
+			}
+			return beats;
+		} catch (Exception exception) {
+			logger.error("Error fetching sales executives mapped to beat and customer.", exception);
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public List<SalesExecutive> getScheduledVisitSalesExecs(Date visitDate) {
+		Session session = null;
+		List<SalesExecutive> salesExecs = new ArrayList<SalesExecutive>();
+		try {
+			session = sessionFactory.openSession();
+			SQLQuery query = session.createSQLQuery(
+					"SELECT a.ID, a.FIRST_NAME, a.LAST_NAME FROM USER a, SALES_EXEC_BEATS_CUSTOMERS b  WHERE a.ID=b.SALES_EXEC_ID AND b.VISIT_DATE = ? group by a.ID");
+			query.setParameter(0, visitDate);
+			List lists = query.list();
+			for(Object obj : lists){
+				Object[] objs = (Object[])obj;
+				SalesExecutive salesExecutive = new SalesExecutive();
+				salesExecutive.setUserID(Integer.valueOf(String.valueOf(objs[0])));
+				salesExecutive.setFirstName(String.valueOf(objs[1]));
+				salesExecutive.setLastName(String.valueOf(objs[2]));
+				salesExecutive.setName(String.valueOf(objs[1]) +" "+ String.valueOf(objs[2]));
+				salesExecs.add(salesExecutive);
+			}
+			return salesExecs;
+		} catch (Exception exception) {
+			logger.error("Error fetching sales executives mapped to beat and customer.", exception);
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+		return null;
+	}
+	
+	@Override
+	public List<TrimmedCustomer> getScheduledVisitBeatCustomers(int salesExecID, Date visitDate, int beatID){
+		Session session = null;
+		List<TrimmedCustomer> trimmedCustomers = new ArrayList<TrimmedCustomer>();
+		try {
+			session = sessionFactory.openSession();
+			SQLQuery query = session.createSQLQuery(
+					"SELECT a.ID, a.NAME FROM CUSTOMER a, SALES_EXEC_BEATS_CUSTOMERS b WHERE a.ID=b.CUSTOMER_ID AND b.SALES_EXEC_ID= ? AND b.VISIT_DATE= ? AND b.BEAT_ID= ? group by a.ID");
+			query.setParameter(0, salesExecID);
+			query.setParameter(1, visitDate);
+			query.setParameter(2, beatID);
+			List lists = query.list();
+			for(Object obj : lists){
+				Object[] objs = (Object[])obj;
+				TrimmedCustomer trimmedCustomer = new TrimmedCustomer();
+				trimmedCustomer.setCustomerID(Integer.valueOf(String.valueOf(objs[0])));
+				trimmedCustomer.setCustomerName(String.valueOf(objs[1]));
+				trimmedCustomers.add(trimmedCustomer);
+			}
+			return trimmedCustomers;
+		} catch (Exception exception) {
+			logger.error("Error fetching sales executives mapped to beat and customer.", exception);
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public List<String> alreadyScheduledCustomer(SalesExecBeatCustomer salesExecBeatCustomer) throws Exception{
+		Session session = null;
+		List<String> customerNames = new ArrayList<String>();
+		try {
+			session = sessionFactory.openSession();
+			SQLQuery query = session.createSQLQuery(
+					"SELECT a.NAME FROM CUSTOMER a, SALES_EXEC_BEATS_CUSTOMERS b WHERE a.ID=b.CUSTOMER_ID AND b.SALES_EXEC_ID=? AND b.BEAT_ID=? AND b.VISIT_DATE = ? AND b.CUSTOMER_ID IN ("+ StringUtils.join(salesExecBeatCustomer.getCustomerIDs(), ",")+") group by a.NAME");
+			query.setParameter(0, salesExecBeatCustomer.getSalesExecutiveID());
+			query.setParameter(1, salesExecBeatCustomer.getBeatID());
+			query.setParameter(2, salesExecBeatCustomer.getVisitDate());
+			List lists = query.list();
+			for(Object obj : lists){
+				customerNames.add(String.valueOf(obj));
+			}
+		} catch (Exception exception) {
+			logger.error("Error fetching sales executives mapped to beat and customer.", exception);
+			throw exception;
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+		return customerNames;
+	}
+
+	@Override
+	public void deleteBeatAssignment(int salesExecID) throws Exception {
+		Session session = null;
+		try {
+			session = sessionFactory.openSession();
+			Transaction transaction = session.beginTransaction();
+			SQLQuery query = session.createSQLQuery("DELETE FROM SALES_EXEC_BEATS WHERE SALES_EXEC_ID= ?");
+			query.setParameter(0, salesExecID);
+			query.executeUpdate();
+			transaction.commit();
+		} catch (Exception exception) {
+			logger.error("Sales Executive beats could not be successfully removed", exception);
+			throw exception;
 		} finally {
 			if (session != null) {
 				session.close();

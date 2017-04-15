@@ -105,8 +105,7 @@
                     <tr>
                         <th>Customer ID</th>
                         <th>Name</th>
-                        <th>Sales Executive</th>
-                        <th>Visit Date</th>
+                        <th>Description</th>
                         <th>City</th>
                     </tr>
                 </thead>
@@ -115,8 +114,7 @@
                     <tr>
                     	<td><a href="<%=request.getContextPath()%>/web/customerWeb/${customer.customerID}">${customer.customerID}</a></td>
                         <td>${customer.name}</td>
-                        <td>${customer.salesExecName}</td>
-                        <td>${customer.visitDate}</td>
+                        <td>${customer.description}</td>
                         <td>${customer.address[0].city}</td>
                     </tr>
                     </c:forEach>

@@ -30,7 +30,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 	private static Logger logger = Logger.getLogger(CustomerDAOImpl.class);
 	
 	@Override
-	public void create(Customer customer) {
+	public void create(Customer customer) throws Exception{
 		Session session = null;
 		Transaction transaction = null;
 		try{
@@ -41,19 +41,13 @@ public class CustomerDAOImpl implements CustomerDAO{
 				address.setDateCreated(new Date());
 			}
 			session.save(customer);
-			//Insert CUSTOMER_SALES_EXEC
-			if(customer.getSalesExecID() != -1){
-				SQLQuery createResellerUser = session.createSQLQuery("INSERT INTO CUSTOMER_SALES_EXEC VALUES (?, ?)");
-				createResellerUser.setParameter(0, customer.getCustomerID());
-				createResellerUser.setParameter(1, customer.getSalesExecID());
-				createResellerUser.executeUpdate();
-			}
 			transaction.commit();
 		}catch(Exception e){
 			logger.error("Error while creating customer", e);
 			if(transaction != null){
 				transaction.rollback();
 			}
+			throw e;
 		}finally{
 			if(session != null){
 				session.close();
@@ -88,7 +82,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 	}
 
 	@Override
-	public void update(Customer customer) {
+	public void update(Customer customer) throws Exception{
 
 		Session session = null;
 		Transaction transaction = null;
@@ -100,23 +94,13 @@ public class CustomerDAOImpl implements CustomerDAO{
 				address.setDateModified(new Date());
 			}
 			session.update(customer);
-			//Update CUSTOMER_SALES_EXEC
-			if(customer.getSalesExecID() != -1){
-				SQLQuery deleteCustomerSalesExec = session.createSQLQuery("DELETE FROM CUSTOMER_SALES_EXEC WHERE CUSTOMER_ID=? ");
-				deleteCustomerSalesExec.setParameter(0, customer.getCustomerID());
-				deleteCustomerSalesExec.executeUpdate();
-				
-				SQLQuery createCustomerSalesExec = session.createSQLQuery("INSERT INTO CUSTOMER_SALES_EXEC VALUES (?, ?) ");
-				createCustomerSalesExec.setParameter(0, customer.getCustomerID());
-				createCustomerSalesExec.setParameter(1, customer.getSalesExecID());
-				createCustomerSalesExec.executeUpdate();
-			}
 			transaction.commit();
 		}catch(Exception e){
 			logger.error("Error while updating customer", e);
 			if(transaction != null){
 				transaction.rollback();
 			}
+			throw e;
 		}finally{
 			if(session != null){
 				session.close();

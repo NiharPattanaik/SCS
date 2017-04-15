@@ -60,6 +60,11 @@ legend {
 	margin-top: 14px;
 	text-align: right;
 }
+
+.form-group.required .control-label:after { 
+   content:"*";
+   color:red;
+}
 </style>
 </head>
 
@@ -105,8 +110,8 @@ legend {
 					action="/crm/web/userWeb/update">
 					<fieldset>
 						<legend>User Details</legend>
-						<div class="form-group">
-							<label>First Name</label>
+						<div class="form-group required" >
+							<label class='control-label'>First Name</label>
 							<form:input name="firstName" cssClass="form-control"
 								path="firstName" value="${ user.firstName }" />
 						</div>
@@ -120,10 +125,10 @@ legend {
 							<form:input name="description" cssClass="form-control"
 								path="description" value="${ user.description }" />
 						</div>
-						<div class="form-group">
-							<label>Email ID</label>
+						<div class="form-group required" >
+							<label class='control-label'>Email ID</label>
 							<form:input name="emailID" cssClass="form-control" path="emailID"
-								value="${ user.emailID }" />
+								value="${ user.emailID }" disabled="true"/>
 						</div>
 						<div class="form-group">
 							<label>Mobile Number</label>
@@ -166,5 +171,9 @@ legend {
 		</div>
 	</div>
 </body>
-
+	<script type="text/javascript">
+		$(document).ready(function() {
+	   		$("#name").prop('required',true);
+		});
+	</script>
 </html>

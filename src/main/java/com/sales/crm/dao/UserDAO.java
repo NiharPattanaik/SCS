@@ -3,16 +3,15 @@ package com.sales.crm.dao;
 import java.util.List;
 
 import com.sales.crm.model.Reseller;
-import com.sales.crm.model.SalesExecutive;
 import com.sales.crm.model.User;
 
 public interface UserDAO {
 	
-	void create(User user);
+	void create(User user) throws Exception;
 	
 	User get(int userID);
 	
-	void update(User user);
+	void update(User user) throws Exception;
 	
 	void delete(int userID);
 	
@@ -25,5 +24,7 @@ public interface UserDAO {
 	User getUser(String userName);
 	
 	boolean validateUserCredential(String userName, String password);
+	
+	int[] isUserNameEmailIDPresent(String userName, String email);
 	
 }

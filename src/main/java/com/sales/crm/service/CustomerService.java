@@ -19,11 +19,11 @@ public class CustomerService {
 		return customerDAO.get(customerID);
 	}
 	
-	public void createCustomer(Customer customer){
+	public void createCustomer(Customer customer) throws Exception{
 		customerDAO.create(customer);
 	}
 	
-	public void updateCustomer(Customer customer){
+	public void updateCustomer(Customer customer) throws Exception{
 		customerDAO.update(customer);
 	}
 	

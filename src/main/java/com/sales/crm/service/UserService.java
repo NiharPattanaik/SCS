@@ -24,11 +24,11 @@ public class UserService {
 		return userDAO.getUser(userName);
 	}
 	
-	public void createUser(User user){
+	public void createUser(User user) throws Exception{
 		userDAO.create(user);
 	}
 	
-	public void updateUser(User user){
+	public void updateUser(User user) throws Exception{
 		userDAO.update(user);
 	}
 	
@@ -46,6 +46,10 @@ public class UserService {
 	
 	public boolean validateUserCredential(String userName, String password){
 		return userDAO.validateUserCredential(userName, password);
+	}
+	
+	public int[] isUserNameEmailIDPresent(String userName, String email){
+		return userDAO.isUserNameEmailIDPresent(userName, email);
 	}
 	
 }

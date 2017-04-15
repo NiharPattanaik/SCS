@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomCollectionEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.sales.crm.model.Beat;
+import com.sales.crm.model.Customer;
 import com.sales.crm.model.SalesExecBeatCustomer;
 import com.sales.crm.model.SalesExecutive;
 import com.sales.crm.model.TrimmedCustomer;
@@ -43,10 +45,20 @@ public class SalesExecWebController {
 	
 	@GetMapping(value="/beatlist/{resellerID}")
 	public ModelAndView salesExecBeatsList(@PathVariable int resellerID){
-		List<SalesExecutive> salesExecs = salesExecService.getSalesExecutives(resellerID);
+		List<SalesExecutive> salesExecs = salesExecService.getSalesExecutivesHavingBeatsAssigned(resellerID);
 		return new ModelAndView("/salesexec_beats_list","salesExecs", salesExecs);  
 	}
 	
+	@GetMapping(value="/deleteBeatsAssignment/{salesExecID}")
+	public ModelAndView deleteBeatAssignment(@PathVariable int salesExecID){
+		String msg = "";
+		try{
+			salesExecService.deleteBeatAssignment(salesExecID);
+		}catch(Exception exception){
+			msg = "Beats associated to Sales Executive could not be removed successfully. Please contact System Administrator.";
+		}
+		return new ModelAndView("/remove_assign_beats_conf","msg", msg); 
+	}
 	
 	@GetMapping(value="/assignBeatForm") 
 	public ModelAndView assignBeatToSalesExecForm(){
@@ -61,8 +73,13 @@ public class SalesExecWebController {
 	
 	@PostMapping(value="/assignBeat") 
 	public ModelAndView assignBeatToSalesExec(@ModelAttribute("salesExec") SalesExecutive salesExec){
-		salesExecService.assignBeats(salesExec.getUserID(),salesExec.getBeatIDLists());
-		return salesExecBeatsList(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		String msg = "";
+		try{
+			salesExecService.assignBeats(salesExec.getUserID(),salesExec.getBeatIDLists());
+		}catch(Exception exception){
+			msg = "Sales Executive to Beats assignment could not be processed successfully. Please contact System Administrator.";
+		}
+		return new ModelAndView("/assign_beats_conf", "msg", msg);
 	}
 	
 	
@@ -78,8 +95,13 @@ public class SalesExecWebController {
 	
 	@PostMapping(value="/updateAssignedBeats") 
 	public ModelAndView updateAssignedBeat(@ModelAttribute("salesExec") SalesExecutive salesExec){
-		salesExecService.updateAssignedBeats(salesExec.getUserID(), salesExec.getBeatIDLists());
-		return salesExecBeatsList(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		String msg = "";
+		try{
+			salesExecService.updateAssignedBeats(salesExec.getUserID(), salesExec.getBeatIDLists());
+		}catch(Exception exception){
+			msg = "Beats assigned to Sales Executive could not be updated successfully. Please contact System Administrator.";
+		}
+		return new ModelAndView("/update_assign_beats_conf", "msg", msg);
 	}
 	
 	@GetMapping(value="/salesExecBeatsCustList")
@@ -102,13 +124,30 @@ public class SalesExecWebController {
 	
 	@PostMapping(value="/scheduleVisit") 
 	public ModelAndView scheduleSalesExecVisit(@ModelAttribute("salesExecBeatCustomer") SalesExecBeatCustomer salesExecBeatCustomer){
-		salesExecService.scheduleVistit(salesExecBeatCustomer);
-		return getSalesExecBeatsCustomersList();
+		String msg = "";
+		List<String> customerNames = null;
+		try{
+			customerNames = salesExecService.alreadyScheduledCustomer(salesExecBeatCustomer);
+			if(customerNames != null && customerNames.size() > 0){
+				msg = "<br>Customers <br><b>"+ StringUtils.join(customerNames, "<br>") +"</b><br>are already scheduled for a visit for <b>" + new SimpleDateFormat("dd-MM-yyyy").format(salesExecBeatCustomer.getVisitDate()) + "</b> date.";
+			}
+		}catch(Exception exception){
+			msg = "Scheduling customer visit could not be processed successfully, please contact the System Administrator.";
+		}
+		
+		if(msg.equals("")){
+			try{
+				salesExecService.scheduleVistit(salesExecBeatCustomer);
+			}catch(Exception exception){
+				msg = "Scheduling customer visit could not be processed successfully, please contact the System Administrator.";
+			}
+		}
+		return new ModelAndView("/salesexec_schedule_visit_conf", "msg", msg);
 	}
 	
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 		dateFormat.setLenient(false);
 		binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
 		

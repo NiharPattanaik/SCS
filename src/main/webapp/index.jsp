@@ -72,16 +72,30 @@ display:block;
        width: 100%;
     }
 }
+
+scroll{
+	overflow:scroll; 
+	width:40px;
+	height:10px;
+}
 </style>
 <body>
 
 <h2 class="form_header">Login Form</h2>
 
-<form method="post" action="/crm/web/userWeb/login" modelAttribute="error">
-  <div class="imgcontainer">
-  	${error}"
-  </div>
-
+<form method="post" action="/crm/web/userWeb/login">
+  <!-- div style="width: 200px; height: 100px; overflow-y: scroll; border: solid;">
+    test<br />
+    test<br />
+    test<br />
+    test<br />
+    test<br />
+    test<br />
+    test<br />
+    test<br />
+    test<br />
+    test<br />
+    </div-->
   <div class="container">
     <label><b>Username</b></label>
     <input type="text" placeholder="Enter Username" name="uname" required>

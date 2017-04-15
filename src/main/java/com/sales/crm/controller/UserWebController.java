@@ -78,14 +78,34 @@ public class UserWebController {
 	@RequestMapping(value="/save",method = RequestMethod.POST)  
 	public ModelAndView create(@ModelAttribute("user") User user){
 		user.setResellerID(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
-		userService.createUser(user);
-		return list(user.getResellerID());
+		String msg = "";
+		int[] values = userService.isUserNameEmailIDPresent(user.getUserName(), user.getEmailID());
+		if(values[0] == 1){
+			msg = "User Name <b>"+ user.getUserName() + "</b> is already used. Please try with a different User Name.";  
+		}else if(values[1] == 1){
+			msg = "Email ID <b>"+ user.getEmailID() + "</b> is already used. Please try to provide a different email ID.";  
+		}else{
+			try{
+				userService.createUser(user);
+			}catch(Exception exception){
+				msg = "User could be created successfully, please contact System Administrator.";
+			}
+		}
+		return new ModelAndView("/create_user_conf", "msg", msg);
 	}
 	
 	@RequestMapping(value="/update",method = RequestMethod.POST) 
 	public ModelAndView update(@ModelAttribute("user") User user){
-		userService.updateUser(user);
-		return get(user.getUserID());
+		String msg = "";
+		try{
+			userService.updateUser(user);
+		}catch(Exception exception){
+			msg = "User details could not be updated successfully, please contact System Administrator. ";
+		}
+		Map<String, String> modelMap = new HashMap<String, String>();
+		modelMap.put("msg", msg);
+		modelMap.put("userID", String.valueOf(user.getUserID()));
+		return new ModelAndView("/edit_user_conf", "map", modelMap);
 	}
 	
 	@GetMapping(value="/delete/{userID}")
@@ -104,9 +124,9 @@ public class UserWebController {
 	@RequestMapping(value="/login",method = RequestMethod.POST)  
 	public ModelAndView login(HttpServletRequest request, HttpServletResponse response){
 		String userName = request.getParameter("uname");
-		//String password = request.getParameter("psw");
+		String password = request.getParameter("psw");
 		User user = userService.getUser(userName);
-		/**
+		
 		if(!userService.validateUserCredential(userName, password)){
 			Map<String, Object> modelMap = new HashMap<String, Object>();
 			modelMap.put("msg", "Invalid user name or password.");
@@ -115,15 +135,16 @@ public class UserWebController {
 			Map<String, Object> modelMap = new HashMap<String, Object>();
 			modelMap.put("msg", "User <b>"+ userName +"</b> not having required previligaes to access the application");
 			return new ModelAndView("/login", modelMap); 
-		}else{ **/
+		}else{
 			httpSession.setAttribute("user", user);
 			httpSession.setAttribute("resellerID", user.getResellerID());
 			List<Customer> customers = customerService.getResellerCustomers(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
 			return new ModelAndView("/customer_list","customers", customers); 
-		//}
+		}
 	}
 	
 	
+	/**
 	@GetMapping(value="/createAdminUser/{resellerID}")  
 	public ModelAndView createAdminUser(@PathVariable int resellerID){
 		User user = new User();
@@ -138,6 +159,7 @@ public class UserWebController {
 		userService.createUser(user);
 		return new ModelAndView("/message", "message", "Admin User is successfully created. <br><b>User Name</b> - "+ user.getUserName() +"<br><b>password</b> - "+ user.getPassword());
 	}
+	**/
 	
 	private boolean isAdminUser(User user){
 		List<Role> roles = user.getRoles();

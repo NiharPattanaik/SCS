@@ -59,6 +59,12 @@ legend {
 	margin-top: 14px;
 	text-align: right;
 }
+
+.form-group.required .control-label:after { 
+   content:"*";
+   color:red;
+}
+
 </style>
 </head>
 
@@ -104,8 +110,8 @@ legend {
 					action="/crm/web/supplierWeb/save">
 					<fieldset>
 						<legend>Supplier Details</legend>
-						<div class="form-group">
-							<label>Name</label>
+						<div class="form-group required">
+							<label class='control-label'>Name</label>
 							<form:input name="name" cssClass="form-control" path="name" />
 						</div>
 						<div class="form-group">
@@ -244,7 +250,9 @@ legend {
 	</div>
 </body>
 <script type="text/javascript">
-$('#dp').datepicker({format: 'dd/mm/yyyy'});
+	$(document).ready(function() {
+			$("#name").prop('required',true);
+	});
 </script>
 
 </html>

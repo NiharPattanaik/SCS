@@ -59,6 +59,13 @@ legend {
 	margin-top: 14px;
 	text-align: right;
 }
+
+.form-group.required .control-label:after { 
+   content:"*";
+   color:red;
+}
+
+
 </style>
 </head>
 
@@ -104,9 +111,9 @@ legend {
 					action="/crm/web/beatWeb/save">
 					<fieldset>
 						<legend>Beat Details</legend>
-						<div class="form-group">
-							<label>Beat Name</label>
-							<form:input name="name" cssClass="form-control" path="name" />
+						<div class="form-group required">
+							<label class='control-label'>Beat Name</label>
+							<form:input name="name" cssClass="form-control" path="name" required="required"/>
 						</div>
 						<div class="form-group">
 							<label>Description</label>
@@ -133,7 +140,7 @@ legend {
 						<legend>Areas Covered</legend>
 						<div class="form-group">
 							<label>Areas</label>
-							<form:select path="areas" cssClass="form-control" multiple="true">
+							<form:select path="areaIDs" cssClass="form-control" multiple="true">
 								<form:option value="-1" label="--- Select ---" />
 								<form:options items="${areas}" itemValue="areaID"
 									itemLabel="name" />
@@ -147,6 +154,11 @@ legend {
 			</div>
 		</div>
 	</div>
+	<script type="text/javascript">
+		$(document).ready(function() {
+	   		$("#name").prop('required',true);
+		});
+	</script>
 </body>
 
 </html>

@@ -8,21 +8,23 @@ import com.sales.crm.model.TrimmedCustomer;
 
 public interface BeatDAO {
 	
-	void create(Beat beat);
+	void create(Beat beat) throws Exception;
 	
 	Beat get(int beatID);
 	
-	void update(Beat beat);
+	void update(Beat beat) throws Exception;
 	
 	void delete(int beatID);
 	
 	List<Beat> getResellerBeats(int resellerID);
 	
 	
-	void assignBeatToCustomers(int beatID, List<Integer> customerIDs);
+	void assignBeatToCustomers(int beatID, List<Integer> customerIDs) throws Exception;
 	
 	void updateAssignedBeatToCustomers(final int beatID, final List<Integer> customerIDs);
 	
 	List<TrimmedCustomer> getBeatCustomers( int beatID);
+	
+	void deleteAssignedBeatCustomerLink(int beatID) throws Exception;
 	
 }

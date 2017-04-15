@@ -140,6 +140,7 @@
 						</c:forEach>
 						<td><%= values %></td>
 						<td><a href="<%=request.getContextPath()%>/web/beatWeb/assignedBeatCustomerEditForm/${beat.beatID}">Edit</a></td>
+						<td><a href="<%=request.getContextPath()%>/web/beatWeb/deleteAssignedBeatCustomerLink/${beat.beatID}">Delete</a></td>
                     </tr>
                     <% 
                 		}

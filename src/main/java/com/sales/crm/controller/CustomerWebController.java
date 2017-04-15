@@ -75,17 +75,28 @@ public class CustomerWebController {
 	@RequestMapping(value="/save",method = RequestMethod.POST)  
 	public ModelAndView create(@ModelAttribute("customer") Customer customer){
 		customer.setResellerID(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
-		customerService.createCustomer(customer);
-		List<Customer> customers = customerService.getResellerCustomers(customer.getResellerID());
-		return new ModelAndView("/customer_list","customers", customers); 
+		String msg="";
+		try{
+			customerService.createCustomer(customer);
+		}catch(Exception exception){
+			msg = "Creation of new customer is not successfull, please contact System Administrator";
+		}
+		return new ModelAndView("/create_customer_conf","msg", msg); 
 	}
 	
 	
 	@RequestMapping(value="/update",method = RequestMethod.POST) 
 	public ModelAndView update(@ModelAttribute("customer") Customer customer){
-		customerService.updateCustomer(customer);
-		List<Customer> customers = customerService.getResellerCustomers(customer.getResellerID());
-		return new ModelAndView("/customer_list","customers", customers); 
+		String msg = "";
+		try{
+			customerService.updateCustomer(customer);
+		}catch(Exception exception){
+			msg = "Customer details could not be updated successfully, please contact System Administrator. ";
+		}
+		Map<String, String> modelMap = new HashMap<String, String>();
+		modelMap.put("msg", msg);
+		modelMap.put("customerID", String.valueOf(customer.getCustomerID()));
+		return new ModelAndView("/edit_customer_conf", "map", modelMap);
 	}
 	
 	@GetMapping(value="/delete/{customerID}")

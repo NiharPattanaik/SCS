@@ -62,6 +62,12 @@ legend {
 	margin-top: 14px;
 	text-align: right;
 }
+
+.form-group.required .control-label:after { 
+   content:"*";
+   color:red;
+}
+
 </style>
 </head>
 
@@ -106,9 +112,9 @@ legend {
 					action="/crm/web/salesExecWeb/assignBeat">
 					<fieldset>
 						<legend>Assign Beats to Sales Executive</legend>
-						<div class="form-group">
-								<label>Sales Executive</label>
-								<form:select path="userID" cssClass="form-control">
+						<div class="form-group required">
+								<label class='control-label'>Sales Executive</label>
+								<form:select path="userID" cssClass="form-control" id="salesExecs">
 									<form:option value="-1" label="--- Select ---" />
 									<c:forEach var="salesExec" items="${salesExecs}">
 										<% 
@@ -124,9 +130,9 @@ legend {
 									</c:forEach>
 								</form:select>
 							</div>
-							<div class="form-group">
-								<label>Beats</label>
-								<form:select path="beatIDLists" cssClass="form-control" multiple="true">
+							<div class="form-group required">
+								<label class='control-label'>Beats</label>
+								<form:select path="beatIDLists" cssClass="form-control" multiple="true" id="beats">
 									<form:option value="-1" label="--- Select ---" />
 									<form:options items="${beats}" itemValue="beatID"
 										itemLabel="name" />
@@ -141,4 +147,13 @@ legend {
 		</div>
 	</div>
 </body>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#salesExecs").prop('required',true);
+	});
+	
+	$(document).ready(function() {
+		$("#beats").prop('required',true);
+	});
+</script>
 </html>

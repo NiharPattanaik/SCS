@@ -202,18 +202,6 @@ legend {
 						</div>
 					</fieldset>
 				</c:if>
-				<fieldset>
-					<legend>Sales Activity</legend>
-					<div class="form-group">
-						<label>Sales Executive Name :</label> <span>${customer.salesExecName}</span>
-					</div>
-					<div class="form-group">
-						<fmt:formatDate value="${ customer.visitDate }" type="date"
-							pattern="dd/MM/yyyy" var="theFormattedDate" />
-						<label>Visit Date :</label> <span>${theFormattedDate}</span>
-					</div>
-				</fieldset>
-
 			</div>
 		</div>
 	</div>

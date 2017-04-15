@@ -61,6 +61,12 @@ legend {
 	margin-top: 14px;
 	text-align: right;
 }
+
+.form-group.required .control-label:after { 
+   content:"*";
+   color:red;
+}
+
 </style>
 </head>
 
@@ -105,17 +111,17 @@ legend {
 					action="/crm/web/beatWeb/assignBeatToCustomers">
 					<fieldset>
 						<legend>Assign Beats to Customer</legend>
-						<div class="form-group">
-								<label>Beat</label>
-								<form:select path="beatID" cssClass="form-control">
-									<form:option value="-1" label="--- Select ---" />
+						<div class="form-group required">
+								<label class='control-label'>Beat</label>
+								<form:select path="beatID" cssClass="form-control" id="beats">
+									<form:option value="-1" label="--- Select ---" required="required"/>
 									<c:forEach var="cbeat" items="${beats}">
 										<% 
 											if(!((Beat)pageContext.getAttribute("cbeat") != null 
 												&& ((Beat)pageContext.getAttribute("cbeat")).getCustomers() != null 
 													&& ((Beat)pageContext.getAttribute("cbeat")).getCustomers().size() > 0)){
 										%>
-											<form:option value="${ cbeat.beatID }" label="${ cbeat.name }" />
+											<form:option value="${ cbeat.beatID }" label="${ cbeat.name }" required="required"/>
 										<% 
 											}
 										%>
@@ -123,12 +129,12 @@ legend {
 									</c:forEach>
 								</form:select>
 							</div>
-							<div class="form-group">
-								<label>Customers</label>
-								<form:select path="customerIDs" cssClass="form-control" multiple="true">
+							<div class="form-group required">
+								<label class='control-label'>Customers</label>
+								<form:select path="customerIDs" cssClass="form-control" multiple="true" id="customers">
 									<form:option value="-1" label="--- Select ---" />
 									<form:options items="${customers}" itemValue="customerID"
-										itemLabel="customerName" />
+										itemLabel="customerName" required="required"/>
 								</form:select>
 							</div>
 					</fieldset>
@@ -140,4 +146,13 @@ legend {
 		</div>
 	</div>
 </body>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#beats").prop('required',true);
+	});
+	
+	$(document).ready(function() {
+		$("#customers").prop('required',true);
+	});
+</script>
 </html>

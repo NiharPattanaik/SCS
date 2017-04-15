@@ -60,6 +60,13 @@ legend {
 	margin-top: 14px;
 	text-align: right;
 }
+
+.form-group.required .control-label:after { 
+   content:"*";
+   color:red;
+}
+
+
 </style>
 </head>
 
@@ -105,8 +112,8 @@ legend {
 					action="/crm/web/areaWeb/update">
 					<fieldset>
 						<legend>Area Details</legend>
-						<div class="form-group">
-							<label>Area Name</label>
+						<div class="form-group required">
+							<label class='control-label'>Area Name</label>
 							<form:input name="name" cssClass="form-control"
 								path="name" value="${ area.name }" />
 						</div>
@@ -148,6 +155,11 @@ legend {
 			</div>
 		</div>
 	</div>
+	<script type="text/javascript">
+		$(document).ready(function() {
+	   		$("#name").prop('required',true);
+		});
+	</script>
 </body>
 
 </html>

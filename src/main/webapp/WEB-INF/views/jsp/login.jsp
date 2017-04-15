@@ -63,15 +63,31 @@ span.psw {
        width: 100%;
     }
 }
+
+form {
+    border: 3px solid #f1f1f1;
+    width: 557px;
+    margin-left: 27%;
+}
+
+.center {
+    margin: auto;
+    width: 60%;
+    border: 3px solid #73AD21;
+    padding: 10px;
+}
+
 </style>
 <body>
 
-<h2>Login Form</h2>
+<div align="center">
+	<h2>Login Form</h2>
+</div>
 
-<form method="post" action="/crm/web/userWeb/login" modelAttribute="error">
+<form method="post" action="/crm/web/userWeb/login" class="form">
   <div class="imgcontainer">
    <font color="Red">
-  	${request.msg}
+  	${msg}
   	</font>
   </div>
 

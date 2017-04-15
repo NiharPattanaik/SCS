@@ -18,11 +18,11 @@ public class SupplierService {
 		return supplierDAO.get(supplierID);
 	}
 	
-	public void createSupplier(Supplier supplier){
+	public void createSupplier(Supplier supplier) throws Exception{
 		supplierDAO.create(supplier);
 	}
 	
-	public void updateSupplier(Supplier supplier){
+	public void updateSupplier(Supplier supplier) throws Exception{
 		supplierDAO.update(supplier);
 	}
 	

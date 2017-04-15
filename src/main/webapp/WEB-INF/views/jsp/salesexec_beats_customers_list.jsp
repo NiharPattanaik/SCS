@@ -15,6 +15,8 @@
 	<link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
 	<script src="<%=request.getContextPath()%>/resources/js/jquery-3.2.0.min.js"></script>
 	<script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
+	<link href="<%=request.getContextPath()%>/resources/css/bootstrap-datepicker.css" rel="stylesheet">
+	<script	src="<%=request.getContextPath()%>/resources/js/bootstrap-datepicker.js"></script>
 
 <style>
     .dpHeaderWrap {
@@ -109,16 +111,17 @@
 				<form:form modelAttribute="salesExecutive" method="post"
 					action="/crm/salesExecWeb/assignBeat">
 					<fieldset>
-						<legend>Sales Executive Visit Schedule of today</legend>
+						<legend>Scheduled Sales Executive Visits</legend>
+						<div class="form-group">
+							<label>Visit Date</label>
+							<form:input id="dp" name="visitDate" cssClass="dp form-control"
+								path="visitDate" />
+						</div>
 						<div class="form-group">
 								<label>Sales Executive</label>
 								<form:select path="userID" cssClass="form-control" id="sales_exec">
-									<form:option value="-1" label="--- Select Sales Executive---" />
-									<c:forEach var="salesExecutive" items="${salesExecs}">
-										<form:option value="${ salesExecutive.userID }" label="${ salesExecutive.firstName } ${ salesExecutive.lastName }" id="id_trial"/>
-									</c:forEach>
 								</form:select>
-						
+						</div>
 						<div class="form-group">
 							<label>Beats</label>
 							<select class="form-control" id="beats">
@@ -132,34 +135,60 @@
 								<ul id="customers"></ul>
 							</div>
 						</div>
-					</div>
-							
 					</fieldset>
 				</form:form>
 			</div>
-		<script type="text/javascript">
-			$(document).ready(function() {
-				$('#sales_exec').change(function() {
-					$.ajax({ 
-							type : "GET",
-							url : "/crm/rest/salesExecReST/"+$('#sales_exec').val(),
-							dataType : "json",
-							success : function(data) {
-								$('#beats').empty();
-								$.each(data,function(i,obj) {
-									var div_data = "<option value="+obj.beatID+">"+ obj.name+ "</option>";
-									$(div_data).appendTo('#beats');
-								});
-							}
-						});
-					});
-				});
 			
+		<script type="text/javascript">
+		//Sales Execs
+		$(document).ready(function() {
+			$('#dp').blur(function() {
+				if( $('#dp').val() ) {
+					$.ajax({ 
+						type : "GET",
+						url : "/crm/rest/salesExecReST/list/"+$('#dp').val(),
+						dataType : "json",
+						success : function(data) {
+							$('#sales_exec').empty();
+							var div_data1="<option value=\"-1\" label=\"--- Select Sales Executive--- \"/>";
+							$(div_data1).appendTo('#sales_exec');
+							$.each(data,function(i,obj) {
+								var div_data = "<option value="+obj.userID+">"+ obj.name+ "</option>";
+								console.log(div_data);
+								$(div_data).appendTo('#sales_exec');
+							});
+						}
+					});
+				}
+			});
+		});
+		
+		//Beats
+		$(document).ready(function() {
+			$('#sales_exec').change(function() {
+				$.ajax({ 
+					type : "GET",
+					url : "/crm/rest/salesExecReST/scheduledVisit/"+$('#sales_exec').val()+"/"+$('#dp').val(),
+					dataType : "json",
+					success : function(data) {
+						$('#beats').empty();
+						var div_data1="<option value=\"-1\" label=\"--- Select Beat--- \"/>";
+						$(div_data1).appendTo('#beats');
+						$.each(data,function(i,obj) {
+							var div_data = "<option value="+obj.beatID+">"+ obj.name+ "</option>";
+							$(div_data).appendTo('#beats');
+						});
+					}
+				});
+			});
+		});
+			
+			//Customer
 			$(document).ready(function() {
 				$('#beats').change(function() {
 					$.ajax({
 							type : "GET",
-							url : "/crm/rest/beatReST/"+$('#beats').val(),
+							url : "/crm/rest/salesExecReST/scheduledVisit/"+$('#sales_exec').val()+"/"+$('#dp').val()+"/"+$('#beats').val(),
 							dataType : "json",
 							success : function(data) {
 								$('#customers').empty();
@@ -172,6 +201,9 @@
 						});
 					});
 				});
+			
+			$('#dp').datepicker({format: 'dd-mm-yyyy'});
+			
 		</script></body>
 
 </html>

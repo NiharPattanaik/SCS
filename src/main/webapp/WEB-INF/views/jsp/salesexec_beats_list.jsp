@@ -121,19 +121,20 @@
 						<c:forEach var="beat" items="${salesExec.beats}">
   								<%
   									if(values.isEmpty()){
-  										if((Beat)pageContext.getAttribute("beat") != null  && ((Beat)pageContext.getAttribute("beat")).getDescription() != null){
-  											values = values+ ((Beat)pageContext.getAttribute("beat")).getDescription();
+  										if((Beat)pageContext.getAttribute("beat") != null  && ((Beat)pageContext.getAttribute("beat")).getName() != null){
+  											values = values+ ((Beat)pageContext.getAttribute("beat")).getName();
   										}
   									}else{
   										values = values + " ,";
-  										if((Beat)pageContext.getAttribute("beat") != null  && ((Beat)pageContext.getAttribute("beat")).getDescription() != null){
-  											values = values+ ((Beat)pageContext.getAttribute("beat")).getDescription();
+  										if((Beat)pageContext.getAttribute("beat") != null  && ((Beat)pageContext.getAttribute("beat")).getName() != null){
+  											values = values+ ((Beat)pageContext.getAttribute("beat")).getName();
   										}
   									}
   								%>
 						</c:forEach>
 						<td><%= values %></td>
 						<td><a href="<%=request.getContextPath()%>/web/salesExecWeb/assignBeatEditForm/${salesExec.userID}">Edit</a></td>
+						<td><a href="<%=request.getContextPath()%>/web/salesExecWeb/deleteBeatsAssignment/${salesExec.userID}">Delete</a></td>
                     </tr>
                     </c:forEach>
                 </tbody>
