@@ -76,7 +76,7 @@ public class BeatDAOImpl implements BeatDAO {
 			session = sessionFactory.openSession();
 			beat = (Beat) session.get(Beat.class, beatID);
 			//Get Areas
-			SQLQuery areasQuery = session.createSQLQuery("SELECT b.BEAT_ID, a.* FROM AREA A, BEAT_AREA b WHERE a.ID = b.AREA_ID AND b.BEAT_ID= ?");
+			SQLQuery areasQuery = session.createSQLQuery("SELECT b.BEAT_ID, a.* FROM AREA a, BEAT_AREA b WHERE a.ID = b.AREA_ID AND b.BEAT_ID= ?");
 			areasQuery.setParameter(0, beat.getBeatID());
 			List areas = areasQuery.list();
 			List<Area> areaList = new ArrayList<Area>();
