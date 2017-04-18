@@ -121,7 +121,7 @@
 		<div class="row top-height">
 			<div class="col-md-8 ">
 				<form:form modelAttribute="salesExecBeatCustomer" method="post"
-					action="/crm/web/salesExecWeb/scheduleVisit" name="myForm">
+					action="/crm/web/salesExecWeb/scheduleVisit" name="myForm" id="myForm">
 					<fieldset>
 						<legend>Sales Executive Visit Schedule of today</legend>
 						<div class="form-group required">
@@ -144,8 +144,7 @@
 							</div>
 							<div class="form-group required">
 								<label class='control-label'>Customers</label>
-								<!-- div style="width: 200px; height: 100px; overflow-y: scroll;" id="checks"-->
-								<div id="checks">
+								<div style="width: 200px; min-height: 2px; max-height: 100px; overflow-y: auto;" id="checks">
 								</div>
 							</div>
 							<div class="form-group">
@@ -156,8 +155,7 @@
 						</div>
 					</fieldset>
 					<div class="form_submit">
-						<!-- input type="button" name="btn" value="Submit" id="submitBtn" data-toggle="modal" data-target="#confirm-submit" class="btn btn-primary" /-->
-						<button type="submit" class="btn btn-primary">Submit</button>
+						<input type="button" name="btn" value="Submit" id="submitBtn" data-toggle="modal" data-target="#confirm-submit" class="btn btn-primary" />
 					</div>
 				</form:form>
 			</div>
@@ -274,9 +272,7 @@
 					<script type="text/javascript">
 					$('#modalSubmit').click(function(){
 					     /* when the submit button in the modal is clicked, submit the form */
-					    alert('submitting');
-					    $('#myForm').submit();
-					    $(".modal-header button").click();
+					   $('#myForm').submit();
 					});
 					</script>
 				</div>

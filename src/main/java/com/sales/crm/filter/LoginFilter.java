@@ -42,6 +42,7 @@ public class LoginFilter implements Filter {
         boolean restRequest = false;
         boolean createResellerForm = false;
         boolean saveReseller = false;
+        boolean restValidateUser = false;
         
         if(request.getRequestURI().equals(logoutURI)){
 			session.invalidate();
@@ -51,9 +52,10 @@ public class LoginFilter implements Filter {
 			restRequest = request.getRequestURI().contains("/crm/rest/") ? true : false;
 			createResellerForm = request.getRequestURI().contains("/web/resellerWeb/createResellerForm") ? true : false;
 			saveReseller = request.getRequestURI().contains("/web/resellerWeb/saveReseller") ? true : false;
+			restValidateUser = request.getRequestURI().contains("crm/rest/userReST/validateUser") ? true : false;
 		}
 		
-        if(createResellerForm || saveReseller || loginRequest || loggedIn){
+        if(createResellerForm || saveReseller || loginRequest || loggedIn || restValidateUser){
         	chain.doFilter(request, response);
         }else if(restRequest){
         	if(validateRESTCredential(request, response)){
@@ -119,8 +121,18 @@ public class LoginFilter implements Filter {
 		final String userName = tokenizer.nextToken();
 		final String password = tokenizer.nextToken();
 
-		return userService.validateUserCredential(userName, password);
-    	
-    	
+		if(userService.validateUserCredential(userName, password)){
+			User user;
+			try{
+				user = userService.getUser(userName);
+			}catch(Exception exception){
+				return false;
+			}
+			HttpSession session = request.getSession(true);
+			session.setAttribute("user", user);
+			session.setAttribute("resellerID", user.getResellerID());
+			return true;
+		}
+		return false;	
     }
 }

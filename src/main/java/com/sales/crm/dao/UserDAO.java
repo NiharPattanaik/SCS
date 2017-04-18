@@ -21,7 +21,7 @@ public interface UserDAO {
 	
 	Reseller getUserReseller(int userId);
 	
-	User getUser(String userName);
+	User getUser(String userName) throws Exception;
 	
 	boolean validateUserCredential(String userName, String password);
 	

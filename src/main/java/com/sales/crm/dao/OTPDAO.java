@@ -4,8 +4,10 @@ import com.sales.crm.model.CustomerOTP;
 
 public interface OTPDAO {
 	
-	boolean generateOTP(CustomerOTP customerOTP);
+	int generateOTP(CustomerOTP customerOTP) throws Exception;
 	
-	boolean updateOTP(CustomerOTP customerOTP);
+	void removeGeneratedOTP(int otpID) throws Exception;
+	
+	void verifyOTP(int customerID, int otpType, String otp) throws Exception;
 
 }

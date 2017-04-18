@@ -16,6 +16,8 @@
 		<property name="url" value="jdbc:mysql://localhost:3306/salescrm" />
 		<property name="username" value="salescrm" />
 		<property name="password" value="salescrm123" />
+		<property name="validationQuery" value="SELECT 1" />
+		<property name="testOnBorrow" value="true" />
 	</bean>
 
 
@@ -34,6 +36,7 @@
 				<value>com.sales.crm.model.Role</value>
 				<value>com.sales.crm.model.Area</value>
 				<value>com.sales.crm.model.Beat</value>
+				<value>com.sales.crm.model.CustomerOTP</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">

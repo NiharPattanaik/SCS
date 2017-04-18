@@ -1,0 +1,45 @@
+package com.sales.crm.model;
+
+import java.util.List;
+
+public class ReSTResponse {
+	
+	private int status;
+	
+	private String errorMsg;
+	
+	private String errorCode;
+	
+	List<? extends BusinessEntity> businessEntities;
+	
+	public static final int STATUS_SUCCESS = 1;
+	
+	public static final int STATUS_FAILURE = 0;
+	
+	public int getStatus() {
+		return status;
+	}
+	public void setStatus(int status) {
+		this.status = status;
+	}
+	public String getErrorMsg() {
+		return errorMsg;
+	}
+	public void setErrorMsg(String errorMsg) {
+		this.errorMsg = errorMsg;
+	}
+	public List<? extends BusinessEntity> getBusinessEntities() {
+		return businessEntities;
+	}
+	public void setBusinessEntities(List<? extends BusinessEntity> businessEntities) {
+		this.businessEntities = businessEntities;
+	}
+	public String getErrorCode() {
+		return errorCode;
+	}
+	public void setErrorCode(String errorCode) {
+		this.errorCode = errorCode;
+	}
+	
+	
+}

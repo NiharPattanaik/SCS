@@ -20,7 +20,7 @@ public class UserService {
 		return userDAO.get(userID);
 	}
 	
-	public User getUser(String userName){
+	public User getUser(String userName) throws Exception{
 		return userDAO.getUser(userName);
 	}
 	

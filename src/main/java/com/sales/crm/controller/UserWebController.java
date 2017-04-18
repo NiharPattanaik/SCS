@@ -129,7 +129,14 @@ public class UserWebController {
 	public ModelAndView login(HttpServletRequest request, HttpServletResponse response){
 		String userName = request.getParameter("uname");
 		String password = request.getParameter("psw");
-		User user = userService.getUser(userName);
+		User user;
+		try{
+			user = userService.getUser(userName);
+		}catch(Exception exception){
+			Map<String, Object> modelMap = new HashMap<String, Object>();
+			modelMap.put("msg", "Something went wrong!. Please try after sometime and if the issue persists please contact System Administrator");
+			return new ModelAndView("/login", modelMap); 
+		}
 		
 		if(!userService.validateUserCredential(userName, password)){
 			Map<String, Object> modelMap = new HashMap<String, Object>();

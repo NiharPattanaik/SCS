@@ -317,7 +317,7 @@ public class UserDAOImpl implements UserDAO {
 	}
 
 	@Override
-	public User getUser(String userName) {
+	public User getUser(String userName) throws Exception{
 		Session session = null;
 		User user = null;
 		try{
@@ -353,6 +353,7 @@ public class UserDAOImpl implements UserDAO {
 			}
 		}catch(Exception exception){
 			logger.error("Error while getting user by user name.", exception);
+			throw exception;
 		}finally{
 			if(session != null){
 				session.close();

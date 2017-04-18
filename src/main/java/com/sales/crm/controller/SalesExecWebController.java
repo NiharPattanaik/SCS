@@ -23,10 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.sales.crm.model.Beat;
-import com.sales.crm.model.Customer;
 import com.sales.crm.model.SalesExecBeatCustomer;
 import com.sales.crm.model.SalesExecutive;
-import com.sales.crm.model.TrimmedCustomer;
 import com.sales.crm.service.BeatService;
 import com.sales.crm.service.SalesExecService;
 

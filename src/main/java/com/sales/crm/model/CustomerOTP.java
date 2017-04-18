@@ -19,7 +19,7 @@ import javax.persistence.Transient;
 	@AttributeOverride(name = "dateCreated", column = @Column(name = "DATE_CREATED")),
 	@AttributeOverride(name = "dateModified", column = @Column(name = "DATE_MODIFIED"))})
 
-public class CustomerOTP {
+public class CustomerOTP extends BusinessEntity{
 	
 	@Transient
 	public static final int OTP_ORDER_BOOKING = 1;
