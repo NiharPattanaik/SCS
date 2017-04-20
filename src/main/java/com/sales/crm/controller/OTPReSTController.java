@@ -75,8 +75,8 @@ public class OTPReSTController {
 				response.setErrorMsg("Something is not right ! Please contact System Administrator");
 			}
 		}
-		return new ResponseEntity<ReSTResponse>(response,
-				response.getStatus() == ReSTResponse.STATUS_SUCCESS ? HttpStatus.CREATED : HttpStatus.INTERNAL_SERVER_ERROR);
+		return new ResponseEntity<ReSTResponse>(response, HttpStatus.OK);
+			
 	}
 
 }

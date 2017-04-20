@@ -1,5 +1,6 @@
 package com.sales.crm.service;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,10 @@ public class CustomerService {
 	
 	public List<Customer> getResellerCustomers(int resellerID){
 		return customerDAO.getResellerCustomers(resellerID);
+	}
+	
+	public List<TrimmedCustomer> scheduledTrimmedCustomerslist(int salesExecID, Date visitDate) throws Exception{
+		return customerDAO.scheduledTrimmedCustomerslist(salesExecID, visitDate);
 	}
 	
 	public List<TrimmedCustomer> getResellerTrimmedCustomers(int resellerID) {

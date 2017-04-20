@@ -1,6 +1,6 @@
 package com.sales.crm.model;
 
-public class TrimmedCustomer {
+public class TrimmedCustomer extends BusinessEntity{
 
 	int customerID;
 	String customerName;

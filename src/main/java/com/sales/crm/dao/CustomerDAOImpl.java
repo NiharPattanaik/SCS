@@ -185,7 +185,35 @@ public class CustomerDAOImpl implements CustomerDAO{
 	}
 
 	@Override
-	public List<TrimmedCustomer> getResellerTrimmedCustomers(int resellerID) {
+	public List<TrimmedCustomer> scheduledTrimmedCustomerslist(int salesExecID, Date visitDate) throws Exception{
+		Session session = null;
+		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
+		try{
+			session = sessionFactory.openSession();
+			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME FROM CUSTOMER a, SALES_EXEC_BEATS_CUSTOMERS b WHERE a.ID = b.CUSTOMER_ID AND b.SALES_EXEC_ID= ? AND b.VISIT_DATE = ? ");
+			query.setParameter( 0, salesExecID);
+			query.setParameter(1, new java.sql.Date(visitDate.getTime()));
+			List results = query.list();
+			for(Object obj : results){
+				Object[] objs = (Object[])obj;
+				TrimmedCustomer trimmedCustomer = new TrimmedCustomer();
+				trimmedCustomer.setCustomerID(Integer.valueOf(String.valueOf(objs[0])));
+				trimmedCustomer.setCustomerName(String.valueOf(objs[1]));
+				customers.add(trimmedCustomer);
+			}
+		}catch(Exception exception){
+			logger.error("Error while getting Trimmed customer", exception);
+			throw exception;
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		return customers;
+	}
+	
+	@Override
+	public List<TrimmedCustomer> getResellerTrimmedCustomers(int resellerID){
 		Session session = null;
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
 		try{

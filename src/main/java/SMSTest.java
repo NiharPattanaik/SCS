@@ -2,7 +2,9 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -16,30 +18,21 @@ import org.springframework.web.client.RestTemplate;
 public class SMSTest {
 	
 	public static void main(String a[]){
-		final String url = "http://192.168.0.4:8080/crm/rest/userReST/validateUser/admin_user/welcome123";
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-        String response =  restTemplate.getForObject(url, String.class);
-
-         
-         //String response =  restTemplate.getForObject(url, String.class);
-         JSONObject userJson = new JSONObject(response);
-         System.out.println(response);
-         if(userJson.getInt("status") == 1){
-             JSONArray userArray = userJson.getJSONArray("businessEntities");
-             if(userArray != null && userArray.length() > 0){
-                 JSONObject userObject = new JSONObject(userArray.get(0).toString());
-                 System.out.println(userObject.get("userID"));
-                 JSONArray rolesArray = userObject.getJSONArray("roles");
-                 if(rolesArray != null){
-                	 for(int i=0; i<rolesArray.length(); i++){
-                		 JSONObject role = new JSONObject(rolesArray.get(i).toString());
-                		 System.out.println(role.getInt("roleID"));
-                	 }
-                 }
-                 
-             }
-         }
+		
+		List<String> lists = new ArrayList<String>();
+		lists.add("1");
+		lists.add("2");
+		System.out.println(lists.size());
+		for(String s : lists){
+			System.out.println(s);
+		}
+		
+		lists.add(0, "0");
+		
+		System.out.println(lists.size());
+		for(String s : lists){
+			System.out.println(s);
+		}
 	}
 	
 	public static void sendSms() {

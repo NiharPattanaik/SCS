@@ -13,8 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sales.crm.dao.OTPDAO;
-import com.sales.crm.exception.CRMException;
-import com.sales.crm.exception.ErrorCodes;
 import com.sales.crm.model.CustomerOTP;
 
 @Service("otpService")
@@ -40,6 +38,7 @@ public class OTPService {
 			int otpID = otpDAO.generateOTP(customerOTP);
 			//Call SMS Gateway
 			//retry 3 times
+			/**
 			for(int i=0; i<3; i++){
 				if(sendSms(otp, otpType)){
 					sendSMSStatus = true;
@@ -53,6 +52,7 @@ public class OTPService {
 				otpDAO.removeGeneratedOTP(otpID);
 				throw new CRMException(ErrorCodes.OTP_DISPATCH_FAILED, "SMS could not be sent to the customer through gateway.");
 			}
+			**/
 		}catch(Exception exception){
 			throw exception;
 		}

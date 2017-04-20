@@ -221,8 +221,8 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 				
 				//Add Beats
 				Beat beat = new Beat();
-				beat.setBeatID(Integer.valueOf(String.valueOf(objs[12])));
-				beat.setName(String.valueOf(objs[13]));
+				beat.setBeatID(Integer.valueOf(String.valueOf(objs[13])));
+				beat.setName(String.valueOf(objs[14]));
 				if(salesExecsMap.get(salesExec.getUserID()).getBeats() == null){
 					salesExecsMap.get(salesExec.getUserID()).setBeats(new ArrayList<Beat>());
 				}
