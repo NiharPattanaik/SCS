@@ -17,6 +17,7 @@ import org.springframework.stereotype.Repository;
 
 import com.sales.crm.model.Address;
 import com.sales.crm.model.Customer;
+import com.sales.crm.model.Role;
 import com.sales.crm.model.TrimmedCustomer;
 import com.sales.crm.model.User;
 
@@ -236,6 +237,31 @@ public class CustomerDAOImpl implements CustomerDAO{
 			}
 		}
 		return customers;
+	}
+	
+	@Override
+	public String getCustomerPrimaryMobileNo(int customerID) throws Exception{
+
+		Session session = null;
+		String mobileNo = "";
+		try{
+			session = sessionFactory.openSession();
+			SQLQuery mobileNoQuery = session.createSQLQuery("SELECT a.MOBILE_NUMBER_PRIMARY FROM ADDRESS a, CUSTOMER_ADDRESS b WHERE a.ID=b.ADDRESS_ID AND b.CUSTOMER_ID=? AND a.ADDRESS_TYPE=1");
+			mobileNoQuery.setParameter(0, customerID);
+			List numbers = mobileNoQuery.list();
+			if(numbers != null && numbers.size() == 1){
+				mobileNo =  "+91"+String.valueOf(numbers.get(0));
+			}
+		}catch(Exception exception){
+			logger.error("Error while getting customer mobile number.", exception);
+			throw exception;
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		return mobileNo;
+	
 	}
 
 	

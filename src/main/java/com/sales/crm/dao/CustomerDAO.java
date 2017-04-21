@@ -21,5 +21,7 @@ public interface CustomerDAO {
 	List<TrimmedCustomer> scheduledTrimmedCustomerslist(int salesExecID, Date visitDate) throws Exception;
 	
 	List<TrimmedCustomer> getResellerTrimmedCustomers(int resellerID);
+	
+	String getCustomerPrimaryMobileNo(int customerID) throws Exception;
 
 }

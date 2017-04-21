@@ -43,4 +43,8 @@ public class CustomerService {
 	public List<TrimmedCustomer> getResellerTrimmedCustomers(int resellerID) {
 		return customerDAO.getResellerTrimmedCustomers(resellerID);
 	}
+	
+	public String getCustomerPrimaryMobileNo(int customerID) throws Exception{
+		return customerDAO.getCustomerPrimaryMobileNo(customerID);
+	}
 }

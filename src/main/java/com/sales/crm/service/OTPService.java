@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sales.crm.dao.OTPDAO;
+import com.sales.crm.exception.CRMException;
+import com.sales.crm.exception.ErrorCodes;
 import com.sales.crm.model.CustomerOTP;
 
 @Service("otpService")
@@ -20,6 +22,9 @@ public class OTPService {
 
 	@Autowired
 	OTPDAO otpDAO;
+	
+	@Autowired
+	CustomerService customerService;
 	
 	private static Logger logger = Logger.getLogger(OTPService.class);
 	
@@ -35,12 +40,15 @@ public class OTPService {
 		customerOTP.setGenaratedOTP(otp);
 		boolean sendSMSStatus = false;
 		try{
+			String mobileNo = customerService.getCustomerPrimaryMobileNo(customerID);
+			if(mobileNo.trim().isEmpty() || mobileNo.trim().equals("+91")){
+				throw new CRMException(ErrorCodes.OTP_NO_MOBILE_NO, "OTP could not be generated successfully as customer has not registered primary mobile number");
+			}
 			int otpID = otpDAO.generateOTP(customerOTP);
 			//Call SMS Gateway
 			//retry 3 times
-			/**
 			for(int i=0; i<3; i++){
-				if(sendSms(otp, otpType)){
+				if(sendSms(mobileNo, otp, otpType)){
 					sendSMSStatus = true;
 					logger.info("OTP is successfully sent to customer");
 					break;
@@ -52,7 +60,6 @@ public class OTPService {
 				otpDAO.removeGeneratedOTP(otpID);
 				throw new CRMException(ErrorCodes.OTP_DISPATCH_FAILED, "SMS could not be sent to the customer through gateway.");
 			}
-			**/
 		}catch(Exception exception){
 			throw exception;
 		}
@@ -60,7 +67,7 @@ public class OTPService {
 	}
 	
 	
-	private boolean sendSms(String otp, int otpType) {
+	private boolean sendSms(String mobileNo, String otp, int otpType) {
 		try {
 			
 			String msg = "";
@@ -83,7 +90,7 @@ public class OTPService {
 			String hash = "&hash=" + "Welcome123";
 			String message = "&message=" + msg;
 			String sender = "&sender=" + "Nihar";
-			String numbers = "&numbers=" + "919900098348";
+			String numbers = "&numbers=" + mobileNo;
 			
 			// Send data
 			HttpURLConnection conn = (HttpURLConnection) new URL("http://api.textlocal.in/send/?").openConnection();
