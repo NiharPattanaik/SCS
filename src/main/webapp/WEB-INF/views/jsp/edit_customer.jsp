@@ -188,11 +188,11 @@ legend {
 								path="address[0].phoneNumber"
 								value="${ customer.address[0].phoneNumber }" />
 						</div>
-						<div class="form-group">
-							<label>Mobile Number(Primary)</label>
+						<div class="form-group required">
+							<label class='control-label'>Mobile Number(Primary)</label>
 							<form:input name="mobileNumberPrimary" cssClass="form-control"
 								path="address[0].mobileNumberPrimary"
-								value="${ customer.address[0].mobileNumberPrimary }" />
+								value="${ customer.address[0].mobileNumberPrimary }" maxlength="10"/>
 						</div>
 						<div class="form-group">
 							<label>Mobile Number(Secondary)</label>
