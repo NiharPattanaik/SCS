@@ -59,6 +59,24 @@ public class CustomerOTP extends BusinessEntity{
 	
 	@Column(name = "RETRY_COUNT")
 	private int retryCount;
+	
+	@Transient
+	private String customerName;
+	
+	@Transient
+	private String salesExecName;
+	
+	@Transient
+	private String otpStringType;
+	
+	@Transient
+	private String otpStatus;
+	
+	@Transient
+	private String stringDateGenerated;
+	
+	@Transient
+	private String stringDateUsed;
 
 	public int getOtpID() {
 		return otpID;
@@ -138,6 +156,54 @@ public class CustomerOTP extends BusinessEntity{
 
 	public void setRetryCount(int retryCount) {
 		this.retryCount = retryCount;
+	}
+
+	public String getCustomerName() {
+		return customerName;
+	}
+
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
+	}
+
+	public String getSalesExecName() {
+		return salesExecName;
+	}
+
+	public void setSalesExecName(String salesExecName) {
+		this.salesExecName = salesExecName;
+	}
+
+	public String getOtpStringType() {
+		return otpStringType;
+	}
+
+	public void setOtpStringType(String otpStringType) {
+		this.otpStringType = otpStringType;
+	}
+
+	public String getOtpStatus() {
+		return otpStatus;
+	}
+
+	public void setOtpStatus(String otpStatus) {
+		this.otpStatus = otpStatus;
+	}
+
+	public String getStringDateGenerated() {
+		return stringDateGenerated;
+	}
+
+	public void setStringDateGenerated(String stringDateGenerated) {
+		this.stringDateGenerated = stringDateGenerated;
+	}
+
+	public String getStringDateUsed() {
+		return stringDateUsed;
+	}
+
+	public void setStringDateUsed(String stringDateUsed) {
+		this.stringDateUsed = stringDateUsed;
 	}
 	
 	

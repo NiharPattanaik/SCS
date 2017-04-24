@@ -17,7 +17,6 @@ import org.springframework.stereotype.Repository;
 
 import com.sales.crm.model.Address;
 import com.sales.crm.model.Customer;
-import com.sales.crm.model.Role;
 import com.sales.crm.model.TrimmedCustomer;
 import com.sales.crm.model.User;
 
@@ -262,6 +261,59 @@ public class CustomerDAOImpl implements CustomerDAO{
 		}
 		return mobileNo;
 	
+	}
+	
+	@Override
+	public List<TrimmedCustomer> getCustomersNotAssignedToAnyBeat(int resellerID){
+		Session session = null;
+		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
+		try{
+			session = sessionFactory.openSession();
+			SQLQuery query = session.createSQLQuery("SELECT ID, NAME FROM CUSTOMER WHERE ID NOT IN (SELECT CUSTOMER_ID FROM BEAT_CUSTOMER) AND RESELLER_ID= ? ");
+			query.setParameter( 0, resellerID);
+			List results = query.list();
+			for(Object obj : results){
+				Object[] objs = (Object[])obj;
+				TrimmedCustomer trimmedCustomer = new TrimmedCustomer();
+				trimmedCustomer.setCustomerID(Integer.valueOf(String.valueOf(objs[0])));
+				trimmedCustomer.setCustomerName(String.valueOf(objs[1]));
+				customers.add(trimmedCustomer);
+			}
+		}catch(Exception exception){
+			logger.error("Error while getting Trimmed customer not assigned to any beat.", exception);
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		return customers;
+	}
+	
+	@Override
+	public List<TrimmedCustomer> getCustomersBeatAssignmentForEdit(int beatID, int resellerID){
+		Session session = null;
+		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
+		try{
+			session = sessionFactory.openSession();
+			SQLQuery query = session.createSQLQuery("SELECT ID, NAME FROM CUSTOMER WHERE ID NOT IN (SELECT CUSTOMER_ID FROM BEAT_CUSTOMER WHERE BEAT_ID != ? ) AND RESELLER_ID= ? ");
+			query.setParameter( 0, beatID);
+			query.setParameter(1, resellerID);
+			List results = query.list();
+			for(Object obj : results){
+				Object[] objs = (Object[])obj;
+				TrimmedCustomer trimmedCustomer = new TrimmedCustomer();
+				trimmedCustomer.setCustomerID(Integer.valueOf(String.valueOf(objs[0])));
+				trimmedCustomer.setCustomerName(String.valueOf(objs[1]));
+				customers.add(trimmedCustomer);
+			}
+		}catch(Exception exception){
+			logger.error("Error while getting Trimmed customer for beat-customer edit.", exception);
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		return customers;
 	}
 
 	

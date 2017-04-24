@@ -6,6 +6,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -121,5 +122,9 @@ public class OTPService {
 	
 	public void verifyOTP(int customerID, int otpType, String otp) throws Exception{
 		otpDAO.verifyOTP(customerID, otpType, otp);
+	}
+	
+	public List<CustomerOTP> getOTPReport(int resellerID){
+		return otpDAO.getOTPReport(resellerID);
 	}
 }

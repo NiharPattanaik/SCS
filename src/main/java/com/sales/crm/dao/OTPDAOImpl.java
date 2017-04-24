@@ -1,6 +1,7 @@
 package com.sales.crm.dao;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -142,6 +143,49 @@ public class OTPDAOImpl implements OTPDAO{
 				session.close();
 			}
 		}
+	}
+	
+	@Override
+	public List<CustomerOTP> getOTPReport(int resellerID){
+		Session session = null;
+		List<CustomerOTP> customerOTPs = new ArrayList<CustomerOTP>();
+		try{
+			session = sessionFactory.openSession();
+			SQLQuery query = session.createSQLQuery("SELECT a.*, b.NAME, c.FIRST_NAME, c.LAST_NAME FROM CUSTOMER_OTP a, CUSTOMER b, USER c WHERE a.CUSTOMER_ID = b.ID AND a.SALES_EXEC_ID = c.ID AND a.RESELLER_ID = ?");
+			query.setParameter(0, resellerID);
+			List results = query.list();
+			if(results != null && results.size() > 0){
+				for(Object obj : results){
+					Object[] objs = (Object[])obj;
+					CustomerOTP customerOTP = new CustomerOTP();
+					customerOTP.setCustomerName(String.valueOf(objs[13]));
+					customerOTP.setSalesExecName(String.valueOf(objs[14]) +" "+ String.valueOf(objs[15]));
+					customerOTP.setGenaratedOTP(String.valueOf(objs[4]));
+					int otpType = Integer.valueOf(String.valueOf(objs[6]));
+					switch(otpType){
+					case 1:
+						customerOTP.setOtpStringType("Order Booking");
+						break;
+					case 2:
+						customerOTP.setOtpStringType("Delivery Confirmation");
+						break;
+					case 3:
+						customerOTP.setOtpStringType("Payment Confirmation");
+						break;
+					}
+					customerOTP.setOtpStatus(String.valueOf(objs[5]).equals("null") ? "Not Used" : "Verified");
+					customerOTP.setStringDateGenerated(String.valueOf(objs[7]));
+					customerOTP.setStringDateUsed(String.valueOf(objs[8]).equals("null") ? "" : String.valueOf(objs[8]));
+					customerOTPs.add(customerOTP);
+				}
+			}
+				
+		}catch(Exception exception){
+			logger.error("Error while getting OTPs.", exception);
+		}
+		
+		return customerOTPs;
+		
 	}
 
 }

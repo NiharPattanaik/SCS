@@ -140,7 +140,7 @@ public class BeatWebController {
 	public ModelAndView getAssignBeatToCustomerForm(){
 		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
 		List<Beat> beats = beatService.getResellerBeats(resellerID);
-		List<TrimmedCustomer> customers = customerService.getResellerTrimmedCustomers(resellerID);
+		List<TrimmedCustomer> customers = customerService.getCustomersNotAssignedToAnyBeat(resellerID);
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		modelMap.put("beats", beats);
 		modelMap.put("customers", customers);
@@ -162,7 +162,7 @@ public class BeatWebController {
 	@GetMapping(value="/assignedBeatCustomerEditForm/{beatID}") 
 	public ModelAndView editAssignedBeatToCustomerForm(@PathVariable int beatID){
 		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
-		List<TrimmedCustomer> customers = customerService.getResellerTrimmedCustomers(resellerID);
+		List<TrimmedCustomer> customers = customerService.getCustomersBeatAssignmentForEdit(beatID, resellerID);
 		Beat beat = beatService.getBeat(beatID);
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		modelMap.put("customers", customers);

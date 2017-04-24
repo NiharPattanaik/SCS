@@ -65,35 +65,38 @@
     <!-- Header -->
     <div class="container">
         <%@ include file="menus.jsp" %>
-       	<div class="row customer_list">
-       		<div class="col-md-8">
-           		<h2>Customers List</h2>   
-           	</div>
-        	<div class="col-md-4 add_customer">
-					<button type="submit" class="btn btn-primary" onclick="location.href='<%=request.getContextPath()%>/web/customerWeb/createCustomerForm';">Add New Customer</button>
-			</div>
-		</div>        
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Customer ID</th>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>City</th>
-                </tr>
-            </thead>
-            <tbody>
-            	<c:forEach var="customer" items="${customers}">  
-                <tr>
-                	<td><a href="<%=request.getContextPath()%>/web/customerWeb/${customer.customerID}">${customer.customerID}</a></td>
-                    <td>${customer.name}</td>
-                    <td>${customer.description}</td>
-                    <td>${customer.address[0].city}</td>
-                </tr>
-                </c:forEach>
-            </tbody>
-        </table>
-   	</div>
+        <div class="row customer_list">
+        		<div class="col-md-8">
+            		<h2>OTP Report</h2>   
+            	</div>
+	      </div>        
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Customer Name</th>
+                        <th>Sales Executive Name</th>
+                        <th>OTP</th>
+                        <th>OTP Type</th>
+                        <th>OTP Status</th>
+                        <th>Generated Date</th>
+                        <th>Verification Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                	<c:forEach var="customerOTP" items="${customerOTPs}">  
+                    <tr>
+                    	<td>${customerOTP.customerName}</a></td>
+                        <td>${customerOTP.salesExecName}</td>
+                        <td>${customerOTP.genaratedOTP}</td>
+                        <td>${customerOTP.otpStringType}</td>
+                        <td>${customerOTP.otpStatus}</td>
+                        <td>${customerOTP.stringDateGenerated}</td>
+                        <td>${customerOTP.stringDateUsed}</td>
+                    </tr>
+                    </c:forEach>
+                </tbody>
+            </table>
+        </div>
 </body>
 
 </html>

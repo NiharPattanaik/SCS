@@ -23,5 +23,9 @@ public interface CustomerDAO {
 	List<TrimmedCustomer> getResellerTrimmedCustomers(int resellerID);
 	
 	String getCustomerPrimaryMobileNo(int customerID) throws Exception;
+	
+	List<TrimmedCustomer> getCustomersNotAssignedToAnyBeat(int resellerID);
+	
+	List<TrimmedCustomer> getCustomersBeatAssignmentForEdit(int beanID, int resellerID);
 
 }

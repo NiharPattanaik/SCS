@@ -47,4 +47,12 @@ public class CustomerService {
 	public String getCustomerPrimaryMobileNo(int customerID) throws Exception{
 		return customerDAO.getCustomerPrimaryMobileNo(customerID);
 	}
+	
+	public List<TrimmedCustomer> getCustomersNotAssignedToAnyBeat(int resellerID){
+		return customerDAO.getCustomersNotAssignedToAnyBeat(resellerID);
+	}
+	
+	public List<TrimmedCustomer> getCustomersBeatAssignmentForEdit(int beatID, int resellerID){
+		return customerDAO.getCustomersBeatAssignmentForEdit(beatID, resellerID);
+	}
 }
