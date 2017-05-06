@@ -55,6 +55,9 @@ public class Customer extends BusinessEntity{
 	@Transient
 	String salesExecName;
 	
+	@Transient
+	int beatID = -1;
+	
 	public int getCustomerID() {
 		return customerID;
 	}
@@ -103,5 +106,13 @@ public class Customer extends BusinessEntity{
 	public void setSalesExecName(String salesExecName) {
 		this.salesExecName = salesExecName;
 	}
+	public int getBeatID() {
+		return beatID;
+	}
+	public void setBeatID(int beatID) {
+		this.beatID = beatID;
+	}
+	
+	
 	
 }

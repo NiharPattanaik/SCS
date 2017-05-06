@@ -15,7 +15,7 @@ public interface UserDAO {
 	
 	void delete(int userID);
 	
-	List<User> getResellerUsers(int resellerID);
+	List<User> getResellerUsers(int resellerID, int loggedInUserID);
 	
 	List<User> getUserByRole(int resellerID, int roleID);
 	
@@ -26,5 +26,7 @@ public interface UserDAO {
 	boolean validateUserCredential(String userName, String password);
 	
 	int[] isUserNameEmailIDPresent(String userName, String email);
+	
+	void updatePassword(User user) throws Exception;
 	
 }

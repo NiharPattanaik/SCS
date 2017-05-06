@@ -123,15 +123,13 @@ legend {
 					</fieldset>
 					<form:hidden path="status" name="status" value="1" />
 					<form:hidden path="userID" name="userID" value="${ user.userID }" />
+					<form:hidden path="userName" name="userName" value="${ user.userName }" />
+					<form:hidden path="password" name="password" value="${ user.password }" />
+					<form:hidden path="emailID" name="emailID" value="${ user.emailID }" />
 					<div>
 						<fmt:formatDate value="${ user.dateCreated }" type="date"
 								pattern="dd/MM/yyyy" var="createdDate" />
 						<form:hidden path="dateCreated" value="${createdDate}"/>
-					</div>
-					<div>
-						<fmt:formatDate value="${ user.dateModified }" type="date"
-								pattern="dd/MM/yyyy" var="modifiedDate" />
-						<form:hidden path="dateModified" value="${modifiedDate}"/>
 					</div>
 					<div>
 						<form:hidden path="companyID" value="${ user.companyID }"/>

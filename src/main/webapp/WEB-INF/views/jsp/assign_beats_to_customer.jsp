@@ -84,21 +84,12 @@ legend {
 					action="/crm/web/beatWeb/assignBeatToCustomers">
 					<fieldset>
 						<legend>Assign Beats to Customer</legend>
-						<div class="form-group required">
+							<div class="form-group required">
 								<label class='control-label'>Beat</label>
 								<form:select path="beatID" cssClass="form-control" id="beats">
 									<form:option value="-1" label="--- Select ---" required="required"/>
 									<c:forEach var="cbeat" items="${beats}">
-										<% 
-											if(!((Beat)pageContext.getAttribute("cbeat") != null 
-												&& ((Beat)pageContext.getAttribute("cbeat")).getCustomers() != null 
-													&& ((Beat)pageContext.getAttribute("cbeat")).getCustomers().size() > 0)){
-										%>
-											<form:option value="${ cbeat.beatID }" label="${ cbeat.name }" required="required"/>
-										<% 
-											}
-										%>
-											
+										<form:option value="${ cbeat.beatID }" label="${ cbeat.name }" required="required"/>
 									</c:forEach>
 								</form:select>
 							</div>

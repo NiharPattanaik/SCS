@@ -3,6 +3,8 @@
 <style>
 form {
     border: 3px solid #f1f1f1;
+    width: 557px;
+    margin-left: 27%;
 }
 
 input[type=text], input[type=password] {
@@ -46,11 +48,18 @@ img.avatar {
 
 .container {
     padding: 16px;
+    width: 500px;
+    margin-left: 1%;
+    margin-bottom: 26px;
 }
 
 span.psw {
     float: right;
     padding-top: 16px;
+}
+.form_header{
+margin-left:41%;
+display:block;
 }
 
 /* Change styles for span and cancel button on extra small screens */
@@ -63,49 +72,15 @@ span.psw {
        width: 100%;
     }
 }
-
-form {
-    border: 3px solid #f1f1f1;
-    width: 557px;
-    margin-left: 27%;
-}
-
-.center {
-    margin: auto;
-    width: 60%;
-    border: 3px solid #73AD21;
-    padding: 10px;
-}
-
 </style>
 <body>
 
-<div align="center">
-	<h2>Login Form</h2>
-</div>
+<h2 class="form_header">Reseller Self Registration Confirmation</h2>
 
-<form method="post" action="/crm/web/userWeb/login" class="form">
   <div class="imgcontainer">
-   <font color="Red">
-  	${msg}
-  	</font>
+  	${msg}"
   </div>
 
-  <div class="container">
-    <label><b>Username</b></label>
-    <input type="text" placeholder="Enter Username" name="uname" required>
-
-    <label><b>Password</b></label>
-    <input type="password" placeholder="Enter Password" name="psw" required>
-        
-    <button type="submit">Login</button>
-    <input type="checkbox" checked="checked"> Remember me
-  </div>
-
-  <div class="container" style="background-color:#f1f1f1">
-    <span class="psw">Forgot <a href="#">password?</a></span>
-  </div>
-</form>
 
 </body>
 </html>

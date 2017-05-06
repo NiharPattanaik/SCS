@@ -90,7 +90,7 @@ public class OTPService {
 			String user = "username=" + "nihar.pattanaik@gmail.com";
 			String hash = "&hash=" + "Welcome123";
 			String message = "&message=" + msg;
-			String sender = "&sender=" + "Nihar";
+			String sender = "&sender=" + "TXTLCL";
 			String numbers = "&numbers=" + mobileNo;
 			
 			// Send data

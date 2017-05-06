@@ -182,6 +182,10 @@ public class OTPDAOImpl implements OTPDAO{
 				
 		}catch(Exception exception){
 			logger.error("Error while getting OTPs.", exception);
+		}finally{
+			if(session != null){
+				session.close();
+			}
 		}
 		
 		return customerOTPs;

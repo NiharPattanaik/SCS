@@ -22,9 +22,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.sales.crm.model.Beat;
 import com.sales.crm.model.Customer;
 import com.sales.crm.model.SalesExecutive;
 import com.sales.crm.model.User;
+import com.sales.crm.service.BeatService;
 import com.sales.crm.service.CustomerService;
 import com.sales.crm.service.SalesExecService;
 import com.sales.crm.service.UserService;
@@ -44,6 +46,9 @@ public class CustomerWebController {
 	SalesExecService salesExecService;
 	
 	@Autowired
+	BeatService beatService;
+	
+	@Autowired
 	HttpSession httpSession;
 	
 	@GetMapping(value="/{customerID}")
@@ -55,10 +60,10 @@ public class CustomerWebController {
 	
 	@RequestMapping(value="/createCustomerForm", method = RequestMethod.GET)  
 	public ModelAndView createCustomerForm(Model model){
-		List<SalesExecutive> salesExecs = salesExecService.getSalesExecutives(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		List<Beat> beats = beatService.getResellerBeats(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		modelMap.put("customer", new Customer());
-		modelMap.put("salesExecs", salesExecs);
+		modelMap.put("beats", beats);
 		return new ModelAndView("/create_customer", modelMap);
 	}
 	

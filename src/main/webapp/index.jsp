@@ -107,9 +107,8 @@ scroll{
     <input type="checkbox" checked="checked"> Remember me
   </div>
 
-  <div class="container" style="background-color:#f1f1f1">
-    <button type="button" class="cancelbtn">Cancel</button>
-    <span class="psw">Forgot <a href="#">password?</a></span>
+  <div class="container" >
+    <span class="psw" >Forgot <a href="#">password?</a></span>
   </div>
 </form>
 

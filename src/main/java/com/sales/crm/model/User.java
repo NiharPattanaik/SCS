@@ -68,6 +68,9 @@ public class User extends BusinessEntity{
 	
 	@Transient
 	private String name;
+	
+	@Transient
+	private String newPassword;
 
 	public int getUserID() {
 		return userID;
@@ -171,6 +174,14 @@ public class User extends BusinessEntity{
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getNewPassword() {
+		return newPassword;
+	}
+
+	public void setNewPassword(String newPassword) {
+		this.newPassword = newPassword;
 	}
 	
 	

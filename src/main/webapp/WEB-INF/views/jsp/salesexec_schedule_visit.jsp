@@ -87,6 +87,11 @@
 					<fieldset>
 						<legend>Sales Executive Visit Schedule of today</legend>
 						<div class="form-group required">
+							<label class='control-label'>Visit Date</label>
+							<form:input id="dp" name="visitDate" cssClass="dp form-control"
+								path="visitDate" />
+						</div>
+						<div class="form-group required">
 							<label class='control-label'>Sales Executive</label>
 							<form:select path="salesExecutiveID" cssClass="form-control"
 								id="sales_exec">
@@ -97,23 +102,18 @@
 										id="id_trial" />
 								</c:forEach>
 							</form:select>
-							
-							<div class="form-group required">
-								<label class='control-label'>Beats</label>
-								<form:select path="beatID" cssClass="form-control" id="beats">
-									<option value="-1" label="--- Select Beat---" />
-								</form:select>
-							</div>
-							<div class="form-group required">
-								<label class='control-label'>Customers</label>
-								<div style="width: 200px; min-height: 2px; max-height: 100px; overflow-y: auto;" id="checks">
-								</div>
-							</div>
-							<div class="form-group">
-							<label>Visit Date</label>
-							<form:input id="dp" name="visitDate" cssClass="dp form-control"
-								path="visitDate" />
 						</div>
+							
+						<div class="form-group required">
+							<label class='control-label'>Beats</label>
+							<form:select path="beatID" cssClass="form-control" id="beats">
+								<option value="-1" label="--- Select Beat---" />
+							</form:select>
+						</div>
+						<div class="form-group required">
+							<label class='control-label'>Customers</label>
+							<div style="width: 200px; min-height: 2px; max-height: 100px; overflow-y: auto;" id="checks">
+							</div>
 						</div>
 					</fieldset>
 					<div class="form_submit">
@@ -188,6 +188,10 @@
 			});
 			
 			$('#dp').datepicker({format: 'dd-mm-yyyy'});
+			
+			$(document).ready(function() {
+	       		$("#dp").prop('required',true);
+			});
 			
 			$(document).ready(function() {
 	       		$("#sales_exec").prop('required',true);

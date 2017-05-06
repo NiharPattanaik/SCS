@@ -206,11 +206,6 @@ public class ResellerCustomerDataTest {
 		}
 	}
 	
-	@Test
-	public void getResellerUsers(){
-		List<User> users = userService.getResellerUsers(13);
-		System.out.println(users);
-	}
 	
 	
 	@Test

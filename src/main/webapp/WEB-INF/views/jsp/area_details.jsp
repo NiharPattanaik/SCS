@@ -84,13 +84,17 @@ legend {
 				<h2>Area Details</h2>
 			</div>
 			<div class="col-md-4 add_customer">
-				<button type="submit" class="btn btn-primary"
-					onclick="location.href='<%=request.getContextPath()%>/web/areaWeb/editAreaForm/${area.areaID}';">
-					Modify Area</button>
-					
-				<button type="submit" class="btn btn-primary"
-					onclick="location.href='<%=request.getContextPath()%>/web/areaWeb/delete/${area.areaID}';">
-					Delete Area</button>	
+				<% if(resourcePermIDs.contains(ResourcePermissionEnum.AREA_UPDATE.getResourcePermissionID())) { %>
+					<button type="submit" class="btn btn-primary"
+						onclick="location.href='<%=request.getContextPath()%>/web/areaWeb/editAreaForm/${area.areaID}';">
+						Modify Area</button>
+				<% } %>	
+				
+				<% if(resourcePermIDs.contains(ResourcePermissionEnum.AREA_DELETE.getResourcePermissionID())) { %>	
+					<button type="submit" class="btn btn-primary"
+						onclick="location.href='<%=request.getContextPath()%>/web/areaWeb/delete/${area.areaID}';">
+						Delete Area</button>
+				<% } %>			
 			</div>
 		</div>
 		<div class="row top-height">

@@ -72,7 +72,9 @@
             		<h2>Area List</h2>   
             	</div>
 	        	<div class="col-md-4 add_customer">
+	        		<% if(resourcePermIDs.contains(ResourcePermissionEnum.AREA_CREATE.getResourcePermissionID())) { %>
 						<button type="submit" class="btn btn-primary" onclick="location.href='<%=request.getContextPath()%>/web/areaWeb/createAreaForm';">Add New Area</button>
+					<% } %>	
 				</div>
 			</div>        
             <table class="table">
@@ -88,7 +90,11 @@
                 <tbody>
                 	<c:forEach var="area" items="${areas}">  
                     <tr>
-                    	<td><a href="<%=request.getContextPath()%>/web/areaWeb/${area.areaID}">${area.areaID}</a></td>
+                    	<% if(resourcePermIDs.contains(ResourcePermissionEnum.AREA_READ.getResourcePermissionID())) { %>
+                    		<td><a href="<%=request.getContextPath()%>/web/areaWeb/${area.areaID}">${area.areaID}</a></td>
+                    	<% } else { %>
+                    		<td>${area.areaID}</td>
+                    	<% } %>		
                         <td>${area.name}</td>
                         <td>${area.description}</td>
                         <td>${area.wordNo}</td>

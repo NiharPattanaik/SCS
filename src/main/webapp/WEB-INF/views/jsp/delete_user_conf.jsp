@@ -92,7 +92,7 @@
     					</c:otherwise>
 					</c:choose>
 					<div class="form_submit">
-						<a href="<%=request.getContextPath()%>/web/userWeb/list/<%=Integer.valueOf(String.valueOf(session.getAttribute("resellerID")))%>" class="btn btn-primary">View List Of Users</a>
+						<a href="<%=request.getContextPath()%>/web/userWeb/list" class="btn btn-primary">View List Of Users</a>
 						<a href="<%=request.getContextPath()%>/web/userWeb/createUserForm" class="btn btn-primary">Create A New User</a>
 					</div>
 			</div>

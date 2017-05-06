@@ -81,9 +81,11 @@ legend {
 				<h2>Pofile Details</h2>
 			</div>
 			<div class="col-md-4 add_customer">
-				<button type="submit" class="btn btn-primary"
-					onclick="location.href='<%=request.getContextPath()%>/web/resellerWeb/editResellerForm/${reseller.resellerID}';">Modify
-					Profile</button>
+				<% if(resourcePermIDs.contains(ResourcePermissionEnum.RESELLER_UPDATE.getResourcePermissionID())) { %>
+					<button type="submit" class="btn btn-primary"
+						onclick="location.href='<%=request.getContextPath()%>/web/resellerWeb/editResellerForm/${reseller.resellerID}';">Modify
+						Profile</button>
+				<% } %>		
 			</div>
 		</div>
 		<div class="row top-height">

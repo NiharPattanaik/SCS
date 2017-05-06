@@ -69,9 +69,11 @@
 					<h2>Beats List</h2>
 				</div>
 				<div class="col-md-4 add_customer">
-					<button type="submit" class="btn btn-primary"
-						onclick="location.href='<%=request.getContextPath()%>/web/beatWeb/createBeatForm';">Add
-						New Beat</button>
+					<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_CREATE.getResourcePermissionID())) { %>
+						<button type="submit" class="btn btn-primary"
+							onclick="location.href='<%=request.getContextPath()%>/web/beatWeb/createBeatForm';">Add
+							New Beat</button>
+					<% } %>
 				</div>
 			</div>
 			<table class="table">
@@ -88,8 +90,11 @@
 				<tbody>
 					<c:forEach var="beat" items="${beats}">
 						<tr>
-							<td><a
-								href="<%=request.getContextPath()%>/web/beatWeb/${beat.beatID}">${beat.beatID}</a></td>
+							<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_READ.getResourcePermissionID())) { %>
+								<td><a href="<%=request.getContextPath()%>/web/beatWeb/${beat.beatID}">${beat.beatID}</a></td>
+							<% } else { %>
+								<td>${beat.beatID}</td>
+							<% } %>	
 							<td>${beat.name}</td>
 							<td>${beat.description}</td>
 							<td>${beat.coverageSchedule}</td>

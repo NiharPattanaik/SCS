@@ -73,7 +73,9 @@
             		<h2>Users List</h2>   
             	</div>
 	        	<div class="col-md-4 add_customer">
+	        		<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_CREATE.getResourcePermissionID())) { %>
 						<button type="submit" class="btn btn-primary" onclick="location.href='<%=request.getContextPath()%>/web/userWeb/createUserForm';">Add New User</button>
+					<% } %>	
 				</div>
 			</div>        
             <table class="table">
@@ -92,7 +94,11 @@
                 <tbody>
                 	<c:forEach var="user" items="${users}">  
                     <tr>
-                    	<td><a href="<%=request.getContextPath()%>/web/userWeb/${user.userID}">${user.userID}</a></td>
+                    	<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_READ.getResourcePermissionID())) { %>
+                    		<td><a href="<%=request.getContextPath()%>/web/userWeb/${user.userID}">${user.userID}</a></td>
+                    	<% } else { %>
+                    		<td>${user.userID}</td>
+                    	<% } %>	
                         <td>${user.userName}</td>
                         <td>${user.firstName}</td>
                         <td>${user.lastName}</td>

@@ -78,6 +78,9 @@
                         <th>Role ID</th>
                         <th>Role Name</th>
                         <th>Description</th>
+                        <% if(!resourcePermIDs.contains(ResourcePermissionEnum.ROLE_VIEW_RESOURCE_PERMISSION.getResourcePermissionID())) { %>
+                        	<th></th>
+                        <% } %>	
                     </tr>
                 </thead>
                 <tbody>
@@ -86,6 +89,9 @@
                     	<td>${role.roleID}</td>
                         <td>${role.roleName}</td>
                         <td>${role.description}</td>
+                        <% if(resourcePermIDs.contains(ResourcePermissionEnum.ROLE_VIEW_RESOURCE_PERMISSION.getResourcePermissionID())) { %>
+                       		<td><a href="<%=request.getContextPath()%>/web/role/resource_permission/${role.roleID}/view"><b>View Permissions</b></a></td>
+                       	<% } %>
                     </tr>
                     </c:forEach>
                 </tbody>

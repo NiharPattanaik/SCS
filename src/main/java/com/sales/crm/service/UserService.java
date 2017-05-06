@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 import com.sales.crm.dao.UserDAO;
 import com.sales.crm.model.Reseller;
@@ -36,8 +37,8 @@ public class UserService {
 		userDAO.delete(userID);
 	}
 	
-	public List<User> getResellerUsers(int userID){
-		return userDAO.getResellerUsers(userID);
+	public List<User> getResellerUsers(int resellerID, int loggedInUserID){
+		return userDAO.getResellerUsers(resellerID, loggedInUserID);
 	}
 	
 	public Reseller getUserReseller(int userId){
@@ -50,6 +51,10 @@ public class UserService {
 	
 	public int[] isUserNameEmailIDPresent(String userName, String email){
 		return userDAO.isUserNameEmailIDPresent(userName, email);
+	}
+	
+	public void updatePassword(User user) throws Exception{
+		userDAO.updatePassword(user);
 	}
 	
 }

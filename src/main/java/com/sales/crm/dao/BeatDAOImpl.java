@@ -31,7 +31,6 @@ public class BeatDAOImpl implements BeatDAO {
 	@Autowired
 	private SessionFactory sessionFactory;
 	
-	private static SimpleDateFormat dbFormat = new SimpleDateFormat("yyyy-MM-dd");
 	
 	private static Logger logger = Logger.getLogger(BeatDAOImpl.class);
 	
@@ -257,11 +256,9 @@ public class BeatDAOImpl implements BeatDAO {
 			
 			// Add area and Customers to Beat
 			for (Beat beat : beats) {
-				if (beatAreaMap.containsKey(beat.getBeatID())) {
-					beat.setAreas(beatAreaMap.get(beat.getBeatID()));
-					beat.setCustomers(beatCustomersMap.get(beat.getBeatID()));
-					beat.setCustomerIDs(beatCustomerIDsMap.get(beat.getBeatID()));
-				}
+				beat.setAreas(beatAreaMap.get(beat.getBeatID()));
+				beat.setCustomers(beatCustomersMap.get(beat.getBeatID()));
+				beat.setCustomerIDs(beatCustomerIDsMap.get(beat.getBeatID()));
 			}
 
 		} catch (Exception exception) {
@@ -276,12 +273,11 @@ public class BeatDAOImpl implements BeatDAO {
 
 	@Override
 	public void assignBeatToCustomers(final int beatID, final List<Integer> customerIDs) throws Exception{
-
 		Session session = null;
-		
+		Transaction transaction = null;
 		try {
 			session = sessionFactory.openSession();
-			Transaction transaction = session.beginTransaction();
+			transaction = session.beginTransaction();
 			// get Connction from Session
 			session.doWork(new Work() {
 				@Override
@@ -304,6 +300,9 @@ public class BeatDAOImpl implements BeatDAO {
 			transaction.commit();
 		} catch (Exception exception) {
 			logger.error("Error while assigning beat to customer.", exception);
+			if (transaction != null) {
+				transaction.rollback();
+			}
 			throw exception;
 		} finally {
 			if (session != null) {
@@ -315,12 +314,11 @@ public class BeatDAOImpl implements BeatDAO {
 	
 	@Override
 	public void updateAssignedBeatToCustomers(final int beatID, final List<Integer> customerIDs) {
-
 		Session session = null;
-		
+		Transaction transaction = null;
 		try {
 			session = sessionFactory.openSession();
-			Transaction transaction = session.beginTransaction();
+			transaction = session.beginTransaction();
 			//Delete existing Beat-Customer
 			SQLQuery deleteSalesExecBeats = session.createSQLQuery("DELETE FROM BEAT_CUSTOMER WHERE BEAT_ID =? ");
 			deleteSalesExecBeats.setParameter(0, beatID);
@@ -347,6 +345,9 @@ public class BeatDAOImpl implements BeatDAO {
 			transaction.commit();
 		} catch (Exception e) {
 			logger.error("Error while updating assigned beats to customer", e);
+			if (transaction != null) {
+				transaction.rollback();
+			}
 		} finally {
 			if (session != null) {
 				session.close();
@@ -384,15 +385,19 @@ public class BeatDAOImpl implements BeatDAO {
 	@Override
 	public void deleteAssignedBeatCustomerLink(int beatID) throws Exception{
 		Session session = null;
+		Transaction transaction = null;
 		try {
 			session = sessionFactory.openSession();
-			Transaction transaction = session.beginTransaction();
+			transaction = session.beginTransaction();
 			SQLQuery query = session.createSQLQuery("DELETE FROM BEAT_CUSTOMER WHERE BEAT_ID= ?");
 			query.setParameter(0, beatID);
 			query.executeUpdate();
 			transaction.commit();
 		} catch (Exception exception) {
 			logger.error("Sales Executive beats could not be successfully removed", exception);
+			if (transaction != null) {
+				transaction.rollback();
+			}
 			throw exception;
 		} finally {
 			if (session != null) {

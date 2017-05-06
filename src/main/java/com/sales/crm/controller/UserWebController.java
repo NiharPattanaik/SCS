@@ -55,9 +55,16 @@ public class UserWebController {
 		
 	}
 	
+	@GetMapping(value="/account/{userID}")
+	public ModelAndView getAccountDetails(@PathVariable int userID){
+		User user = userService.getUser(userID);
+		return new ModelAndView("/account_details", "user", user);
+		
+	}
+	
 	@RequestMapping(value="/createUserForm", method = RequestMethod.GET)  
 	public ModelAndView createUserForm(Model model){
-		List<Role> roles = roleService.getRoles();
+		List<Role> roles = roleService.getRoles((User)httpSession.getAttribute("user"));
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		modelMap.put("user", new User());
 		modelMap.put("roles", roles);
@@ -66,7 +73,7 @@ public class UserWebController {
 	
 	@RequestMapping(value="/editUserForm/{userID}", method = RequestMethod.GET)  
 	public ModelAndView editUserForm(@PathVariable int userID){
-		List<Role> roles = roleService.getRoles();
+		List<Role> roles = roleService.getRoles((User)httpSession.getAttribute("user"));
 		User user = userService.getUser(userID);
 		Set<Integer> rolesIDSet = new HashSet<Integer>();
 		Map<String, Object> modelMap = new HashMap<String, Object>();
@@ -119,9 +126,11 @@ public class UserWebController {
 		return new ModelAndView("/delete_user_conf","msg", msg);  
 	}
 	
-	@GetMapping(value="/list/{resellerID}")
-	public ModelAndView list(@PathVariable int resellerID){
-		List<User> users = userService.getResellerUsers(resellerID);
+	@GetMapping(value="/list")
+	public ModelAndView list(){
+		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
+		int loggedInUserId = ((User)httpSession.getAttribute("user")).getUserID();
+		List<User> users = userService.getResellerUsers(resellerID, loggedInUserId);
 		return new ModelAndView("/users_list","users", users);  
 	}
 	
@@ -130,8 +139,12 @@ public class UserWebController {
 		String userName = request.getParameter("uname");
 		String password = request.getParameter("psw");
 		User user;
+		List<Integer> resourcePermIDs;
+		List<Customer> customers;
 		try{
 			user = userService.getUser(userName);
+			resourcePermIDs = roleService.getRoleResourcePermissionIDs(user);
+			customers = customerService.getResellerCustomers(user.getResellerID());
 		}catch(Exception exception){
 			Map<String, Object> modelMap = new HashMap<String, Object>();
 			modelMap.put("msg", "Something went wrong!. Please try after sometime and if the issue persists please contact System Administrator");
@@ -142,18 +155,41 @@ public class UserWebController {
 			Map<String, Object> modelMap = new HashMap<String, Object>();
 			modelMap.put("msg", "Invalid user name or password.");
 			return new ModelAndView("/login", modelMap); 
-		}else if (!isAdminUser(user)){
+		}
+		/**
+		else if (!isAdminUser(user)){
 			Map<String, Object> modelMap = new HashMap<String, Object>();
 			modelMap.put("msg", "User <b>"+ userName +"</b> not having required previligaes to access the application");
 			return new ModelAndView("/login", modelMap); 
-		}else{
+		}
+		**/
+		else{
 			httpSession.setAttribute("user", user);
 			httpSession.setAttribute("resellerID", user.getResellerID());
-			List<Customer> customers = customerService.getResellerCustomers(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+			httpSession.setAttribute("userFullName", user.getFirstName() + " " + user.getLastName());
+			httpSession.setAttribute("resourcePermIDs", resourcePermIDs);
 			return new ModelAndView("/customer_list","customers", customers); 
 		}
 	}
 	
+	
+	@GetMapping(value="/changePassForm")
+	public ModelAndView getChangePasswordForm(){
+		User user = userService.getUser(((User)httpSession.getAttribute("user")).getUserID());
+		return new ModelAndView("/change_password", "user", user);
+		
+	}
+	
+	@RequestMapping(value="/updatePassword",method = RequestMethod.POST)  
+	public ModelAndView updatePassword(@ModelAttribute("user") User user){
+		String msg = "";
+		try{
+			userService.updatePassword(user);
+		}catch(Exception e){
+			msg = "Password could not be updated successfully. Please try after sometime if error persists contact System Administrator. ";
+		}
+		return new ModelAndView("/change_pass_conf", "msg", msg);
+	}	
 	
 	/**
 	@GetMapping(value="/createAdminUser/{resellerID}")  

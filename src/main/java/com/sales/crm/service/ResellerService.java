@@ -33,5 +33,9 @@ public class ResellerService {
 	public void deleteReseller(int resellerID){
 		resellerDAO.delete(resellerID);
 	}
+	
+	public boolean isEmailIDAlreadyUsed(String emailID){
+		return resellerDAO.isEmailIDAlreadyUsed(emailID);
+	}
 
 }

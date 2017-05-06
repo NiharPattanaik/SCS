@@ -83,13 +83,17 @@ legend {
 				<h2>User Details</h2>
 			</div>
 			<div class="col-md-4 add_customer">
-				<button type="submit" class="btn btn-primary"
-					onclick="location.href='<%=request.getContextPath()%>/web/userWeb/editUserForm/${user.userID}';">
-					Modify User</button>
+				<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_UPDATE.getResourcePermissionID())) { %>
+					<button type="submit" class="btn btn-primary"
+						onclick="location.href='<%=request.getContextPath()%>/web/userWeb/editUserForm/${user.userID}';">
+						Modify User</button>
+				<% } %>		
 				
-				<button type="submit" class="btn btn-primary"
-					onclick="location.href='<%=request.getContextPath()%>/web/userWeb/delete/${user.userID}';">
-					Delete User</button>	
+				<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_DELETE.getResourcePermissionID())) { %>
+					<button type="submit" class="btn btn-primary"
+						onclick="location.href='<%=request.getContextPath()%>/web/userWeb/delete/${user.userID}';">
+						Delete User</button>	
+				<% } %>		
 			</div>
 		</div>
 		<div class="row top-height">

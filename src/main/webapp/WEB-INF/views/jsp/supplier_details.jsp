@@ -79,12 +79,17 @@ legend {
 				<h2>Suppliers Details</h2>
 			</div>
 			<div class="col-md-4 add_customer">
-				<button type="submit" class="btn btn-primary"
-					onclick="location.href='<%=request.getContextPath()%>/web/supplierWeb/editSupplierForm/${supplier.supplierID}';">
-					Modify Supplier</button>
-				<button type="submit" class="btn btn-primary"
-					onclick="location.href='<%=request.getContextPath()%>/web/supplierWeb/delete/${supplier.supplierID}';">
-					Delete Supplier</button>
+				<% if(resourcePermIDs.contains(ResourcePermissionEnum.SUPPLIER_UPDATE.getResourcePermissionID())) { %>
+					<button type="submit" class="btn btn-primary"
+						onclick="location.href='<%=request.getContextPath()%>/web/supplierWeb/editSupplierForm/${supplier.supplierID}';">
+						Modify Supplier</button>
+				<% } %>
+				
+				<% if(resourcePermIDs.contains(ResourcePermissionEnum.SUPPLIER_DELETE.getResourcePermissionID())) { %>
+					<button type="submit" class="btn btn-primary"
+						onclick="location.href='<%=request.getContextPath()%>/web/supplierWeb/delete/${supplier.supplierID}';">
+						Delete Supplier</button>
+				<% } %>		
 			</div>
 		</div>
 		<div class="row top-height">

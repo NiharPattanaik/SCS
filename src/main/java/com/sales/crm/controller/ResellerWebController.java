@@ -3,6 +3,7 @@ package com.sales.crm.controller;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.sales.crm.model.Address;
 import com.sales.crm.model.Reseller;
 import com.sales.crm.model.User;
 import com.sales.crm.service.ResellerService;
@@ -38,6 +40,33 @@ public class ResellerWebController {
 		return new ModelAndView("resSuccess");
 	}
 	
+	@RequestMapping(value="/selfRegisterResellerForm", method = RequestMethod.GET)  
+	public ModelAndView selfRegisterResellerForm(){
+		return new ModelAndView("/self_register_reseller", "reseller", new Reseller());
+	}
+	
+	@RequestMapping(value="/selfRegisterReseller",method = RequestMethod.POST)  
+	public ModelAndView selfRegisterReseller(@ModelAttribute("reseller") Reseller reseller){
+		String msg = "";
+		String emailID = "";
+		try{
+			List<Address> addresses = reseller.getAddress();
+			for(Address address : addresses){
+				if(address.getAddrressType() == 1){
+					emailID = address.getEmailID();
+				}
+			}
+			if(resellerService.isEmailIDAlreadyUsed(emailID)){
+				msg = "E-Mail address ";
+			}
+			resellerService.createReseller(reseller);
+			msg = "Dear Reseller, <br> Your registration request has been accepted. You will be communicated for the further process through your email address.<br> Thank You.";
+		}catch(Exception exception){
+			
+		}
+		return null;
+		
+	}
 	
 	/**
 	 * Used without login

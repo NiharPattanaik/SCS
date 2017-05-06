@@ -22,46 +22,55 @@ public class Address extends BusinessEntity{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID", unique = true, nullable = false)
-	int id;
+	private int id;
 	
 	@Column(name = "ADDRESS_LINE1")
-	String addressLine1;
+	private String addressLine1;
 	
 	@Column(name = "ADDRESS_LINE2")
-	String addressLine2;
+	private String addressLine2;
 	
 	@Column(name = "STREET")
-	String street;
+	private String street;
 	
 	@Column(name = "CITY")
-	String city;
+	private String city;
 	
 	@Column(name = "STATE")
-	String state;
+	private String state;
 	
 	@Column(name = "COUNTRY")
-	String country;
+	private String country;
 	
 	@Column(name = "POSTAL_CODE")
-	String postalCode;
+	private String postalCode;
 	
 	@Column(name = "CONTACT_PERSON")
-	String contactPerson;
+	private String contactPerson;
 	
 	@Column(name = "PHONE_NO")
-	String phoneNumber;
+	private String phoneNumber;
 	
 	@Column(name = "MOBILE_NUMBER_PRIMARY")
-	String mobileNumberPrimary;
+	private String mobileNumberPrimary;
 	
 	@Column(name = "MOBILE_NUMBER_SECONDARY")
-	String mobileNumberSecondary;
+	private String mobileNumberSecondary;
 	
 	@Column(name = "ADDRESS_TYPE")
-	int addrressType;
+	private int addrressType;
+	
+	@Column(name = "EMAIL_ID")
+	private String emailID;
 	
 	public String getAddressLine1() {
 		return addressLine1;
+	}
+	public String getEmailID() {
+		return emailID;
+	}
+	public void setEmailID(String emailID) {
+		this.emailID = emailID;
 	}
 	public void setAddressLine1(String addressLine1) {
 		this.addressLine1 = addressLine1;

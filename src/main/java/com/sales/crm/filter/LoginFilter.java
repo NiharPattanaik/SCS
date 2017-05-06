@@ -45,7 +45,9 @@ public class LoginFilter implements Filter {
         boolean restValidateUser = false;
         
         if(request.getRequestURI().equals(logoutURI)){
-			session.invalidate();
+        	if(session != null){
+        		session.invalidate();
+        	}
 		}else{
 			loggedIn = session != null && session.getAttribute("user") != null;
 			loginRequest = request.getRequestURI().equals(loginURI);

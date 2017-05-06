@@ -11,5 +11,7 @@ public interface ResellerDAO {
 	void update(Reseller reseller);
 	
 	void delete(int resellerID);
+	
+	boolean isEmailIDAlreadyUsed(String emailID);
 
 }

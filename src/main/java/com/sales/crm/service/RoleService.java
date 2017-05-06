@@ -1,12 +1,15 @@
 package com.sales.crm.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sales.crm.dao.RoleDAO;
+import com.sales.crm.model.ResourcePermission;
 import com.sales.crm.model.Role;
+import com.sales.crm.model.User;
 
 @Service
 public class RoleService {
@@ -30,7 +33,41 @@ public class RoleService {
 		roleDAO.delete(roleID);
 	}
 	
+	public List<Role> getRoles(User user){
+		List<Role> roles = user.getRoles();
+		List<Integer> roleIDs = new ArrayList<Integer>();
+		for(Role role : roles){
+			roleIDs.add(role.getRoleID());
+		}
+		return roleDAO.getRoles(roleIDs);
+	}
+	
 	public List<Role> getRoles(){
-		return roleDAO.getRoles();
+		return roleDAO.getRoles(null);
+	}
+	
+	public List<ResourcePermission> getResourcePermissions() throws Exception {
+		return roleDAO.getResourcePermissions();
+	}
+
+	public List<ResourcePermission> getRolesResourcePermissions(List<Integer> roleIDs, int resellerID) throws Exception {
+		return roleDAO.getRoleResourcePermissions(roleIDs, resellerID);
+	}
+	
+	public void saveRoleResourcePermission(List<ResourcePermission> resourcePermissions) throws Exception{
+		roleDAO.saveRoleResourcePermission(resourcePermissions);
+	}
+	
+	public List<Integer> getRoleResourcePermissionIDs(List<Integer> roleIDs, int resellerID) throws Exception {
+		return roleDAO.getRoleResourcePermissionIDs(roleIDs, resellerID);
+	}
+	
+	public List<Integer> getRoleResourcePermissionIDs(User user) throws Exception {
+		List<Role> roles = user.getRoles();
+		List<Integer> roleIDs = new ArrayList<Integer>();
+		for(Role role : roles){
+			roleIDs.add(role.getRoleID());
+		}
+		return roleDAO.getRoleResourcePermissionIDs(roleIDs, user.getResellerID());
 	}
 }

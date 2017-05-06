@@ -87,13 +87,12 @@
     					</c:when>    
     					<c:otherwise>
         					<div class="alert alert-success">
-	 						 <strong>Success!</strong><br> User has been successfully created.
+	 						 <strong>Success!</strong><br> Password has been successfully changed.
 						</div>
     					</c:otherwise>
 					</c:choose>
 					<div class="form_submit">
-						<a href="<%=request.getContextPath()%>/web/userWeb/list" class="btn btn-primary">View List Of Users</a>
-						<a href="<%=request.getContextPath()%>/web/userWeb/createUserForm" class="btn btn-primary">Create Another User</a>
+						<a href="<%=request.getContextPath()%>/web/userWeb/account/<%= ((User)session.getAttribute("user")).getUserID() %>" class="btn btn-primary">Back To Account Details</a>
 					</div>
 			</div>
 		</div>

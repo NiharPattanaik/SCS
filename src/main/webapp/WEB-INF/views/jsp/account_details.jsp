@@ -3,19 +3,19 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
-<%@ page import="com.sales.crm.model.Area"%>
+<%@ page import="com.sales.crm.model.Role"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <html lang="en">
 
 <head>
-	<title>Beat Details</title>
+	<title>User Details</title>
 	<!-- Bootstrap Core CSS -->
-	<meta charset="utf-8">
+	<meta charset="utf-8">	
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
 	<script src="<%=request.getContextPath()%>/resources/js/jquery-3.2.0.min.js"></script>
 	<script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
-	
+
 <style>
 .dpHeaderWrap {
 	position: relative;
@@ -80,66 +80,73 @@ legend {
 		<%@ include file="menus.jsp" %>
 		<div class="row customer_list">
 			<div class="col-md-4">
-				<h2>Beat Details</h2>
+				<h2>User Details</h2>
 			</div>
 			<div class="col-md-4 add_customer">
-				<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_UPDATE.getResourcePermissionID())) { %>
-					<button type="submit" class="btn btn-primary"
-						onclick="location.href='<%=request.getContextPath()%>/web/beatWeb/editBeatForm/${beat.beatID}';">
-						Modify Beat</button>
-				<% } %>		
+				<button type="submit" class="btn btn-primary"
+					onclick="location.href='<%=request.getContextPath()%>/web/userWeb/editUserForm/${user.userID}';">
+					Modify Details</button>
 				
-				<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_DELETE.getResourcePermissionID())) { %>		
-					<button type="submit" class="btn btn-primary"
-						onclick="location.href='<%=request.getContextPath()%>/web/beatWeb/delete/${beat.beatID}';">
-						Delete Beat</button>	
-				<% } %>	
+				<button type="submit" class="btn btn-primary"
+					onclick="location.href='<%=request.getContextPath()%>/web/userWeb/changePassForm';">
+					Change Password</button>	
 			</div>
 		</div>
 		<div class="row top-height">
 			<div class="col-md-8 ">
 				<fieldset>
-					<legend>Beat Details</legend>
+					<legend>User Details</legend>
 					<div class="form-group">
-						<label>Beat Name : </label> <span>${ beat.name }</span>
+						<label>First Name : </label> <span>${ user.firstName }</span>
 					</div>
 					<div class="form-group">
-						<label>Description : </label> <span>${ beat.description }</span>
+						<label>Last Name : </label> <span>${ user.lastName }</span>
 					</div>
 					<div class="form-group">
-						<label>Coverage Schedule : </label> <span>${ beat.coverageSchedule }</span>
+						<label>Description : </label> <span>${ user.description }</span>
 					</div>
 					<div class="form-group">
-						<label>Distance : </label> <span>${ beat.distance }</span>
+						<label>Email ID : </label> <span>${ user.emailID }</span>
+					</div>
+					<div class="form-group">
+						<label>Mobile Number : </label> <span>${ user.mobileNo }</span>
 					</div>
 				</fieldset>
+
 				<fieldset>
-					<legend>Area Covered</legend>
+					<legend>Login Details</legend>
 					<div class="form-group">
-						<label>Areas : </label>
+						<label>User Name : </label> <span>${ user.userName }</span>
+					</div>
+					<div class="form-group">
+						<label>Status : </label>
+						<c:if test="${user.status == 1}">
+							<span>Active</span>
+						</c:if>
+					</div>
+				</fieldset>
+
+				<fieldset>
+					<legend>Role Details</legend>
+					<div class="form-group">
+						<label>Roles : </label>
 						<%
 							String values = "";
 						%>
-						<c:forEach var="area" items="${beat.areas}">
+						<c:forEach var="role" items="${user.roles}">
 							<%
 								if (values.isEmpty()) {
-										if ((Area) pageContext.getAttribute("area") != null
-												&& ((Area) pageContext.getAttribute("area")).getName() != null) {
-											values = values + ((Area) pageContext.getAttribute("area")).getName();
-										}
+										values = values + ((Role) pageContext.getAttribute("role")).getDescription();
 									} else {
-										values = values + ", ";
-										if ((Area) pageContext.getAttribute("area") != null
-												&& ((Area) pageContext.getAttribute("area")).getName() != null) {
-											values = values + ((Area) pageContext.getAttribute("area")).getName();
-										}
+										values = values + " ,";
+										values = values + ((Role) pageContext.getAttribute("role")).getDescription();
 									}
 							%>
 						</c:forEach>
-						<c:if test="${fn:length(beat.areas) gt 0}">
+						<c:if test="${fn:length(user.roles) gt 0}">
 							<span><%=values%></span>
 						</c:if>
-						<c:if test="${fn:length(beat.areas) eq 0}">
+						<c:if test="${fn:length(user.roles) eq 0}">
 							<span>None</span>
 						</c:if>
 					</div>

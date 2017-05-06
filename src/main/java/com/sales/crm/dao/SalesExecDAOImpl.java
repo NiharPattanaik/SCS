@@ -228,9 +228,6 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 				}
 				salesExecsMap.get(salesExec.getUserID()).getBeats().add(beat);
 			}
-			
-			
-			
 		}catch(Exception exception){
 			logger.error("Error while fetching list of sales executives", exception);
 		}finally{
@@ -244,9 +241,10 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 	@Override
 	public void assignBeats(final int salesExecID, final List<Integer> beatIDs) throws Exception{
 		Session session = null;
+		Transaction transaction = null;
 		try {
 			session = sessionFactory.openSession();
-			Transaction transaction = session.beginTransaction();
+			transaction = session.beginTransaction();
 			// get Connction from Session
 			session.doWork(new Work() {
 				@Override
@@ -269,6 +267,9 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 			transaction.commit();
 		} catch (Exception exception) {
 			logger.error("Error while assigning beats.", exception);
+			if(transaction != null){
+				transaction.rollback();
+			}
 			throw exception;
 		} finally {
 			if (session != null) {
@@ -280,9 +281,10 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 	@Override
 	public void updateAssignedBeats(final int salesExecID, final List<Integer> beatIDs) throws Exception{
 		Session session = null;
+		Transaction transaction = null;
 		try {
 			session = sessionFactory.openSession();
-			Transaction transaction = session.beginTransaction();
+			transaction = session.beginTransaction();
 			//Delete existing sales Exec Beats
 			SQLQuery deleteSalesExecBeats = session.createSQLQuery("DELETE FROM SALES_EXEC_BEATS WHERE SALES_EXEC_ID =? ");
 			deleteSalesExecBeats.setParameter(0, salesExecID);
@@ -309,6 +311,9 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 			transaction.commit();
 		} catch (Exception exception) {
 			logger.error("Error while updating assigned beats", exception);
+			if(transaction != null){
+				transaction.rollback();
+			}
 			throw exception;
 		} finally {
 			if (session != null) {
@@ -386,13 +391,14 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 	@Override
 	public void scheduleVistit(SalesExecBeatCustomer salesExecBeatCustomer) {
 		Session session = null;
+		Transaction transaction = null;
 		try {
 			final int salesExecID = salesExecBeatCustomer.getSalesExecutiveID();
 			final int beatID = salesExecBeatCustomer.getBeatID();
 			final List<Integer> custIDList = salesExecBeatCustomer.getCustomerIDs();
 			final Date visitDate = salesExecBeatCustomer.getVisitDate();
 			session = sessionFactory.openSession();
-			Transaction transaction = session.beginTransaction();
+			transaction = session.beginTransaction();
 			// get Connction from Session
 			session.doWork(new Work() {
 				@Override
@@ -417,6 +423,9 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 			transaction.commit();
 		} catch (Exception exception) {
 			logger.error("Error while scheduling sales executives visti.", exception);
+			if(transaction != null){
+				transaction.rollback();
+			}
 		} finally {
 			if (session != null) {
 				session.close();
@@ -542,15 +551,19 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 	@Override
 	public void deleteBeatAssignment(int salesExecID) throws Exception {
 		Session session = null;
+		Transaction transaction = null;
 		try {
 			session = sessionFactory.openSession();
-			Transaction transaction = session.beginTransaction();
+			transaction = session.beginTransaction();
 			SQLQuery query = session.createSQLQuery("DELETE FROM SALES_EXEC_BEATS WHERE SALES_EXEC_ID= ?");
 			query.setParameter(0, salesExecID);
 			query.executeUpdate();
 			transaction.commit();
 		} catch (Exception exception) {
 			logger.error("Sales Executive beats could not be successfully removed", exception);
+			if(transaction != null){
+				transaction.rollback();
+			}
 			throw exception;
 		} finally {
 			if (session != null) {

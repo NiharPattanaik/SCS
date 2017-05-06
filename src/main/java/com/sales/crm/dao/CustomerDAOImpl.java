@@ -41,6 +41,13 @@ public class CustomerDAOImpl implements CustomerDAO{
 				address.setDateCreated(new Date());
 			}
 			session.save(customer);
+			//Customer-Beat Assignment
+			if(customer.getBeatID() != -1){
+				SQLQuery customerBeatQuery = session.createSQLQuery("INSERT INTO BEAT_CUSTOMER VALUES (?, ?)");
+				customerBeatQuery.setParameter(0, customer.getBeatID());
+				customerBeatQuery.setParameter(1, customer.getCustomerID());
+				customerBeatQuery.executeUpdate();
+			}
 			transaction.commit();
 		}catch(Exception e){
 			logger.error("Error while creating customer", e);
@@ -106,9 +113,6 @@ public class CustomerDAOImpl implements CustomerDAO{
 				session.close();
 			}
 		}
-		
-	
-		
 	}
 
 	@Override

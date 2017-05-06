@@ -198,15 +198,16 @@ public class UserDAOImpl implements UserDAO {
 
 	//TODO : SQL needs to be improved
 	@Override
-	public List<User> getResellerUsers(int resellerID) {
+	public List<User> getResellerUsers(int resellerID, int loggedInUserID) {
 
 		Session session = null;
 		List<User> users = new ArrayList<User>(); 
 		try{
 			session = sessionFactory.openSession();
 			//Get USER IDS from reseller id
-			SQLQuery getUserIds = session.createSQLQuery("SELECT USER_ID FROM RESELLER_USER WHERE RESELLER_ID = ?");
+			SQLQuery getUserIds = session.createSQLQuery("SELECT USER_ID FROM RESELLER_USER WHERE RESELLER_ID = ? AND USER_ID != ?");
 			getUserIds.setParameter(0, resellerID);
+			getUserIds.setParameter(1, loggedInUserID);
 			List userIDs = getUserIds.list();
 			if(userIDs.size() > 0){
 				Query userQuery = session.createQuery("FROM User WHERE userID IN (:ids)");
@@ -414,6 +415,31 @@ public class UserDAOImpl implements UserDAO {
 			}
 		}
 		return values;
+	}
+	
+	@Override
+	public void updatePassword(User user)throws Exception{
+		Session session = null;
+		Transaction transaction = null;
+		try{
+			session = sessionFactory.openSession();
+			transaction = session.beginTransaction();
+			SQLQuery userQuery = session.createSQLQuery("UPDATE USER SET PASSWORD=? WHERE ID= ?");
+			userQuery.setParameter(0, user.getNewPassword());
+			userQuery.setParameter(1,  user.getUserID());
+			userQuery.executeUpdate();
+			transaction.commit();
+		}catch(Exception exception){
+			logger.error("Error while updating password", exception);
+			if(transaction != null){
+				transaction.rollback();
+			}
+			throw exception;
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
 	}
 
 }

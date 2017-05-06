@@ -1,12 +1,10 @@
-<%@page import="com.sales.crm.model.Beat"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <html lang="en">
 
 <head>
-	<title>Page one</title>
+	<title>Reseller Self Registration</title>
 	<!-- Bootstrap Core CSS -->
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -63,13 +61,6 @@ legend {
 	margin-top: 14px;
 	text-align: right;
 }
-
-.form-group.required .control-label:after { 
-   content:"*";
-   color:red;
-}
-
-
 </style>
 </head>
 
@@ -80,15 +71,22 @@ legend {
 	</header>
 	<!-- Header -->
 	<div class="container">
-		<%@ include file="menus.jsp" %>
+		<nav class="navbar navbar-inverse">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="#"></a>
+				</div>
+				
+			</div>
+		</nav>
 		<div class="row top-height">
 			<div class="col-md-8 ">
-				<h2>Add New Customer</h2>
-				<form:form modelAttribute="customer" method="post"
-					action="/crm/web/customerWeb/save">
+				<h2>Add New Reseller</h2>
+				<form:form modelAttribute="reseller" method="post"
+					action="/crm/web/resellerWeb/saveReseller">
 					<fieldset>
-						<legend>Customer Details</legend>
-						<div class="form-group required">
+						<legend>Reseller Details</legend>
+						<div class="form-group required" >
 							<label class='control-label'>Name</label>
 							<form:input name="name" cssClass="form-control" path="name" id="name"/>
 						</div>
@@ -100,7 +98,7 @@ legend {
 					</fieldset>
 
 					<fieldset>
-						<legend>Customer Main Address</legend>
+						<legend>Reseller Main Address</legend>
 						<form:hidden name="addrressType" value="1"
 							path="address[0].addrressType" />
 						<div class="form-group required" >
@@ -148,10 +146,10 @@ legend {
 							<form:input name="phoneNumber" cssClass="form-control"
 								path="address[0].phoneNumber" />
 						</div>
-						<div class="form-group required">
+						<div class="form-group required" >
 							<label class='control-label'>Mobile Number(Primary)</label>
 							<form:input name="mobileNumberPrimary" cssClass="form-control"
-								path="address[0].mobileNumberPrimary" maxlength="10" id="main_mobPri"/>
+								path="address[0].mobileNumberPrimary" id="main_mobPri"/>
 						</div>
 						<div class="form-group">
 							<label>Mobile Number(Secondary)</label>
@@ -160,7 +158,7 @@ legend {
 						</div>
 					</fieldset>
 					<fieldset>
-						<legend>Customer Billing Address</legend>
+						<legend>Reseller Billing Address</legend>
 						<form:hidden name="addrressType" value="2"
 							path="address[1].addrressType" />
 						<div class="form-group">
@@ -219,18 +217,7 @@ legend {
 								path="address[1].mobileNumberSecondary" />
 						</div>
 					</fieldset>
-					<fieldset>
-						<legend>Beat Assignment</legend>
-						<div class="form-group">
-								<label>Beat</label>
-								<form:select path="beatID" cssClass="form-control" id="beats">
-									<form:option value="-1" label="--- Select ---"/>
-									<c:forEach var="cbeat" items="${beats}">
-										<form:option value="${ cbeat.beatID }" label="${ cbeat.name }"/>
-									</c:forEach>
-								</form:select>
-							</div>
-					</fieldset>
+					
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</div>
@@ -266,5 +253,4 @@ legend {
 	});
 	
 </script>
-
 </html>

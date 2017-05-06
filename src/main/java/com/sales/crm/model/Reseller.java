@@ -29,25 +29,28 @@ public class Reseller extends BusinessEntity{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID", unique = true, nullable = false)
-	int resellerID;
+	private int resellerID;
 	
 	@Column(name = "NAME")
-	String name;
+	private String name;
 	
 	@Column(name = "DESCRIPTION")
-	String description;
+	private String description;
 	
 	@OneToMany(orphanRemoval=true, cascade=CascadeType.ALL, fetch=FetchType.EAGER )
-	List<Address> address;
+	private List<Address> address;
+	
+	@Column(name="STATUS")
+	private int status;
 	
 	@Transient
-	List<Customer> customers;
+	private List<Customer> customers;
 	
 	@Transient
-	List<Beat> beats;
+	private List<Beat> beats;
 	
 	@Transient
-	List<Area> areas;
+	private List<Area> areas;
 	
 	public int getResellerID() {
 		return resellerID;
@@ -90,6 +93,12 @@ public class Reseller extends BusinessEntity{
 	}
 	public void setAreas(List<Area> areas) {
 		this.areas = areas;
+	}
+	public int getStatus() {
+		return status;
+	}
+	public void setStatus(int status) {
+		this.status = status;
 	}
 	
 	

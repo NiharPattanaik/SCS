@@ -68,7 +68,9 @@
             		<h2>Suppliers List</h2>   
             	</div>
 	        	<div class="col-md-4 add_customer">
+	        		<% if(resourcePermIDs.contains(ResourcePermissionEnum.SUPPLIER_CREATE.getResourcePermissionID())) { %>
 						<button type="submit" class="btn btn-primary" onclick="location.href='<%=request.getContextPath()%>/web/supplierWeb/createSupplierForm';">Add New Supplier</button>
+					<% } %>
 				</div>
 			</div>        
             <table class="table">
@@ -83,7 +85,11 @@
                 <tbody>
                 	<c:forEach var="supplier" items="${suppliers}">  
                     <tr>
-                    	<td><a href="<%=request.getContextPath()%>/web/supplierWeb/${supplier.supplierID}">${supplier.supplierID}</a></td>
+                    	<% if(resourcePermIDs.contains(ResourcePermissionEnum.SUPPLIER_READ.getResourcePermissionID())) { %>
+                    		<td><a href="<%=request.getContextPath()%>/web/supplierWeb/${supplier.supplierID}">${supplier.supplierID}</a></td>
+                    	<% } else { %>	
+                    		<td>${supplier.supplierID}</td>
+                    	<%  } %>
                         <td>${supplier.name}</td>
                         <td>${supplier.description}</td>
                         <td>${supplier.address[0].city}</td>

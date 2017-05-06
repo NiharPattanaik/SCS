@@ -1,9 +1,12 @@
 package com.sales.crm.dao;
 
 
+import java.math.BigInteger;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -115,7 +118,29 @@ public class ResellerDAOImpl implements ResellerDAO{
 		}
 		
 	}
-	
 
+	@Override
+	public boolean isEmailIDAlreadyUsed(String emailID) {
+
+		Session session = null;
+		try{
+			session = sessionFactory.openSession();
+			SQLQuery emailQuery = session.createSQLQuery("SELECT COUNT(*) FROM ADDRESS a, RESELLER_ADDRESS b where a.ID = b.ADDRESS_ID AND a.ADDRESS_TYPE=1 AND a.EMAIL_ID= ?");
+			emailQuery.setParameter(0, emailID);
+			List counts = emailQuery.list();
+			if(counts != null && counts.size() == 1 && ((BigInteger)counts.get(0)).intValue() == 1){
+				return true;
+			}
+		}catch(Exception exception){
+			logger.error("Error while validating user credential", exception);
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		return false;
+	}
+	
+	
 	
 }
