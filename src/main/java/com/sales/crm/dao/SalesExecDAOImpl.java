@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.sales.crm.model.Beat;
-import com.sales.crm.model.SalesExecBeatCustomer;
+import com.sales.crm.model.OrderStatusEnum;
 import com.sales.crm.model.SalesExecutive;
 import com.sales.crm.model.TrimmedCustomer;
 
@@ -93,6 +93,14 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 			}
 			salesExec.setBeats(beatList);
 			salesExec.setBeatIDLists(beatIDsList);
+			
+			//Get Customer IDs
+			SQLQuery custQuery = session.createSQLQuery("SELECT CUSTOMER_ID FROM CUSTOMER_SALES_EXEC WHERE SALES_EXEC_ID= ? ");
+			custQuery.setParameter(0, salesExecID);
+			List<Integer> custIDs = custQuery.list();
+			if(custIDs != null && custIDs.size() > 0){
+				salesExec.setCustomerIDs(custIDs);
+			}
 		}catch(Exception exception){
 			logger.error("Error while fetching sales executive details.", exception);
 		}finally{
@@ -330,7 +338,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 		try {
 			session = sessionFactory.openSession();
 			SQLQuery query = session.createSQLQuery(
-					"SELECT a.ID, a.FIRST_NAME, a.LAST_NAME FROM USER a, BEAT b, CUSTOMER c, SALES_EXEC_BEATS_CUSTOMERS d, RESELLER_USER e  WHERE a.ID=d.SALES_EXEC_ID AND b.ID=d.BEAT_ID AND c.ID=d.CUSTOMER_ID AND e.USER_ID=a.ID AND e.RESELLER_ID=? group by a.ID");
+					"SELECT a.ID, a.FIRST_NAME, a.LAST_NAME FROM USER a, BEAT b, CUSTOMER c, ORDER_BOOKING_SCHEDULE d, RESELLER_USER e  WHERE a.ID=d.SALES_EXEC_ID AND b.ID=d.BEAT_ID AND c.ID=d.CUSTOMER_ID AND e.USER_ID=a.ID AND e.RESELLER_ID=? group by a.ID");
 			query.setParameter(0, resellerID);
 			List salesExecs = query.list();
 			for(Object obj : salesExecs){
@@ -388,50 +396,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 		return null;
 	}
 
-	@Override
-	public void scheduleVistit(SalesExecBeatCustomer salesExecBeatCustomer) {
-		Session session = null;
-		Transaction transaction = null;
-		try {
-			final int salesExecID = salesExecBeatCustomer.getSalesExecutiveID();
-			final int beatID = salesExecBeatCustomer.getBeatID();
-			final List<Integer> custIDList = salesExecBeatCustomer.getCustomerIDs();
-			final Date visitDate = salesExecBeatCustomer.getVisitDate();
-			session = sessionFactory.openSession();
-			transaction = session.beginTransaction();
-			// get Connction from Session
-			session.doWork(new Work() {
-				@Override
-				public void execute(Connection connection) throws SQLException {
-					PreparedStatement pstmt = null;
-					try {
-						String sqlInsert = "INSERT INTO SALES_EXEC_BEATS_CUSTOMERS VALUES (?, ?, ?, ?)";
-						pstmt = connection.prepareStatement(sqlInsert);
-						for (int i = 0; i < custIDList.size(); i++) {
-							pstmt.setInt(1, salesExecID);
-							pstmt.setInt(2, beatID);
-							pstmt.setInt(3, custIDList.get(i));
-							pstmt.setDate(4, new java.sql.Date(visitDate.getTime()));
-							pstmt.addBatch();
-						}
-						pstmt.executeBatch();
-					} finally {
-						pstmt.close();
-					}
-				}
-			});
-			transaction.commit();
-		} catch (Exception exception) {
-			logger.error("Error while scheduling sales executives visti.", exception);
-			if(transaction != null){
-				transaction.rollback();
-			}
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
+	
 
 	@Override
 	public List<Beat> getScheduledVisitSalesExecBeats(int salesExecID, Date visitDate) {
@@ -440,7 +405,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 		try {
 			session = sessionFactory.openSession();
 			SQLQuery query = session.createSQLQuery(
-					"SELECT b.ID, b.NAME FROM USER a, BEAT b, SALES_EXEC_BEATS_CUSTOMERS c  WHERE a.ID=c.SALES_EXEC_ID AND b.ID=c.BEAT_ID AND a.ID=? AND c.VISIT_DATE = ? group by b.ID");
+					"SELECT b.ID, b.NAME FROM USER a, BEAT b, ORDER_BOOKING_SCHEDULE c  WHERE a.ID=c.SALES_EXEC_ID AND b.ID=c.BEAT_ID AND a.ID=? AND c.VISIT_DATE = ? group by b.ID");
 			query.setParameter(0, salesExecID);
 			query.setParameter(1, visitDate);
 			List lists = query.list();
@@ -469,7 +434,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 		try {
 			session = sessionFactory.openSession();
 			SQLQuery query = session.createSQLQuery(
-					"SELECT a.ID, a.FIRST_NAME, a.LAST_NAME FROM USER a, SALES_EXEC_BEATS_CUSTOMERS b  WHERE a.ID=b.SALES_EXEC_ID AND b.VISIT_DATE = ? group by a.ID");
+					"SELECT a.ID, a.FIRST_NAME, a.LAST_NAME FROM USER a, ORDER_BOOKING_SCHEDULE b  WHERE a.ID=b.SALES_EXEC_ID AND b.VISIT_DATE = ? group by a.ID");
 			query.setParameter(0, visitDate);
 			List lists = query.list();
 			for(Object obj : lists){
@@ -499,7 +464,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 		try {
 			session = sessionFactory.openSession();
 			SQLQuery query = session.createSQLQuery(
-					"SELECT a.ID, a.NAME FROM CUSTOMER a, SALES_EXEC_BEATS_CUSTOMERS b WHERE a.ID=b.CUSTOMER_ID AND b.SALES_EXEC_ID= ? AND b.VISIT_DATE= ? AND b.BEAT_ID= ? group by a.ID");
+					"SELECT a.ID, a.NAME FROM CUSTOMER a, ORDER_BOOKING_SCHEDULE b WHERE a.ID=b.CUSTOMER_ID AND b.SALES_EXEC_ID= ? AND b.VISIT_DATE= ? AND b.BEAT_ID= ? group by a.ID");
 			query.setParameter(0, salesExecID);
 			query.setParameter(1, visitDate);
 			query.setParameter(2, beatID);
@@ -521,33 +486,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 		}
 		return null;
 	}
-
-	@Override
-	public List<String> alreadyScheduledCustomer(SalesExecBeatCustomer salesExecBeatCustomer) throws Exception{
-		Session session = null;
-		List<String> customerNames = new ArrayList<String>();
-		try {
-			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery(
-					"SELECT a.NAME FROM CUSTOMER a, SALES_EXEC_BEATS_CUSTOMERS b WHERE a.ID=b.CUSTOMER_ID AND b.SALES_EXEC_ID=? AND b.BEAT_ID=? AND b.VISIT_DATE = ? AND b.CUSTOMER_ID IN ("+ StringUtils.join(salesExecBeatCustomer.getCustomerIDs(), ",")+") group by a.NAME");
-			query.setParameter(0, salesExecBeatCustomer.getSalesExecutiveID());
-			query.setParameter(1, salesExecBeatCustomer.getBeatID());
-			query.setParameter(2, salesExecBeatCustomer.getVisitDate());
-			List lists = query.list();
-			for(Object obj : lists){
-				customerNames.add(String.valueOf(obj));
-			}
-		} catch (Exception exception) {
-			logger.error("Error fetching sales executives mapped to beat and customer.", exception);
-			throw exception;
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-		return customerNames;
-	}
-
+	
 	@Override
 	public void deleteBeatAssignment(int salesExecID) throws Exception {
 		Session session = null;

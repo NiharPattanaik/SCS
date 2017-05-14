@@ -37,4 +37,12 @@ public class AreaService {
 	public List<Area> getBeatAreas(int beatID){
 		return areaDAO.getBeatAreas(beatID);
 	}
+	
+	public List<Area> getResellerAreasNotMappedToBeat(int resellerID){
+		return areaDAO.getResellerAreasNotMappedToBeat(resellerID);
+	}
+	
+	public List<Area> getResellerAreasNotMappedToBeatForEdit(int resellerID, int beatID){
+		return areaDAO.getResellerAreasNotMappedToBeatForEdit(resellerID, beatID);
+	}
 }

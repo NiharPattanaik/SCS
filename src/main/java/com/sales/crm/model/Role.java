@@ -29,6 +29,9 @@ public class Role extends BusinessEntity{
 	
 	@Column(name = "DESCRIPTION")
 	private String description;
+	
+	@Column(name = "RANK")
+	private int rank;
 
 	public int getRoleID() {
 		return roleID;
@@ -52,6 +55,20 @@ public class Role extends BusinessEntity{
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public int getRank() {
+		return rank;
+	}
+
+	public void setRank(int rank) {
+		this.rank = rank;
+	}
+
+	@Override
+	public String toString() {
+		return "Role [roleID=" + roleID + ", roleName=" + roleName + ", description=" + description + ", rank=" + rank
+				+ "]";
 	}
 	
 	

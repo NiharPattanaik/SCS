@@ -99,9 +99,9 @@ public class SupplierWebController {
 		return new ModelAndView("/delete_supplier_conf","msg", msg); 
 	}
 	
-	@GetMapping(value="/list/{resellerID}")
-	public ModelAndView list(@PathVariable int resellerID){
-		List<Supplier> suppliers = supplierService.getResellerSuppliers(resellerID);
+	@GetMapping(value="/list")
+	public ModelAndView list(){
+		List<Supplier> suppliers = supplierService.getResellerSuppliers(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
 		return new ModelAndView("/supplier_list","suppliers", suppliers);  
 	}
 	

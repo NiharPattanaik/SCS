@@ -61,6 +61,12 @@ legend {
 	margin-top: 14px;
 	text-align: right;
 }
+
+.form-group.required .control-label:after { 
+   content:"*";
+   color:red;
+}
+
 </style>
 </head>
 
@@ -81,9 +87,9 @@ legend {
 		</nav>
 		<div class="row top-height">
 			<div class="col-md-8 ">
-				<h2>Add New Reseller</h2>
+				<h2>Self Registration Form</h2>
 				<form:form modelAttribute="reseller" method="post"
-					action="/crm/web/resellerWeb/saveReseller">
+					action="/crm/web/resellerWeb/selfRegisterReseller">
 					<fieldset>
 						<legend>Reseller Details</legend>
 						<div class="form-group required" >
@@ -155,6 +161,11 @@ legend {
 							<label>Mobile Number(Secondary)</label>
 							<form:input name="mobileNumberSecondary" cssClass="form-control"
 								path="address[0].mobileNumberSecondary" />
+						</div>
+						<div class="form-group required" >
+							<label class='control-label'>E-Mail ID</label>
+							<form:input name="emailID" cssClass="form-control"
+								path="address[0].emailID" id="emailID"/>
 						</div>
 					</fieldset>
 					<fieldset>
@@ -228,7 +239,7 @@ legend {
 </body>
 <script type="text/javascript">
 	$(document).ready(function() {
-			$("#name").prop('required',true);
+		$("#name").prop('required',true);
 	});
 	$(document).ready(function() {
 		$("#main_cp").prop('required',true);
@@ -251,6 +262,8 @@ legend {
 	$(document).ready(function() {
 		$("#main_mobPri").prop('required',true);
 	});
-	
+	$(document).ready(function() {
+		$("#emailID").prop('required',true);
+	});
 </script>
 </html>

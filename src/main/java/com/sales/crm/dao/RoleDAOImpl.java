@@ -128,18 +128,11 @@ public class RoleDAOImpl implements RoleDAO {
 		List<Role> roles = null; 
 		try{
 			session = sessionFactory.openSession();
-			Query query = session.createQuery("from Role where id != 100");
-			if(roleIDs == null){
-				roles = query.list();
-			}else{
-				roles = query.list();
-				for(Iterator<Role> itr = roles.listIterator(); itr.hasNext(); ){
-					Role role = itr.next();
-					if(roleIDs.contains(role.getRoleID())){
-						itr.remove();
-					}
-				}
-			}
+			//Get the highest rank
+			SQLQuery rankQuery = session.createSQLQuery("SELECT MAX(RANK) FROM ROLE WHERE ID IN (" +StringUtils.join(roleIDs, ",") + ")");
+			List<Integer> rankList  = rankQuery.list();
+			Query query = session.createQuery("from Role where rank < "+ rankList.get(0));
+			roles = query.list();
 		}catch(Exception exception){
 			logger.error("Error while fetching roles", exception);
 		}finally{
@@ -159,7 +152,7 @@ public class RoleDAOImpl implements RoleDAO {
 		try{
 			session = sessionFactory.openSession();
 			sqlQuery = session.createSQLQuery(
-					"SELECT a.ID RESOURCE_ID, a.RESOURCE_KEY, a.NAME RESOURCE_NAME, a.DESCRIPTION RESOURCE_DESCRIPTION , b.ID PERMISSION_ID, b.PERMISSION_KEY, b.NAME PERMISSION_NAME, b.DESCRIPTION PERMISSION_DESCRIPTION, c.ID RESOURCE_PERMISSION_ID  FROM RESOURCE a, PERMISSION b, RESOURCE_PERMISSION c WHERE a.ID=c.RESOURCE_ID AND b.ID=c.PERMISSION_ID AND a.ID != -100 AND c.ID NOT IN (22, 25, 26, 27)");
+					"SELECT a.ID RESOURCE_ID, a.RESOURCE_KEY, a.NAME RESOURCE_NAME, a.DESCRIPTION RESOURCE_DESCRIPTION , b.ID PERMISSION_ID, b.PERMISSION_KEY, b.NAME PERMISSION_NAME, b.DESCRIPTION PERMISSION_DESCRIPTION, c.ID RESOURCE_PERMISSION_ID  FROM RESOURCE a, PERMISSION b, RESOURCE_PERMISSION c WHERE a.ID=c.RESOURCE_ID AND b.ID=c.PERMISSION_ID AND a.ID != -100 AND c.ID NOT IN (25, 28, 29, 30)");
 			List lists = sqlQuery.list();
 			for(Object obj : lists){
 				Object[] objs = (Object[])obj;
@@ -204,7 +197,7 @@ public class RoleDAOImpl implements RoleDAO {
 			//SuperAdmin will have all access
 			if(roleIDs.contains(100)){
 				sqlQuery = session.createSQLQuery(
-						"SELECT ID FROM RESOURCE_PERMISSION WHERE ID NOT IN (22, 25, 26, 27)");
+						"SELECT ID FROM RESOURCE_PERMISSION WHERE ID NOT IN (25, 28, 29, 30)");
 			}else{
 				sqlQuery = session.createSQLQuery(
 						"SELECT RESOURCE_PERMISSION_ID FROM ROLE_RESOURCE_PERMISSION WHERE ROLE_ID IN (" +StringUtils.join(roleIDs, ",") + ") AND RESELLER_ID= ? AND ROLE_ID != 100");
@@ -285,7 +278,7 @@ public class RoleDAOImpl implements RoleDAO {
 			session = sessionFactory.openSession();
 			if(roleIDs.contains(100)){
 				sqlQuery = session.createSQLQuery(
-						"SELECT ID FROM RESOURCE_PERMISSION WHERE ID NOT IN (22, 25, 26, 27)");
+						"SELECT ID FROM RESOURCE_PERMISSION WHERE ID NOT IN (25, 28, 29, 30)");
 			}else{
 				sqlQuery = session.createSQLQuery(
 					"SELECT RESOURCE_PERMISSION_ID FROM ROLE_RESOURCE_PERMISSION WHERE ROLE_ID IN (" +StringUtils.join(roleIDs, ",") + ") AND RESELLER_ID= ? AND ROLE_ID != 100");

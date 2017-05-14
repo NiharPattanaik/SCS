@@ -25,7 +25,12 @@ public class ResellerReSTController {
 	
 	@PutMapping
 	public ResponseEntity<Reseller> create(@RequestBody Reseller reseller){
-		resellerService.createReseller(reseller);
+		try {
+			resellerService.createReseller(reseller);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return new ResponseEntity<Reseller>(reseller, HttpStatus.CREATED);
 	}
 	

@@ -74,9 +74,11 @@
             		<h2>Beat and Customers</h2>   
             	</div>
             	<div class="col-md-4 add_customer">
+            		<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_ASSOCIATE_CUSTOMERS.getResourcePermissionID())) { %>
 						<button type="submit" class="btn btn-primary"
-					onclick="location.href='<%=request.getContextPath()%>/web/beatWeb/assignCustomerForm';">
-					Assign Customer To Beat</button>	
+							onclick="location.href='<%=request.getContextPath()%>/web/beatWeb/assignCustomerForm';">
+							Assign Customer To Beat</button>
+					<% } %>	
 				</div>
 	        </div>        
             <table class="table">
@@ -84,7 +86,13 @@
                     <tr>
                         <th>Beat Name</th>
                         <th>Assigned Customer</th>
-                        <th></th>
+                        <% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_EDIT_ASSOCIATED_CUSTOMERS.getResourcePermissionID())) { %>
+                       		<th></th>
+                       	<% } %>	
+                       	
+                       	<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_DELETE_ASSOCIATED_CUSTOMERS.getResourcePermissionID())) { %>
+                        	<th></th>
+                        <% } %>	
                     </tr>
                 </thead>
                 <tbody>
@@ -112,8 +120,13 @@
   								%>
 						</c:forEach>
 						<td><%= values %></td>
-						<td><a href="<%=request.getContextPath()%>/web/beatWeb/assignedBeatCustomerEditForm/${beat.beatID}">Edit</a></td>
-						<td><a href="<%=request.getContextPath()%>/web/beatWeb/deleteAssignedBeatCustomerLink/${beat.beatID}">Delete</a></td>
+						<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_EDIT_ASSOCIATED_CUSTOMERS.getResourcePermissionID())) { %>
+							<td><a href="<%=request.getContextPath()%>/web/beatWeb/assignedBeatCustomerEditForm/${beat.beatID}">Edit</a></td>
+						<% } %>	
+						
+						<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_DELETE_ASSOCIATED_CUSTOMERS.getResourcePermissionID())) { %>
+							<td><a href="<%=request.getContextPath()%>/web/beatWeb/deleteAssignedBeatCustomerLink/${beat.beatID}">Delete</a></td>
+						<% } %>	
                     </tr>
                     <% 
                 		}

@@ -45,7 +45,7 @@ fieldset {
 	border: 1px solid grey;
 	padding: 10px;
 	border-radius: 5px;
-	width: 750;
+	width: 752;
 }
 
 legend {
@@ -111,24 +111,17 @@ legend {
 		</div>
 		<form:form modelAttribute="resPermWebModel" method="post"
 			action="/crm/web/role/resource_permission/save" id="respermform">
-			<c:forEach var="resPerm" items="${resPermMap}">
+			<input type="checkbox" id="checkAll"> <b>Select All</b>
+			<c:forEach var="resPerms" items="${resPermMap}">
 				<fieldset>
-					<legend>${resPerm.key.name}</legend>
-					<c:forEach var="resPerm" items="${resPerm.value}">
+					<legend>${resPerms.key.name}</legend>
+					<c:forEach var="resPerm" items="${resPerms.value}">
 						<div>
-							<%
-										if (((ResourcePermission) pageContext.getAttribute("resPerm")).isPresent()) {
-									%>
-							<form:checkbox name="resperm" path="resourcePermIDList"
-								checked="checked" value="${ resPerm.id }" />
-							<%
-										} else {
-									%>
-							<form:checkbox path="resourcePermIDList" name="resperm"
-								value="${ resPerm.id }" />
-							<%
-										}
-									%>
+							<% if (((ResourcePermission) pageContext.getAttribute("resPerm")).isPresent()) { %>
+								<form:checkbox path="resourcePermIDList" name="resperm" class="checkBoxClass" id="${resPerms.key.resourceKey}-${resPerm.permission.permissionKey}" value="${ resPerm.id }" checked="checked" />
+							<%} else { %>
+								<form:checkbox path="resourcePermIDList" name="resperm" class="checkBoxClass" id="${resPerms.key.resourceKey}-${resPerm.permission.permissionKey}" value="${ resPerm.id }" />
+							<% } %>
 							<b>${resPerm.permission.name}</b> (
 							${resPerm.permission.description} )
 						</div>
@@ -149,9 +142,23 @@ legend {
 		if(atLeastOneIsChecked == false){
 			$('button').prop('disabled', true);
 		}
+		
+		if($('.checkBoxClass:checkbox:checked')){
+			$("#checkAll").prop('checked', true);	
+		}
 	});
 	
 	$('input[type="checkbox"]').change(function() {
+		//If READ is checked, then check LIST
+		var id = $(this).attr("id");
+		if(id.indexOf("-READ") != -1){
+			if(this.checked){
+				var listID = id.substring(0, id.indexOf("-")).concat("-LIST");
+				$('#'+ listID).prop('checked', $(this).prop('checked'));
+			}
+		}
+		
+		//Disable/enable submit button
 		var atLeastOneIsChecked = $('input[type="checkbox"]:checked').length > 0;
 		if(atLeastOneIsChecked == false){
 			$('button').prop('disabled', true);
@@ -159,6 +166,11 @@ legend {
 			$('button').prop('disabled', false);
 		}
 	}); 
+	
+	//Checkall checkbox
+	$("#checkAll").click(function () {
+	    $(".checkBoxClass").prop('checked', $(this).prop('checked'));
+	});
 	
 	$('#submitbtn').click(function(){
 	     /* when the submit button in the modal is clicked, submit the form */

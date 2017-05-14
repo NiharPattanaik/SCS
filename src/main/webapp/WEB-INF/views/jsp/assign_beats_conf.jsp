@@ -1,10 +1,8 @@
 <!DOCTYPE html>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ page import="com.sales.crm.model.SalesExecBeatCustomer"%>
 <%@ page import="com.sales.crm.model.Beat"%>
 <%@ page import="com.sales.crm.model.TrimmedCustomer"%>
-<%@ page import="com.sales.crm.model.SalesExecBeatCustomer"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <html lang="en">
@@ -92,7 +90,7 @@
     					</c:otherwise>
 					</c:choose>
 					<div class="form_submit">
-						<a href="<%=request.getContextPath()%>/web/salesExecWeb/beatlist/<%=Integer.valueOf(String.valueOf(session.getAttribute("resellerID")))%>" class="btn btn-primary">View Sales Executive to Beats Mapping</a>
+						<a href="<%=request.getContextPath()%>/web/salesExecWeb/beatlist" class="btn btn-primary">View Sales Executive to Beats Mapping</a>
 						<a href="<%=request.getContextPath()%>/web/salesExecWeb/assignBeatForm" class="btn btn-primary">New Beat Assignment</a>
 					</div>
 			</div>

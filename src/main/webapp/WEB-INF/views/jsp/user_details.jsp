@@ -1,3 +1,4 @@
+<%@page import="com.sales.crm.model.SalesExecutive"%>
 <%@page import="com.sales.crm.model.Role"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
@@ -67,6 +68,13 @@ legend {
 	color: #ffffff;
 	margin-top: 12px;
 }
+
+.modal-custom-footer {
+    padding: 15px;
+    text-align: center;
+    border-top: 1px solid #e5e5e5;
+}
+
 </style>
 </head>
 
@@ -90,8 +98,7 @@ legend {
 				<% } %>		
 				
 				<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_DELETE.getResourcePermissionID())) { %>
-					<button type="submit" class="btn btn-primary"
-						onclick="location.href='<%=request.getContextPath()%>/web/userWeb/delete/${user.userID}';">
+					<button type="submit" class="btn btn-primary" id="deleteButton">
 						Delete User</button>	
 				<% } %>		
 			</div>
@@ -136,9 +143,13 @@ legend {
 						<label>Roles : </label>
 						<%
 							String values = "";
+							boolean isSalesExec = false;
 						%>
 						<c:forEach var="role" items="${user.roles}">
 							<%
+								if(((Role) pageContext.getAttribute("role")).getRoleID() == 2){
+									isSalesExec = true;
+								}
 								if (values.isEmpty()) {
 										values = values + ((Role) pageContext.getAttribute("role")).getDescription();
 									} else {
@@ -154,9 +165,80 @@ legend {
 							<span>None</span>
 						</c:if>
 					</div>
+					<% if(isSalesExec) { %>
+						<input type="hidden" value="true" id="salesex"/>
+						<% if(request.getAttribute("beats") != null && ((Boolean)request.getAttribute("beats")).booleanValue() == true) { %>
+							<input type="hidden" value="true" id="beats"/>
+						<% } %>
+						
+						<% if(request.getAttribute("customers") != null && ((Boolean)request.getAttribute("customers")).booleanValue() == true) { %>	
+							<input type="hidden" value="true" id="customers"/>
+						<% } %>
+					<% } %>	
 				</fieldset>
 			</div>
 		</div>
 	</div>
 </body>
+<script type="text/javascript">
+	$('#deleteButton').click(function() {
+		var message1 = "";
+		var message2 = "";
+		var status = false;
+		if($('#beats').val() == "true"){
+			status = true;
+			message1 = "The Sales Executive is assigned to a beat, so can't be removed now. Please de-associate the beat from sales executive and then try to delete."	
+		}
+		if($('#customers').val() == "true"){
+			status = true;
+			message2 = "This Sales Executive is assigned to one or more customers, so can't be removed now. Please de-associate the sales executive from customers and then try to delete."	
+		}
+		
+		if(status == true){
+			$('#salesEX').text(message1);
+			$('#salesEX2').text(message2);
+			$('#confirm-submit').modal('show'); 
+		}else{
+			$('#confirm').modal('show'); 
+	    }
+	});
+
+</script>
+
+<div class="modal fade" id="confirm-submit" tabindex="-1" role="dialog"
+	aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<b>Warning !</b>
+			</div>
+			<div class="modal-body"><span id="salesEX"></span><br><span id="salesEX2"></span></div>
+			<div class="modal-custom-footer">
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="confirm" tabindex="-1" role="dialog"
+	aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<b>Confirm removal of user.</b>
+			</div>
+			<div class="modal-body">Are you sure you want to remove the
+				user, <span><b>${ user.name }</b></span> ?</div>
+			<div class="modal-custom-footer">
+				<button type="submit" id="modalSubmit" class="btn btn-primary">Confirm</button>
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+				<script type="text/javascript">
+						$('#modalSubmit').click(function(){
+							window.location.href = "/crm/web/userWeb/delete/${user.userID}"
+						});
+					</script>
+			</div>
+		</div>
+	</div>
+</div>
 </html>

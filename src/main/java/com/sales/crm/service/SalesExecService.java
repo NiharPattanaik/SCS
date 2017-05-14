@@ -5,11 +5,9 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import com.sales.crm.dao.SalesExecDAO;
 import com.sales.crm.model.Beat;
-import com.sales.crm.model.SalesExecBeatCustomer;
 import com.sales.crm.model.SalesExecutive;
 import com.sales.crm.model.TrimmedCustomer;
 
@@ -49,20 +47,6 @@ public class SalesExecService {
 		return salesExecDAO.getScheduledVisitSalesExecBeats(salesExecID, visitDate);
 	}
 	
-	public void scheduleVistit(SalesExecBeatCustomer salesExecBeatCustomer){
-		if(salesExecBeatCustomer.getVisitDate() == null){
-			salesExecBeatCustomer.setVisitDate(new Date());
-		}
-		salesExecDAO.scheduleVistit( salesExecBeatCustomer);
-	}
-	
-	public List<String> alreadyScheduledCustomer(SalesExecBeatCustomer salesExecBeatCustomer) throws Exception{
-		if(salesExecBeatCustomer.getVisitDate() == null){
-			salesExecBeatCustomer.setVisitDate(new Date());
-		}
-		return salesExecDAO.alreadyScheduledCustomer( salesExecBeatCustomer);
-	}
-	
 	public List<SalesExecutive> getScheduledVisitSalesExecs(Date visitDate){
 		return salesExecDAO.getScheduledVisitSalesExecs(visitDate);
 	}
@@ -78,4 +62,5 @@ public class SalesExecService {
 	public List<SalesExecutive> getSalesExecutivesHavingBeatsAssigned(int resellerID){
 		return salesExecDAO.getSalesExecutivesHavingBeatsAssigned(resellerID);
 	}
+	
 }

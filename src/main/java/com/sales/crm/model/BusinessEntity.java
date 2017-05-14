@@ -46,5 +46,12 @@ public class BusinessEntity implements Serializable{
 		this.dateModified = dateModified;
 	}
 
+	@Override
+	public String toString() {
+		return "BusinessEntity [companyID=" + companyID + ", dateCreated=" + dateCreated + ", dateModified="
+				+ dateModified + "]";
+	}
+
+	
 		
 }

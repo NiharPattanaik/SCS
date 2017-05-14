@@ -147,6 +147,14 @@ public class Address extends BusinessEntity{
 	public void setMobileNumberSecondary(String mobileNumberSecondary) {
 		this.mobileNumberSecondary = mobileNumberSecondary;
 	}
+	@Override
+	public String toString() {
+		return "Address [id=" + id + ", addressLine1=" + addressLine1 + ", addressLine2=" + addressLine2 + ", street="
+				+ street + ", city=" + city + ", state=" + state + ", country=" + country + ", postalCode=" + postalCode
+				+ ", contactPerson=" + contactPerson + ", phoneNumber=" + phoneNumber + ", mobileNumberPrimary="
+				+ mobileNumberPrimary + ", mobileNumberSecondary=" + mobileNumberSecondary + ", addrressType="
+				+ addrressType + ", emailID=" + emailID + "]";
+	}
 	
 	
 }

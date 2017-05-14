@@ -205,6 +205,16 @@ public class CustomerOTP extends BusinessEntity{
 	public void setStringDateUsed(String stringDateUsed) {
 		this.stringDateUsed = stringDateUsed;
 	}
+
+	@Override
+	public String toString() {
+		return "CustomerOTP [otpID=" + otpID + ", customerID=" + customerID + ", resellerID=" + resellerID
+				+ ", salesExecID=" + salesExecID + ", genaratedOTP=" + genaratedOTP + ", submiitedOTP=" + submiitedOTP
+				+ ", otpType=" + otpType + ", otpGeneratedDateTime=" + otpGeneratedDateTime + ", otpSubmitedDateTime="
+				+ otpSubmitedDateTime + ", retryCount=" + retryCount + ", customerName=" + customerName
+				+ ", salesExecName=" + salesExecName + ", otpStringType=" + otpStringType + ", otpStatus=" + otpStatus
+				+ ", stringDateGenerated=" + stringDateGenerated + ", stringDateUsed=" + stringDateUsed + "]";
+	}
 	
 	
 	

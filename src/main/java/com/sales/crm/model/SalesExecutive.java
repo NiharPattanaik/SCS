@@ -15,6 +15,9 @@ public class SalesExecutive extends User {
 	
 	@Transient
 	private Date visitDate;
+	
+	@Transient
+	private List<Integer> customerIDs;
 
 	public List<Beat> getBeats() {
 		return beats;
@@ -38,6 +41,19 @@ public class SalesExecutive extends User {
 
 	public void setVisitDate(Date visitDate) {
 		this.visitDate = visitDate;
+	}
+	
+	public List<Integer> getCustomerIDs() {
+		return customerIDs;
+	}
+
+	public void setCustomerIDs(List<Integer> customerIDs) {
+		this.customerIDs = customerIDs;
+	}
+
+	@Override
+	public String toString() {
+		return "SalesExecutive [beats=" + beats + ", beatIDLists=" + beatIDLists + ", visitDate=" + visitDate + "]";
 	}
 	
 	

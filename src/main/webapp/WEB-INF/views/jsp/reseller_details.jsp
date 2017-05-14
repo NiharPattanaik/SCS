@@ -1,3 +1,4 @@
+<%@page import="com.sales.crm.model.Reseller"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
@@ -86,6 +87,18 @@ legend {
 						onclick="location.href='<%=request.getContextPath()%>/web/resellerWeb/editResellerForm/${reseller.resellerID}';">Modify
 						Profile</button>
 				<% } %>		
+				
+				<% if(resourcePermIDs.contains(ResourcePermissionEnum.RESELLER_APPROVE.getResourcePermissionID())
+						&& ((Reseller)request.getAttribute("reseller")).getStatus() == 1) { %>
+					<button type="submit" class="btn btn-primary"
+						onclick="location.href='<%=request.getContextPath()%>/web/resellerWeb/activate/${reseller.resellerID}';">Activate</button>
+				<% } %>	
+				
+				<% if(resourcePermIDs.contains(ResourcePermissionEnum.RESELLER_DELETE.getResourcePermissionID())) { %>
+					<button type="submit" class="btn btn-primary"
+						onclick="location.href='<%=request.getContextPath()%>/web/resellerWeb/delete/${reseller.resellerID}';">Modify
+						Profile</button>
+				<% } %>	
 			</div>
 		</div>
 		<div class="row top-height">

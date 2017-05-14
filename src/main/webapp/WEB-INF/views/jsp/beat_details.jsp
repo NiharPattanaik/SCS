@@ -1,3 +1,4 @@
+<%@page import="com.sales.crm.model.Beat"%>
 <%@page import="com.sales.crm.model.Role"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
@@ -67,6 +68,13 @@ legend {
 	color: #ffffff;
 	margin-top: 12px;
 }
+
+.modal-custom-footer {
+    padding: 15px;
+    text-align: center;
+    border-top: 1px solid #e5e5e5;
+}
+
 </style>
 </head>
 
@@ -90,8 +98,7 @@ legend {
 				<% } %>		
 				
 				<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_DELETE.getResourcePermissionID())) { %>		
-					<button type="submit" class="btn btn-primary"
-						onclick="location.href='<%=request.getContextPath()%>/web/beatWeb/delete/${beat.beatID}';">
+					<button type="submit" class="btn btn-primary" id="deleteButton">
 						Delete Beat</button>	
 				<% } %>	
 			</div>
@@ -143,9 +150,80 @@ legend {
 							<span>None</span>
 						</c:if>
 					</div>
+					<% if(((Beat)request.getAttribute("beat")).getAreaIDs() != null && ((Beat)request.getAttribute("beat")).getAreaIDs().size() > 0) { %>
+						<input type="hidden" name="area" value="true" id="area">
+					<% } %>
+					
+					<% if(((Beat)request.getAttribute("beat")).getCustomerIDs() != null && ((Beat)request.getAttribute("beat")).getCustomerIDs().size() > 0) { %>
+						<input type="hidden" name="customers" value="true" id="customers">
+					<% } %>
+					
 				</fieldset>
 			</div>
 		</div>
 	</div>
 </body>
+<script type="text/javascript">
+	$('#deleteButton').click(function() {
+		var message1 = "";
+		var message2 = "";
+		var status = false;
+	    if($('#area').val() == "true"){
+	    	status = true;
+	    	message1 = "The beat can't be removed as there are areas attached. Please edit the beat to remove the area	association, before deleting the beat.";
+	    	$('#confirm-submit').modal('show'); 
+	    }
+	    if($('#customers').val() == "true"){
+	    	status = true;
+	    	message2 = "The beat can't be removed as customers are assigned to this. Please remove the beat customer association, before deleting the beat.";
+	    }
+	    
+	    if(status == true){
+			$('#msg1').text(message1);
+			$('#msg2').text(message2);
+			$('#confirm-submit').modal('show'); 
+		}else{
+			$('#confirm').modal('show'); 
+	    }
+	 });
+
+</script>
+
+<div class="modal fade" id="confirm-submit" tabindex="-1" role="dialog"
+	aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<b>Warning !</b>
+			</div>
+			<div class="modal-body"><span id="msg1"></span><br><span id="msg2"></span></div>
+			<div class="modal-custom-footer">
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="confirm" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header"><b>Confirm removal of beat.</b></div>
+				<div class="modal-body">
+					Are you sure you want to remove the beat, <span><b>${ beat.name }</b></span> ?
+				</div>
+				<div class="modal-custom-footer">
+					<button type="submit" id="modalSubmit" class="btn btn-primary">Confirm</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+					<script type="text/javascript">
+						$('#modalSubmit').click(function(){
+						   window.location.href = "/crm/web/beatWeb/delete/${beat.beatID}"
+						});
+					</script>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
 </html>

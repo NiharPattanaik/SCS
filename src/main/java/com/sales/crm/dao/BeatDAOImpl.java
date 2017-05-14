@@ -7,8 +7,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -79,6 +81,7 @@ public class BeatDAOImpl implements BeatDAO {
 			areasQuery.setParameter(0, beat.getBeatID());
 			List areas = areasQuery.list();
 			List<Area> areaList = new ArrayList<Area>();
+			List<Integer> areaIDs = new ArrayList<Integer>();
 			for (Object obj : areas) {
 				Object[] objs = (Object[]) obj;
 				Area area = new Area();
@@ -89,6 +92,7 @@ public class BeatDAOImpl implements BeatDAO {
 				area.setWordNo(String.valueOf(objs[5]));
 				area.setPinCode(String.valueOf(objs[6]));
 				areaList.add(area);
+				areaIDs.add(area.getAreaID());
 			}
 			
 			//GET Beat Customers
@@ -103,6 +107,7 @@ public class BeatDAOImpl implements BeatDAO {
 			//Add Areas
 			if(areaList.size() > 0){
 				beat.setAreas(areaList);
+				beat.setAreaIDs(areaIDs);
 			}
 			
 			//Add Customer IDS
@@ -131,15 +136,15 @@ public class BeatDAOImpl implements BeatDAO {
 			beat.setDateModified(new Date());
 			session.update(beat);
 			//update Beat_Area
-			//TODO: Need to use update instead of delete and then insert
-			if(beat.getAreas() != null && beat.getAreas().size() > 0){
-				SQLQuery deleteUserRole = session.createSQLQuery("DELETE FROM BEAT_AREA WHERE BEAT_ID= ?");
-				deleteUserRole.setParameter(0, beat.getBeatID());
-				deleteUserRole.executeUpdate();
-				for(Area area : beat.getAreas()){
+			//Delete mapping first and then re-create the mapping if areas are available in the request
+			SQLQuery deleteUserRole = session.createSQLQuery("DELETE FROM BEAT_AREA WHERE BEAT_ID= ?");
+			deleteUserRole.setParameter(0, beat.getBeatID());
+			deleteUserRole.executeUpdate();
+			if(beat.getAreaIDs() != null && beat.getAreaIDs().size() > 0){
+				for(int areaID : beat.getAreaIDs()){
 					SQLQuery createBeatArea = session.createSQLQuery("INSERT INTO BEAT_AREA VALUES (?, ?)");
 					createBeatArea.setParameter(0, beat.getBeatID());
-					createBeatArea.setParameter(1, area.getAreaID());
+					createBeatArea.setParameter(1, areaID);
 					createBeatArea.executeUpdate();
 				}
 			}

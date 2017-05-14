@@ -1,86 +1,115 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>    
-<html>
+<!DOCTYPE html>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ page import="com.sales.crm.model.Beat"%>
+<%@ page import="com.sales.crm.model.TrimmedCustomer"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+
+<html lang="en">
+
+<head>
+<title>Create Area</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
+<script src="<%=request.getContextPath()%>/resources/js/jquery-3.2.0.min.js"></script>
+<script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
+<link href="<%=request.getContextPath()%>/resources/css/bootstrap-datepicker.css" rel="stylesheet">
+<script	src="<%=request.getContextPath()%>/resources/js/bootstrap-datepicker.js"></script>
+
 <style>
-form {
-    border: 3px solid #f1f1f1;
-    width: 557px;
-    margin-left: 27%;
+.dpHeaderWrap {
+	position: relative;
+	width: auto;
+	height: 80px;
+	background: #fff;
+	border-style: solid;
+	border-bottom-style: groove;
+	border-top-style: none;
+	border-left-style: none;
+	border-right-style: none;
+	margin: 10px;
 }
 
-input[type=text], input[type=password] {
-    width: 100%;
-    padding: 12px 20px;
-    margin: 8px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
+.top-height {
+	margin-top: 2%;
 }
 
-button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 14px 20px;
-    margin: 8px 0;
-    border: none;
-    cursor: pointer;
-    width: 100%;
+.customer_list {
+	margin-bottom: 20px;
 }
 
-button:hover {
-    opacity: 0.8;
+.add_customer {
+	text-align: right;
+	margin-top: 31px;
 }
 
-.cancelbtn {
-    width: auto;
-    padding: 10px 18px;
-    background-color: #f44336;
+.side_nav_btns {
+	margin-top: 10px;
 }
 
-.imgcontainer {
-    text-align: center;
-    margin: 24px 0 12px 0;
+.side_nav_btns a {
+	text-decoration: none;
+	background: #337ab7;
+	padding: 11px;
+	border-radius: 12px;
+	color: #ffffff;
+	margin-top: 12px;
 }
 
-img.avatar {
-    width: 40%;
-    border-radius: 50%;
-}
-
-.container {
-    padding: 16px;
-    width: 500px;
-    margin-left: 1%;
-    margin-bottom: 26px;
-}
-
-span.psw {
-    float: right;
-    padding-top: 16px;
-}
-.form_header{
-margin-left:41%;
-display:block;
-}
-
-/* Change styles for span and cancel button on extra small screens */
-@media screen and (max-width: 300px) {
-    span.psw {
-       display: block;
-       float: none;
-    }
-    .cancelbtn {
-       width: 100%;
-    }
+.form_submit {
+	margin-top: 14px;
+	text-align: right;
 }
 </style>
+</head>
+
 <body>
-
-<h2 class="form_header">Reseller Self Registration Confirmation</h2>
-
-  <div class="imgcontainer">
-  	${msg}"
-  </div>
-
-
-</body>
+	<!-- Header -->
+	<header class="dpHeaderWrap">
+		<div class="text-center">Header part</div>
+	</header>
+	<!-- Header -->
+	<div class="container">
+		<!-- Links -->
+		<nav class="navbar navbar-inverse">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="#"></a>
+				</div>
+				
+			</div>
+		</nav>
+		<div class="row top-height">
+			<div class="col-md-8 ">
+					<br>
+					<br>
+					<c:choose>
+    					<c:when test="${fn:length(msg) gt 0}">
+       						<div class="alert alert-danger">
+	 						 <strong>Error!</strong><br> ${msg}
+						</div>
+    					</c:when>    
+    					<c:otherwise>
+        					<div class="alert alert-success">
+	 						 <strong>Success!</strong><br> Dear Reseller, <br> Your registration request has been accepted. You will be communicated for the further process through your email address.<br> Thank You..
+						</div>
+    					</c:otherwise>
+					</c:choose>
+					<c:choose>
+    					<c:when test="${fn:length(msg) gt 0}">
+							<div class="form_submit">
+								<button type="submit" class="btn btn-primary" onclick="goBack()">Back</button>
+							</div>
+						</c:when>  	
+					</c:choose>	
+			</div>
+		</div>
+	</div>
+	<script>
+		function goBack() {
+   		 window.history.back();
+	}
+</script>
+	</body>
 </html>

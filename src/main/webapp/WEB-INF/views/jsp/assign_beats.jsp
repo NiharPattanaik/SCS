@@ -95,7 +95,7 @@ legend {
 												&& ((SalesExecutive)pageContext.getAttribute("salesExec")).getBeats() != null 
 													&& ((SalesExecutive)pageContext.getAttribute("salesExec")).getBeats().size() > 0)){
 										%>
-											<form:option value="${ salesExec.userID }" label="${ salesExec.userName }" />
+											<form:option value="${ salesExec.userID }" label="${ salesExec.firstName } ${ salesExec.lastName }" />
 										<% 
 											}
 										%>

@@ -16,5 +16,10 @@ public class TrimmedCustomer extends BusinessEntity{
 	public void setCustomerName(String customerName) {
 		this.customerName = customerName;
 	}
+	@Override
+	public String toString() {
+		return "TrimmedCustomer [customerID=" + customerID + ", customerName=" + customerName + "]";
+	}
+	
 	
 }

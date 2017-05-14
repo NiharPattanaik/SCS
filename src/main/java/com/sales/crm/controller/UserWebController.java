@@ -26,10 +26,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.sales.crm.model.Customer;
+import com.sales.crm.model.ResourcePermissionEnum;
 import com.sales.crm.model.Role;
+import com.sales.crm.model.SalesExecutive;
 import com.sales.crm.model.User;
 import com.sales.crm.service.CustomerService;
 import com.sales.crm.service.RoleService;
+import com.sales.crm.service.SalesExecService;
 import com.sales.crm.service.UserService;
 
 @Controller
@@ -43,6 +46,9 @@ public class UserWebController {
 	CustomerService customerService;
 	
 	@Autowired
+	SalesExecService salesExecutiveService;
+	
+	@Autowired
 	RoleService roleService;
 	
 	@Autowired
@@ -50,8 +56,31 @@ public class UserWebController {
 	
 	@GetMapping(value="/{userID}")
 	public ModelAndView get(@PathVariable int userID){
+		boolean isSalesExec = false;
+		Map<String, Object> modelMap = new HashMap<String, Object>();
 		User user = userService.getUser(userID);
-		return new ModelAndView("/user_details", "user", user);
+		modelMap.put("user", user);
+		List<Role> roles = user.getRoles();
+		if(roles != null){
+			for(Role role : roles){
+				if(role.getRoleID() == 2){
+					isSalesExec = true;
+					break;
+				}
+			}
+		}
+		if(isSalesExec){
+			SalesExecutive salesExecutive; salesExecutive = salesExecutiveService.getSalesExecutive(userID);
+			if(salesExecutive.getBeats() != null && salesExecutive.getBeats().size() > 0){
+				modelMap.put("beats", true);
+			}
+			
+			if(salesExecutive.getCustomerIDs() != null && salesExecutive.getCustomerIDs().size() > 0){
+				modelMap.put("customers", true);
+			}
+			
+		}
+		return new ModelAndView("/user_details", modelMap);
 		
 	}
 	
@@ -140,11 +169,9 @@ public class UserWebController {
 		String password = request.getParameter("psw");
 		User user;
 		List<Integer> resourcePermIDs;
-		List<Customer> customers;
 		try{
 			user = userService.getUser(userName);
 			resourcePermIDs = roleService.getRoleResourcePermissionIDs(user);
-			customers = customerService.getResellerCustomers(user.getResellerID());
 		}catch(Exception exception){
 			Map<String, Object> modelMap = new HashMap<String, Object>();
 			modelMap.put("msg", "Something went wrong!. Please try after sometime and if the issue persists please contact System Administrator");
@@ -155,20 +182,12 @@ public class UserWebController {
 			Map<String, Object> modelMap = new HashMap<String, Object>();
 			modelMap.put("msg", "Invalid user name or password.");
 			return new ModelAndView("/login", modelMap); 
-		}
-		/**
-		else if (!isAdminUser(user)){
-			Map<String, Object> modelMap = new HashMap<String, Object>();
-			modelMap.put("msg", "User <b>"+ userName +"</b> not having required previligaes to access the application");
-			return new ModelAndView("/login", modelMap); 
-		}
-		**/
-		else{
+		}else{
 			httpSession.setAttribute("user", user);
 			httpSession.setAttribute("resellerID", user.getResellerID());
 			httpSession.setAttribute("userFullName", user.getFirstName() + " " + user.getLastName());
 			httpSession.setAttribute("resourcePermIDs", resourcePermIDs);
-			return new ModelAndView("/customer_list","customers", customers); 
+			return new ModelAndView(getHomePage(resourcePermIDs)); 
 		}
 	}
 	
@@ -217,6 +236,35 @@ public class UserWebController {
 		}
 		
 		return false;
+	}
+	
+	
+	private String getHomePage(List resourcePermIDs){
+		if(resourcePermIDs.contains(ResourcePermissionEnum.CUSTOMER_LIST.getResourcePermissionID())){
+			return "redirect:/web/customerWeb/list";
+		}else if(resourcePermIDs.contains(ResourcePermissionEnum.RESELLER_LIST.getResourcePermissionID())){
+			return "redirect:/web/resellerWeb/list";
+		}else if(resourcePermIDs.contains(ResourcePermissionEnum.SUPPLIER_LIST.getResourcePermissionID())){
+			return "redirect:/web/supplierWeb/list";
+		}else if(resourcePermIDs.contains(ResourcePermissionEnum.AREA_LIST.getResourcePermissionID())){
+			return "redirect:/web/areaWeb/list";	
+		}else if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_LIST.getResourcePermissionID())){
+			return "redirect:/web/beatWeb/list";
+		}else if(resourcePermIDs.contains(ResourcePermissionEnum.RESELLER_READ.getResourcePermissionID())){
+			return "redirect:/web/resellerWeb/view";
+		}else if(resourcePermIDs.contains(ResourcePermissionEnum.USER_LIST.getResourcePermissionID())){
+			return "redirect:/web/userWeb/list";
+		}else if(resourcePermIDs.contains(ResourcePermissionEnum.ROLE_LIST.getResourcePermissionID())){
+			return "redirect:/web/role/list";
+		}else if(resourcePermIDs.contains(ResourcePermissionEnum.USER_VIEW_ASSIGNED_BEATS.getResourcePermissionID())){
+			return "redirect:/web/salesExecWeb/beatlist";
+		}else if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_VIEW_ASSOCIATED_CUSTOMERS.getResourcePermissionID())){
+			return "redirect:/web/beatWeb/beat-customers/list";
+		}else if(resourcePermIDs.contains(ResourcePermissionEnum.USER_VIEW_SCHEDULED_VISITS.getResourcePermissionID())){
+			return "redirect:/web/orderWeb/scheduledOrderBookings";
+		}
+		
+		return "redirect:/web/customerWeb/list";
 	}
 	
 	

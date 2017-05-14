@@ -194,7 +194,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME FROM CUSTOMER a, SALES_EXEC_BEATS_CUSTOMERS b WHERE a.ID = b.CUSTOMER_ID AND b.SALES_EXEC_ID= ? AND b.VISIT_DATE = ? ");
+			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME FROM CUSTOMER a, ORDER_BOOKING_SCHEDULE b WHERE a.ID = b.CUSTOMER_ID AND b.SALES_EXEC_ID= ? AND b.VISIT_DATE = ? ");
 			query.setParameter( 0, salesExecID);
 			query.setParameter(1, new java.sql.Date(visitDate.getTime()));
 			List results = query.list();
@@ -302,6 +302,33 @@ public class CustomerDAOImpl implements CustomerDAO{
 			SQLQuery query = session.createSQLQuery("SELECT ID, NAME FROM CUSTOMER WHERE ID NOT IN (SELECT CUSTOMER_ID FROM BEAT_CUSTOMER WHERE BEAT_ID != ? ) AND RESELLER_ID= ? ");
 			query.setParameter( 0, beatID);
 			query.setParameter(1, resellerID);
+			List results = query.list();
+			for(Object obj : results){
+				Object[] objs = (Object[])obj;
+				TrimmedCustomer trimmedCustomer = new TrimmedCustomer();
+				trimmedCustomer.setCustomerID(Integer.valueOf(String.valueOf(objs[0])));
+				trimmedCustomer.setCustomerName(String.valueOf(objs[1]));
+				customers.add(trimmedCustomer);
+			}
+		}catch(Exception exception){
+			logger.error("Error while getting Trimmed customer for beat-customer edit.", exception);
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		return customers;
+	}
+
+	@Override
+	public List<TrimmedCustomer> getCustomersToSchedule(int beatID, Date visitDate) {
+		Session session = null;
+		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
+		try{
+			session = sessionFactory.openSession();
+			SQLQuery query = session.createSQLQuery("SELECT ID, NAME FROM CUSTOMER  WHERE ID IN (SELECT CUSTOMER_ID FROM BEAT_CUSTOMER WHERE BEAT_ID = ? AND CUSTOMER_ID NOT IN (SELECT CUSTOMER_ID FROM ORDER_BOOKING_SCHEDULE WHERE VISIT_DATE = ?))");
+			query.setParameter( 0, beatID);
+			query.setParameter(1, visitDate);
 			List results = query.list();
 			for(Object obj : results){
 				Object[] objs = (Object[])obj;

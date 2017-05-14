@@ -43,7 +43,7 @@ fieldset {
 	border: 1px solid grey;
 	padding: 10px;
 	border-radius: 5px;
-	width: 750;
+	width: 752;
 }
 
 legend {

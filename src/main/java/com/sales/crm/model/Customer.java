@@ -112,6 +112,12 @@ public class Customer extends BusinessEntity{
 	public void setBeatID(int beatID) {
 		this.beatID = beatID;
 	}
+	@Override
+	public String toString() {
+		return "Customer [customerID=" + customerID + ", resellerID=" + resellerID + ", name=" + name + ", description="
+				+ description + ", visitDate=" + visitDate + ", address=" + address + ", salesExecID=" + salesExecID
+				+ ", salesExecName=" + salesExecName + ", beatID=" + beatID + "]";
+	}
 	
 	
 	

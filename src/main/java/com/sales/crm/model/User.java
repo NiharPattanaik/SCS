@@ -183,6 +183,14 @@ public class User extends BusinessEntity{
 	public void setNewPassword(String newPassword) {
 		this.newPassword = newPassword;
 	}
+
+	@Override
+	public String toString() {
+		return "User [userID=" + userID + ", userName=" + userName + ", password=" + password + ", description="
+				+ description + ", firstName=" + firstName + ", lastName=" + lastName + ", mobileNo=" + mobileNo
+				+ ", emailID=" + emailID + ", status=" + status + ", roles=" + roles + ", roleIDs=" + roleIDs
+				+ ", resellerID=" + resellerID + ", name=" + name + ", newPassword=" + newPassword + "]";
+	}
 	
 	
 	

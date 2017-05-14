@@ -55,4 +55,8 @@ public class CustomerService {
 	public List<TrimmedCustomer> getCustomersBeatAssignmentForEdit(int beatID, int resellerID){
 		return customerDAO.getCustomersBeatAssignmentForEdit(beatID, resellerID);
 	}
+	
+	public List<TrimmedCustomer> getCustomersToSchedule(int beatID, Date visitDate){
+		return customerDAO.getCustomersToSchedule(beatID, visitDate);
+	}
 }

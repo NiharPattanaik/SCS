@@ -135,6 +135,13 @@ private static final long serialVersionUID = 0l;
 		this.areaIDs = areaIDs;
 	}
 
+	@Override
+	public String toString() {
+		return "Beat [beatID=" + beatID + ", name=" + name + ", description=" + description + ", coverageSchedule="
+				+ coverageSchedule + ", distance=" + distance + ", resellerID=" + resellerID + ", areas=" + areas
+				+ ", customers=" + customers + ", customerIDs=" + customerIDs + ", areaIDs=" + areaIDs + "]";
+	}
+
 	
 	
 	

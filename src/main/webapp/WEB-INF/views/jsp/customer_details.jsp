@@ -64,6 +64,13 @@ legend {
 	color: #ffffff;
 	margin-top: 12px;
 }
+
+.modal-custom-footer {
+    padding: 15px;
+    text-align: center;
+    border-top: 1px solid #e5e5e5;
+}
+
 </style>
 </head>
 
@@ -87,8 +94,7 @@ legend {
 				<% } %>
 				
 				<% if(resourcePermIDs.contains(ResourcePermissionEnum.CUSTOMER_DELETE.getResourcePermissionID())) { %>
-					<button type="submit" class="btn btn-primary"
-						onclick="location.href='<%=request.getContextPath()%>/web/customerWeb/delete/${customer.customerID}';">
+					<button type="submit" class="btn btn-primary" id="deleteBtn" data-toggle="modal" data-target="#confirm">
 						Delete Customer</button>
 				<% } %>
 			</div>
@@ -180,6 +186,29 @@ legend {
 						</div>
 					</fieldset>
 				</c:if>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="confirm" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<b>Confirm removal of customer.</b>
+				</div>
+				<div class="modal-body">
+					Are you sure you want to remove the customer, <span><b>${customer.name}</b></span>
+					?
+				</div>
+				<div class="modal-custom-footer">
+					<button type="submit" id="modalSubmit" class="btn btn-primary">Confirm</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+					<script type="text/javascript">
+						$('#modalSubmit').click(function(){
+						   window.location.href = "/crm/web/customerWeb/delete/${customer.customerID}"
+						});
+					</script>
+				</div>
 			</div>
 		</div>
 	</div>

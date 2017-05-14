@@ -1,5 +1,6 @@
 package com.sales.crm.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -41,5 +42,19 @@ public class CustomerReSTController {
 			response.setErrorMsg("Something is not right ! Please contact System Administrator");
 		}
 		return new ResponseEntity<ReSTResponse>(response,HttpStatus.OK);
+	}
+	
+	
+	@GetMapping(value="/toSchedule/{beatID}/{visitDate}")
+	public List<TrimmedCustomer> getCustomersToSchedule(@PathVariable("beatID") int beatID, @PathVariable("visitDate") String visitDate){
+		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>();
+		ReSTResponse response = new ReSTResponse();
+		try{
+			Date date = new SimpleDateFormat("dd-MM-yyyy").parse(visitDate);
+			customers = customerService.getCustomersToSchedule(beatID, date);
+		}catch(Exception exception){
+			logger.error("Error while fetching customers to schedule visit.", exception);
+		}
+		return customers;
 	}
 }

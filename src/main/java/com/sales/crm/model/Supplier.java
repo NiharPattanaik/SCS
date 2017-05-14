@@ -71,5 +71,12 @@ public class Supplier extends BusinessEntity{
 	public void setAddress(List<Address> address) {
 		this.address = address;
 	}
+	@Override
+	public String toString() {
+		return "Supplier [supplierID=" + supplierID + ", resellerID=" + resellerID + ", name=" + name + ", description="
+				+ description + ", address=" + address + "]";
+	}
+	
+	
 	
 }

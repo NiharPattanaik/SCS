@@ -73,9 +73,11 @@
             		<h2>Sales Executive and Beats</h2>   
             	</div>
             	<div class="col-md-4 add_customer">
+            		<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_ASSIGN_BEATS.getResourcePermissionID())) { %>
 						<button type="submit" class="btn btn-primary"
-					onclick="location.href='<%=request.getContextPath()%>/web/salesExecWeb/assignBeatForm';">
-					Assign Beats To Sales Executive</button>	
+							onclick="location.href='<%=request.getContextPath()%>/web/salesExecWeb/assignBeatForm';">
+							Assign Beats To Sales Executive</button>
+					<% } %>			
 				</div>
 	        </div>        
             <table class="table">
@@ -83,7 +85,13 @@
                     <tr>
                         <th>Sales Executive Name</th>
                         <th>Assigned Beats</th>
-                        <th></th>
+                        <% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_EDIT_ASSIGNED_BEATS.getResourcePermissionID())) { %>
+                        	<th></th>
+                        <% } %>	
+                        
+                        <% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_DELETE_ASSIGNED_BEATS.getResourcePermissionID())) { %>
+                        	<th></th>
+                        <% } %>	
                     </tr>
                 </thead>
                 <tbody>
@@ -106,8 +114,12 @@
   								%>
 						</c:forEach>
 						<td><%= values %></td>
-						<td><a href="<%=request.getContextPath()%>/web/salesExecWeb/assignBeatEditForm/${salesExec.userID}">Edit</a></td>
-						<td><a href="<%=request.getContextPath()%>/web/salesExecWeb/deleteBeatsAssignment/${salesExec.userID}">Delete</a></td>
+						<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_EDIT_ASSIGNED_BEATS.getResourcePermissionID())) { %>
+							<td><a href="<%=request.getContextPath()%>/web/salesExecWeb/assignBeatEditForm/${salesExec.userID}">Edit</a></td>
+						<% } %>	
+						<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_DELETE_ASSIGNED_BEATS.getResourcePermissionID())) { %>
+							<td><a href="<%=request.getContextPath()%>/web/salesExecWeb/deleteBeatsAssignment/${salesExec.userID}">Delete</a></td>
+						<% } %>
                     </tr>
                     </c:forEach>
                 </tbody>

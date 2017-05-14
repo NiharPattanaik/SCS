@@ -113,7 +113,7 @@ legend {
 						<legend>Areas Covered</legend>
 						<div class="form-group">
 							<label>Areas</label>
-							<form:select path="areas" cssClass="form-control" multiple="true">
+							<form:select path="areaIDs" cssClass="form-control" multiple="true">
 								<form:option value="-1" label="--- Select ---" />
 								<form:options items="${areas}" itemValue="areaID"
 									itemLabel="name"/>

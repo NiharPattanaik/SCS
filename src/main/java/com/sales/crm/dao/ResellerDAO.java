@@ -1,10 +1,12 @@
 package com.sales.crm.dao;
 
+import java.util.List;
+
 import com.sales.crm.model.Reseller;
 
 public interface ResellerDAO {
 	
-	void create(Reseller reseller);
+	void create(Reseller reseller) throws Exception;
 	
 	Reseller get(int resellerID);
 	
@@ -12,6 +14,8 @@ public interface ResellerDAO {
 	
 	void delete(int resellerID);
 	
-	boolean isEmailIDAlreadyUsed(String emailID);
+	boolean isEmailIDAlreadyUsed(String emailID) throws Exception;
+	
+	List<Reseller> getResellers() throws Exception;
 
 }

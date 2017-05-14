@@ -89,9 +89,9 @@ public class AreaWebController {
 		return new ModelAndView("/delete_area_conf", "msg", msg);
 	}
 	
-	@GetMapping(value="/list/{resellerID}")
-	public ModelAndView list(@PathVariable int resellerID){
-		List<Area> areas = areaService.getResellerAreas(resellerID);
+	@GetMapping(value="/list")
+	public ModelAndView list(){
+		List<Area> areas = areaService.getResellerAreas(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
 		return new ModelAndView("/area_list","areas", areas);  
 	}
 	

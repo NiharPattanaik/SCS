@@ -1,10 +1,11 @@
 package com.sales.crm.controller;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -19,8 +20,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.sales.crm.model.Address;
+import com.sales.crm.model.BusinessEntity;
 import com.sales.crm.model.Reseller;
-import com.sales.crm.model.User;
 import com.sales.crm.service.ResellerService;
 import com.sales.crm.service.UserService;
 
@@ -34,15 +35,13 @@ public class ResellerWebController {
 	@Autowired
 	UserService userService;
 	
-	@RequestMapping(value="/save",method = RequestMethod.POST)  
-	public ModelAndView create(@ModelAttribute("reseller") Reseller reseller){
-		resellerService.createReseller(reseller);
-		return new ModelAndView("resSuccess");
-	}
+	@Autowired
+	HttpSession httpSession;
+	
 	
 	@RequestMapping(value="/selfRegisterResellerForm", method = RequestMethod.GET)  
 	public ModelAndView selfRegisterResellerForm(){
-		return new ModelAndView("/self_register_reseller", "reseller", new Reseller());
+		return new ModelAndView("/reseller_self_registration", "reseller", new Reseller());
 	}
 	
 	@RequestMapping(value="/selfRegisterReseller",method = RequestMethod.POST)  
@@ -57,15 +56,15 @@ public class ResellerWebController {
 				}
 			}
 			if(resellerService.isEmailIDAlreadyUsed(emailID)){
-				msg = "E-Mail address ";
+				msg = "E-Mail address "+ emailID + " is already in use, please provide another valid email id.";
+			}else{
+				reseller.setStatus(BusinessEntity.STATUS_SELF_REGISTERED);
+				resellerService.createReseller(reseller);
 			}
-			resellerService.createReseller(reseller);
-			msg = "Dear Reseller, <br> Your registration request has been accepted. You will be communicated for the further process through your email address.<br> Thank You.";
 		}catch(Exception exception){
-			
+			msg = "Self registration is not successfull. Please try after sometime and if the error persists, contact System Administrator.";
 		}
-		return null;
-		
+		return new ModelAndView("/reseller_self_reg_conf", "msg", msg);
 	}
 	
 	/**
@@ -74,6 +73,7 @@ public class ResellerWebController {
 	 * @param reseller
 	 * @return
 	 */
+	/**
 	@RequestMapping(value="/saveReseller",method = RequestMethod.POST)  
 	public ModelAndView createReseller(@ModelAttribute("reseller") Reseller reseller){
 		resellerService.createReseller(reseller);
@@ -94,14 +94,23 @@ public class ResellerWebController {
 		return new ModelAndView("/message", "message", "Admin User is successfully created. <br><b>User Name</b> - "+ user.getUserName() +"<br><b>password</b> - "+ user.getPassword());
 	
 	}
+	**/
 	
 	@RequestMapping(value="/createResellerForm", method = RequestMethod.GET)  
 	public ModelAndView createResellerForm(){
 		return new ModelAndView("/create_reseller", "reseller", new Reseller());
 	}
 	
+	@GetMapping(value="/view")
+	public ModelAndView get(){
+		Reseller reseller = resellerService.getReseller(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		return new ModelAndView("/reseller_details", "reseller", reseller);
+		
+	}
+	
+	
 	@GetMapping(value="/{resellerID}")
-	public ModelAndView get(@PathVariable int resellerID){
+	public ModelAndView getDetails(@PathVariable int resellerID){
 		Reseller reseller = resellerService.getReseller(resellerID);
 		return new ModelAndView("/reseller_details", "reseller", reseller);
 		
@@ -116,11 +125,29 @@ public class ResellerWebController {
 	@RequestMapping(value="/update",method = RequestMethod.POST) 
 	public ModelAndView update(@ModelAttribute("reseller") Reseller reseller){
 		resellerService.updateReseller(reseller);
-		return get(reseller.getResellerID());
+		return get();
 	}	
 	
+	@GetMapping(value="/list")
+	public ModelAndView list(){
+		List<Reseller> resellers = new ArrayList<Reseller>();
+		try{
+			resellers = resellerService.getResellers();
+		}catch(Exception exception){
+			
+		}
+		return new ModelAndView("/resellers_list","resellers", resellers);  
+	}
+	
+	@GetMapping(value="/delete/{resellerID}")
 	public void delete(@PathVariable int resellerID){
 		resellerService.deleteReseller(resellerID);
+	}
+	
+	@GetMapping(value="/activate/{resellerID}")
+	public ModelAndView activateReseller(@PathVariable int resellerID){
+		resellerService.activateReseller(resellerID);
+		return getDetails(resellerID);
 	}
 	
 	@InitBinder

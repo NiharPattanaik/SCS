@@ -115,9 +115,9 @@ public class CustomerWebController {
 		return new ModelAndView("/delete_customer_conf","msg", msg); 
 	}
 	
-	@GetMapping(value="/list/{resellerID}")
-	public ModelAndView list(@PathVariable int resellerID){
-		List<Customer> customers = customerService.getResellerCustomers(resellerID);
+	@GetMapping(value="/list")
+	public ModelAndView list(){
+		List<Customer> customers = customerService.getResellerCustomers(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
 		return new ModelAndView("/customer_list","customers", customers);  
 	}
 	

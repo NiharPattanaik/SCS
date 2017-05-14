@@ -27,5 +27,6 @@ public interface CustomerDAO {
 	List<TrimmedCustomer> getCustomersNotAssignedToAnyBeat(int resellerID);
 	
 	List<TrimmedCustomer> getCustomersBeatAssignmentForEdit(int beanID, int resellerID);
-
+	
+	List<TrimmedCustomer> getCustomersToSchedule(int beatID, Date visitDate);
 }

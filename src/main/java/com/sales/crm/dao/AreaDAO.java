@@ -17,5 +17,9 @@ public interface AreaDAO {
 	List<Area> getResellerAreas(int resellerID);
 	
 	List<Area> getBeatAreas(int beatID);
+	
+	public List<Area> getResellerAreasNotMappedToBeat(int resellerID);
+	
+	public List<Area> getResellerAreasNotMappedToBeatForEdit(int resellerID, int beatID);
 
 }

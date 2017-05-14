@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 
 import com.sales.crm.model.Beat;
-import com.sales.crm.model.SalesExecBeatCustomer;
 import com.sales.crm.model.SalesExecutive;
 import com.sales.crm.model.TrimmedCustomer;
 
@@ -24,10 +23,6 @@ public interface SalesExecDAO {
 	
 	List<Beat> getScheduledVisitSalesExecBeats(int salesExecID, Date visitDate);
 	
-	void scheduleVistit(SalesExecBeatCustomer salesExecBeatCustomer);
-	
-	List<String> alreadyScheduledCustomer(SalesExecBeatCustomer salesExecBeatCustomer) throws Exception;
-	
 	List<SalesExecutive> getScheduledVisitSalesExecs(Date visitDate);
 	
 	List<TrimmedCustomer> getScheduledVisitBeatCustomers(int salesExecID, Date visitDate, int beatID);
@@ -35,4 +30,5 @@ public interface SalesExecDAO {
 	void deleteBeatAssignment(int salesExecID) throws Exception;
 	
 	List<SalesExecutive> getSalesExecutivesHavingBeatsAssigned(int resellerID);
+	
 }

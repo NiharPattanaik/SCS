@@ -52,6 +52,9 @@ public class Reseller extends BusinessEntity{
 	@Transient
 	private List<Area> areas;
 	
+	@Transient
+	private String statusText;
+	
 	public int getResellerID() {
 		return resellerID;
 	}
@@ -99,6 +102,20 @@ public class Reseller extends BusinessEntity{
 	}
 	public void setStatus(int status) {
 		this.status = status;
+	}
+	
+	public String getStatusText() {
+		return statusText;
+	}
+	public void setStatusText(String statusText) {
+		this.statusText = statusText;
+	}
+	
+	@Override
+	public String toString() {
+		return "Reseller [resellerID=" + resellerID + ", name=" + name + ", description=" + description + ", address="
+				+ address + ", status=" + status + ", customers=" + customers + ", beats=" + beats + ", areas=" + areas
+				+ "]";
 	}
 	
 	

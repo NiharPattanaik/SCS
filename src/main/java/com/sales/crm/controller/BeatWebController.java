@@ -1,6 +1,7 @@
 package com.sales.crm.controller;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -9,12 +10,10 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.propertyeditors.CustomCollectionEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -26,8 +25,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.sales.crm.model.Area;
 import com.sales.crm.model.Beat;
-import com.sales.crm.model.Customer;
-import com.sales.crm.model.SalesExecutive;
 import com.sales.crm.model.TrimmedCustomer;
 import com.sales.crm.service.AreaService;
 import com.sales.crm.service.BeatService;
@@ -62,7 +59,7 @@ public class BeatWebController {
 	
 	@RequestMapping(value="/createBeatForm", method = RequestMethod.GET)  
 	public ModelAndView createBeatForm(Model model){
-		List<Area> areas = areaService.getResellerAreas(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		List<Area> areas = areaService.getResellerAreasNotMappedToBeat(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		modelMap.put("areas", areas);
 		modelMap.put("beat", new Beat());
@@ -71,10 +68,14 @@ public class BeatWebController {
 	
 	@RequestMapping(value="/editBeatForm/{beatID}", method = RequestMethod.GET)  
 	public ModelAndView editBeatForm(@PathVariable int beatID){
-		List<Area> areas = areaService.getResellerAreas(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		List<Area> areas = areaService.getResellerAreasNotMappedToBeatForEdit(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))), beatID);
 		List<Area> beatAreas = areaService.getBeatAreas(beatID);
 		Beat beat = beatService.getBeat(beatID);
-		beat.setAreas(beatAreas);
+		List<Integer> areaIDs = new ArrayList<Integer>();
+		for(Area area : beatAreas){
+			areaIDs.add(area.getAreaID());
+		}
+		beat.setAreaIDs(areaIDs);
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		modelMap.put("areas", areas);
 		modelMap.put("beat", beat);
@@ -124,10 +125,11 @@ public class BeatWebController {
 		return new ModelAndView("/delete_beat_conf","msg", msg);  
 	}
 	
-	@GetMapping(value="/list/{resellerID}")
-	public ModelAndView list(@PathVariable int resellerID){
-		List<Beat> beats = beatService.getResellerBeats(resellerID);
-		return new ModelAndView("/beat_list","beats", beats);  
+	@GetMapping(value="/list")
+	public ModelAndView list() {
+		List<Beat> beats = beatService
+				.getResellerBeats(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		return new ModelAndView("/beat_list", "beats", beats);
 	}
 	
 	@GetMapping(value="/beat-customers/list")
@@ -200,7 +202,8 @@ public class BeatWebController {
 		dateFormat.setLenient(false);
 		binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
 
-		binder.registerCustomEditor(List.class, "areas", new CustomCollectionEditor(List.class) {
+		/**
+		binder.registerCustomEditor(Integer.class, "areaIDs", new CustomCollectionEditor(List.class) {
 			@Override
 			protected Object convertElement(Object element) {
 				Area area = new Area();
@@ -209,5 +212,6 @@ public class BeatWebController {
 				return area;
 			}
 		});
+		**/
 	}
 }

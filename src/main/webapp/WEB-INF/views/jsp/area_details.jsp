@@ -1,3 +1,4 @@
+<%@page import="com.sales.crm.model.Area"%>
 <%@page import="com.sales.crm.model.Role"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
@@ -67,6 +68,12 @@ legend {
 	color: #ffffff;
 	margin-top: 12px;
 }
+
+.modal-custom-footer {
+    padding: 15px;
+    text-align: center;
+    border-top: 1px solid #e5e5e5;
+}
 </style>
 </head>
 
@@ -91,8 +98,7 @@ legend {
 				<% } %>	
 				
 				<% if(resourcePermIDs.contains(ResourcePermissionEnum.AREA_DELETE.getResourcePermissionID())) { %>	
-					<button type="submit" class="btn btn-primary"
-						onclick="location.href='<%=request.getContextPath()%>/web/areaWeb/delete/${area.areaID}';">
+					<button type="submit" class="btn btn-primary" id="deleteButton" >
 						Delete Area</button>
 				<% } %>			
 			</div>
@@ -113,9 +119,63 @@ legend {
 					<div class="form-group">
 						<label>PIN Code : </label> <span>${ area.pinCode }</span>
 					</div>
+					<% if(((Area)request.getAttribute("area")).getBeat() != null) { %>
+						<input type="hidden" name="beat" value="true" id="beat">
+					<% } else { %>	
+						<input type="hidden" name="beat" value="false" id="beat">
+					<% } %>
 				</fieldset>
 			</div>
 		</div>
 	</div>
 </body>
+<script type="text/javascript">
+	$('#deleteButton').click(function() {
+	    if($('#beat').val() == "true"){
+	    	$('#confirm-submit').modal('show'); 
+	    }else{
+	    	$('#confirm').modal('show');
+	    }
+	});
+
+</script>
+
+<div class="modal fade" id="confirm-submit" tabindex="-1" role="dialog"
+	aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<b>Warning !</b>
+			</div>
+			<div class="modal-body">The area can't be removed as this is
+				mapped to a beat. Please edit the beat to remove the area
+				association, before deleting the area.</div>
+			<div class="modal-custom-footer">
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="confirm" tabindex="-1" role="dialog"
+	aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<b>Confirm removal of area.</b>
+			</div>
+			<div class="modal-body">Are you sure you want to remove the
+				area, <span><b>${ area.name }</b></span> ?</div>
+			<div class="modal-custom-footer">
+				<button type="submit" id="modalSubmit" class="btn btn-primary">Confirm</button>
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+				<script type="text/javascript">
+						$('#modalSubmit').click(function(){
+							window.location.href = "/crm/web/areaWeb/delete/${area.areaID}"
+						});
+					</script>
+			</div>
+		</div>
+	</div>
+</div>
 </html>

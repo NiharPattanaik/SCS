@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "AREA")
@@ -38,6 +39,9 @@ private static final long serialVersionUID = 0l;
 	
 	@Column(name = "RESELLER_ID")
 	private int resellerID;
+	
+	@Transient
+	private Beat beat;
 
 	public int getAreaID() {
 		return areaID;
@@ -86,7 +90,21 @@ private static final long serialVersionUID = 0l;
 	public void setResellerID(int resellerID) {
 		this.resellerID = resellerID;
 	}
-	
+
+	public Beat getBeat() {
+		return beat;
+	}
+
+	public void setBeat(Beat beat) {
+		this.beat = beat;
+	}
+
+	@Override
+	public String toString() {
+		return "Area [areaID=" + areaID + ", name=" + name + ", description=" + description + ", wordNo=" + wordNo
+				+ ", pinCode=" + pinCode + ", resellerID=" + resellerID + ", beat=" + beat + "]";
+	}
+
 	
 	
 }
