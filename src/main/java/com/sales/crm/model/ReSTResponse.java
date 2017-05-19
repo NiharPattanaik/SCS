@@ -10,6 +10,8 @@ public class ReSTResponse {
 	
 	private String errorCode;
 	
+	private int businessEntityID;
+	
 	List<? extends BusinessEntity> businessEntities;
 	
 	public static final int STATUS_SUCCESS = 1;
@@ -39,6 +41,12 @@ public class ReSTResponse {
 	}
 	public void setErrorCode(String errorCode) {
 		this.errorCode = errorCode;
+	}
+	public int getBusinessEntityID() {
+		return businessEntityID;
+	}
+	public void setBusinessEntityID(int businessEntityID) {
+		this.businessEntityID = businessEntityID;
 	}
 	
 	

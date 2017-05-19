@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.sales.crm.model.Customer;
+import com.sales.crm.model.CustomerOrder;
 import com.sales.crm.model.TrimmedCustomer;
 
 public interface CustomerDAO {
@@ -29,4 +30,6 @@ public interface CustomerDAO {
 	List<TrimmedCustomer> getCustomersBeatAssignmentForEdit(int beanID, int resellerID);
 	
 	List<TrimmedCustomer> getCustomersToSchedule(int beatID, Date visitDate);
+	
+	public List<CustomerOrder> getCustomersToScheduleDelivery(int beatID, Date visitDate, int resellerID);
 }

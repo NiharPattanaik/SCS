@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sales.crm.dao.OrderDAO;
+import com.sales.crm.model.Order;
 import com.sales.crm.model.OrderBookingSchedule;
 
 @Service("orderService")
@@ -14,6 +15,10 @@ public class OrderService {
 	
 	@Autowired
 	private OrderDAO orderDAO;
+	
+	public int create(Order order) throws Exception{
+		return orderDAO.create(order);
+	}
 	
 	public void scheduleOrderBooking(OrderBookingSchedule orderBookingSchedule) throws Exception{
 		if(orderBookingSchedule.getVisitDate() == null){
@@ -31,6 +36,10 @@ public class OrderService {
 	
 	public void unScheduleOrderBooking(List<Integer> customerIDs, Date visitDate) throws Exception{
 		orderDAO.unScheduleOrderBooking(customerIDs, visitDate);
+	}
+	
+	public List<Order> getOrders(int resellerID) throws Exception{
+		return orderDAO.getOrders(resellerID);
 	}
 
 }

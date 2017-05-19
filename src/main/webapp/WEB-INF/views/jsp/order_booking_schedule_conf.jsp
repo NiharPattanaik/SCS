@@ -8,7 +8,7 @@
 <html lang="en">
 
 <head>
-<title>Assign Beats</title>
+<title>Schedules Sales Executives Visit</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
@@ -85,13 +85,13 @@
     					</c:when>    
     					<c:otherwise>
         					<div class="alert alert-success">
-	 						 <strong>Success!</strong><br> Beats are successfully mapped to Delivery Executive.
+	 						 <strong>Success!</strong><br> Sales Executive Visit has been successfully scheduled.
 						</div>
     					</c:otherwise>
 					</c:choose>
 					<div class="form_submit">
-						<a href="<%=request.getContextPath()%>/web/deliveryExecWeb/beatlist" class="btn btn-primary">View Delivery Executive to Beats Mapping</a>
-						<a href="<%=request.getContextPath()%>/web/deliveryExecWeb/assignBeatForm" class="btn btn-primary">New Beat Assignment</a>
+						<a href="<%=request.getContextPath()%>/web/orderWeb/scheduledOrderBookings" class="btn btn-primary">View Scheduled Orders</a>
+						<a href="<%=request.getContextPath()%>/web/orderWeb/scheduleOrderBookingForm" class="btn btn-primary">Schedule Another Order Booking</a>
 					</div>
 			</div>
 		</div>

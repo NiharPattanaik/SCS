@@ -23,7 +23,7 @@ public interface SalesExecDAO {
 	
 	List<Beat> getScheduledVisitSalesExecBeats(int salesExecID, Date visitDate);
 	
-	List<SalesExecutive> getScheduledVisitSalesExecs(Date visitDate);
+	List<SalesExecutive> getScheduledVisitSalesExecs(Date visitDate, int resellerID);
 	
 	List<TrimmedCustomer> getScheduledVisitBeatCustomers(int salesExecID, Date visitDate, int beatID);
 	

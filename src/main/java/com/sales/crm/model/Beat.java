@@ -20,7 +20,7 @@ import javax.persistence.Transient;
 	@AttributeOverride(name = "dateModified", column = @Column(name = "DATE_MODIFIED"))})
 public class Beat extends BusinessEntity {
 
-private static final long serialVersionUID = 0l;
+	private static final long serialVersionUID = 0l;
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

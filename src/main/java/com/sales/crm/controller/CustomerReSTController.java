@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sales.crm.exception.ErrorCodes;
+import com.sales.crm.model.CustomerOrder;
 import com.sales.crm.model.ReSTResponse;
 import com.sales.crm.model.TrimmedCustomer;
 import com.sales.crm.service.CustomerService;
@@ -27,6 +30,10 @@ public class CustomerReSTController {
 	
 	@Autowired
 	CustomerService customerService;
+	
+	@Autowired
+	HttpSession httpSession;
+	
 	
 	@GetMapping(value="/scheduledCustomers/{salesExecID}")
 	public ResponseEntity<ReSTResponse> scheduledTrimmedCustomerslist(@PathVariable int salesExecID){
@@ -48,7 +55,6 @@ public class CustomerReSTController {
 	@GetMapping(value="/toSchedule/{beatID}/{visitDate}")
 	public List<TrimmedCustomer> getCustomersToSchedule(@PathVariable("beatID") int beatID, @PathVariable("visitDate") String visitDate){
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>();
-		ReSTResponse response = new ReSTResponse();
 		try{
 			Date date = new SimpleDateFormat("dd-MM-yyyy").parse(visitDate);
 			customers = customerService.getCustomersToSchedule(beatID, date);
@@ -56,5 +62,17 @@ public class CustomerReSTController {
 			logger.error("Error while fetching customers to schedule visit.", exception);
 		}
 		return customers;
+	}
+	
+	@GetMapping(value="/customersToScheduleDelivery/{beatID}/{visitDate}")
+	public List<CustomerOrder> getCustomersToScheduleDelivery(@PathVariable("beatID") int beatID, @PathVariable("visitDate") String visitDate){
+		List<CustomerOrder> customerOrders = new ArrayList<CustomerOrder>();
+		try{
+			Date date = new SimpleDateFormat("dd-MM-yyyy").parse(visitDate);
+			customerOrders = customerService.getCustomersToScheduleDelivery(beatID, date, Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		}catch(Exception exception){
+			logger.error("Error while fetching customers to schedule delivery.", exception);
+		}
+		return customerOrders;
 	}
 }

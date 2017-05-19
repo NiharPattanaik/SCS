@@ -53,8 +53,9 @@ public class DeliveryExecutive extends User {
 
 	@Override
 	public String toString() {
-		return "SalesExecutive [beats=" + beats + ", beatIDLists=" + beatIDLists + ", visitDate=" + visitDate + "]";
+		return "DeliveryExecutive [beats=" + beats + ", beatIDLists=" + beatIDLists + ", visitDate=" + visitDate
+				+ ", customerIDs=" + customerIDs + "]";
 	}
-	
+
 	
 }

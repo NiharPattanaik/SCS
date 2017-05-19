@@ -1,15 +1,13 @@
 <!DOCTYPE html>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ page import="com.sales.crm.model.SalesExecBeatCustomer"%>
 <%@ page import="com.sales.crm.model.Beat"%>
 <%@ page import="com.sales.crm.model.TrimmedCustomer"%>
-<%@ page import="com.sales.crm.model.SalesExecBeatCustomer"%>
 
 <html lang="en">
 
 <head>
-<title>Schedules Sales Executives Visit</title>
+<title>Schedules Order Booking</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
@@ -82,10 +80,10 @@
 		<%@ include file="menus.jsp" %>
 		<div class="row top-height">
 			<div class="col-md-8 ">
-				<form:form modelAttribute="salesExecBeatCustomer" method="post"
-					action="/crm/web/salesExecWeb/scheduleVisit" name="myForm" id="myForm">
+				<form:form modelAttribute="orderBookingSchedule" method="post"
+					action="/crm/web/orderWeb/scheduleOrderBooking" name="myForm" id="myForm">
 					<fieldset>
-						<legend>Sales Executive Visit Schedule of today</legend>
+						<legend>Schedule Order Booking</legend>
 						<div class="form-group required">
 							<label class='control-label'>Visit Date</label>
 							<form:input id="dp" name="visitDate" cssClass="dp form-control"
@@ -117,7 +115,7 @@
 						</div>
 					</fieldset>
 					<div class="form_submit">
-						<input type="button" name="btn" value="Submit" id="submitBtn" data-toggle="modal" data-target="#confirm-submit" class="btn btn-primary" />
+						<input type="button" name="btn" value="Schedule" id="submitBtn" data-toggle="modal" data-target="#confirm-submit" class="btn btn-primary" />
 					</div>
 				</form:form>
 			</div>
@@ -125,6 +123,7 @@
 	</div>
 	<script type="text/javascript">
 			$(document).ready(function() {
+				$('#submitBtn').prop('disabled', true);
 				$('#sales_exec').change(function() {
 					$.ajax({
 							type : "GET",
@@ -146,16 +145,25 @@
 			
 			$(document).ready(function() {
 				$('#beats').change(function() {
+					var isCusromerPresent = false;
 					$.ajax({
 							type : "GET",
-							url : "/crm/rest/beatReST/"+$('#beats').val(),
+							url : "/crm/rest/customer/toSchedule/"+$('#beats').val() + "/"+$('#dp').val(),
 							dataType : "json",
 							success : function(data) {
 								$('#checks').empty();
 								$.each(data,function(i,obj) {
+									isCusromerPresent = true;
 									var div_data = "<input name=customerIDs id=customerIDs type=checkbox value="+obj.customerID+" checked>"+obj.customerName+"<input type=hidden id="+obj.customerID+" value="+ obj.customerName +"><br>";
 									$(div_data).appendTo('#checks');
 								});
+								if(isCusromerPresent == false){
+									var div_data = "<p><i>No Customers Available for order booking.</i></p>"
+									$(div_data).appendTo('#checks');
+									$('#submitBtn').prop('disabled', true);
+								}else{
+									$('#submitBtn').prop('disabled', false);
+								}
 							}
 						});
 					});

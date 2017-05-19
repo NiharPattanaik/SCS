@@ -428,14 +428,15 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 	}
 
 	@Override
-	public List<SalesExecutive> getScheduledVisitSalesExecs(Date visitDate) {
+	public List<SalesExecutive> getScheduledVisitSalesExecs(Date visitDate, int resellerID) {
 		Session session = null;
 		List<SalesExecutive> salesExecs = new ArrayList<SalesExecutive>();
 		try {
 			session = sessionFactory.openSession();
 			SQLQuery query = session.createSQLQuery(
-					"SELECT a.ID, a.FIRST_NAME, a.LAST_NAME FROM USER a, ORDER_BOOKING_SCHEDULE b  WHERE a.ID=b.SALES_EXEC_ID AND b.VISIT_DATE = ? group by a.ID");
+					"SELECT a.ID, a.FIRST_NAME, a.LAST_NAME FROM USER a, ORDER_BOOKING_SCHEDULE b  WHERE a.ID=b.SALES_EXEC_ID AND b.VISIT_DATE = ? AND b.RESELLER_ID = ? group by a.ID");
 			query.setParameter(0, visitDate);
+			query.setParameter(1, resellerID);
 			List lists = query.list();
 			for(Object obj : lists){
 				Object[] objs = (Object[])obj;

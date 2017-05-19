@@ -3,9 +3,9 @@ package com.sales.crm.model;
 import java.util.Date;
 import java.util.List;
 
-public class OrderBookingSchedule {
+public class DeliveryBookingSchedule {
 	
-	private int salesExecutiveID;
+	private int delivExecutiveID;
 	
 	private int beatID;
 	
@@ -13,14 +13,14 @@ public class OrderBookingSchedule {
 	
 	private Date visitDate;
 	
-	private int resellerID;
+	private List<Integer> orderBookingIDs;
 
-	public int getSalesExecutiveID() {
-		return salesExecutiveID;
+	public int getDelivExecutiveID() {
+		return delivExecutiveID;
 	}
 
-	public void setSalesExecutiveID(int salesExecutiveID) {
-		this.salesExecutiveID = salesExecutiveID;
+	public void setDelivExecutiveID(int delivExecutiveID) {
+		this.delivExecutiveID = delivExecutiveID;
 	}
 
 	public int getBeatID() {
@@ -47,12 +47,12 @@ public class OrderBookingSchedule {
 		this.visitDate = visitDate;
 	}
 
-	public int getResellerID() {
-		return resellerID;
+	public List<Integer> getOrderBookingIDs() {
+		return orderBookingIDs;
 	}
 
-	public void setResellerID(int resellerID) {
-		this.resellerID = resellerID;
+	public void setOrderBookingIDs(List<Integer> orderBookingIDs) {
+		this.orderBookingIDs = orderBookingIDs;
 	}
 
 	

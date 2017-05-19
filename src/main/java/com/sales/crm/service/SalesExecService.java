@@ -47,8 +47,8 @@ public class SalesExecService {
 		return salesExecDAO.getScheduledVisitSalesExecBeats(salesExecID, visitDate);
 	}
 	
-	public List<SalesExecutive> getScheduledVisitSalesExecs(Date visitDate){
-		return salesExecDAO.getScheduledVisitSalesExecs(visitDate);
+	public List<SalesExecutive> getScheduledVisitSalesExecs(Date visitDate, int resellerID){
+		return salesExecDAO.getScheduledVisitSalesExecs(visitDate, resellerID);
 	}
 	
 	public List<TrimmedCustomer> getScheduledVisitBeatCustomers(int salesExecID, Date visitDate, int beatID){

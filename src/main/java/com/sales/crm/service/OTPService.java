@@ -39,22 +39,22 @@ public class OTPService {
 		//OTP - <customer id><date><otp type>
 		String otp = String.valueOf(customerID)+date+String.valueOf(otpType);
 		customerOTP.setGenaratedOTP(otp);
-		boolean sendSMSStatus = false;
+		boolean sendSMSStatus = true;
 		try{
-			String mobileNo = customerService.getCustomerPrimaryMobileNo(customerID);
-			if(mobileNo.trim().isEmpty() || mobileNo.trim().equals("+91")){
-				throw new CRMException(ErrorCodes.OTP_NO_MOBILE_NO, "OTP could not be generated successfully as customer has not registered primary mobile number");
-			}
+			//String mobileNo = customerService.getCustomerPrimaryMobileNo(customerID);
+			//if(mobileNo.trim().isEmpty() || mobileNo.trim().equals("+91")){
+			//	throw new CRMException(ErrorCodes.OTP_NO_MOBILE_NO, "OTP could not be generated successfully as customer has not registered primary mobile number");
+			//}
 			int otpID = otpDAO.generateOTP(customerOTP);
 			//Call SMS Gateway
 			//retry 3 times
-			for(int i=0; i<3; i++){
-				if(sendSms(mobileNo, otp, otpType)){
-					sendSMSStatus = true;
-					logger.info("OTP is successfully sent to customer");
-					break;
-				}
-			}
+			//for(int i=0; i<3; i++){
+			//	if(sendSms(mobileNo, otp, otpType)){
+			//		sendSMSStatus = true;
+			//		logger.info("OTP is successfully sent to customer");
+			//		break;
+			//	}
+			//}
 			
 			if(!sendSMSStatus){
 				logger.error("OTP SMS failed to send, removing OTP entry from DB");

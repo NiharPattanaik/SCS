@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.sql.ordering.antlr.OrderByFragmentRenderer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
@@ -52,6 +53,7 @@ public class OrderWebController {
 		String msg = "";
 		List<String> customerNames = null;
 		try{
+			orderBookingSchedule.setResellerID(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
 			customerNames = orderService.alreadyOrderBookingScheduledCustomer(orderBookingSchedule);
 			if(customerNames != null && customerNames.size() > 0){
 				msg = "<br>Customers <br><b>"+ StringUtils.join(customerNames, "<br>") +"</b><br>are already scheduled for a visit for <b>" + new SimpleDateFormat("dd-MM-yyyy").format(orderBookingSchedule.getVisitDate()) + "</b> date.";
@@ -62,6 +64,7 @@ public class OrderWebController {
 		
 		if(msg.equals("")){
 			try{
+				orderBookingSchedule.setResellerID(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
 				orderService.scheduleOrderBooking(orderBookingSchedule);
 			}catch(Exception exception){
 				msg = "Scheduling of order booking could not be processed successfully, please contact the System Administrator.";

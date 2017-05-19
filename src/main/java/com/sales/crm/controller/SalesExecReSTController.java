@@ -4,6 +4,8 @@ import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +23,10 @@ public class SalesExecRESTController {
 	
 	@Autowired
 	SalesExecService salesExecService;
+	
+	@Autowired
+	HttpSession httpSession;
+	
 	
 	@GetMapping(value="/{salesExecID}")
 	public List<Beat> getSalesExecsBeats(@PathVariable int salesExecID){
@@ -48,7 +54,7 @@ public class SalesExecRESTController {
 		}catch(Exception exception){
 			exception.printStackTrace();
 		}
-		return salesExecService.getScheduledVisitSalesExecs(date);
+		return salesExecService.getScheduledVisitSalesExecs(date, Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
 	}
 
 	

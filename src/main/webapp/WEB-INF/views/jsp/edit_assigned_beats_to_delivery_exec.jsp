@@ -1,4 +1,3 @@
-<%@page import="com.sales.crm.model.DeliveryExecutive"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
@@ -9,7 +8,7 @@
 <html lang="en">
 
 <head>
-<title>Assign Beats</title>
+	<title>Edit Assign Beats</title>
 	<!-- Bootstrap Core CSS -->
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -63,12 +62,6 @@ legend {
 	margin-top: 14px;
 	text-align: right;
 }
-
-.form-group.required .control-label:after { 
-   content:"*";
-   color:red;
-}
-
 </style>
 </head>
 
@@ -83,30 +76,18 @@ legend {
 		<div class="row top-height">
 			<div class="col-md-8 ">
 				<form:form modelAttribute="delivExec" method="post"
-					action="/crm/web/deliveryExecWeb/assignBeat">
+					action="/crm/web/deliveryExecWeb/updateAssignedBeats">
 					<fieldset>
-						<legend>Assign Beats to Delivery Executive</legend>
-						<div class="form-group required">
-								<label class='control-label'>Delivery Executive</label>
-								<form:select path="userID" cssClass="form-control" id="delivExecs">
-									<form:option value="-1" label="--- Select ---" />
-									<c:forEach var="delivExec" items="${delivExecs}">
-										<% 
-											if(!((DeliveryExecutive)pageContext.getAttribute("delivExec") != null 
-												&& ((DeliveryExecutive)pageContext.getAttribute("delivExec")).getBeats() != null 
-													&& ((DeliveryExecutive)pageContext.getAttribute("delivExec")).getBeats().size() > 0)){
-										%>
-											<form:option value="${ delivExec.userID }" label="${ delivExec.firstName } ${ delivExec.lastName }" />
-										<% 
-											}
-										%>
-											
-									</c:forEach>
+						<legend>Edit Assigned Beats to Delivery Executive</legend>
+						<div class="form-group">
+								<label>Sales Executive</label>
+								<form:select path="userID" cssClass="form-control">
+									<form:option value="${ delivExec.userID }" label="${delivExec.firstName} ${delivExec.lastName}" />
 								</form:select>
 							</div>
-							<div class="form-group required">
-								<label class='control-label'>Beats</label>
-								<form:select path="beatIDLists" cssClass="form-control" multiple="true" id="beats">
+							<div class="form-group">
+								<label>Beats</label>
+								<form:select path="beatIDLists" cssClass="form-control" multiple="true">
 									<form:option value="-1" label="--- Select ---" />
 									<form:options items="${beats}" itemValue="beatID"
 										itemLabel="name" />
@@ -121,13 +102,4 @@ legend {
 		</div>
 	</div>
 </body>
-<script type="text/javascript">
-	$(document).ready(function() {
-		$("#delivExecs").prop('required',true);
-	});
-	
-	$(document).ready(function() {
-		$("#beats").prop('required',true);
-	});
-</script>
 </html>

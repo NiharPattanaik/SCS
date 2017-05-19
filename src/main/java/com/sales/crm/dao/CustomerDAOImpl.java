@@ -1,5 +1,6 @@
 package com.sales.crm.dao;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Repository;
 
 import com.sales.crm.model.Address;
 import com.sales.crm.model.Customer;
+import com.sales.crm.model.CustomerOrder;
+import com.sales.crm.model.Order;
 import com.sales.crm.model.TrimmedCustomer;
 import com.sales.crm.model.User;
 
@@ -28,6 +31,9 @@ public class CustomerDAOImpl implements CustomerDAO{
 	private SessionFactory sessionFactory;
 	
 	private static Logger logger = Logger.getLogger(CustomerDAOImpl.class);
+	
+	private static SimpleDateFormat dbFormat = new SimpleDateFormat("yyyy-MM-dd");
+
 	
 	@Override
 	public void create(Customer customer) throws Exception{
@@ -194,7 +200,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME FROM CUSTOMER a, ORDER_BOOKING_SCHEDULE b WHERE a.ID = b.CUSTOMER_ID AND b.SALES_EXEC_ID= ? AND b.VISIT_DATE = ? ");
+			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME, b.ID order_booking_id FROM CUSTOMER a, ORDER_BOOKING_SCHEDULE b WHERE a.ID = b.CUSTOMER_ID AND b.SALES_EXEC_ID= ? AND b.VISIT_DATE = ? ");
 			query.setParameter( 0, salesExecID);
 			query.setParameter(1, new java.sql.Date(visitDate.getTime()));
 			List results = query.list();
@@ -203,6 +209,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 				TrimmedCustomer trimmedCustomer = new TrimmedCustomer();
 				trimmedCustomer.setCustomerID(Integer.valueOf(String.valueOf(objs[0])));
 				trimmedCustomer.setCustomerName(String.valueOf(objs[1]));
+				trimmedCustomer.setOrderBookingID(Integer.valueOf(String.valueOf(objs[2])));
 				customers.add(trimmedCustomer);
 			}
 		}catch(Exception exception){
@@ -345,6 +352,59 @@ public class CustomerDAOImpl implements CustomerDAO{
 			}
 		}
 		return customers;
+	}
+	
+	@Override
+	public List<CustomerOrder> getCustomersToScheduleDelivery(int beatID, Date visitDate, int resellerID) {
+		Session session = null;
+		List<CustomerOrder> customerOrders = new ArrayList<CustomerOrder>(); 
+		Map<TrimmedCustomer, List<Order>> custOrdersMap = new HashMap<TrimmedCustomer, List<Order>>();
+		try{
+			session = sessionFactory.openSession();
+			SQLQuery query = session.createSQLQuery("SELECT c.ID CUST_ID, c.NAME CUST_NAME, b.* FROM ORDER_BOOKING_SCHEDULE a, ORDER_DETAILS b, CUSTOMER c  WHERE a.ID=b.ORDER_BOOKING_ID AND a.CUSTOMER_ID=c.ID AND a.VISIT_DATE < ? AND a.BEAT_ID= ? AND b.STATUS IN (2, 5) AND b.RESELLER_ID = ?");
+			query.setParameter( 0, visitDate);
+			query.setParameter(1, beatID);
+			query.setParameter(2, resellerID);
+			List results = query.list();
+			for(Object obj : results){
+				Object[] objs = (Object[])obj;
+				TrimmedCustomer trimmedCustomer = new TrimmedCustomer();
+				trimmedCustomer.setCustomerID(Integer.valueOf(String.valueOf(objs[0])));
+				trimmedCustomer.setCustomerName(String.valueOf(objs[1]));
+				
+				Order order = new Order();
+				order.setCustomerID(trimmedCustomer.getCustomerID());
+				order.setOrderID(Integer.valueOf(String.valueOf(objs[2])));
+				order.setOrderBookingID(Integer.valueOf(String.valueOf(objs[3])));
+				order.setNoOfLineItems(Integer.valueOf(String.valueOf(objs[4])));
+				order.setBookValue(Double.valueOf(String.valueOf(objs[5])));
+				order.setRemark(String.valueOf(objs[6]));
+				order.setStatus(Integer.valueOf(String.valueOf(objs[7])));
+				order.setResellerID(Integer.valueOf(String.valueOf(objs[8])));
+				if(objs[9] != null){
+					order.setDateCreated(new Date(dbFormat.parse(String.valueOf(objs[9])).getTime()));
+				}
+				
+				if(!custOrdersMap.containsKey(trimmedCustomer)){
+					custOrdersMap.put(trimmedCustomer, new ArrayList<Order>());
+				}
+				custOrdersMap.get(trimmedCustomer).add(order);
+			}
+			
+			for(Map.Entry<TrimmedCustomer, List<Order>> entry : custOrdersMap.entrySet()){
+				CustomerOrder customerOrder = new CustomerOrder();
+				customerOrder.setCustomer(entry.getKey());
+				customerOrder.setOrders(entry.getValue());
+				customerOrders.add(customerOrder);
+			}
+		}catch(Exception exception){
+			logger.error("Error while getting Trimmed customer for delivery schedule.", exception);
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		return customerOrders;
 	}
 
 	

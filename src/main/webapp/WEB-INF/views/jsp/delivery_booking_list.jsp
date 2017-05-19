@@ -7,7 +7,7 @@
 <html lang="en">
 
 <head>
-    <title>Order Booking</title>
+    <title>Delivery Booking</title>
   	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
@@ -84,26 +84,26 @@ legend {
         <%@ include file="menus.jsp" %>
         	<div class="row customer_list">
         		<div class="col-md-4">
-            		<h3>Scheduled Order Bookings</h3>   
+            		<h3>Scheduled Delivery Bookings</h3>   
             	</div>
 	        	<div class="col-md-4 add_customer">
 	        		 <% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_SCHEDULE_VISIT.getResourcePermissionID())) { %>
-						<button type="submit" class="btn btn-primary" onclick="location.href='<%=request.getContextPath()%>/web/salesExecWeb/salesExecScheduleForm';">Schedule Order Booking</button>
+						<button type="submit" class="btn btn-primary" onclick="location.href='<%=request.getContextPath()%>/web/deliveryExecWeb/scheduleDeliveryBookingForm';">Schedule Delivery Booking</button>
 					<% } %>
 				</div>
 			</div>  
 				<div class="row top-height">
 		        	<div class="col-md-8 ">
-						<form:form modelAttribute="salesExecBeatCustomer" method="post"
-							action="/crm/web/orderWeb/unscheduleOrderBooking">
+						<form:form modelAttribute="deliveryBookingSchedule" method="post"
+							action="/crm/web/deliveryExecWeb/unscheduleVisit">
 								<div class="form-group">
 									<label>Visit Date</label>
 									<form:input id="dp" name="visitDate" cssClass="dp form-control"
 										path="visitDate" />
 								</div>
 								<div class="form-group">
-										<label>Sales Executive</label>
-										<form:select path="salesExecutiveID" cssClass="form-control" id="sales_exec">
+										<label>Delivery Executive</label>
+										<form:select path="delivExecutiveID" cssClass="form-control" id="deliv_exec">
 										</form:select>
 								</div>
 								<div class="form-group">
@@ -121,6 +121,7 @@ legend {
 									            <thead>
 									                <tr>
 									                    <th>Customer Name</th>
+									                    <th>Order Reference</th>
 									                    <th>Select to Cancel Visit</th>
 									                    <th><button type="submit" class="btn btn-primary" id="cancel">Cancel Visits</button></th>
 									             	</tr>
@@ -143,15 +144,15 @@ legend {
 				if( $('#dp').val() ) {
 					$.ajax({ 
 						type : "GET",
-						url : "/crm/rest/salesExecReST/list/"+$('#dp').val(),
+						url : "/crm/rest/deliveryExecReST/list/"+$('#dp').val(),
 						dataType : "json",
 						success : function(data) {
-							$('#sales_exec').empty();
-							var div_data1="<option value=\"-1\" label=\"--- Select Sales Executive--- \"/>";
-							$(div_data1).appendTo('#sales_exec');
+							$('#deliv_exec').empty();
+							var div_data1="<option value=\"-1\" label=\"--- Select Delivery Executive--- \"/>";
+							$(div_data1).appendTo('#deliv_exec');
 							$.each(data,function(i,obj) {
 								var div_data = "<option value="+obj.userID+">"+ obj.name+ "</option>";
-								$(div_data).appendTo('#sales_exec');
+								$(div_data).appendTo('#deliv_exec');
 							});
 						}
 					});
@@ -161,10 +162,10 @@ legend {
 		
 		//Beats
 		$(document).ready(function() {
-			$('#sales_exec').change(function() {
+			$('#deliv_exec').change(function() {
 				$.ajax({ 
 					type : "GET",
-					url : "/crm/rest/salesExecReST/scheduledVisit/"+$('#sales_exec').val()+"/"+$('#dp').val(),
+					url : "/crm/rest/deliveryExecReST/scheduledDeliveryBeats/"+$('#deliv_exec').val()+"/"+$('#dp').val(),
 					dataType : "json",
 					success : function(data) {
 						$('#beats').empty();
@@ -185,13 +186,13 @@ legend {
 					var isCusromerPresent = false;
 					$.ajax({
 							type : "GET",
-							url : "/crm/rest/salesExecReST/scheduledVisit/"+$('#sales_exec').val()+"/"+$('#dp').val()+"/"+$('#beats').val(),
+							url : "/crm/rest/deliveryExecReST/deliveryScheduledCustomers/"+$('#deliv_exec').val()+"/"+$('#dp').val()+"/"+$('#beats').val(),
 							dataType : "json",
 							success : function(data) {
 								$("#myTable > tbody").empty();
 								$.each(data,function(i,obj) {
 									isCusromerPresent = true;
-									var row_data = "<tr><td>"+ obj.customerName +"</td><td><input name=customerIDs id=customerIDs type=checkbox value="+obj.customerID+"></td></tr>";
+									var row_data = "<tr><td>"+ obj.customerName +"</td><td></><td><input name=customerIDs id=customerIDs type=checkbox value="+obj.customerID+"></td></tr>";
 									$("#myTable > tbody").append(row_data);
 								});
 								//Show/Hide customer table

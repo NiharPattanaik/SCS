@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.sales.crm.dao.CustomerDAO;
 import com.sales.crm.model.Customer;
+import com.sales.crm.model.CustomerOrder;
 import com.sales.crm.model.TrimmedCustomer;
 
 @Service("customerService")
@@ -58,5 +59,9 @@ public class CustomerService {
 	
 	public List<TrimmedCustomer> getCustomersToSchedule(int beatID, Date visitDate){
 		return customerDAO.getCustomersToSchedule(beatID, visitDate);
+	}
+	
+	public List<CustomerOrder> getCustomersToScheduleDelivery(int beatID, Date visitDate, int resellerID){
+		return customerDAO.getCustomersToScheduleDelivery(beatID, visitDate, resellerID);
 	}
 }

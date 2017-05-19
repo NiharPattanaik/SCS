@@ -75,7 +75,7 @@
             	<div class="col-md-4 add_customer">
             		<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_ASSIGN_BEATS.getResourcePermissionID())) { %>
 						<button type="submit" class="btn btn-primary"
-							onclick="location.href='<%=request.getContextPath()%>/web/deliveryWeb/assignBeatForm';">
+							onclick="location.href='<%=request.getContextPath()%>/web/deliveryExecWeb/assignBeatForm';">
 							Assign Beats To Delivery Executive</button>
 					<% } %>			
 				</div>
@@ -115,10 +115,10 @@
 						</c:forEach>
 						<td><%= values %></td>
 						<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_EDIT_ASSIGNED_BEATS.getResourcePermissionID())) { %>
-							<td><a href="<%=request.getContextPath()%>/web/salesExecWeb/assignBeatEditForm/${salesExec.userID}">Edit</a></td>
+							<td><a href="<%=request.getContextPath()%>/web/deliveryExecWeb/assignBeatEditForm/${delivExec.userID}">Edit</a></td>
 						<% } %>	
 						<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_DELETE_ASSIGNED_BEATS.getResourcePermissionID())) { %>
-							<td><a href="<%=request.getContextPath()%>/web/salesExecWeb/deleteBeatsAssignment/${salesExec.userID}">Delete</a></td>
+							<td><a href="<%=request.getContextPath()%>/web/deliveryExecWeb/deleteBeatsAssignment/${delivExec.userID}">Delete</a></td>
 						<% } %>
                     </tr>
                     </c:forEach>

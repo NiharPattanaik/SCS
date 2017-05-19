@@ -37,7 +37,7 @@
         					<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_VIEW_SCHEDULED_VISITS.getResourcePermissionID())) { %>
         						<li><a href="<%=request.getContextPath()%>/web/orderWeb/scheduledOrderBookings">Order Booking</a></li>
         					<% } %>	
-        					<li><a href="<%=request.getContextPath()%>/web/otpWeb/report">Delivery Booking</a></li>
+        					<li><a href="<%=request.getContextPath()%>/web/deliveryExecWeb/scheduledDeliveryBookings">Delivery Booking</a></li>
         					<li><a href="<%=request.getContextPath()%>/web/otpWeb/report">Payment Booking</a></li>
 					    </ul>
         			</li>	
@@ -67,13 +67,15 @@
 								<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_VIEW_ASSIGNED_BEATS.getResourcePermissionID())) { %>
 									<li><a href="<%=request.getContextPath()%>/web/salesExecWeb/beatlist">Sales Executive-Beats</a></li>
 					          	<% } %>	
-				          	
+					          	
+					          	<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_VIEW_ASSIGNED_BEATS.getResourcePermissionID())) { %>
+					          		<li><a href="<%=request.getContextPath()%>/web/deliveryExecWeb/beatlist">Delivery Executive-Beats</a></li>
+				          		<% } %>	
+				          		
 					          	<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_VIEW_ASSOCIATED_CUSTOMERS.getResourcePermissionID())) { %>
 					          		<li><a href="<%=request.getContextPath()%>/web/beatWeb/beat-customers/list">Beat - Customer</a></li>
 					          	<% } %>	
-				          		
-				          		<li><a href="<%=request.getContextPath()%>/web/deliveryWeb/beatlist">Delivery Executive-Beats</a></li>
-					    </ul>
+				        </ul>
       				</li>
 				</ul>		
 				<ul class="nav navbar-nav navbar-right ">
