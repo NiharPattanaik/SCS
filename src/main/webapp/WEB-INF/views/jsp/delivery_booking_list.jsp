@@ -68,6 +68,12 @@ legend {
 	border-bottom: 0px !important;
 }
 
+.modal-custom-footer {
+    padding: 15px;
+    text-align: center;
+    border-top: 1px solid #e5e5e5;
+}
+
     </style>
 </head>
 
@@ -95,7 +101,7 @@ legend {
 				<div class="row top-height">
 		        	<div class="col-md-8 ">
 						<form:form modelAttribute="deliveryBookingSchedule" method="post"
-							action="/crm/web/deliveryExecWeb/unscheduleVisit">
+							action="/crm/web/deliveryExecWeb/unscheduleDeliveryBooking">
 								<div class="form-group">
 									<label>Visit Date</label>
 									<form:input id="dp" name="visitDate" cssClass="dp form-control"
@@ -192,7 +198,7 @@ legend {
 								$("#myTable > tbody").empty();
 								$.each(data,function(i,obj) {
 									isCusromerPresent = true;
-									var row_data = "<tr><td>"+ obj.customerName +"</td><td></><td><input name=customerIDs id=customerIDs type=checkbox value="+obj.customerID+"></td></tr>";
+									var row_data = "<tr><td>"+ obj.customer.customerName +"</td><td><a href=# id=order-link data-toggle=modal data-target=#orders data-rows=" + JSON.stringify(obj.orders) + "><i>View Linked Order</i></a></><td><input name=customerIDs id=customerIDs type=checkbox value="+obj.customer.customerID+"></td></tr>";
 									$("#myTable > tbody").append(row_data);
 								});
 								//Show/Hide customer table
@@ -213,6 +219,54 @@ legend {
 				$('#myForm').submit();
 			});
 			
+			$(document).ready(function() {
+			    $("#order-link a").click(function() {
+			        //Do stuff when clicked
+			    });
+			});
+			
 		</script>
+		
+		<!-- Order List Modal -->
+	<div class="modal fade" id="orders" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header"><b>Order included for the delivery</b></div>
+				<div class="modal-body">
+					   <table class="table" id="myTable">
+				            <thead>
+				                <tr>
+				                	<th>Order ID</th>
+				                    <th>Order Booking ID</th>
+				                    <th>Order Date</th>
+				                    <th>No Of Line Items</th>
+				                    <th>Booking Value</th>
+				                    <th>Remark</th>
+				             	</tr>
+				            </thead>
+				            <tbody>
+				            </tbody>
+			        	</table>	
+				</div>
+				<div class="modal-custom-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+				</div>	
+				<script type="text/javascript">
+					var customerID;
+					$('#orders').on('show.bs.modal', function (e) {
+						$("#myTable > tbody").empty();
+						var datarows = $(e.relatedTarget).data('rows');
+						$.each( datarows, function( index, value ) {
+							customerID = value.customerID;
+							var row_data = "<tr><td>"+ value.orderID +"</td><td>"+ value.orderBookingID +"</td><td>"+ value.dateCreatedString +"</td><td>"+ value.noOfLineItems +"</td><td>"+ value.bookValue +"</td><td>"+ value.remark +"</td></tr>";
+							$("#myTable > tbody").append(row_data);
+						});
+					});
+				</script>
+				
+			</div>
+		</div>
+	</div>
 	</body>
 </html>

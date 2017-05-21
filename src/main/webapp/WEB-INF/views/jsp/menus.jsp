@@ -32,13 +32,14 @@
 						<li><a href="<%=request.getContextPath()%>/web/beatWeb/list">Beats</a></li>
 					<% } %>
 					<li class="dropdown">
-						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="reportmenu">Bookings<span class="caret"></span></a>
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="reportmenu">Order Management<span class="caret"></span></a>
         				<ul class="dropdown-menu" id="reportmenus">
+        					<li><a href="<%=request.getContextPath()%>/web/orderWeb/list">Orders</a></li>
         					<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_VIEW_SCHEDULED_VISITS.getResourcePermissionID())) { %>
         						<li><a href="<%=request.getContextPath()%>/web/orderWeb/scheduledOrderBookings">Order Booking</a></li>
         					<% } %>	
         					<li><a href="<%=request.getContextPath()%>/web/deliveryExecWeb/scheduledDeliveryBookings">Delivery Booking</a></li>
-        					<li><a href="<%=request.getContextPath()%>/web/otpWeb/report">Payment Booking</a></li>
+        					<!-- li><a href="#">Payment Booking</a></li-->
 					    </ul>
         			</li>	
 					<li class="dropdown">

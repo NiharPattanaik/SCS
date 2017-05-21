@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 
 import com.sales.crm.dao.DeliveryExecDAO;
 import com.sales.crm.model.Beat;
+import com.sales.crm.model.CustomerOrder;
 import com.sales.crm.model.DeliveryBookingSchedule;
 import com.sales.crm.model.DeliveryExecutive;
-import com.sales.crm.model.TrimmedCustomer;
 
 @Service("deliveryService")
 public class DeliveryExecService {
@@ -58,8 +58,8 @@ public class DeliveryExecService {
 		return deliveryDAO.getScheduledVisitDelivExecs(visitDate, resellerID);
 	}
 	
-	public List<TrimmedCustomer> getScheduledCustomersForDelivery(int delivExecID, Date visitDate, int beatID){
-		return deliveryDAO.getScheduledCustomersForDelivery(delivExecID, visitDate, beatID);
+	public List<CustomerOrder> getScheduledCustomersOrdersForDelivery(int delivExecID, Date visitDate, int beatID){
+		return deliveryDAO.getScheduledCustomersOrdersForDelivery(delivExecID, visitDate, beatID);
 	}
 	
 	public List<String> alreadyDeliveryBookingScheduledCustomer(DeliveryBookingSchedule deliveryBookingSchedule) throws Exception{
@@ -68,6 +68,10 @@ public class DeliveryExecService {
 	
 	public void scheduleDeliveryBooking(DeliveryBookingSchedule deliveryBookingSchedule) throws Exception{
 		deliveryDAO.scheduleDeliveryBooking(deliveryBookingSchedule);
+	}
+	
+	public void unscheduleDeliveryBooking(List<Integer> customerIDs, Date visitDate) throws Exception{
+		deliveryDAO.unscheduleDeliveryBooking(customerIDs, visitDate);
 	}
 	
 }

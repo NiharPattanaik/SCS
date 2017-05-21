@@ -13,5 +13,6 @@ public interface OTPDAO {
 	void verifyOTP(int customerID, int otpType, String otp) throws Exception;
 	
 	List<CustomerOTP> getOTPReport(int resellerID);
+	
 
 }

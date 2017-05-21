@@ -3,13 +3,13 @@ package com.sales.crm.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -18,8 +18,6 @@ import org.hibernate.jdbc.Work;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.sales.crm.model.Address;
-import com.sales.crm.model.Customer;
 import com.sales.crm.model.Order;
 import com.sales.crm.model.OrderBookingSchedule;
 import com.sales.crm.model.OrderStatusEnum;
@@ -40,6 +38,7 @@ public class OrderDAOImpl implements OrderDAO {
 			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
 			order.setDateCreated(new Date());
+			order.setStatus(OrderStatusEnum.ORDER_CREATED.getOrderStatus());
 			session.save(order);
 			transaction.commit();
 		}catch(Exception e){
@@ -146,7 +145,7 @@ public class OrderDAOImpl implements OrderDAO {
 			if(transaction != null){
 				transaction.rollback();
 			}
-			logger.error("Error fetching sales executives mapped to beat and customer.", exception);
+			logger.error("Error unscheduling order booking.", exception);
 			throw exception;
 		} finally {
 			if (session != null) {
@@ -154,16 +153,57 @@ public class OrderDAOImpl implements OrderDAO {
 			}
 		}
 	}
-
+	
 	@Override
 	public List<Order> getOrders(int resellerID) throws Exception {
 		Session session = null;
 		List<Order> orders = new ArrayList<Order>();
 		try{
 			session = sessionFactory.openSession();
-			Query userQuery = session.createQuery("from Order where resellerID = :resellerID");
-			userQuery.setParameter("resellerID", resellerID);
-			orders = userQuery.list();
+			SQLQuery orderQuery = session.createSQLQuery("SELECT a.*, c.NAME FROM ORDER_DETAILS a, ORDER_BOOKING_SCHEDULE b, CUSTOMER c WHERE a.ORDER_BOOKING_ID = b.ID AND b.CUSTOMER_ID = c.ID AND a.RESELLER_ID= ? ORDER BY a.DATE_CREATED DESC");
+			orderQuery.setParameter(0, resellerID);
+			List results = orderQuery.list();
+			for(Object obj : results){
+				Object[] objs = (Object[])obj;
+				Order order = new Order();
+				order.setOrderID(Integer.valueOf(String.valueOf(objs[0])));
+				order.setOrderBookingID(Integer.valueOf(String.valueOf(objs[1])));
+				order.setNoOfLineItems(Integer.valueOf(String.valueOf(objs[2])));
+				order.setBookValue(Double.valueOf(String.valueOf(objs[3])));
+				order.setRemark(String.valueOf(objs[4]));
+				switch(Integer.valueOf(String.valueOf(objs[5]))){
+					case 1:
+						order.setStatusAsString("Order Booking Scheduled");
+						break;
+					case 2:
+						order.setStatusAsString("Order Created");
+						break;
+					case 3:
+						order.setStatusAsString("Delivery Scheduled");
+						break;
+					case 4:
+						order.setStatusAsString("Delivery Completed");
+						break;
+					case 5:
+						order.setStatusAsString("Delivery Partial");
+						break;
+					case 6:
+						order.setStatusAsString("Payment Scheduled");
+						break;	
+					case 7:
+						order.setStatusAsString("Payment Completed");
+						break;	
+					case 8:
+						order.setStatusAsString("Payment Partial");
+						break;		
+				}
+				order.setResellerID(Integer.valueOf(String.valueOf(objs[6])));
+				if(objs[7] != null){
+					order.setDateCreated(new Date(new SimpleDateFormat("yyyy-MM-dd").parse(String.valueOf(objs[7])).getTime()));
+				}
+				order.setCustomerName(String.valueOf(objs[10]));
+				orders.add(order);
+			}
 		}catch(Exception e){
 			logger.error("Error while fetching order list", e);
 			throw e;

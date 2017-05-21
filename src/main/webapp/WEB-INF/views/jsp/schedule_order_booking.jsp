@@ -186,7 +186,7 @@
 			     var checkedValues = $('input:checkbox:checked').map(function() {
 			    	    return this.value;
 			    	}).get();
-			  	 $.each( checkedValues, function( key, value ) {
+			     $.each( checkedValues, function( key, value ) {
 			    	 var listItem = "<li>"+$("#"+value).val()+"</li>";
 			    	 $(listItem).appendTo('#customers');
 			     });

@@ -70,6 +70,12 @@
    color:red;
 }
 
+.modal-custom-footer {
+    padding: 15px;
+    text-align: center;
+    border-top: 1px solid #e5e5e5;
+}
+
 </style>
 </head>
 
@@ -114,7 +120,7 @@
 						</div>
 						<div class="form-group required">
 							<label class='control-label'>Customers</label>
-							<div style="width: 200px; min-height: 2px; max-height: 100px; overflow-y: auto;" id="checks">
+							<div style="width: 500px; min-height: 2px; max-height: 100px; overflow-y: auto;" id="checks">
 							</div>
 						</div>
 					</fieldset>
@@ -159,7 +165,18 @@
 								$('#checks').empty();
 								$.each(data,function(i,obj) {
 									isCusromerPresent = true;
-									var div_data = "<input name=customerIDs id=customerIDs type=checkbox value="+obj.customer.customerID+" checked>"+obj.customer.customerName+"<input type=hidden id="+obj.customer.customerID+" value=>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=# id=order-link data-toggle=modal data-target=#orders data-rows=" + JSON.stringify(obj.orders) + "><i>View Linked Order</i></a><br>";
+									var div_data = "<input name=customerIDs id=customerIDs type=checkbox value="+obj.customer.customerID+" checked>"+obj.customer.customerName+"<input type=hidden name=customerIDmodal id="+obj.customer.customerID+"modal value="+ obj.customer.customerName +">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=# id=order-link data-toggle=modal data-target=#orders data-rows=" + JSON.stringify(obj.orders) + "><i>View Linked Order</i></a><br>";
+									//Create hidden field with Order IDs
+									var orderIDs ="";
+									$.each(obj.orders,function(i,order) {
+										if(orderIDs == ""){
+											orderIDs = orderIDs.concat(order.orderID);
+										}else{
+											orderIDs = orderIDs.concat("-");
+											orderIDs = orderIDs.concat(order.orderID);
+										}
+									});
+									div_data = div_data.concat("<input type=hidden name="+obj.customer.customerID+" id="+obj.customer.customerID+" value=" + orderIDs + ">");
 									$(div_data).appendTo('#checks');
 								});
 								if(isCusromerPresent == false){
@@ -188,11 +205,11 @@
 			     
 			     //Customers
 			     $('#customers').empty();
-			     var checkedValues = $('input:checkbox:checked').map(function() {
+			     var checkedValues = $('input:checkbox[id="customerIDs"]:checked').map(function() {
 			    	    return this.value;
 			    	}).get();
-			  	 $.each( checkedValues, function( key, value ) {
-			    	 var listItem = "<li>"+$("#"+value).val()+"</li>";
+			     $.each( checkedValues, function( key, value ) {
+			    	 var listItem = "<li>"+$("#"+value+"modal").val()+"</li>";
 			    	 $(listItem).appendTo('#customers');
 			     });
 			  	 
@@ -245,7 +262,6 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-					<!-- a href="#" id="submit" class="btn btn-success success">Submit</a-->
 					<button type="submit" id="modalSubmit" class="btn btn-primary">Submit</button>
 					
 					<script type="text/javascript">
@@ -282,40 +298,46 @@
 				            </tbody>
 			        	</table>	
 				</div>
-				<div class="modal-footer">
-					<button type="submit" id="ordermodalSubmit" class="btn btn-primary">Submit</button>
+				<div class="modal-custom-footer">
+					<button type="submit" id="ordermodalSubmit" class="btn btn-primary">Confirm</button>
+					&nbsp;&nbsp;&nbsp;&nbsp;
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+				</div>	
+				<script type="text/javascript">
+					var customerID;
+					$('#ordermodalSubmit').click(function(){
+						var values = "";
+					    $.each($("input[id='orderLine']:checked"), function() {
+					    	if(values == ""){
+					    		values = $(this).val();
+					    	}else{
+					    		values = values.concat("-");
+					    		values = values.concat($(this).val());
+					    	}
+					    });
+					    $("#"+customerID).attr('value',values);
+					   	$('#orders').modal('toggle');
+					   
+					});
 					
-					<script type="text/javascript">
-						var customerID;
-						$('#ordermodalSubmit').click(function(){
-							var values = "";
-						    $.each($("input[id='orderLine']:checked"), function() {
-						    	if(values == ""){
-						    		values = $(this).val();
-						    	}else{
-						    		values = values.concat("-");
-						    		values = values.concat($(this).val());
-						    	}
-						    });
-						    
-						    console.log(values);
-						    console.log(customerID);
-						   	$("#"+customerID).attr('value',values);
-						    
-						   
+					$('#orders').on('show.bs.modal', function (e) {
+						$("#myTable > tbody").empty();
+						var datarows = $(e.relatedTarget).data('rows');
+						$.each( datarows, function( index, value ) {
+							customerID = value.customerID;
+							//Iterate over selected orders (set in the hidden field) and mark the checkbox checked 
+							var array = $("input[name="+customerID+"]").val().split('-');
+							var orderID = value.orderID;
+							if($.inArray(orderID.toString(), array) > -1){
+								var row_data = "<tr><td><input type=checkbox id=orderLine value="+ value.orderID +" checked></td><td>"+ value.orderID +"</td><td>"+ value.orderBookingID +"</td><td>"+ value.dateCreatedString +"</td><td>"+ value.noOfLineItems +"</td><td>"+ value.bookValue +"</td><td>"+ value.remark +"</td></tr>";
+							}else{
+								var row_data = "<tr><td><input type=checkbox id=orderLine value="+ value.orderID +"></td><td>"+ value.orderID +"</td><td>"+ value.orderBookingID +"</td><td>"+ value.dateCreatedString +"</td><td>"+ value.noOfLineItems +"</td><td>"+ value.bookValue +"</td><td>"+ value.remark +"</td></tr>";
+							}
+							$("#myTable > tbody").append(row_data);
 						});
-						
-						$('#orders').on('show.bs.modal', function (e) {
-							$("#myTable > tbody").empty();
-							var datarows = $(e.relatedTarget).data('rows');
-							$.each( datarows, function( index, value ) {
-								customerID = value.customerID;
-								var row_data = "<tr><td><input type=checkbox id=orderLine value="+ value.orderID +" checked/></td><td>"+ value.orderID +"</td><td>"+ value.orderBookingID +"</td><td>"+ value.dateCreatedString +"</td><td>"+ value.noOfLineItems +"</td><td>"+ value.bookValue +"</td><td>"+ value.remark +"</td></tr>";
-								$("#myTable > tbody").append(row_data);
-							});
-						});
-					</script>
-				</div>
+					});
+				</script>
+				
 			</div>
 		</div>
 	</div>

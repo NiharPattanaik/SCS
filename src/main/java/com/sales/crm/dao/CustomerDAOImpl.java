@@ -407,5 +407,58 @@ public class CustomerDAOImpl implements CustomerDAO{
 		return customerOrders;
 	}
 
+	@Override
+	public List<TrimmedCustomer> scheduledTrimmedCustomerslistForDeliveryToday(int delivExecID, Date visitDate) {
+		Session session = null;
+		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
+		try{
+			session = sessionFactory.openSession();
+			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME FROM CUSTOMER a, DELIVERY_SCHEDULE b, ORDER_DETAILS c WHERE a.ID=b.CUSTOMER_ID AND b.ORDER_ID = c.ID AND b.DELIVERY_EXEC_ID= ? AND b.VISIT_DATE= ? AND c.STATUS = 3 GROUP BY a.ID");
+			query.setParameter( 0, delivExecID);
+			query.setDate(1, visitDate);
+			List results = query.list();
+			for(Object obj : results){
+				Object[] objs = (Object[])obj;
+				TrimmedCustomer trimmedCustomer = new TrimmedCustomer();
+				trimmedCustomer.setCustomerID(Integer.valueOf(String.valueOf(objs[0])));
+				trimmedCustomer.setCustomerName(String.valueOf(objs[1]));
+				customers.add(trimmedCustomer);
+			}
+		}catch(Exception exception){
+			logger.error("Error while getting Trimmed customer for beat-customer edit.", exception);
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		return customers;
+	}
+
+	@Override
+	public List<TrimmedCustomer> getCustomerForOTPVerification(int userID, int otpType){
+		Session session = null;
+		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
+		try{
+			session = sessionFactory.openSession();
+			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME FROM CUSTOMER a, CUSTOMER_OTP b WHERE a.ID=b.CUSTOMER_ID AND b.FIELD_EXEC_ID = ? AND B.OTP_TYPE= ? AND b.SUBMITTED_OTP IS NULL AND DATE(b.GENERATED_DATE_TIME) = CURDATE()");
+			query.setParameter( 0, userID);
+			query.setParameter(1, otpType);
+			List results = query.list();
+			for(Object obj : results){
+				Object[] objs = (Object[])obj;
+				TrimmedCustomer trimmedCustomer = new TrimmedCustomer();
+				trimmedCustomer.setCustomerID(Integer.valueOf(String.valueOf(objs[0])));
+				trimmedCustomer.setCustomerName(String.valueOf(objs[1]));
+				customers.add(trimmedCustomer);
+			}
+		}catch(Exception exception){
+			logger.error("Error while getting Trimmed customer for otp registration.", exception);
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		return customers;
+	}
 	
 }

@@ -50,6 +50,12 @@ public class Order extends BusinessEntity{
 	
 	@Transient
 	private int customerID;
+	
+	@Transient
+	private String customerName;
+	
+	@Transient
+	private String statusAsString;
 
 	public String getDateCreatedString() {
 		return new SimpleDateFormat("dd-MM-yyyy").format(dateCreated);
@@ -121,6 +127,22 @@ public class Order extends BusinessEntity{
 
 	public void setResellerID(int resellerID) {
 		this.resellerID = resellerID;
+	}
+	
+	public String getCustomerName() {
+		return customerName;
+	}
+
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
+	}
+	
+	public String getStatusAsString() {
+		return statusAsString;
+	}
+
+	public void setStatusAsString(String statusAsString) {
+		this.statusAsString = statusAsString;
 	}
 
 	@Override

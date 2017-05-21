@@ -39,8 +39,8 @@ public class CustomerOTP extends BusinessEntity{
 	@Column(name = "RESELLER_ID")
 	private int resellerID;
 	
-	@Column(name = "SALES_EXEC_ID")
-	private int salesExecID;
+	@Column(name = "FIELD_EXEC_ID")
+	private int fieldExecID;
 	
 	@Column(name = "GENERTAED_OTP")
 	private String genaratedOTP;
@@ -103,11 +103,11 @@ public class CustomerOTP extends BusinessEntity{
 	}
 
 	public int getSalesExecID() {
-		return salesExecID;
+		return fieldExecID;
 	}
 
 	public void setSalesExecID(int salesExecID) {
-		this.salesExecID = salesExecID;
+		this.fieldExecID = salesExecID;
 	}
 
 	public String getGenaratedOTP() {
@@ -209,7 +209,7 @@ public class CustomerOTP extends BusinessEntity{
 	@Override
 	public String toString() {
 		return "CustomerOTP [otpID=" + otpID + ", customerID=" + customerID + ", resellerID=" + resellerID
-				+ ", salesExecID=" + salesExecID + ", genaratedOTP=" + genaratedOTP + ", submiitedOTP=" + submiitedOTP
+				+ ", salesExecID=" + fieldExecID + ", genaratedOTP=" + genaratedOTP + ", submiitedOTP=" + submiitedOTP
 				+ ", otpType=" + otpType + ", otpGeneratedDateTime=" + otpGeneratedDateTime + ", otpSubmitedDateTime="
 				+ otpSubmitedDateTime + ", retryCount=" + retryCount + ", customerName=" + customerName
 				+ ", salesExecName=" + salesExecName + ", otpStringType=" + otpStringType + ", otpStatus=" + otpStatus

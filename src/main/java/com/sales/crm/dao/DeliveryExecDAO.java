@@ -4,9 +4,9 @@ import java.util.Date;
 import java.util.List;
 
 import com.sales.crm.model.Beat;
+import com.sales.crm.model.CustomerOrder;
 import com.sales.crm.model.DeliveryBookingSchedule;
 import com.sales.crm.model.DeliveryExecutive;
-import com.sales.crm.model.TrimmedCustomer;
 
 public interface DeliveryExecDAO {
 	
@@ -30,9 +30,11 @@ public interface DeliveryExecDAO {
 	
 	List<DeliveryExecutive> getScheduledVisitDelivExecs(Date visitDate, int resellerID);
 	
-	List<TrimmedCustomer> getScheduledCustomersForDelivery(int delivExecID, Date visitDate, int beatID);
+	List<CustomerOrder> getScheduledCustomersOrdersForDelivery(int delivExecID, Date visitDate, int beatID);
 	
 	List<String> alreadyDeliveryBookingScheduledCustomer(DeliveryBookingSchedule deliveryBookingSchedule) throws Exception;
 	
 	void scheduleDeliveryBooking(DeliveryBookingSchedule deliveryBookingSchedule) throws Exception;
+	
+	void unscheduleDeliveryBooking(List<Integer> customerIDs, Date visitDate) throws Exception;
 }

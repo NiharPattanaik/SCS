@@ -4,7 +4,7 @@
 <html lang="en">
 
 <head>
-    <title>Customers</title>
+    <title>Orders</title>
     <!-- Bootstrap Core CSS -->
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -52,6 +52,12 @@
     margin-top: 12px;
     
     }
+    
+    .the-table {
+    table-layout: fixed;
+    word-wrap: break-word;
+}
+
     </style>
 </head>
 
@@ -67,37 +73,35 @@
         <%@ include file="menus.jsp" %>
        	<div class="row customer_list">
        		<div class="col-md-8">
-           		<h2>Customers List</h2>   
+           		<h2>Orders List</h2>   
            	</div>
         	<div class="col-md-4 add_customer">
-        		<% if(resourcePermIDs.contains(ResourcePermissionEnum.CUSTOMER_CREATE.getResourcePermissionID())) { %>
-					<button type="submit" class="btn btn-primary">Upload Customers Excel</button><input type="file" id="browse" name="browse" style="display: none">
-				<% } %>
-        		<% if(resourcePermIDs.contains(ResourcePermissionEnum.CUSTOMER_CREATE.getResourcePermissionID())) { %>
-					<button type="submit" class="btn btn-primary" onclick="location.href='<%=request.getContextPath()%>/web/customerWeb/createCustomerForm';">Add New Customer</button>
-				<% } %>
-			</div>
+        	</div>
 		</div>        
-        <table class="table">
+        <table class="table the-table">
             <thead>
                 <tr>
-                    <th>Customer ID</th>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>City</th>
+                    <th>Order ID</th>
+                    <th>Order Booking ID</th>
+                    <th>Customer Name</th>
+                    <th>No Of Line Items</th>
+                    <th>Order Value(Aprox.)</th>
+                    <th>Status</th>
+                    <th>Remarks</th>
+                    <th>Creation Date</th>
                 </tr>
             </thead>
             <tbody>
-            	<c:forEach var="customer" items="${customers}">  
+            	<c:forEach var="order" items="${orders}">  
                 <tr>
-                 	<% if(resourcePermIDs.contains(ResourcePermissionEnum.CUSTOMER_READ.getResourcePermissionID())) { %>
-                		<td><a href="<%=request.getContextPath()%>/web/customerWeb/${customer.customerID}">${customer.customerID}</a></td>
-                	<% }else{ %>
-                		<td>${customer.customerID}</td>
-                	<% } %>
-                    <td>${customer.name}</td>
-                    <td>${customer.description}</td>
-                    <td>${customer.address[0].city}</td>
+                 	<td>${order.orderID}</td>
+                	<td>${order.orderBookingID}</td>
+                	<td>${order.customerName}</td>
+                    <td>${order.noOfLineItems}</td>
+                    <td>${order.bookValue}</td>
+                    <td>${order.statusAsString}</td>
+                    <td>${order.remark}</td>
+                    <td>${order.dateCreatedString}</td>
                 </tr>
                 </c:forEach>
             </tbody>

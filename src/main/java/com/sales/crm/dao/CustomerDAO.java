@@ -31,5 +31,9 @@ public interface CustomerDAO {
 	
 	List<TrimmedCustomer> getCustomersToSchedule(int beatID, Date visitDate);
 	
-	public List<CustomerOrder> getCustomersToScheduleDelivery(int beatID, Date visitDate, int resellerID);
+	List<CustomerOrder> getCustomersToScheduleDelivery(int beatID, Date visitDate, int resellerID);
+	
+	List<TrimmedCustomer> scheduledTrimmedCustomerslistForDeliveryToday(int delivExecID, Date visitDate);
+	
+	List<TrimmedCustomer> getCustomerForOTPVerification(int userID, int otpType);
 }

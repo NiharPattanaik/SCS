@@ -51,6 +51,23 @@ public class CustomerReSTController {
 		return new ResponseEntity<ReSTResponse>(response,HttpStatus.OK);
 	}
 	
+	//Called from mobile APP to list customers for delivery
+	@GetMapping(value="/scheduledCustomersForDelivery/{delivExecID}")
+	public ResponseEntity<ReSTResponse> scheduledTrimmedCustomerslistForDeliveryToday(@PathVariable int delivExecID){
+		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>();
+		ReSTResponse response = new ReSTResponse();
+		try{
+			customers = customerService.scheduledTrimmedCustomerslistForDeliveryToday(delivExecID, new Date());
+			response.setStatus(ReSTResponse.STATUS_SUCCESS);
+			response.setBusinessEntities(customers);
+		}catch(Exception exception){
+			response.setStatus(ReSTResponse.STATUS_FAILURE);
+			response.setErrorCode(ErrorCodes.SYSTEM_ERROR);
+			response.setErrorMsg("Something is not right ! Please contact System Administrator");
+		}
+		return new ResponseEntity<ReSTResponse>(response,HttpStatus.OK);
+	}
+	
 	
 	@GetMapping(value="/toSchedule/{beatID}/{visitDate}")
 	public List<TrimmedCustomer> getCustomersToSchedule(@PathVariable("beatID") int beatID, @PathVariable("visitDate") String visitDate){
@@ -75,4 +92,21 @@ public class CustomerReSTController {
 		}
 		return customerOrders;
 	}
+	
+	@GetMapping(value="/customersForOTPVerification/{fieldExecID}/{otpType}")
+	public ResponseEntity<ReSTResponse> getCustomerForOTPVerification(@PathVariable("fieldExecID") int fieldExecID, @PathVariable("otpType") int otpType){
+		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>();
+		ReSTResponse response = new ReSTResponse();
+		try{
+			customers = customerService.getCustomerForOTPVerification(fieldExecID, otpType);
+			response.setStatus(ReSTResponse.STATUS_SUCCESS);
+			response.setBusinessEntities(customers);
+		}catch(Exception exception){
+			response.setStatus(ReSTResponse.STATUS_FAILURE);
+			response.setErrorCode(ErrorCodes.SYSTEM_ERROR);
+			response.setErrorMsg("Something is not right ! Please contact System Administrator");
+		}
+		return new ResponseEntity<ReSTResponse>(response,HttpStatus.OK);
+	}
+	
 }

@@ -1,6 +1,7 @@
 package com.sales.crm.controller;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -9,7 +10,6 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.sql.ordering.antlr.OrderByFragmentRenderer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.sales.crm.model.Customer;
+import com.sales.crm.model.Order;
 import com.sales.crm.model.OrderBookingSchedule;
 import com.sales.crm.model.SalesExecutive;
 import com.sales.crm.service.OrderService;
@@ -93,6 +95,16 @@ public class OrderWebController {
 		return new ModelAndView("/schedule_order_booking", modelMap);
 	}
 	
+	@GetMapping(value="/list")
+	public ModelAndView list(){
+		List<Order> orders = new ArrayList<Order>();
+		try{
+			orders = orderService.getOrders(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		}catch(Exception exception){
+			//
+		}
+		return new ModelAndView("/order_list","orders", orders);  
+	}
 	
 	
 	@InitBinder

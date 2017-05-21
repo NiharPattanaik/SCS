@@ -23,9 +23,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.sales.crm.model.Beat;
+import com.sales.crm.model.CustomerOrder;
 import com.sales.crm.model.DeliveryBookingSchedule;
 import com.sales.crm.model.DeliveryExecutive;
-import com.sales.crm.model.OrderStatusEnum;
+import com.sales.crm.model.Order;
 import com.sales.crm.model.TrimmedCustomer;
 
 @Repository("deliveryDAO")
@@ -479,13 +480,14 @@ public class DeliveryExecDAOImpl implements DeliveryExecDAO {
 	}
 	
 	@Override
-	public List<TrimmedCustomer> getScheduledCustomersForDelivery(int delivExecID, Date visitDate, int beatID){
+	public List<CustomerOrder> getScheduledCustomersOrdersForDelivery(int delivExecID, Date visitDate, int beatID){
 		Session session = null;
-		List<TrimmedCustomer> trimmedCustomers = new ArrayList<TrimmedCustomer>();
+		List<CustomerOrder> customerOrders = new ArrayList<CustomerOrder>(); 
+		Map<TrimmedCustomer, List<Order>> customerOrderMap = new HashMap<TrimmedCustomer, List<Order>>();
 		try {
 			session = sessionFactory.openSession();
 			SQLQuery query = session.createSQLQuery(
-					"SELECT a.ID, a.NAME FROM CUSTOMER a, DELIVERY_SCHEDULE b WHERE a.ID=b.CUSTOMER_ID AND b.DELIVERY_EXEC_ID= ? AND b.VISIT_DATE= ? AND b.BEAT_ID= ? group by a.ID");
+					"SELECT a.ID CUST_ID, a.NAME, c.* FROM CUSTOMER a, DELIVERY_SCHEDULE b, ORDER_DETAILS c  WHERE a.ID=b.CUSTOMER_ID AND b.ORDER_ID=c.ID AND  b.DELIVERY_EXEC_ID= ? AND b.VISIT_DATE= ? AND b.BEAT_ID= ? ");
 			query.setParameter(0, delivExecID);
 			query.setParameter(1, visitDate);
 			query.setParameter(2, beatID);
@@ -495,9 +497,32 @@ public class DeliveryExecDAOImpl implements DeliveryExecDAO {
 				TrimmedCustomer trimmedCustomer = new TrimmedCustomer();
 				trimmedCustomer.setCustomerID(Integer.valueOf(String.valueOf(objs[0])));
 				trimmedCustomer.setCustomerName(String.valueOf(objs[1]));
-				trimmedCustomers.add(trimmedCustomer);
+				
+				Order order = new Order();
+				order.setOrderID(Integer.valueOf(String.valueOf(objs[2])));
+				order.setOrderBookingID(Integer.valueOf(String.valueOf(objs[3])));
+				order.setNoOfLineItems(Integer.valueOf(String.valueOf(objs[4])));
+				order.setBookValue(Double.valueOf(String.valueOf(objs[5])));
+				order.setRemark(String.valueOf(objs[6]));
+				order.setStatus(Integer.valueOf(String.valueOf(objs[7])));
+				order.setResellerID(Integer.valueOf(String.valueOf(objs[8])));
+				if(objs[9] != null){
+					order.setDateCreated(new Date(dbFormat.parse(String.valueOf(objs[9])).getTime()));
+				}
+				
+				if(!customerOrderMap.containsKey(trimmedCustomer)){
+					customerOrderMap.put(trimmedCustomer, new ArrayList<Order>());
+				}
+				customerOrderMap.get(trimmedCustomer).add(order);
 			}
-			return trimmedCustomers;
+			
+			for(Map.Entry<TrimmedCustomer, List<Order>> entry : customerOrderMap.entrySet()){
+				CustomerOrder customerOrder = new CustomerOrder();
+				customerOrder.setCustomer(entry.getKey());
+				customerOrder.setOrders(entry.getValue());
+				customerOrders.add(customerOrder);
+			}
+			
 		} catch (Exception exception) {
 			logger.error("Error fetching customers schedukled for delivery.", exception);
 		} finally {
@@ -505,7 +530,7 @@ public class DeliveryExecDAOImpl implements DeliveryExecDAO {
 				session.close();
 			}
 		}
-		return null;
+		return customerOrders;
 	}
 	
 	@Override
@@ -535,35 +560,45 @@ public class DeliveryExecDAOImpl implements DeliveryExecDAO {
 	}
 	
 	@Override
-	public void scheduleDeliveryBooking(DeliveryBookingSchedule deliveryBookingSchedule) throws Exception{
+	public void scheduleDeliveryBooking(final DeliveryBookingSchedule deliveryBookingSchedule) throws Exception{
 		Session session = null;
 		Transaction transaction = null;
 		try {
-			final int delivExecID = deliveryBookingSchedule.getDelivExecutiveID();
-			final int beatID = deliveryBookingSchedule.getBeatID();
-			final List<Integer> custIDList = deliveryBookingSchedule.getCustomerIDs();
-			final Date visitDate = deliveryBookingSchedule.getVisitDate();
 			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
 			// get Connction from Session
 			session.doWork(new Work() {
 				@Override
 				public void execute(Connection connection) throws SQLException {
-					PreparedStatement pstmt = null;
+					PreparedStatement delivpstmt = null;
+					PreparedStatement updateOrderpstmt = null;
 					try {
-						String sqlInsert = "INSERT INTO DELIVERY_SCHEDULE (DELIVERY_EXEC_ID, BEAT_ID, CUSTOMER_ID, VISIT_DATE, STATUS) VALUES (?, ?, ?, ?, ?)";
-						pstmt = connection.prepareStatement(sqlInsert);
-						for (int i = 0; i < custIDList.size(); i++) {
-							pstmt.setInt(1, delivExecID);
-							pstmt.setInt(2, beatID);
-							pstmt.setInt(3, custIDList.get(i));
-							pstmt.setDate(4, new java.sql.Date(visitDate.getTime()));
-							pstmt.setInt(5, OrderStatusEnum.ORDER_BOOKING_SCHEDULED.getOrderStatus());
-							pstmt.addBatch();
+						String delivSchInsert = "INSERT INTO DELIVERY_SCHEDULE (ORDER_ID, DELIVERY_EXEC_ID, BEAT_ID, CUSTOMER_ID, VISIT_DATE, RESELLER_ID) VALUES (?, ?, ?, ?, ?, ?)";
+						String orderUpdate = "UPDATE ORDER_DETAILS SET STATUS= 3, DATE_MODIFIED = ? WHERE ID= ?";
+						delivpstmt = connection.prepareStatement(delivSchInsert);
+						updateOrderpstmt = connection.prepareStatement(orderUpdate);
+						for(Map.Entry<Integer, List<Integer>> entry : deliveryBookingSchedule.getCustomerOrderMap().entrySet()){
+							int customerID = entry.getKey();
+							for (int i = 0; i < entry.getValue().size(); i++) {
+								//Delivery Schedule
+								delivpstmt.setInt(1, entry.getValue().get(i));
+								delivpstmt.setInt(2, deliveryBookingSchedule.getDelivExecutiveID());
+								delivpstmt.setInt(3, deliveryBookingSchedule.getBeatID());
+								delivpstmt.setInt(4, customerID);
+								delivpstmt.setDate(5, new java.sql.Date(deliveryBookingSchedule.getVisitDate().getTime()));
+								delivpstmt.setInt(6, deliveryBookingSchedule.getResellerID());
+								delivpstmt.addBatch();
+								
+								//Order Update
+								updateOrderpstmt.setDate(1, new java.sql.Date(new Date().getTime()));
+								updateOrderpstmt.setInt(2, entry.getValue().get(i));
+								updateOrderpstmt.addBatch();
+							}
 						}
-						pstmt.executeBatch();
+						delivpstmt.executeBatch();
+						updateOrderpstmt.executeBatch();
 					} finally {
-						pstmt.close();
+						delivpstmt.close();
 					}
 				}
 			});
@@ -579,6 +614,35 @@ public class DeliveryExecDAOImpl implements DeliveryExecDAO {
 				session.close();
 			}
 		}
+	}
+
+
+	@Override
+	public void unscheduleDeliveryBooking(List<Integer> customerIDs, Date visitDate) throws Exception {
+		Session session = null;
+		Transaction transaction = null;
+		try {
+			session = sessionFactory.openSession();
+			SQLQuery deleteSchQuery = session.createSQLQuery(
+					"DELETE FROM DELIVERY_SCHEDULE WHERE CUSTOMER_ID IN (" +StringUtils.join(customerIDs, ",") +") AND VISIT_DATE = ?");
+			deleteSchQuery.setParameter(0, visitDate);
+			SQLQuery updateOrderQuery = session.createSQLQuery("UPDATE ORDER_DETAILS SET STATUS = 2 WHERE ORDER_BOOKING_ID IN (SELECT ID FROM ORDER_BOOKING_SCHEDULE WHERE CUSTOMER_ID IN (" +StringUtils.join(customerIDs, ",") +") ) AND STATUS = 3");
+			transaction = session.beginTransaction();
+			deleteSchQuery.executeUpdate();
+			updateOrderQuery.executeUpdate();
+			transaction.commit();
+		} catch (Exception exception) {
+			if(transaction != null){
+				transaction.rollback();
+			}
+			logger.error("error while unscheduling delivery booking", exception);
+			throw exception;
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+		
 	}
 
 }

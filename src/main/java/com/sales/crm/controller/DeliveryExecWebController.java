@@ -1,11 +1,13 @@
 package com.sales.crm.controller;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
@@ -121,14 +123,23 @@ public class DeliveryExecWebController {
 	}
 	
 	@PostMapping(value="/scheduleDeliveryBooking") 
-	public ModelAndView scheduleOrderBooking(@ModelAttribute("deliveryBookingSchedule") DeliveryBookingSchedule deliveryBookingSchedule){
+	public ModelAndView scheduleOrderBooking(HttpServletRequest request, @ModelAttribute("deliveryBookingSchedule") DeliveryBookingSchedule deliveryBookingSchedule){
 		String msg = "";
-		List<String> customerNames = null;
 		try{
-			customerNames = deliveryExecService.alreadyDeliveryBookingScheduledCustomer(deliveryBookingSchedule);
-			if(customerNames != null && customerNames.size() > 0){
-				msg = "<br>Customers <br><b>"+ StringUtils.join(customerNames, "<br>") +"</b><br>are already scheduled for a visit for <b>" + new SimpleDateFormat("dd-MM-yyyy").format(deliveryBookingSchedule.getVisitDate()) + "</b> date.";
+			Map<Integer, List<Integer>> customerOrderMap = new HashMap<Integer, List<Integer>>();
+			for(int customerID : deliveryBookingSchedule.getCustomerIDs()){
+				if(request.getParameter(String.valueOf(customerID)) != null
+						&& !((String)request.getParameter(String.valueOf(customerID))).trim().isEmpty()){
+					String[] orderIDs = ((String)request.getParameter(String.valueOf(customerID))).split("-");
+					ArrayList<Integer> orderIDsList = new ArrayList<Integer>();
+					for(String orderID : orderIDs){
+						orderIDsList.add(Integer.valueOf(orderID));
+					}
+					customerOrderMap.put(customerID, orderIDsList);
+				}
 			}
+			deliveryBookingSchedule.setCustomerOrderMap(customerOrderMap);
+			deliveryBookingSchedule.setResellerID(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
 		}catch(Exception exception){
 			msg = "Scheduling of order delivery could not be processed successfully, please contact the System Administrator.";
 		}
@@ -141,6 +152,17 @@ public class DeliveryExecWebController {
 			}
 		}
 		return new ModelAndView("/delivery_booking_schedule_conf", "msg", msg);
+	}
+	
+	@PostMapping(value="/unscheduleDeliveryBooking") 
+	public ModelAndView unscheduleDeliveryBooking(@ModelAttribute("deliveryBookingSchedule") DeliveryBookingSchedule deliveryBookingSchedule){
+		String msg = "";
+		try{
+			deliveryExecService.unscheduleDeliveryBooking(deliveryBookingSchedule.getCustomerIDs(), deliveryBookingSchedule.getVisitDate());
+		}catch(Exception exception){
+			msg = "Customer visits could not be cancelled successfully. Please try after sometine and if error persists contact System Administrator.";
+		}
+		return new ModelAndView("/scheduled_delivery_cancel_conf", "msg", msg);
 	}
 	
 	@InitBinder

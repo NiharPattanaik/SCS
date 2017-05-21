@@ -127,4 +127,8 @@ public class OTPService {
 	public List<CustomerOTP> getOTPReport(int resellerID){
 		return otpDAO.getOTPReport(resellerID);
 	}
+	
+	public void deleteOTP(int otpID) throws Exception{
+		otpDAO.removeGeneratedOTP(otpID);
+	}
 }

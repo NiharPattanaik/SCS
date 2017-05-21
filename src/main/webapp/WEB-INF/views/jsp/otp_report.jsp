@@ -74,12 +74,13 @@
                 <thead>
                     <tr>
                         <th>Customer Name</th>
-                        <th>Sales Executive Name</th>
+                        <th>Field Executive Name</th>
                         <th>OTP</th>
                         <th>OTP Type</th>
                         <th>OTP Status</th>
                         <th>Generated Date</th>
                         <th>Verification Date</th>
+                        <th/>
                     </tr>
                 </thead>
                 <tbody>
@@ -92,6 +93,7 @@
                         <td>${customerOTP.otpStatus}</td>
                         <td>${customerOTP.stringDateGenerated}</td>
                         <td>${customerOTP.stringDateUsed}</td>
+                        <td><a href="<%=request.getContextPath()%>/web/otpWeb/delete/${customerOTP.otpID}">Delete</a></td>
                     </tr>
                     </c:forEach>
                 </tbody>

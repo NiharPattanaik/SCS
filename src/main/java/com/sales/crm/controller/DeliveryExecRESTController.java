@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sales.crm.model.Beat;
+import com.sales.crm.model.CustomerOrder;
 import com.sales.crm.model.DeliveryExecutive;
-import com.sales.crm.model.TrimmedCustomer;
 import com.sales.crm.service.DeliveryExecService;
 
 @RestController
@@ -58,14 +58,14 @@ public class DeliveryExecRESTController {
 
 	
 	@GetMapping(value="/deliveryScheduledCustomers/{delivExecID}/{visitDate}/{beatID}")
-	public List<TrimmedCustomer> getScheduledCustomersForDelivery(@PathVariable("delivExecID") int delivExecID, @PathVariable("visitDate") String visitDate, @PathVariable("beatID") int beatID){
+	public List<CustomerOrder> getScheduledCustomersForDelivery(@PathVariable("delivExecID") int delivExecID, @PathVariable("visitDate") String visitDate, @PathVariable("beatID") int beatID){
 		Date date = new Date();
 		try{
 			date = new SimpleDateFormat("dd-MM-yyyy").parse(visitDate);
 		}catch(Exception exception){
 			exception.printStackTrace();
 		}
-		return delivExecService.getScheduledCustomersForDelivery(delivExecID, date, beatID);
+		return delivExecService.getScheduledCustomersOrdersForDelivery(delivExecID, date, beatID);
 	}
 
 }

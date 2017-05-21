@@ -64,4 +64,12 @@ public class CustomerService {
 	public List<CustomerOrder> getCustomersToScheduleDelivery(int beatID, Date visitDate, int resellerID){
 		return customerDAO.getCustomersToScheduleDelivery(beatID, visitDate, resellerID);
 	}
+	
+	public List<TrimmedCustomer> scheduledTrimmedCustomerslistForDeliveryToday(int delivExecID, Date visitDate){
+		return customerDAO.scheduledTrimmedCustomerslistForDeliveryToday(delivExecID, visitDate);
+	}
+	
+	public List<TrimmedCustomer> getCustomerForOTPVerification(int userID, int otpType){
+		return customerDAO.getCustomerForOTPVerification(userID, otpType);
+	}
 }

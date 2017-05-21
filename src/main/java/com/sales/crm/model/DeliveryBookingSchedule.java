@@ -2,6 +2,7 @@ package com.sales.crm.model;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class DeliveryBookingSchedule {
 	
@@ -14,7 +15,12 @@ public class DeliveryBookingSchedule {
 	private Date visitDate;
 	
 	private List<Integer> orderBookingIDs;
-
+	
+	private Map<Integer, List<Integer>> customerOrderMap;
+	
+	private int resellerID;
+	
+	
 	public int getDelivExecutiveID() {
 		return delivExecutiveID;
 	}
@@ -55,5 +61,21 @@ public class DeliveryBookingSchedule {
 		this.orderBookingIDs = orderBookingIDs;
 	}
 
-	
+	public Map<Integer, List<Integer>> getCustomerOrderMap() {
+		return customerOrderMap;
+	}
+
+	public void setCustomerOrderMap(Map<Integer, List<Integer>> customerOrderMap) {
+		this.customerOrderMap = customerOrderMap;
+	}
+
+	public int getResellerID() {
+		return resellerID;
+	}
+
+	public void setResellerID(int resellerID) {
+		this.resellerID = resellerID;
+	}
+
+		
 }

@@ -151,13 +151,14 @@ public class OTPDAOImpl implements OTPDAO{
 		List<CustomerOTP> customerOTPs = new ArrayList<CustomerOTP>();
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT a.*, b.NAME, c.FIRST_NAME, c.LAST_NAME FROM CUSTOMER_OTP a, CUSTOMER b, USER c WHERE a.CUSTOMER_ID = b.ID AND a.SALES_EXEC_ID = c.ID AND a.RESELLER_ID = ?");
+			SQLQuery query = session.createSQLQuery("SELECT a.*, b.NAME, c.FIRST_NAME, c.LAST_NAME FROM CUSTOMER_OTP a, CUSTOMER b, USER c WHERE a.CUSTOMER_ID = b.ID AND a.FIELD_EXEC_ID = c.ID AND a.RESELLER_ID = ?");
 			query.setParameter(0, resellerID);
 			List results = query.list();
 			if(results != null && results.size() > 0){
 				for(Object obj : results){
 					Object[] objs = (Object[])obj;
 					CustomerOTP customerOTP = new CustomerOTP();
+					customerOTP.setOtpID(Integer.parseInt(String.valueOf(objs[0])));
 					customerOTP.setCustomerName(String.valueOf(objs[13]));
 					customerOTP.setSalesExecName(String.valueOf(objs[14]) +" "+ String.valueOf(objs[15]));
 					customerOTP.setGenaratedOTP(String.valueOf(objs[4]));
