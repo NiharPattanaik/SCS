@@ -2,6 +2,7 @@ package com.sales.crm.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -71,5 +72,13 @@ public class CustomerService {
 	
 	public List<TrimmedCustomer> getCustomerForOTPVerification(int userID, int otpType){
 		return customerDAO.getCustomerForOTPVerification(userID, otpType);
+	}
+	
+	public void createCustomers(List<Customer> customers) throws Exception{
+		customerDAO.createCustomers(customers);
+	}
+	
+	public List<Customer> search(int resellerID, Map<String, Object> filterCriteria)throws Exception{
+		return customerDAO.search(resellerID, filterCriteria);
 	}
 }

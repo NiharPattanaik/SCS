@@ -52,7 +52,33 @@
     margin-top: 12px;
     
     }
+    
+    .upload_input {
+    display: block;
+    visibility: hidden;
+    width: 0;
+    height: 0;
+	}
+	
+	table.table.table-striped thead {
+    background: #ddd;
+    padding: 10px 0 10px 0;
+	}
+	
+	input[type=file] {
+    display: inline-block;
+ }
+ 
+ .table {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 20px;
+    margin-top: 10px;
+}
     </style>
+    
+    
+    
 </head>
 
 <body>
@@ -66,25 +92,50 @@
     <div class="container">
         <%@ include file="menus.jsp" %>
        	<div class="row customer_list">
-       		<div class="col-md-8">
+       		<div class="col-md-4">
            		<h2>Customers List</h2>   
            	</div>
-        	<div class="col-md-4 add_customer">
-        		<% if(resourcePermIDs.contains(ResourcePermissionEnum.CUSTOMER_CREATE.getResourcePermissionID())) { %>
-					<button type="submit" class="btn btn-primary">Upload Customers Excel</button><input type="file" id="browse" name="browse" style="display: none">
-				<% } %>
-        		<% if(resourcePermIDs.contains(ResourcePermissionEnum.CUSTOMER_CREATE.getResourcePermissionID())) { %>
-					<button type="submit" class="btn btn-primary" onclick="location.href='<%=request.getContextPath()%>/web/customerWeb/createCustomerForm';">Add New Customer</button>
-				<% } %>
+        	<div class="col-md-8 add_customer">
+        		<form id="customerForm">
+	        		<% if(resourcePermIDs.contains(ResourcePermissionEnum.CUSTOMER_CREATE.getResourcePermissionID())) { %>
+	        			<input type="button" value="Download Template" class="btn btn-primary" id="downloadTmp">
+	        			<input type="file" name="file" id="upload" size="chars" class="upload_input" onchange="myFunction()">
+	        			<input type="button" value="Upload Customers Excel" class="btn btn-primary" id="uploadBtn">
+						<button type="submit" id="newCustomer" class="btn btn-primary">Add New Customer</button>
+					<% } %>
+				</form>	
 			</div>
-		</div>        
-        <table class="table">
+		</div>
+		<div class="row" >
+		<form id="searchForm">
+			<div class="col-md-2" style="padding-right: 1px;">
+				<select id="searchParam" name="searchBy" class="form-control">
+					<option value="-1" label="-Search By-"></option>
+					<option value="ID">Customer ID</option>
+					<option value="Name">Name</option>
+					<option value="City">City</option>
+					<option value="BEAT_NAME">Beat</option>
+				</select>
+			</div>
+			<div class="col-md-2" style="padding-right: 1px;">
+				<input type="text" class="form-control" id="searchVal"/>
+			</div>
+			<div class="col-md-2">
+				<button type="submit" id="search" class="btn btn-primary">Search</button>
+			</div>
+		</form>	
+		</div>
+
+		<table class="table table-striped" id="custTable">
             <thead>
                 <tr>
                     <th>Customer ID</th>
                     <th>Name</th>
                     <th>Description</th>
+                    <th>Beat</th>
                     <th>City</th>
+                    <th>Contact Person</th>
+                    <th>Phone Number</th>
                 </tr>
             </thead>
             <tbody>
@@ -97,12 +148,55 @@
                 	<% } %>
                     <td>${customer.name}</td>
                     <td>${customer.description}</td>
+                    <td>${customer.beatName}</td>
                     <td>${customer.address[0].city}</td>
+                    <td>${customer.address[0].contactPerson}</td>
+                    <td>${customer.address[0].phoneNumber}</td>
                 </tr>
                 </c:forEach>
             </tbody>
         </table>
    	</div>
 </body>
-
+	<script type="text/javascript">
+		$('#uploadBtn').click(function(){
+			$('#upload').click();
+		});
+		
+		$('#newCustomer').click(function(){
+			$('#customerForm').attr('method', "GET");
+			$('#customerForm').attr('action', "/crm/web/customerWeb/createCustomerForm").submit();
+			
+		});
+		
+		$('#downloadTmp').click(function(){
+			$('#customerForm').attr('method', "GET");
+			$('#customerForm').attr('action', "/crm/web/customerWeb/downloadAddCustomerTemplate").submit();
+			
+		});
+		
+		$('#upload').change(function(){
+			$('#customerForm').attr("enctype", "multipart/form-data");
+			$('#customerForm').attr('method', "POST");
+			$('#customerForm').attr('action', "/crm/web/customerWeb/fileUpload").submit();
+		});
+		
+		$('#search').click(function(){
+			$.ajax({
+				type : "GET",
+				url : "/crm/rest/customer/search/"+$('#searchParam').val()+"/"+$('#searchVal').val(),
+				dataType : "json",
+				success : function(data) {
+					$("#custTable > tbody").empty();
+					var result = data.businessEntities;
+					$.each(result,function(i,customer) {
+						var row_data = "<tr><td>"+customer.name+"</td><td>"+customer.name+"</td><td>"+customer.description+"</td><td>"+customer.beatName+"</td><td>"+customer.address[0].city+"</td><td>"+customer.address[0].contactPerson+"</td><td>"+customer.address[0].phoneNumber+"</td></tr>";
+		                $("#custTable > tbody").append(row_data);
+					});
+				}
+			});
+			return false;
+		});
+		
+	</script>
 </html>

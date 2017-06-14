@@ -20,6 +20,7 @@ import com.sales.crm.model.Address;
 import com.sales.crm.model.Customer;
 import com.sales.crm.model.CustomerOrder;
 import com.sales.crm.model.Order;
+import com.sales.crm.model.OrderBookingSchedule;
 import com.sales.crm.model.TrimmedCustomer;
 import com.sales.crm.model.User;
 
@@ -440,7 +441,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME FROM CUSTOMER a, CUSTOMER_OTP b WHERE a.ID=b.CUSTOMER_ID AND b.FIELD_EXEC_ID = ? AND B.OTP_TYPE= ? AND b.SUBMITTED_OTP IS NULL AND DATE(b.GENERATED_DATE_TIME) = CURDATE()");
+			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME, c.ID order_booking_id FROM CUSTOMER a, CUSTOMER_OTP b, ORDER_BOOKING_SCHEDULE c WHERE a.ID=b.CUSTOMER_ID AND a.ID=c.CUSTOMER_ID AND b.FIELD_EXEC_ID = ? AND B.OTP_TYPE= ? AND b.SUBMITTED_OTP IS NULL AND DATE(b.GENERATED_DATE_TIME) = CURDATE() AND c.VISIT_DATE = CURDATE()");
 			query.setParameter( 0, userID);
 			query.setParameter(1, otpType);
 			List results = query.list();
@@ -449,6 +450,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 				TrimmedCustomer trimmedCustomer = new TrimmedCustomer();
 				trimmedCustomer.setCustomerID(Integer.valueOf(String.valueOf(objs[0])));
 				trimmedCustomer.setCustomerName(String.valueOf(objs[1]));
+				trimmedCustomer.setOrderBookingID(Integer.valueOf(String.valueOf(objs[2])));
 				customers.add(trimmedCustomer);
 			}
 		}catch(Exception exception){
@@ -460,5 +462,83 @@ public class CustomerDAOImpl implements CustomerDAO{
 		}
 		return customers;
 	}
+
+	@Override
+	public void createCustomers(List<Customer> customers) throws Exception {
+		Session session = null;
+		Transaction transaction = null;
+		try{
+			session = sessionFactory.openSession();
+			transaction = session.beginTransaction();
+			for(Customer customer : customers){
+				session.save(customer);
+			}
+			transaction.commit();
+		}catch(Exception exception){
+			logger.error("Error while bulk load of customers.", exception);
+			transaction.rollback();
+			throw exception;
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+	}
+	
+	@Override
+	public List<Customer> search(int resellerID, Map<String, Object> filterCriteria)throws Exception{
+		Session session = null;
+		List<Customer> customers = new ArrayList<Customer>();
+		try{
+			session = sessionFactory.openSession();
+			StringBuilder queryBuilder = new StringBuilder(
+					"SELECT * FROM (SELECT a.ID, a.NAME, a.DESCRIPTION, X.NAME BEAT_NAME, b.CITY, b.CONTACT_PERSON, b.PHONE_NO FROM ADDRESS b, CUSTOMER_ADDRESS c, CUSTOMER a LEFT JOIN (SELECT e.BEAT_ID, e.CUSTOMER_ID, d.NAME FROM BEAT_CUSTOMER e, BEAT d where d.ID=e.BEAT_ID) X on a.ID=X.CUSTOMER_ID WHERE c.ADDRESS_ID=b.ID AND b.ADDRESS_TYPE=1 AND a.ID=c.CUSTOMER_ID AND a.RESELLER_ID ="+ resellerID +") XYZ"
+							+ resellerID);
+			if(filterCriteria != null && filterCriteria.size() > 0){
+				queryBuilder.append(" WHERE ");
+				int index = 0;
+				for(Map.Entry<String, Object> entry : filterCriteria.entrySet()){
+					if(index != 0){
+						queryBuilder.append(" AND ");
+					}
+					String searchParam = entry.getKey();
+					Object searchVal = entry.getValue();
+					if(searchVal instanceof String ){
+						queryBuilder.append(searchParam+" LIKE '%"+searchVal+"%'");
+					}else if(searchVal instanceof Integer){
+						queryBuilder.append(searchParam+" = "+searchVal);
+					}
+				}
+			}
+			logger.debug(" search sql "+ queryBuilder.toString());
+			SQLQuery query = session.createSQLQuery(queryBuilder.toString());
+			List results = query.list();
+			for(Object obj : results){
+				Object[] objs = (Object[])obj;
+				Customer customer = new Customer();
+				customer.setCustomerID(Integer.parseInt(String.valueOf(objs[0])));
+				customer.setName(String.valueOf(objs[1]) != null ? String.valueOf(objs[1]) : "");
+				customer.setDescription(String.valueOf(objs[2]) != null ? String.valueOf(objs[2]) : "");
+				customer.setBeatName((String.valueOf(objs[3]) == null || String.valueOf(objs[3]).equals("null")) ? "" : String.valueOf(objs[3]) );
+				Address mainAdd = new Address();
+				mainAdd.setCity(String.valueOf(objs[4]) != null ? String.valueOf(objs[4]) : "");
+				mainAdd.setContactPerson(String.valueOf(objs[5]) != null ? String.valueOf(objs[5]) : "");
+				mainAdd.setPhoneNumber(String.valueOf(objs[6]) != null ? String.valueOf(objs[6]) : "");
+				List<Address> addressList = new ArrayList<Address>();
+				addressList.add(mainAdd);
+				customer.setAddress(addressList);
+				customers.add(customer);
+			}
+		}catch(Exception exception){
+			logger.error("Error while searching customers.", exception);
+			throw exception;
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		return customers;
+	}
+	
 	
 }

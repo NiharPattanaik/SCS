@@ -20,6 +20,7 @@ import org.springframework.stereotype.Repository;
 
 import com.sales.crm.model.Order;
 import com.sales.crm.model.OrderBookingSchedule;
+import com.sales.crm.model.OrderBookingStats;
 import com.sales.crm.model.OrderStatusEnum;
 
 @Repository("orderDAO")
@@ -130,14 +131,14 @@ public class OrderDAOImpl implements OrderDAO {
 	
 
 	@Override
-	public void unScheduleOrderBooking(List<Integer> customerID, Date visitDate) throws Exception{
+	public void unScheduleOrderBooking(int orderScheduleID) throws Exception{
 		Session session = null;
 		Transaction transaction = null;
 		try {
 			session = sessionFactory.openSession();
 			SQLQuery query = session.createSQLQuery(
-					"DELETE FROM ORDER_BOOKING_SCHEDULE WHERE CUSTOMER_ID IN (" +StringUtils.join(customerID, ",") +") AND VISIT_DATE = ?");
-			query.setParameter(0, visitDate);
+					"DELETE FROM ORDER_BOOKING_SCHEDULE WHERE ID = ?");
+			query.setParameter(0, orderScheduleID);
 			transaction = session.beginTransaction();
 			query.executeUpdate();
 			transaction.commit();
@@ -214,7 +215,137 @@ public class OrderDAOImpl implements OrderDAO {
 		}
 		return orders;
 	}
+
+	@Override
+	public OrderBookingStats getOrderBookingStats(int salesExecID, Date date) throws Exception{
+		Session session = null;
+		OrderBookingStats orderBookingStats = new OrderBookingStats();
+		try{
+			session = sessionFactory.openSession();
+			//all orders booked
+			SQLQuery allOrderBooking = session.createSQLQuery("SELECT b.NAME FROM ORDER_BOOKING_SCHEDULE a, CUSTOMER b WHERE a.CUSTOMER_ID=b.ID AND a.SALES_EXEC_ID= ? AND a.VISIT_DATE= ? GROUP BY b.ID");
+			allOrderBooking.setParameter(0, salesExecID);
+			allOrderBooking.setParameter(1, new java.sql.Date(date.getTime()));
+			List<String> allOrderBookedCustomers = allOrderBooking.list();
+			orderBookingStats.setTotalNoOfVisits(allOrderBookedCustomers.size());
+			orderBookingStats.setAllCustomersForVisit(allOrderBookedCustomers);
+			
+			//Order Booking completed
+			SQLQuery completedOrderBookingQuery = session.createSQLQuery("SELECT b.NAME FROM ORDER_BOOKING_SCHEDULE a, CUSTOMER b, ORDER_DETAILS c WHERE a.CUSTOMER_ID=b.ID AND a.ID=c.ORDER_BOOKING_ID  AND a.SALES_EXEC_ID= ? AND  a.VISIT_DATE= ? GROUP BY b.ID");
+			completedOrderBookingQuery.setParameter(0, salesExecID);
+			completedOrderBookingQuery.setParameter(1, new java.sql.Date(date.getTime()));
+			List<String> allOrderCompletedCustomers = completedOrderBookingQuery.list();
+			orderBookingStats.setNoOfVisitsCompleted(allOrderCompletedCustomers.size());
+			orderBookingStats.setCompletedCustomers(allOrderCompletedCustomers);
+			
+			//Order Booking Pending
+			SQLQuery pendingOrderBookingQuery = session.createSQLQuery("SELECT b.NAME FROM ORDER_BOOKING_SCHEDULE a, CUSTOMER b, ORDER_DETAILS c WHERE a.CUSTOMER_ID=b.ID AND a.SALES_EXEC_ID= ? AND a.VISIT_DATE= ? AND a.ID NOT IN (SELECT ORDER_BOOKING_ID FROM ORDER_DETAILS WHERE DATE_CREATED = ?)  GROUP BY b.ID");
+			pendingOrderBookingQuery.setParameter(0, salesExecID);
+			pendingOrderBookingQuery.setParameter(1, new java.sql.Date(date.getTime()));
+			pendingOrderBookingQuery.setParameter(2, new java.sql.Date(date.getTime()));
+			List<String> pendingOrderCustomers = pendingOrderBookingQuery.list();
+			orderBookingStats.setNoOfVisitsPending(pendingOrderCustomers.size());
+			orderBookingStats.setPendingCustomers(pendingOrderCustomers);
+					
+		}catch(Exception exception){
+			logger.error("Error while fetching order booking stats.", exception);
+			throw exception;
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		
+		return orderBookingStats;
+	}
+
+	@Override
+	public List<OrderBookingSchedule> getAllOrderBookedForDate(int resellerID, Date date) throws Exception{
+		Session session = null;
+		List<OrderBookingSchedule> orderSchedules = new ArrayList<OrderBookingSchedule>();
+		try{
+			session = sessionFactory.openSession();
+			SQLQuery query = session.createSQLQuery(
+					"SELECT a.ID, b.ID CUST_ID, b.NAME CUST_NAME, d.ID BEAT_ID, d.NAME BEAT_NAME, c.ID SALES_EXEC_ID, c.FIRST_NAME, c.LAST_NAME FROM ORDER_BOOKING_SCHEDULE a, CUSTOMER b, USER c, BEAT d WHERE a.CUSTOMER_ID=b.ID AND a.BEAT_ID = d.ID AND a.SALES_EXEC_ID = c.ID AND a.RESELLER_ID=b.RESELLER_ID AND a.RESELLER_ID=d.RESELLER_ID AND a.RESELLER_ID= ? AND a.VISIT_DATE = ? AND a.STATUS=1");
+			query.setParameter(0, resellerID);
+			query.setParameter(1, new java.sql.Date(date.getTime()));
+			List results = query.list();
+			for(Object obj : results){
+				Object[] objs = (Object[])obj;
+				OrderBookingSchedule orderBookingSchedule = new OrderBookingSchedule();
+				orderBookingSchedule.setBookingScheduleID(Integer.parseInt(String.valueOf(objs[0])));
+				orderBookingSchedule.setCustomerID(Integer.parseInt(String.valueOf(objs[1])));
+				orderBookingSchedule.setCustomerName(String.valueOf(objs[2]));
+				orderBookingSchedule.setBeatID(Integer.parseInt(String.valueOf(objs[3])));
+				orderBookingSchedule.setBeatName(String.valueOf(objs[4]));
+				orderBookingSchedule.setSalesExecutiveID(Integer.parseInt(String.valueOf(objs[5])));
+				orderBookingSchedule.setSalesExecName(String.valueOf(objs[6]) +" "+ String.valueOf(objs[7]));
+				orderSchedules.add(orderBookingSchedule);
+			}
+
+		}catch(Exception exception){
+			logger.error("Error while fetching scheduled order bookings for " + new SimpleDateFormat("dd-MM-yyyy").format(date) +".");
+			throw exception;
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		
+		return orderSchedules;
+	}
 	
+	
+	@Override
+	public List<OrderBookingSchedule> getOrdersBookingSchedules(int resellerID, int salesExecID, int beatID, Date date) throws Exception{
+		Session session = null;
+		List<OrderBookingSchedule> orderSchedules = new ArrayList<OrderBookingSchedule>();
+		try{
+			session = sessionFactory.openSession();
+			StringBuilder sqlBuilder = new StringBuilder("SELECT a.ID, b.ID CUST_ID, b.NAME CUST_NAME, d.ID BEAT_ID, d.NAME BEAT_NAME, c.ID SALES_EXEC_ID, c.FIRST_NAME, c.LAST_NAME FROM ORDER_BOOKING_SCHEDULE a, CUSTOMER b, USER c, BEAT d WHERE a.CUSTOMER_ID=b.ID AND a.BEAT_ID = d.ID AND a.SALES_EXEC_ID = c.ID AND a.RESELLER_ID=b.RESELLER_ID AND a.RESELLER_ID=d.RESELLER_ID AND a.STATUS=1");
+			//Add Reseller ID
+			sqlBuilder.append(" AND a.RESELLER_ID ="+ resellerID);
+			//Sales Exec Id
+			if(salesExecID > 0){
+				sqlBuilder.append(" AND a.SALES_EXEC_ID ="+ salesExecID);
+			}
+			//Beat Id
+			if(beatID > 0){
+				sqlBuilder.append(" AND a.BEAT_ID ="+ beatID);
+			}
+			//Visit Date
+			if(date != null){
+				sqlBuilder.append(" AND a.VISIT_DATE ='"+new SimpleDateFormat("yyyy-MM-dd").format(date)+"'");
+			}
+			
+			logger.debug(" getOrdersBookingSchedule sql "+ sqlBuilder.toString());
+			
+			SQLQuery query = session.createSQLQuery(sqlBuilder.toString());
+			List results = query.list();
+			for(Object obj : results){
+				Object[] objs = (Object[])obj;
+				OrderBookingSchedule orderBookingSchedule = new OrderBookingSchedule();
+				orderBookingSchedule.setBookingScheduleID(Integer.parseInt(String.valueOf(objs[0])));
+				orderBookingSchedule.setCustomerID(Integer.parseInt(String.valueOf(objs[1])));
+				orderBookingSchedule.setCustomerName(String.valueOf(objs[2]));
+				orderBookingSchedule.setBeatID(Integer.parseInt(String.valueOf(objs[3])));
+				orderBookingSchedule.setBeatName(String.valueOf(objs[4]));
+				orderBookingSchedule.setSalesExecutiveID(Integer.parseInt(String.valueOf(objs[5])));
+				orderBookingSchedule.setSalesExecName(String.valueOf(objs[6]) +" "+ String.valueOf(objs[7]));
+				orderSchedules.add(orderBookingSchedule);
+			}
+
+		}catch(Exception exception){
+			logger.error("Error while fetching scheduled order bookings for " + new SimpleDateFormat("dd-MM-yyyy").format(date) +".");
+			throw exception;
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		
+		return orderSchedules;
+	}
 	
 
 }

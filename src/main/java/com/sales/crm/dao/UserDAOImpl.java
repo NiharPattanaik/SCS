@@ -1,6 +1,9 @@
 package com.sales.crm.dao;
 
 import java.math.BigInteger;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,11 +20,13 @@ import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.jdbc.Work;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.sales.crm.model.Reseller;
 import com.sales.crm.model.Role;
+import com.sales.crm.model.SecurityQuestion;
 import com.sales.crm.model.User;
 
 @Repository("userDAO")
@@ -31,6 +36,8 @@ public class UserDAOImpl implements UserDAO {
 	private SessionFactory sessionFactory;
 	
 	private static Logger logger = Logger.getLogger(UserDAOImpl.class);
+	
+	private static List<SecurityQuestion> securityQuestions;
 	
 	private static SimpleDateFormat dbFormat = new SimpleDateFormat("yyyy-MM-dd");
 	
@@ -45,6 +52,9 @@ public class UserDAOImpl implements UserDAO {
 			//If user name is empty set that to null
 			if(user.getUserName() != null && user.getUserName().trim().isEmpty()){
 				user.setUserName(null);
+			}
+			if(user.getEmailID() != null && user.getEmailID().trim().isEmpty()){
+				user.setEmailID(null);
 			}
 			// save user
 			session.save(user);
@@ -401,11 +411,13 @@ public class UserDAOImpl implements UserDAO {
 				values[0] = 1;
 			}
 			//email
-			SQLQuery emailQuery = session.createSQLQuery("SELECT COUNT(*) FROM USER WHERE EMAIL_ID=? ");
-			emailQuery.setParameter(0, email);
-			List emailCounts = emailQuery.list();
-			if(emailCounts != null && emailCounts.size() == 1 && ((BigInteger)emailCounts.get(0)).intValue() == 1){
-				values[1] = 1;
+			if(email != null && !email.isEmpty()){
+				SQLQuery emailQuery = session.createSQLQuery("SELECT COUNT(*) FROM USER WHERE EMAIL_ID=? ");
+				emailQuery.setParameter(0, email);
+				List emailCounts = emailQuery.list();
+				if(emailCounts != null && emailCounts.size() == 1 && ((BigInteger)emailCounts.get(0)).intValue() == 1){
+					values[1] = 1;
+				}
 			}
 		}catch(Exception exception){
 			logger.error("Error while validating user credential", exception);
@@ -441,5 +453,64 @@ public class UserDAOImpl implements UserDAO {
 			}
 		}
 	}
+
+	@Override
+	public List<SecurityQuestion> getAllSecurityQuestions() {
+		if(securityQuestions != null && securityQuestions.size() > 0){
+			return securityQuestions;
+		}
+		Session session = null;
+		try{
+			session = sessionFactory.openSession();
+			Query query = session.createQuery("from SecurityQuestion");
+			securityQuestions = query.list();
+			return securityQuestions;
+		}catch(Exception exception){
+			exception.printStackTrace();
+		}
+		return new ArrayList<SecurityQuestion>();
+	}
+
+	@Override
+	public void updateFirstLoginPassword(final User user) {
+		Session session = null;
+		Transaction transaction = null;
+		try{
+			session = sessionFactory.openSession();
+			transaction = session.beginTransaction();
+			//insert security question answer
+			session.doWork(new Work() {
+				@Override
+				public void execute(Connection connection) throws SQLException {
+					PreparedStatement pstmt = null;
+					try {
+						String sqlInsert = "INSERT INTO USER_SECURITY_QUESTIONS (USER_ID, SECURITY_QUESTION_ID) VALUES (?, ?)";
+						pstmt = connection.prepareStatement(sqlInsert);
+						/**for (int i = 0; i < user.get i++) {
+							pstmt.setInt(1, beatID);
+							pstmt.setInt(2, customerIDs.get(i));
+							pstmt.addBatch();
+						}**/
+						pstmt.executeBatch();
+					} finally {
+						pstmt.close();
+					}
+				}
+			});
+		}catch(Exception exception){
+			logger.error("Error while updating password for first login.", exception);
+			if(transaction != null){
+				transaction.rollback();
+			}
+			throw exception;
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		
+	}
+	
+	
 
 }

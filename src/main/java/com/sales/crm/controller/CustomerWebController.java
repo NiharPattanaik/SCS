@@ -1,18 +1,25 @@
 package com.sales.crm.controller;
 
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -20,20 +27,27 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.sales.crm.dao.OrderDAOImpl;
+import com.sales.crm.exception.ErrorCodes;
 import com.sales.crm.model.Beat;
 import com.sales.crm.model.Customer;
+import com.sales.crm.model.FilterCriteria;
+import com.sales.crm.model.ReSTResponse;
 import com.sales.crm.model.SalesExecutive;
 import com.sales.crm.model.User;
 import com.sales.crm.service.BeatService;
 import com.sales.crm.service.CustomerService;
 import com.sales.crm.service.SalesExecService;
 import com.sales.crm.service.UserService;
+import com.sales.crm.util.CustomerXLSProcessor;
 
 @Controller
 @RequestMapping("/web/customerWeb")
@@ -54,6 +68,9 @@ public class CustomerWebController {
 	
 	@Autowired
 	HttpSession httpSession;
+	
+	private static Logger logger = Logger.getLogger(CustomerWebController.class);
+	
 	
 	@GetMapping(value="/{customerID}")
 	public ModelAndView get(@PathVariable int customerID){
@@ -121,28 +138,68 @@ public class CustomerWebController {
 	
 	@GetMapping(value="/list")
 	public ModelAndView list(){
-		List<Customer> customers = customerService.getResellerCustomers(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		List<Customer> customers = new ArrayList<Customer>();
+		try{
+			customers = customerService.search(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))), null);
+		}catch(Exception exception){
+			logger.error("Error while fetching customer list.");
+		}
 		return new ModelAndView("/customer_list","customers", customers);  
 	}
 	
-	@RequestMapping(value="/savefile",method=RequestMethod.POST)  
-	public ModelAndView upload(@RequestParam CommonsMultipartFile file,HttpSession session){  
-	        String path=session.getServletContext().getRealPath("/");  
-	        String filename=file.getOriginalFilename();  
-	          
-	        System.out.println(path+" "+filename);  
-	        try{  
-	        byte barr[]=file.getBytes();  
-	          
-	        BufferedOutputStream bout=new BufferedOutputStream(  
-	                 new FileOutputStream(path+"/"+filename));  
-	        bout.write(barr);  
-	        bout.flush();  
-	        bout.close();  
-	          
-	        }catch(Exception e){System.out.println(e);}  
-	        return new ModelAndView("upload-success","filename",path+"/"+filename);  
-	    }  
+	@PostMapping("/fileUpload")
+    public ModelAndView handleFileUpload(@RequestParam MultipartFile file) {
+		String msg = "";
+		Map<Integer, List<String>> errors = new HashMap<Integer, List<String>>();
+		try {
+			List<Customer> customers = CustomerXLSProcessor.processCustomerXLS(file.getInputStream(), errors, Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+			customerService.createCustomers(customers);
+		} catch (Exception e) {
+			msg = "Customers could not be successfully imported from excel file. Please try again after sometime and if error persists, contact System Administrator";
+		}
+		if(errors.size() > 0){
+			msg = constructHTMLMsg(errors);
+		}
+		return new ModelAndView("/customer_upload_conf","msg", msg);  
+    }
+	
+	@GetMapping("/downloadAddCustomerTemplate")
+	public void downloadCreateCustomerTemplate(HttpServletRequest request, HttpServletResponse response) {
+		try {
+			ClassLoader classLoader = getClass().getClassLoader();
+			File file = new File(classLoader.getResource("/template/customers_template.xlsx").getFile());
+			Path path = file.toPath();
+			if (Files.exists(path)) {
+				response.setContentType("application/pdf");
+				response.addHeader("Content-Disposition", "attachment; filename=" + file.getName());
+				Files.copy(path, response.getOutputStream());
+				response.getOutputStream().flush();
+			}
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
+
+	}
+	
+	private String constructHTMLMsg(Map<Integer, List<String>> errors){
+		
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append("<br>The records listed below are having errors and not processed. All other records which are not shown here are processed successfully."
+				+ " Please correct errorouns records and upload the excell again.<br><br>");
+		builder.append("<UL>");
+		for(Map.Entry<Integer, List<String>> entry : errors.entrySet()){
+			builder.append("<LI>Row No : "+entry.getKey()+"</LI><UL>");
+			for(String msg : entry.getValue()){
+				builder.append("<LI>"+msg+"</LI>");
+			}
+			builder.append("</UL>");
+		}
+		builder.append("</UL>");
+		
+		return builder.toString();
+	}
+
 	
 	@InitBinder
     public void initBinder(WebDataBinder webDataBinder) {

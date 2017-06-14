@@ -234,7 +234,7 @@ legend {
 			<div class="modal-content">
 				<div class="modal-header"><b>Order included for the delivery</b></div>
 				<div class="modal-body">
-					   <table class="table" id="myTable">
+					   <table class="table" id="modalTable">
 				            <thead>
 				                <tr>
 				                	<th>Order ID</th>
@@ -255,12 +255,12 @@ legend {
 				<script type="text/javascript">
 					var customerID;
 					$('#orders').on('show.bs.modal', function (e) {
-						$("#myTable > tbody").empty();
+						$("#modalTable > tbody").empty();
 						var datarows = $(e.relatedTarget).data('rows');
 						$.each( datarows, function( index, value ) {
 							customerID = value.customerID;
 							var row_data = "<tr><td>"+ value.orderID +"</td><td>"+ value.orderBookingID +"</td><td>"+ value.dateCreatedString +"</td><td>"+ value.noOfLineItems +"</td><td>"+ value.bookValue +"</td><td>"+ value.remark +"</td></tr>";
-							$("#myTable > tbody").append(row_data);
+							$("#modalTable > tbody").append(row_data);
 						});
 					});
 				</script>

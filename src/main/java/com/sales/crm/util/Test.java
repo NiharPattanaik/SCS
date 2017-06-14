@@ -1,5 +1,7 @@
 package com.sales.crm.util;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Properties;
 
 import javax.mail.Message;
@@ -13,6 +15,8 @@ import javax.mail.internet.MimeMessage;
 public class Test {
 
 	public static void main(String[] args) {
+		
+		/**
 
 		final String username = "nihar.less.sec@gmail.com";
 		final String password = "m1001636";
@@ -48,6 +52,10 @@ public class Test {
 		} catch (MessagingException e) {
 			throw new RuntimeException(e);
 		}
+		
+		**/
+		System.out.println(new SimpleDateFormat("SSS").format(new Date()) );
+		System.out.println("Nihar".substring(0, 3));
 	}
 	  
 }

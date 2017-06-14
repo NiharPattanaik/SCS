@@ -2,6 +2,7 @@ package com.sales.crm.dao;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.sales.crm.model.Customer;
 import com.sales.crm.model.CustomerOrder;
@@ -36,4 +37,8 @@ public interface CustomerDAO {
 	List<TrimmedCustomer> scheduledTrimmedCustomerslistForDeliveryToday(int delivExecID, Date visitDate);
 	
 	List<TrimmedCustomer> getCustomerForOTPVerification(int userID, int otpType);
+	
+	void createCustomers(List<Customer> customers) throws Exception;
+	
+	List<Customer> search(int resellerID, Map<String, Object> filterCriteria)throws Exception;
 }

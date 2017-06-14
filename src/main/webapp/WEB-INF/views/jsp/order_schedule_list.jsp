@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>    
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>    
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>   
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+ 
 <%@ page import="com.sales.crm.model.OrderBookingSchedule" %>
 <%@ page import="com.sales.crm.model.Beat" %>
 <%@ page import="com.sales.crm.model.TrimmedCustomer" %>
@@ -18,47 +20,46 @@
 	<script	src="<%=request.getContextPath()%>/resources/js/bootstrap-datepicker.js"></script>
 
 <style>
-    .dpHeaderWrap {
-        position: relative;
-        width: auto;
-        height: 80px;
-        background: #fff;
-        border-style: solid;
-        border-bottom-style: groove;
-        border-top-style: none;
-        border-left-style: none;
-        border-right-style: none;
-        margin: 10px;
-    }
-    
-    .top-height {
-        margin-top: 2%;
-    }
-    
-    .customer_list{
-    margin-bottom:20px;
-    }
-    .add_customer{
-    text-align:right;
-    margin-top:31px;
-    }
-    
-    .side_nav_btns{
-    
-    margin-top:10px;
-    }
-    
-    .side_nav_btns a{
-    text-decoration: none;
-    background: #337ab7;
-    padding: 11px;
-    border-radius: 12px;
-    color: #ffffff;
-    margin-top: 12px;
-    
-    }
-    
-    fieldset {
+.dpHeaderWrap {
+	position: relative;
+	width: auto;
+	height: 80px;
+	background: #fff;
+	border-style: solid;
+	border-bottom-style: groove;
+	border-top-style: none;
+	border-left-style: none;
+	border-right-style: none;
+	margin: 10px;
+}
+
+.top-height {
+	margin-top: 2%;
+}
+
+.customer_list {
+	margin-bottom: 20px;
+}
+
+.add_customer {
+	text-align: right;
+	margin-top: 31px;
+}
+
+.side_nav_btns {
+	margin-top: 10px;
+}
+
+.side_nav_btns a {
+	text-decoration: none;
+	background: #337ab7;
+	padding: 11px;
+	border-radius: 12px;
+	color: #ffffff;
+	margin-top: 12px;
+}
+
+fieldset {
 	border: 1px solid grey;
 	padding: 10px;
 	border-radius: 5px;
@@ -69,7 +70,26 @@ legend {
 	border-bottom: 0px !important;
 }
 
-    </style>
+table.table.table-striped thead {
+	background: #ddd;
+	padding: 10px 0 10px 0;
+}
+
+.table {
+	width: 100%;
+	max-width: 100%;
+	margin-bottom: 20px;
+	margin-top: 10px;
+	margin-left: 15px
+}
+
+.modal-custom-footer {
+    padding: 15px;
+    text-align: center;
+    border-top: 1px solid #e5e5e5;
+}
+
+</style>
 </head>
 
 <body>
@@ -95,42 +115,61 @@ legend {
 			</div>  
 				<div class="row top-height">
 		        	<div class="col-md-8 ">
-						<form:form modelAttribute="orderBookingSchedule" method="post"
-							action="/crm/web/orderWeb/unscheduleOrderBooking">
+						<form:form modelAttribute="orderBookingSchedule" class="form-horizontal">
 								<div class="form-group">
-									<label>Visit Date</label>
-									<form:input id="dp" name="visitDate" cssClass="dp form-control"
-										path="visitDate" />
+									<label class="col-sm-3">Visit Date</label>
+									<div class="col-sm-4">
+										<form:input id="dp" name="visitDate" cssClass="dp form-control"
+											path="visitDate" />
+									</div>		
 								</div>
 								<div class="form-group">
-										<label>Sales Executive</label>
-										<form:select path="salesExecutiveID" cssClass="form-control" id="sales_exec">
-										</form:select>
+										<label class="col-sm-3">Sales Executive</label>
+										<div class="col-sm-4">
+											<form:select path="salesExecutiveID" cssClass="form-control" id="sales_exec">
+												<option value="-1" label="--- Select Beat---" />
+											</form:select>
+										</div>
 								</div>
 								<div class="form-group">
-									<label>Beats</label>
-									<select class="form-control" id="beats">
-										<option value="-1" label="--- Select Beat---" />
-									</select>
+									<label class="col-sm-3">Beats</label>
+									<div class="col-sm-4">
+										<select class="form-control" id="beats">
+											<option value="-1" label="--- Select Beat---" />
+										</select>
+									</div>	
 								</div>
-								
+								<div>
+									<button type="button" class="btn btn-primary" id="search">Search</button>
+								</div>
 								<div id="customer-table">
-									<fieldset>
-										<legend>Customers</legend>
 										<div class="form-group">
-											<table class="table" id="myTable">
+											<table class="table table-striped" id="myTable">
 									            <thead>
 									                <tr>
 									                    <th>Customer Name</th>
-									                    <th>Select to Cancel Visit</th>
-									                    <th><button type="submit" class="btn btn-primary" id="cancel">Cancel Visits</button></th>
-									             	</tr>
+									                    <th>Beat</th>
+									                    <th>Sales Executive</th>
+									                    <th>Action</th>
+									                </tr>
 									            </thead>
 									            <tbody>
+									            	<c:if test="${fn:length(orderBookedSchedules) gt 0}">
+														<c:forEach var="orderBookedSchedule" items="${orderBookedSchedules}">  
+									               		 <tr>
+										                 	<td>${orderBookedSchedule.customerName}</td>
+										                    <td>${orderBookedSchedule.beatName}</td>
+										                    <td>${orderBookedSchedule.salesExecName}</td>
+										                    <td><a href="#" id="link" data-params=${orderBookedSchedule.bookingScheduleID}>Cancel</a></td>
+									                	</tr>
+									                	</c:forEach>
+													</c:if>
+													<c:if test="${fn:length(orderBookedSchedules) eq 0}">
+														<tr><td>No order booking is scheduled.</td><td></td><td></td><td></td></tr>
+													</c:if>
 									            </tbody>
 								        	</table>	
 										</div>
-									</fieldset>	
 								</div>
 						</form:form>
 					</div>
@@ -139,7 +178,9 @@ legend {
 		<script type="text/javascript">
 		//Sales Execs
 		$(document).ready(function() {
-			$('#customer-table').hide();
+			
+			$('#dp').datepicker({format: 'dd-mm-yyyy'});
+			
 			$('#dp').blur(function() {
 				if( $('#dp').val() ) {
 					$.ajax({ 
@@ -158,10 +199,8 @@ legend {
 					});
 				}
 			});
-		});
 		
-		//Beats
-		$(document).ready(function() {
+			//Beats
 			$('#sales_exec').change(function() {
 				$.ajax({ 
 					type : "GET",
@@ -178,41 +217,131 @@ legend {
 					}
 				});
 			});
-		});
 			
-			//Customer
-			$(document).ready(function() {
-				$('#beats').change(function() {
-					var isCusromerPresent = false;
-					$.ajax({
-							type : "GET",
-							url : "/crm/rest/salesExecReST/scheduledVisit/"+$('#sales_exec').val()+"/"+$('#dp').val()+"/"+$('#beats').val(),
-							dataType : "json",
-							success : function(data) {
-								$("#myTable > tbody").empty();
-								$.each(data,function(i,obj) {
-									isCusromerPresent = true;
-									var row_data = "<tr><td>"+ obj.customerName +"</td><td><input name=customerIDs id=customerIDs type=checkbox value="+obj.customerID+"></td></tr>";
-									$("#myTable > tbody").append(row_data);
-								});
-								//Show/Hide customer table
-								if(isCusromerPresent == true){
-									$('#customer-table').show();
-								}else{
-									$('#customer-table').hide();
-								}
-							}
-						});
-					});
+			$(document).on('click', "#link", function (e){
+				var dataFound = 0;
+				//Hack
+				var date = "-";
+				if($('#dp').val()){
+					date=$('#dp').val();
+				}
+				 $.ajax({
+						type : "GET",
+						url : "/crm/rest/orderReST/unscheduleOrderBooking/"+$(this).data('params'),
+						dataType : "json",
+						success : function(data) {
+							$("#successModal").modal('show');
+							$.ajax({
+								type : "GET",
+								url : "/crm/rest/orderReST/scheduledVisit/"+$('#sales_exec').val()+"/"+date+"/"+$('#beats').val(),
+								dataType : "json",
+								success : function(data) {
+									$("#myTable > tbody").empty();
+									var result = data.businessEntities;
+									$.each(result,function(i,obj) {
+										dataFound = 1;
+										var row_data = "<tr><td>"+obj.customerName+"</td><td>"+obj.beatName+"</td><td>"+obj.salesExecName+"</td><td><a href=# id=link data-params="+obj.bookingScheduleID+">Cancel</a></td></tr>";
+						                $("#myTable > tbody").append(row_data);
+									});
+									if(dataFound == 0){
+										var row_data = "<br>No order booking is scheduled.";
+										$("#myTable > tbody").append(row_data);
+									}
+								},
+								error: function(jq,status,message) {
+									$("#listModal").modal('show');
+						        }
+							});
+						},
+						error: function(jq,status,message) {
+							$("#errorModal").modal('show');
+				        }
 				});
+			}); 
 			
-			$('#dp').datepicker({format: 'dd-mm-yyyy'});
-			
-			//Cancel visits
-			$('#cancel').click(function(){
-				$('#myForm').submit();
+			//Search visits
+			$('#search').click(function(){
+				var dataFound = 0;
+				//Hack
+				var date = "-";
+				if($('#dp').val()){
+					date=$('#dp').val();
+				}
+				$.ajax({
+						type : "GET",
+						url : "/crm/rest/orderReST/scheduledVisit/"+$('#sales_exec').val()+"/"+date+"/"+$('#beats').val(),
+						dataType : "json",
+						success : function(data) {
+							$("#myTable > tbody").empty();
+							var result = data.businessEntities;
+							$.each(result,function(i,obj) {
+								dataFound = 1;
+								var row_data = "<tr><td>"+obj.customerName+"</td><td>"+obj.beatName+"</td><td>"+obj.salesExecName+"</td><td><a href=# id=link data-params="+obj.bookingScheduleID+">Cancel</a></td></tr>";
+				                $("#myTable > tbody").append(row_data);
+							});
+							if(dataFound == 0){
+								var row_data = "<br>No order booking is scheduled.";
+								 $("#myTable > tbody").append(row_data);
+							}
+						},
+						error: function(jq,status,message) {
+							$("#listModal").modal('show');
+				        }
+					});
 			});
 			
+		});
 		</script>
-	</body>
+
+	<div class="modal fade" id="successModal" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<b>Success</b>
+				</div>
+				<div class="modal-body">Scheduled order booking has been
+					successfully canceled.</div>
+				<div class="modal-custom-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="errorModal" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<b>Error !!</b>
+				</div>
+				<div class="modal-body">Scheduled order booking can't be
+					successfully canceled. Please try again after sometime, if error
+					persists contact System Administrator.</div>
+				<div class="modal-custom-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal fade" id="listModal" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<b>Error !!</b>
+				</div>
+				<div class="modal-body">Scheduled order booking list could not be fetched
+					successfully. Please try again after sometime, if error
+					persists contact System Administrator.</div>
+				<div class="modal-custom-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+</body>
 </html>

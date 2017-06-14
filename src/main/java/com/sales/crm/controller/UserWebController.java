@@ -29,11 +29,14 @@ import com.sales.crm.model.Customer;
 import com.sales.crm.model.ResourcePermissionEnum;
 import com.sales.crm.model.Role;
 import com.sales.crm.model.SalesExecutive;
+import com.sales.crm.model.SecurityQuestion;
 import com.sales.crm.model.User;
 import com.sales.crm.service.CustomerService;
 import com.sales.crm.service.RoleService;
 import com.sales.crm.service.SalesExecService;
 import com.sales.crm.service.UserService;
+import com.sales.crm.util.EmailUtil;
+import com.sales.crm.util.SMSUtil;
 
 @Controller
 @RequestMapping("/web/userWeb")
@@ -114,20 +117,49 @@ public class UserWebController {
 	@RequestMapping(value="/save",method = RequestMethod.POST)  
 	public ModelAndView create(@ModelAttribute("user") User user){
 		user.setResellerID(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
-		String msg = "";
+		String failMsg = "";
+		String succMsg = "User has been successfully created.";
 		int[] values = userService.isUserNameEmailIDPresent(user.getUserName(), user.getEmailID());
 		if(values[0] == 1){
-			msg = "User Name <b>"+ user.getUserName() + "</b> is already used. Please try with a different User Name.";  
+			failMsg = "User Name <b>"+ user.getUserName() + "</b> is already used. Please try with a different User Name.";  
 		}else if(values[1] == 1){
-			msg = "Email ID <b>"+ user.getEmailID() + "</b> is already used. Please try to provide a different email ID.";  
+			failMsg = "Email ID <b>"+ user.getEmailID() + "</b> is already used. Please try to provide a different email ID.";  
 		}else{
 			try{
+				String generatedPass = user.getUserName().substring(0, 3)+new SimpleDateFormat("SSS").format(new Date());
+				user.setPassword(generatedPass);
 				userService.createUser(user);
+				if(user.getPasswordMedium() == 2){
+					succMsg = "User has been successfully created.<br> Password generated for the user is <b>"+generatedPass+"</b>.";
+				}else if(user.getPasswordMedium() == 3){
+					String msg = "Dear " + user.getFirstName() + " " + user.getLastName()
+							+ " \n you are successfully on-boarded to the system. Please find the login details below. \n\n\n user name: "
+							+ user.getUserName() + "\n Password: " + generatedPass + "\n\n\n Regards, \n Team";
+					;
+					if(EmailUtil.sendMail(user.getEmailID(), "New User Created", msg)){
+						succMsg = "User has been successfully created and the login details has been sent to user's "+ user.getEmailID() +" email id.";
+					}else{
+						failMsg = "User has been successfully created, however the login details could not be sent to user's "+ user.getEmailID() +" email id. Please contact System Administrator. ";
+					}
+				}else if(user.getPasswordMedium() == 4){
+					String msg = "Dear " + user.getFirstName() + " " + user.getLastName()
+							+ " \n you are successfully on-boarded to the system. Please find the login details below. \n\n\n user name: "
+							+ user.getUserName() + "\n Password: " + generatedPass + "\n\n\n Regards, \n Team";
+					;
+					if(SMSUtil.sendSms(user.getMobileNo(), msg)){
+						succMsg = "User has been successfully created and the login details has been sent to user's mobile.";
+					}else{
+						failMsg = "User has been successfully created, however the login details could not be sent to user's mobile. Please contact System Administrator. ";
+					}
+				}
 			}catch(Exception exception){
-				msg = "User could be created successfully, please contact System Administrator.";
+				failMsg = "User could be created successfully, please contact System Administrator.";
 			}
 		}
-		return new ModelAndView("/create_user_conf", "msg", msg);
+		Map<String, String> modelMap = new HashMap<String, String>();
+		modelMap.put("succMsg", succMsg);
+		modelMap.put("failMsg", failMsg);
+		return new ModelAndView("/create_user_conf", modelMap);
 	}
 	
 	@RequestMapping(value="/update",method = RequestMethod.POST) 
@@ -171,6 +203,14 @@ public class UserWebController {
 		List<Integer> resourcePermIDs;
 		try{
 			user = userService.getUser(userName);
+			if(user.getLoggedIn() == 0){
+				List<SecurityQuestion> secQues = userService.getAllSecurityQuestions();
+				Map<String, Object> modelMap = new HashMap<String, Object>();
+				modelMap.put("user", user);
+				modelMap.put("secQues", secQues);
+				httpSession.setAttribute("userFullName", user.getFirstName() + " " + user.getLastName());
+				return new ModelAndView("/change_password_first_time", modelMap);
+			}
 			resourcePermIDs = roleService.getRoleResourcePermissionIDs(user);
 		}catch(Exception exception){
 			Map<String, Object> modelMap = new HashMap<String, Object>();

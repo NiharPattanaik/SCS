@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import com.sales.crm.dao.UserDAO;
 import com.sales.crm.model.Reseller;
 import com.sales.crm.model.SalesExecutive;
+import com.sales.crm.model.SecurityQuestion;
 import com.sales.crm.model.User;
 
 @Service("userService")
@@ -55,6 +56,14 @@ public class UserService {
 	
 	public void updatePassword(User user) throws Exception{
 		userDAO.updatePassword(user);
+	}
+	
+	public List<SecurityQuestion> getAllSecurityQuestions(){
+		return userDAO.getAllSecurityQuestions();
+	}
+	
+	public void updateFirstLoginPassword(User user){
+		userDAO.updateFirstLoginPassword(user);
 	}
 	
 }

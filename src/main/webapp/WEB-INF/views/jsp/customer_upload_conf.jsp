@@ -8,7 +8,7 @@
 <html lang="en">
 
 <head>
-<title>Create User</title>
+<title>Customers Upload Confirmation</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
@@ -78,20 +78,19 @@
 					<br>
 					<br>
 					<c:choose>
-    					<c:when test="${fn:length(failMsg) gt 0}">
+    					<c:when test="${fn:length(msg) gt 0}">
        						<div class="alert alert-danger">
-	 						 <strong>Error!</strong><br> ${failMsg}
+	 						 <strong>Error!</strong><br> ${msg}
 						</div>
     					</c:when>    
     					<c:otherwise>
         					<div class="alert alert-success">
-	 						 <strong>Success!</strong><br> ${succMsg}
+	 						 <strong>Success!</strong><br> All customers are successfully imported to the system.
 						</div>
     					</c:otherwise>
 					</c:choose>
 					<div class="form_submit">
-						<a href="<%=request.getContextPath()%>/web/userWeb/list" class="btn btn-primary">View List Of Users</a>
-						<a href="<%=request.getContextPath()%>/web/userWeb/createUserForm" class="btn btn-primary">Create Another User</a>
+						<a href="<%=request.getContextPath()%>/web/customerWeb/list" class="btn btn-primary">View List Of Customers</a>
 					</div>
 			</div>
 		</div>

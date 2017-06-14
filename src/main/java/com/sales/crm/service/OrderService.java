@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.sales.crm.dao.OrderDAO;
 import com.sales.crm.model.Order;
 import com.sales.crm.model.OrderBookingSchedule;
+import com.sales.crm.model.OrderBookingStats;
 
 @Service("orderService")
 public class OrderService {
@@ -34,12 +35,24 @@ public class OrderService {
 		return orderDAO.alreadyOrderBookingScheduledCustomer( orderBookingSchedule);
 	}
 	
-	public void unScheduleOrderBooking(List<Integer> customerIDs, Date visitDate) throws Exception{
-		orderDAO.unScheduleOrderBooking(customerIDs, visitDate);
+	public void unScheduleOrderBooking(int orderScheduleID) throws Exception{
+		orderDAO.unScheduleOrderBooking(orderScheduleID);
 	}
 	
 	public List<Order> getOrders(int resellerID) throws Exception{
 		return orderDAO.getOrders(resellerID);
+	}
+	
+	public OrderBookingStats getOrderBookingStats(int salesExecID, Date date) throws Exception{
+		return orderDAO.getOrderBookingStats(salesExecID, date);
+	}
+	
+	public List<OrderBookingSchedule> getAllOrderBookedForToday(int resellerID) throws Exception{
+		return orderDAO.getAllOrderBookedForDate(resellerID, new Date());
+	}
+	
+	public List<OrderBookingSchedule> getOrdersBookingSchedules(int resellerID, int salesExecID, int beatID, Date date) throws Exception{
+		return orderDAO.getOrdersBookingSchedules(resellerID, salesExecID, beatID, date);
 	}
 
 }

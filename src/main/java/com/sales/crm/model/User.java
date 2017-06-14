@@ -5,16 +5,11 @@ import java.util.Set;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -57,6 +52,9 @@ public class User extends BusinessEntity{
 	@Column(name = "STATUS")
 	private int status;
 	
+	@Column(name= "LOGGED_IN")
+	private int loggedIn;
+	
 	@Transient
 	private List<Role> roles;
 	
@@ -71,6 +69,15 @@ public class User extends BusinessEntity{
 	
 	@Transient
 	private String newPassword;
+	
+	@Transient
+	private int passwordMedium;
+	
+	@Transient
+	private List<SecurityQuestion> securityQuestions;
+	
+	@Transient
+	private List<String> secQuestionAnsws;
 
 	public int getUserID() {
 		return userID;
@@ -182,6 +189,39 @@ public class User extends BusinessEntity{
 
 	public void setNewPassword(String newPassword) {
 		this.newPassword = newPassword;
+	}
+	
+	public int getPasswordMedium() {
+		return passwordMedium;
+	}
+
+	public void setPasswordMedium(int passwordMedium) {
+		this.passwordMedium = passwordMedium;
+	}
+	
+	public List<SecurityQuestion> getSecurityQuestions() {
+		return securityQuestions;
+	}
+
+	public void setSecurityQuestions(List<SecurityQuestion> securityQuestions) {
+		this.securityQuestions = securityQuestions;
+	}
+	
+	public int getLoggedIn() {
+		return loggedIn;
+	}
+
+	public void setLoggedIn(int loggedIn) {
+		this.loggedIn = loggedIn;
+	}
+
+	
+	public List<String> getSecQuestionAnsws() {
+		return secQuestionAnsws;
+	}
+
+	public void setSecQuestionAnsws(List<String> secQuestionAnsws) {
+		this.secQuestionAnsws = secQuestionAnsws;
 	}
 
 	@Override

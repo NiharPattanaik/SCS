@@ -17,6 +17,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -42,11 +43,14 @@ public class OrderWebController {
 	HttpSession httpSession;
 	
 	@GetMapping(value="/scheduledOrderBookings")
-	public ModelAndView getScheduledOrderBookingList(){
-		List<SalesExecutive> salesExecs = salesExecService.getSalesExecMapsBeatsCustomers(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+	public ModelAndView getScheduledOrderBookingList() throws Exception{
+		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
+		List<SalesExecutive> salesExecs = salesExecService.getSalesExecMapsBeatsCustomers(resellerID);
+		List<OrderBookingSchedule> orderBookingSchedules = orderService.getAllOrderBookedForToday(resellerID);
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		modelMap.put("salesExecs", salesExecs);
 		modelMap.put("orderBookingSchedule", new OrderBookingSchedule());
+		modelMap.put("orderBookedSchedules", orderBookingSchedules);
 		return new ModelAndView("/order_schedule_list", modelMap);
 	}
 
@@ -75,16 +79,26 @@ public class OrderWebController {
 		return new ModelAndView("/order_booking_schedule_conf", "msg", msg);
 	}
 	
-	@PostMapping(value="/unscheduleOrderBooking") 
-	public ModelAndView unscheduleOrderBooking(@ModelAttribute("orderBookingSchedule") OrderBookingSchedule orderBookingSchedule){
+	/**
+	@GetMapping(value="/unscheduleOrderBooking/{customerID}/{visitDateStr}") 
+	public ModelAndView unscheduleOrderBooking(@PathVariable("customerID") int customerID, @PathVariable("visitDateStr") String visitDateStr){
 		String msg = "";
 		try{
-			orderService.unScheduleOrderBooking(orderBookingSchedule.getCustomerIDs(), orderBookingSchedule.getVisitDate());
+			Date visitDate;
+			if(visitDateStr == null || visitDateStr.trim().isEmpty()){
+				visitDate = new Date();
+			}else{
+				visitDate = new SimpleDateFormat("dd-MM-yyyy").parse(visitDateStr);
+			}
+			ArrayList<Integer> customerIDs = new ArrayList<Integer>();
+			customerIDs.add(customerID);
+			orderService.unScheduleOrderBooking(customerIDs, visitDate);
 		}catch(Exception exception){
 			msg = "Customer visits could not be cancelled successfully. Please try after sometine and if error persists contact System Administrator.";
 		}
 		return new ModelAndView("/scheduled_order_cancel_conf", "msg", msg);
 	}
+	**/
 	
 	@GetMapping(value="/scheduleOrderBookingForm")
 	public ModelAndView getScheduleOrderBookingForm(){

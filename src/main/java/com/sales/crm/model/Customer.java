@@ -32,31 +32,34 @@ public class Customer extends BusinessEntity{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID", unique = true, nullable = false)
-	int customerID;
+	private int customerID;
 	
 	@Column(name = "RESELLER_ID")
-	int resellerID;
+	private int resellerID;
 	
 	@Column(name = "NAME")
-	String name;
+	private String name;
 	
 	@Column(name = "DESCRIPTION")
-	String description;
+	private String description;
 	
 	@Column(name = "VISIT_DATE")
-	Date visitDate;
+	private Date visitDate;
 	
 	@OneToMany(orphanRemoval=true, cascade=CascadeType.ALL, fetch=FetchType.EAGER)
-	List<Address> address;
+	private List<Address> address;
 	
 	@Transient
-	int salesExecID;
+	private int salesExecID;
 	
 	@Transient
-	String salesExecName;
+	private String salesExecName;
 	
 	@Transient
-	int beatID = -1;
+	private int beatID = -1;
+	
+	@Transient
+	private String beatName;
 	
 	public int getCustomerID() {
 		return customerID;
@@ -111,6 +114,13 @@ public class Customer extends BusinessEntity{
 	}
 	public void setBeatID(int beatID) {
 		this.beatID = beatID;
+	}
+	
+	public String getBeatName() {
+		return beatName;
+	}
+	public void setBeatName(String beatName) {
+		this.beatName = beatName;
 	}
 	@Override
 	public String toString() {

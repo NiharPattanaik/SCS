@@ -464,6 +464,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 		List<TrimmedCustomer> trimmedCustomers = new ArrayList<TrimmedCustomer>();
 		try {
 			session = sessionFactory.openSession();
+			StringBuilder builder = new StringBuilder("SELECT b.ID CUST_ID, b.NAME CUST_NAME, d.NAME BEAT_NAME, c.FIRST_NAME, c.LAST_NAME FROM ORDER_BOOKING_SCHEDULE a, CUSTOMER b, USER c, BEAT d WHERE a.CUSTOMER_ID=b.ID AND a.BEAT_ID = d.ID AND a.SALES_EXEC_ID = c.ID AND a.RESELLER_ID=b.RESELLER_ID AND a.RESELLER_ID=d.RESELLER_ID AND a.RESELLER_ID=13 AND a.VISIT_DATE = '2017-06-12' AND a.STATUS=1;");
 			SQLQuery query = session.createSQLQuery(
 					"SELECT a.ID, a.NAME FROM CUSTOMER a, ORDER_BOOKING_SCHEDULE b WHERE a.ID=b.CUSTOMER_ID AND b.SALES_EXEC_ID= ? AND b.VISIT_DATE= ? AND b.BEAT_ID= ? group by a.ID");
 			query.setParameter(0, salesExecID);

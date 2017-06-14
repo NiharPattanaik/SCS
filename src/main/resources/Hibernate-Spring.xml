@@ -38,6 +38,7 @@
 				<value>com.sales.crm.model.Beat</value>
 				<value>com.sales.crm.model.CustomerOTP</value>
 				<value>com.sales.crm.model.Order</value>
+				<value>com.sales.crm.model.SecurityQuestion</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">
