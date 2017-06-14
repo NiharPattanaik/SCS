@@ -203,6 +203,7 @@ public class UserWebController {
 		List<Integer> resourcePermIDs;
 		try{
 			user = userService.getUser(userName);
+			/**
 			if(user.getLoggedIn() == 0){
 				List<SecurityQuestion> secQues = userService.getAllSecurityQuestions();
 				Map<String, Object> modelMap = new HashMap<String, Object>();
@@ -211,6 +212,7 @@ public class UserWebController {
 				httpSession.setAttribute("userFullName", user.getFirstName() + " " + user.getLastName());
 				return new ModelAndView("/change_password_first_time", modelMap);
 			}
+			**/
 			resourcePermIDs = roleService.getRoleResourcePermissionIDs(user);
 		}catch(Exception exception){
 			Map<String, Object> modelMap = new HashMap<String, Object>();
