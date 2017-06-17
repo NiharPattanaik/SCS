@@ -221,7 +221,7 @@ public class RoleDAOImpl implements RoleDAO {
 	}
 
 	@Override
-	public void saveRoleResourcePermission(final List<ResourcePermission> resourcePermissions) throws Exception {
+	public void saveRoleResourcePermission(final List<ResourcePermission> resourcePermissions, int roleID, int resellerID) throws Exception {
 		Session session = null;
 		Transaction transaction = null;
 		try {
@@ -229,8 +229,8 @@ public class RoleDAOImpl implements RoleDAO {
 			transaction = session.beginTransaction();
 			//Delete resourcepermissions
 			SQLQuery deleteResPermQry = session.createSQLQuery("DELETE FROM ROLE_RESOURCE_PERMISSION WHERE ROLE_ID= ? AND RESELLER_ID = ?");
-			deleteResPermQry.setParameter(0, resourcePermissions.get(0).getRoleID());
-			deleteResPermQry.setParameter(1, resourcePermissions.get(0).getResellerID());
+			deleteResPermQry.setParameter(0, roleID);
+			deleteResPermQry.setParameter(1, resellerID);
 			deleteResPermQry.executeUpdate();
 			// get Connction from Session
 			session.doWork(new Work() {

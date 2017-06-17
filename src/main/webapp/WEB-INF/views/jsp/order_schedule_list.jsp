@@ -140,7 +140,7 @@ table.table.table-striped thead {
 									</div>	
 								</div>
 								<div>
-									<button type="button" class="btn btn-primary" id="search">Search</button>
+									<button type="button" class="btn btn-primary" id="search" disabled>Search</button>
 								</div>
 								<div id="customer-table">
 										<div class="form-group">
@@ -183,6 +183,7 @@ table.table.table-striped thead {
 			
 			$('#dp').blur(function() {
 				if( $('#dp').val() ) {
+					$('#search').prop('disabled', false);
 					$.ajax({ 
 						type : "GET",
 						url : "/crm/rest/salesExecReST/list/"+$('#dp').val(),
@@ -197,6 +198,8 @@ table.table.table-striped thead {
 							});
 						}
 					});
+				}else{
+					$('#search').prop('disabled', true);
 				}
 			});
 		

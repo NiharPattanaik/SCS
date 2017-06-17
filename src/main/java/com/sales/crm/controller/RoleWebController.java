@@ -150,7 +150,7 @@ public class RoleWebController {
 	    	resourcePermissions.add(resourcePermission);
 	    }
 	    try{
-	    	roleService.saveRoleResourcePermission(resourcePermissions);
+	    	roleService.saveRoleResourcePermission(resourcePermissions, resPermWebModel.getRoleID(), resPermWebModel.getResellerID());
 	    }catch(Exception exception){
 	    	msg = "Previleges could not be updated successfully. Please re-try after sometime and if error persists, contact system administrator. ";
 	    }

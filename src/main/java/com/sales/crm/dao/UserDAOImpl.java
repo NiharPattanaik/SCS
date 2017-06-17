@@ -436,9 +436,22 @@ public class UserDAOImpl implements UserDAO {
 		try{
 			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
-			SQLQuery userQuery = session.createSQLQuery("UPDATE USER SET PASSWORD=? WHERE ID= ?");
+			SQLQuery userQuery = session.createSQLQuery("UPDATE USER SET PASSWORD=?, LOGGED_IN=? WHERE ID= ?");
 			userQuery.setParameter(0, user.getNewPassword());
-			userQuery.setParameter(1,  user.getUserID());
+			userQuery.setParameter(1,  user.getLoggedIn());
+			userQuery.setParameter(2, user.getUserID());
+			if( user.getSecQuestionAnsws() != null &&
+					user.getSecQuestionAnsws().size() > 0){
+				SQLQuery secQuery = session.createSQLQuery("INSERT INTO USER_SECURITY_QUESTIONS (USER_ID, SECURITY_QUESTION_ID, ANSWER) VALUES (?, ?, ?)");
+				int index = 0;
+				for(SecurityQuestion question : user.getSecurityQuestions()){
+					secQuery.setParameter(0, user.getUserID());
+					secQuery.setParameter(1,question.getId());
+					secQuery.setParameter(2, user.getSecQuestionAnsws().get(index));
+					secQuery.executeUpdate();
+					++index;
+				}
+			}
 			userQuery.executeUpdate();
 			transaction.commit();
 		}catch(Exception exception){

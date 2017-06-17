@@ -1,11 +1,8 @@
 package com.sales.crm.util;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +12,6 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.stereotype.Component;
 
 import com.sales.crm.model.Address;
 import com.sales.crm.model.Customer;
@@ -34,14 +30,17 @@ public class CustomerXLSProcessor {
 			XSSFSheet mySheet = myWorkBook.getSheetAt(0);
 			// Get iterator to all the rows in current sheet
 			Iterator<Row> rowIterator = mySheet.iterator();
-			test:while (rowIterator.hasNext()) {
+			row:while (rowIterator.hasNext()) {
+				Row row = rowIterator.next();
+				if(row.getRowNum() < 2){
+					continue row;
+				}
 				Customer customer = new Customer();
 				Address mainAddress = new Address();
 				mainAddress.setAddrressType(1);
 				Address billingAddress = new Address();
 				billingAddress.setAddrressType(2);
 				List<Address> addresses = new ArrayList<Address>();
-				Row row = rowIterator.next();
 				List<String> errorMsgs = new ArrayList<String>();
 				boolean hasErrors = false;
 				for (int i = 1; i < 27; i++) {
@@ -51,9 +50,7 @@ public class CustomerXLSProcessor {
 						if (cell == null || cell.getStringCellValue().trim().isEmpty()) {
 							errorMsgs.add("Customer name is required.");
 							hasErrors = true;
-						} else if(cell.getStringCellValue().trim().equalsIgnoreCase("Customer Name")){
-							continue test;
-						}else {
+						} else {
 							customer.setName(cell.getStringCellValue());
 						}
 						break;
@@ -63,8 +60,6 @@ public class CustomerXLSProcessor {
 						}
 						break;
 					case 3:
-						break;
-					case 4:
 						if (cell == null || cell.getStringCellValue().trim().isEmpty()) {
 							errorMsgs.add("Main Address Contact Person is required.");
 							hasErrors = true;
@@ -72,7 +67,7 @@ public class CustomerXLSProcessor {
 							mainAddress.setContactPerson(cell.getStringCellValue());
 						}
 						break;
-					case 5:
+					case 4:
 						if (cell == null || cell.getStringCellValue().trim().isEmpty()) {
 							errorMsgs.add("Main Address, Address Line1 is required.");
 							hasErrors = true;
@@ -80,17 +75,17 @@ public class CustomerXLSProcessor {
 							mainAddress.setAddressLine1(cell.getStringCellValue());
 						}
 						break;
-					case 6:
+					case 5:
 						if(cell != null){
 							mainAddress.setAddressLine2(cell.getStringCellValue());
 						}
 						break;
-					case 7:
+					case 6:
 						if(cell != null){
 							mainAddress.setStreet(cell.getStringCellValue());
 						}
 						break;
-					case 8:
+					case 7:
 						if (cell == null || cell.getStringCellValue().trim().isEmpty()) {
 							errorMsgs.add("Main Address City is required.");
 							hasErrors = true;
@@ -98,7 +93,7 @@ public class CustomerXLSProcessor {
 							mainAddress.setCity(cell.getStringCellValue());
 						}
 						break;
-					case 9:
+					case 8:
 						if (cell == null || cell.getStringCellValue().trim().isEmpty()) {
 							errorMsgs.add("Main Address State is required.");
 							hasErrors = true;
@@ -106,7 +101,7 @@ public class CustomerXLSProcessor {
 							mainAddress.setState(cell.getStringCellValue());
 						}
 						break;
-					case 10:
+					case 9:
 						if (cell == null || cell.getStringCellValue().trim().isEmpty()) {
 							errorMsgs.add("Main Address Country is required.");
 							hasErrors = true;
@@ -114,7 +109,8 @@ public class CustomerXLSProcessor {
 							mainAddress.setCountry(cell.getStringCellValue());
 						}
 						break;
-					case 11:
+					case 10:
+						cell.setCellType(Cell.CELL_TYPE_STRING);
 						if (cell == null || cell.getStringCellValue().trim().isEmpty()) {
 							errorMsgs.add("Main Address Postal Code is required.");
 							hasErrors = true;
@@ -122,12 +118,14 @@ public class CustomerXLSProcessor {
 							mainAddress.setPostalCode(cell.getStringCellValue());
 						}
 						break;
-					case 12:
+					case 11:
+						cell.setCellType(Cell.CELL_TYPE_STRING);
 						if(cell != null){
 							mainAddress.setPhoneNumber(cell.getStringCellValue());
 						}
 						break;
-					case 13:
+					case 12:
+						cell.setCellType(Cell.CELL_TYPE_STRING);
 						if (cell == null || cell.getStringCellValue().trim().isEmpty()) {
 							errorMsgs.add("Main Address Primary Mobile Number is required.");
 							hasErrors = true;
@@ -135,64 +133,67 @@ public class CustomerXLSProcessor {
 							mainAddress.setMobileNumberPrimary(cell.getStringCellValue());
 						}
 						break;
-					case 14:
+					case 13:
+						cell.setCellType(Cell.CELL_TYPE_STRING);
 						if(cell != null){
 							mainAddress.setMobileNumberSecondary(cell.getStringCellValue());
 						}
 						break;
-					case 15:
-						break;
-					case 16:
+					case 14:
 						if(cell != null){
 							billingAddress.setContactPerson(cell.getStringCellValue());
 						}
 						break;
-					case 17:
+					case 15:
 						if(cell != null){
 							billingAddress.setAddressLine1(cell.getStringCellValue());
 						}
 						break;
-					case 18:
+					case 16:
 						if(cell != null){
 							billingAddress.setAddressLine2(cell.getStringCellValue());
 						}
 						break;
-					case 19:
+					case 17:
 						if(cell != null){
 							billingAddress.setStreet(cell.getStringCellValue());
 						}
 						break;
-					case 20:
+					case 28:
 						if(cell != null){
 							billingAddress.setCity(cell.getStringCellValue());
 						}
 						break;
-					case 21:
+					case 19:
 						if(cell != null){
 							billingAddress.setState(cell.getStringCellValue());
 						}
 						break;
-					case 22:
+					case 20:
 						if(cell != null){
 							billingAddress.setCountry(cell.getStringCellValue());
 						}
 						break;
-					case 23:
+					case 21:
+						cell.setCellType(Cell.CELL_TYPE_STRING);
 						if(cell != null){
 							billingAddress.setPostalCode(cell.getStringCellValue());
 						}
 						break;
-					case 24:
+					case 22:
+						cell.setCellType(Cell.CELL_TYPE_STRING);
 						if(cell != null){
 							billingAddress.setPhoneNumber(cell.getStringCellValue());
 						}
 						break;
-					case 25:
+					case 23:
+						cell.setCellType(Cell.CELL_TYPE_STRING);
 						if(cell != null){
 							billingAddress.setMobileNumberPrimary(cell.getStringCellValue());
 						}
 						break;
-					case 26:
+					case 24:
+						cell.setCellType(Cell.CELL_TYPE_STRING);
 						if(cell != null){
 							billingAddress.setMobileNumberSecondary(cell.getStringCellValue());
 						}

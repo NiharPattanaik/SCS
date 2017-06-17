@@ -441,7 +441,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME, c.ID order_booking_id FROM CUSTOMER a, CUSTOMER_OTP b, ORDER_BOOKING_SCHEDULE c WHERE a.ID=b.CUSTOMER_ID AND a.ID=c.CUSTOMER_ID AND b.FIELD_EXEC_ID = ? AND B.OTP_TYPE= ? AND b.SUBMITTED_OTP IS NULL AND DATE(b.GENERATED_DATE_TIME) = CURDATE() AND c.VISIT_DATE = CURDATE()");
+			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME, c.ID order_booking_id FROM CUSTOMER a, CUSTOMER_OTP b, ORDER_BOOKING_SCHEDULE c WHERE a.ID=b.CUSTOMER_ID AND a.ID=c.CUSTOMER_ID AND b.FIELD_EXEC_ID = ? AND b.OTP_TYPE= ? AND b.SUBMITTED_OTP IS NULL AND DATE(b.GENERATED_DATE_TIME) = CURDATE() AND c.VISIT_DATE = CURDATE()");
 			query.setParameter( 0, userID);
 			query.setParameter(1, otpType);
 			List results = query.list();

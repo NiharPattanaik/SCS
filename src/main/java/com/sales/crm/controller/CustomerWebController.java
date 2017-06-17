@@ -18,8 +18,6 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -28,19 +26,14 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.sales.crm.dao.OrderDAOImpl;
-import com.sales.crm.exception.ErrorCodes;
 import com.sales.crm.model.Beat;
 import com.sales.crm.model.Customer;
-import com.sales.crm.model.FilterCriteria;
-import com.sales.crm.model.ReSTResponse;
 import com.sales.crm.model.SalesExecutive;
 import com.sales.crm.model.User;
 import com.sales.crm.service.BeatService;
@@ -170,7 +163,7 @@ public class CustomerWebController {
 			File file = new File(classLoader.getResource("/template/customers_template.xlsx").getFile());
 			Path path = file.toPath();
 			if (Files.exists(path)) {
-				response.setContentType("application/pdf");
+				response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 				response.addHeader("Content-Disposition", "attachment; filename=" + file.getName());
 				Files.copy(path, response.getOutputStream());
 				response.getOutputStream().flush();

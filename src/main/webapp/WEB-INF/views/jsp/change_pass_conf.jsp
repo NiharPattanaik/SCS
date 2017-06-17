@@ -72,7 +72,23 @@
 	<!-- Header -->
 	<div class="container">
 		<!-- Links -->
-		<%@ include file="menus.jsp" %>
+		<div class="container">
+		<nav class="navbar navbar-inverse">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="#"></a>
+				</div>
+				<ul class="nav navbar-nav navbar-right ">
+					<li class="dropdown">
+        				<a class="dropdown-toggle" data-toggle="dropdown" href="#"><%= (String)session.getAttribute("userFullName") %> <span class="glyphicon glyphicon-user"></span></a>
+	      				<ul class="dropdown-menu">
+				          	<li><a href="<%=request.getContextPath()%>/logout">logout</a></li>
+	      				</ul>
+      				</li>	
+					
+				</ul>
+			</div>
+		</nav>
 		<div class="row top-height">
 			<div class="col-md-8 ">
 					<br>
@@ -85,13 +101,10 @@
     					</c:when>    
     					<c:otherwise>
         					<div class="alert alert-success">
-	 						 <strong>Success!</strong><br> Password has been successfully changed.
+	 						 <strong>Success!</strong><br> Password has been successfully changed. Please log out and login again with new password.
 						</div>
     					</c:otherwise>
 					</c:choose>
-					<div class="form_submit">
-						<a href="<%=request.getContextPath()%>/web/userWeb/account/<%= ((User)session.getAttribute("user")).getUserID() %>" class="btn btn-primary">Back To Account Details</a>
-					</div>
 			</div>
 		</div>
 	</div>

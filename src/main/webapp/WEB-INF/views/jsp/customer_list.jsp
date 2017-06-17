@@ -110,7 +110,7 @@
 		<form id="searchForm">
 			<div class="col-md-2" style="padding-right: 1px;">
 				<select id="searchParam" name="searchBy" class="form-control">
-					<option value="-1" label="-Search By-"></option>
+					<option value="" label="-Search By-"></option>
 					<option value="ID">Customer ID</option>
 					<option value="Name">Name</option>
 					<option value="City">City</option>
@@ -121,7 +121,7 @@
 				<input type="text" class="form-control" id="searchVal"/>
 			</div>
 			<div class="col-md-2">
-				<button type="submit" id="search" class="btn btn-primary">Search</button>
+				<button type="submit" id="search" class="btn btn-primary" disabled>Search</button>
 			</div>
 		</form>	
 		</div>
@@ -179,6 +179,22 @@
 			$('#customerForm').attr("enctype", "multipart/form-data");
 			$('#customerForm').attr('method', "POST");
 			$('#customerForm').attr('action', "/crm/web/customerWeb/fileUpload").submit();
+		});
+		
+		$('#searchParam').change(function(){
+			if($("#searchParam").prop('selectedIndex') != 0 && $('#searchVal').val()){
+				$('#search').prop('disabled', false);
+			}else{
+				$('#search').prop('disabled', true);
+			}
+		});
+		
+		$('#searchVal').blur(function() {
+			if($("#searchParam").prop('selectedIndex') != 0 && $('#searchVal').val()){
+				$('#search').prop('disabled', false);
+			}else{
+				$('#search').prop('disabled', true);
+			}
 		});
 		
 		$('#search').click(function(){

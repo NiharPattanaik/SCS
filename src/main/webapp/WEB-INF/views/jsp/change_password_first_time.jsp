@@ -126,7 +126,7 @@ legend {
 						<div class="form-group required">
 							<label class='control-label'>Security Question</label>
 							<form:select path="securityQuestions" cssClass="form-control" multiple="false" id="secQ1">
-								<form:option value="-1" label="--- Select ---" />
+								<form:option value="" label="--- Select ---" />
 								<form:options items="${secQues}" itemValue="id"
 									itemLabel="question" required="required"/>
 							</form:select>
@@ -141,7 +141,7 @@ legend {
 						<div class="form-group required">
 							<label class='control-label'>Security Question</label>
 							<form:select path="securityQuestions" cssClass="form-control" multiple="false" id="secQ2">
-								<form:option value="-1" label="--- Select ---" />
+								<form:option value="" label="--- Select ---" />
 								<form:options items="${secQues}" itemValue="id"
 									itemLabel="question" required="required"/>
 							</form:select>
@@ -157,6 +157,7 @@ legend {
 					</fieldset>
 					<form:hidden path="userID" name="userID" value="${ user.userID }" />
 					<input type="hidden" id="pass" value="${ user.password }">
+					<form:hidden path="loggedIn" name="loggedIn" value="${ user.loggedIn }"/>
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary" id="submitBtn">Submit</button>
 					</div>
@@ -165,8 +166,9 @@ legend {
 		</div>
 	</div>
 </body>
-	<script type="text/javascript">
+<script type="text/javascript">
 	$(document).ready(function() {
+		
    		$("#passwd").prop('required',true);
    		
 		$("#newpasswd").prop('required',true);
@@ -199,13 +201,9 @@ legend {
 			}
 		});
 		
-		$('#submitBtn').click(function(event) {
-			if(($('#passwd').val() != $('#pass').val()) || ($('#newpasswd').val() != $('#newpasswd1').val())){
-				event.preventDefault();
-			}else{
-				$("#passForm").submit();
-			}
-		});
+		//$('#submitBtn').click(function(event) {
+		//		$("#passForm").submit();
+		//});
 		
 		$('#secQ2').change(function() {
 			var val1 = $("#secQ1").prop('value');

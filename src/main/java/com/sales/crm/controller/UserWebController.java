@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomCollectionEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.sales.crm.model.Customer;
 import com.sales.crm.model.ResourcePermissionEnum;
 import com.sales.crm.model.Role;
 import com.sales.crm.model.SalesExecutive;
@@ -127,11 +127,15 @@ public class UserWebController {
 		}else{
 			try{
 				String generatedPass = user.getUserName().substring(0, 3)+new SimpleDateFormat("SSS").format(new Date());
-				user.setPassword(generatedPass);
-				userService.createUser(user);
-				if(user.getPasswordMedium() == 2){
+				if(user.getPasswordMedium() == 1){
+					userService.createUser(user);
+				}else if(user.getPasswordMedium() == 2){
+					user.setPassword(generatedPass);
+					userService.createUser(user);
 					succMsg = "User has been successfully created.<br> Password generated for the user is <b>"+generatedPass+"</b>.";
 				}else if(user.getPasswordMedium() == 3){
+					user.setPassword(generatedPass);
+					userService.createUser(user);
 					String msg = "Dear " + user.getFirstName() + " " + user.getLastName()
 							+ " \n you are successfully on-boarded to the system. Please find the login details below. \n\n\n user name: "
 							+ user.getUserName() + "\n Password: " + generatedPass + "\n\n\n Regards, \n Team";
@@ -142,6 +146,8 @@ public class UserWebController {
 						failMsg = "User has been successfully created, however the login details could not be sent to user's "+ user.getEmailID() +" email id. Please contact System Administrator. ";
 					}
 				}else if(user.getPasswordMedium() == 4){
+					user.setPassword(generatedPass);
+					userService.createUser(user);
 					String msg = "Dear " + user.getFirstName() + " " + user.getLastName()
 							+ " \n you are successfully on-boarded to the system. Please find the login details below. \n\n\n user name: "
 							+ user.getUserName() + "\n Password: " + generatedPass + "\n\n\n Regards, \n Team";
@@ -203,16 +209,15 @@ public class UserWebController {
 		List<Integer> resourcePermIDs;
 		try{
 			user = userService.getUser(userName);
-			/**
 			if(user.getLoggedIn() == 0){
 				List<SecurityQuestion> secQues = userService.getAllSecurityQuestions();
 				Map<String, Object> modelMap = new HashMap<String, Object>();
 				modelMap.put("user", user);
 				modelMap.put("secQues", secQues);
-				httpSession.setAttribute("userFullName", user.getFirstName() + " " + user.getLastName());
+				httpSession.setAttribute("userFullName", user.getFirstName() + " " + (user.getLastName() != null ? user.getLastName() : ""));
+				httpSession.setAttribute("user", user);
 				return new ModelAndView("/change_password_first_time", modelMap);
 			}
-			**/
 			resourcePermIDs = roleService.getRoleResourcePermissionIDs(user);
 		}catch(Exception exception){
 			Map<String, Object> modelMap = new HashMap<String, Object>();
@@ -227,7 +232,7 @@ public class UserWebController {
 		}else{
 			httpSession.setAttribute("user", user);
 			httpSession.setAttribute("resellerID", user.getResellerID());
-			httpSession.setAttribute("userFullName", user.getFirstName() + " " + user.getLastName());
+			httpSession.setAttribute("userFullName", user.getFirstName() + " " + (user.getLastName() != null ? user.getLastName() : ""));
 			httpSession.setAttribute("resourcePermIDs", resourcePermIDs);
 			return new ModelAndView(getHomePage(resourcePermIDs)); 
 		}
@@ -245,6 +250,9 @@ public class UserWebController {
 	public ModelAndView updatePassword(@ModelAttribute("user") User user){
 		String msg = "";
 		try{
+			if(user.getLoggedIn() == 0){
+				user.setLoggedIn(1);
+			}
 			userService.updatePassword(user);
 		}catch(Exception e){
 			msg = "Password could not be updated successfully. Please try after sometime if error persists contact System Administrator. ";
@@ -315,6 +323,15 @@ public class UserWebController {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 		dateFormat.setLenient(false);
 		webDataBinder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
+		
+		webDataBinder.registerCustomEditor(List.class, "securityQuestions",new CustomCollectionEditor(List.class){
+			 @Override
+		      protected Object convertElement(Object element){
+				 SecurityQuestion securityQuestion = new SecurityQuestion();
+				 securityQuestion.setId(Integer.parseInt(String.valueOf(element)));
+				 return securityQuestion;
+		      }
+		});
 	}
 	
 }

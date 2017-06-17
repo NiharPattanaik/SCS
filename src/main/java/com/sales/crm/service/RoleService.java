@@ -54,8 +54,8 @@ public class RoleService {
 		return roleDAO.getRoleResourcePermissions(roleIDs, resellerID);
 	}
 	
-	public void saveRoleResourcePermission(List<ResourcePermission> resourcePermissions) throws Exception{
-		roleDAO.saveRoleResourcePermission(resourcePermissions);
+	public void saveRoleResourcePermission(List<ResourcePermission> resourcePermissions, int roleID, int resellerID) throws Exception{
+		roleDAO.saveRoleResourcePermission(resourcePermissions, roleID, resellerID);
 	}
 	
 	public List<Integer> getRoleResourcePermissionIDs(List<Integer> roleIDs, int resellerID) throws Exception {

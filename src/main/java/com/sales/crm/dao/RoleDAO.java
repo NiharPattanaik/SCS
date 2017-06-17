@@ -21,7 +21,7 @@ public interface RoleDAO {
 	
 	List<ResourcePermission> getRoleResourcePermissions(List<Integer> roleIDs, int resellerID) throws Exception;
 	
-	void saveRoleResourcePermission(List<ResourcePermission> resourcePermissions) throws Exception;
+	void saveRoleResourcePermission(List<ResourcePermission> resourcePermissions, int roleID, int resellerID) throws Exception;
 
 	public List<Integer> getRoleResourcePermissionIDs(List<Integer> roleIDs, int resellerID) throws Exception;
 }
