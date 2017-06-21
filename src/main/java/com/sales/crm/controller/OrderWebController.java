@@ -7,12 +7,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
@@ -22,10 +24,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.sales.crm.model.Beat;
 import com.sales.crm.model.Customer;
 import com.sales.crm.model.Order;
 import com.sales.crm.model.OrderBookingSchedule;
 import com.sales.crm.model.SalesExecutive;
+import com.sales.crm.model.TrimmedCustomer;
+import com.sales.crm.service.BeatService;
+import com.sales.crm.service.CustomerService;
 import com.sales.crm.service.OrderService;
 import com.sales.crm.service.SalesExecService;
 
@@ -38,6 +44,12 @@ public class OrderWebController {
 	
 	@Autowired
 	SalesExecService salesExecService;
+	
+	@Autowired
+	BeatService beatService;
+	
+	@Autowired
+	CustomerService customerService;
 	
 	@Autowired
 	HttpSession httpSession;
@@ -55,28 +67,34 @@ public class OrderWebController {
 	}
 
 	@PostMapping(value="/scheduleOrderBooking") 
-	public ModelAndView scheduleOrderBooking(@ModelAttribute("orderBookingSchedule") OrderBookingSchedule orderBookingSchedule){
-		String msg = "";
+	public ModelAndView scheduleOrderBooking(HttpServletRequest request, @ModelAttribute("orderBookingSchedule") OrderBookingSchedule orderBookingSchedule){
+		String errmsg = "";
+		String succmsg = "";
 		List<String> customerNames = null;
+		int orderScheduleID = -1;
 		try{
 			orderBookingSchedule.setResellerID(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
 			customerNames = orderService.alreadyOrderBookingScheduledCustomer(orderBookingSchedule);
 			if(customerNames != null && customerNames.size() > 0){
-				msg = "<br>Customers <br><b>"+ StringUtils.join(customerNames, "<br>") +"</b><br>are already scheduled for a visit for <b>" + new SimpleDateFormat("dd-MM-yyyy").format(orderBookingSchedule.getVisitDate()) + "</b> date.";
+				errmsg = "<br>Customers <br><b>"+ StringUtils.join(customerNames, "<br>") +"</b><br>are already scheduled for a visit for <b>" + new SimpleDateFormat("dd-MM-yyyy").format(orderBookingSchedule.getVisitDate()) + "</b> date.";
 			}
 		}catch(Exception exception){
-			msg = "Scheduling of order booking could not be processed successfully, please contact the System Administrator.";
+			errmsg = "Scheduling of order booking could not be processed successfully, please contact the System Administrator.";
 		}
 		
-		if(msg.equals("")){
+		if(errmsg.equals("")){
 			try{
 				orderBookingSchedule.setResellerID(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
-				orderService.scheduleOrderBooking(orderBookingSchedule);
+				orderScheduleID = orderService.scheduleOrderBooking(orderBookingSchedule);
+				succmsg = "Order booking scheduled for sales exec <b>"+ (String)request.getParameter("salesExecName") +"</b> is successful for date <b>"+ new SimpleDateFormat("dd-MM-yyyy").format(orderBookingSchedule.getVisitDate())+ "</b> with reference number <b>"+ orderScheduleID +"</b>.";
 			}catch(Exception exception){
-				msg = "Scheduling of order booking could not be processed successfully, please contact the System Administrator.";
+				errmsg = "Scheduling of order booking could not be processed successfully, please contact the System Administrator.";
 			}
 		}
-		return new ModelAndView("/order_booking_schedule_conf", "msg", msg);
+		Map<String, String> modelMap = new HashMap<String, String>();
+		modelMap.put("errmsg", errmsg);
+		modelMap.put("succmsg", succmsg);
+		return new ModelAndView("/order_booking_schedule_conf", modelMap);
 	}
 	
 	/**
@@ -109,11 +127,71 @@ public class OrderWebController {
 		return new ModelAndView("/schedule_order_booking", modelMap);
 	}
 	
+	@GetMapping(value="/orderScheduleReport")
+	public ModelAndView getOrderScheduleReport(){
+		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
+		List<OrderBookingSchedule> orderBookingSchedules = new ArrayList<OrderBookingSchedule>();
+		List<SalesExecutive> salesExecs = new ArrayList<SalesExecutive>();
+		List<Beat> beats = new ArrayList<Beat>();
+		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>();
+		Map<String, Object> modelMap = new HashMap<String, Object>();
+		try{
+			orderBookingSchedules = orderService.getOrderScheduleReport(resellerID, -1, -1, -1, -1, -1, new Date());
+			salesExecs = salesExecService.getSalesExecutives(resellerID);
+			beats = beatService.getResellerBeats(resellerID);
+			customers = customerService.getResellerTrimmedCustomers(resellerID);
+			modelMap.put("orderBookingSchedules", orderBookingSchedules);
+			modelMap.put("salesExecs", salesExecs);
+			modelMap.put("beats", beats);
+			modelMap.put("customers", customers);
+			modelMap.put("orderBookingSchedule", new OrderBookingSchedule());
+		}catch(Exception exception){
+			//Don't do anything
+		}
+		return new ModelAndView("/order_schedule_report", modelMap);
+	}
+	
+	@GetMapping(value="/orderScheduleReport/{scheduleID}")
+	public ModelAndView getOrderScheduleReportForASchedule(@PathVariable("scheduleID") int scheduleID){
+		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
+		List<OrderBookingSchedule> orderBookingSchedules = new ArrayList<OrderBookingSchedule>();
+		List<SalesExecutive> salesExecs = new ArrayList<SalesExecutive>();
+		List<Beat> beats = new ArrayList<Beat>();
+		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>();
+		Map<String, Object> modelMap = new HashMap<String, Object>();
+		try{
+			orderBookingSchedules = orderService.getOrderScheduleReport(resellerID, -1, -1, -1, scheduleID, -1, null);
+			salesExecs = salesExecService.getSalesExecutives(resellerID);
+			beats = beatService.getResellerBeats(resellerID);
+			customers = customerService.getResellerTrimmedCustomers(resellerID);
+			modelMap.put("orderBookingSchedules", orderBookingSchedules);
+			modelMap.put("salesExecs", salesExecs);
+			modelMap.put("beats", beats);
+			modelMap.put("customers", customers);
+			modelMap.put("orderBookingSchedule", new OrderBookingSchedule());
+		}catch(Exception exception){
+			//Don't do anything
+		}
+		return new ModelAndView("/order_schedule_report", modelMap);
+	}
+	
+	
 	@GetMapping(value="/list")
 	public ModelAndView list(){
 		List<Order> orders = new ArrayList<Order>();
 		try{
-			orders = orderService.getOrders(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+			orders = orderService.getOrders(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))), -1);
+		}catch(Exception exception){
+			//
+		}
+		return new ModelAndView("/order_list","orders", orders);  
+	}
+	
+	@GetMapping(value="/list/{orderID}")
+	public ModelAndView getOrderList(@PathVariable("orderID") int orderID){
+		List<Order> orders = new ArrayList<Order>();
+		try{
+			orders = orderService.getOrders(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))), orderID);
 		}catch(Exception exception){
 			//
 		}

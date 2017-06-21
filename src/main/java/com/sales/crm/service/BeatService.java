@@ -50,4 +50,8 @@ public class BeatService {
 	public void deleteAssignedBeatCustomerLink(int beatID) throws Exception{
 		beatDAO.deleteAssignedBeatCustomerLink(beatID);
 	}
+	
+	public int getBeatsCount(int resellerID){
+		return beatDAO.getBeatsCount(resellerID);
+	}
 }

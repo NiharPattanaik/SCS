@@ -41,4 +41,6 @@ public interface CustomerDAO {
 	void createCustomers(List<Customer> customers) throws Exception;
 	
 	List<Customer> search(int resellerID, Map<String, Object> filterCriteria)throws Exception;
+	
+	int getCustomersCount(int resellerID);
 }

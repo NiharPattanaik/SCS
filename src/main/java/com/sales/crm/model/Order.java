@@ -45,11 +45,11 @@ public class Order extends BusinessEntity{
 	@Column(name = "RESELLER_ID")
 	private int resellerID;
 	
-	@Transient
-	private String dateCreatedString;
+	@Column(name = "CUSTOMER_ID")
+	private int customerID;
 	
 	@Transient
-	private int customerID;
+	private String dateCreatedString;
 	
 	@Transient
 	private String customerName;

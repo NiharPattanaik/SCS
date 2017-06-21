@@ -10,6 +10,7 @@ import com.sales.crm.dao.OrderDAO;
 import com.sales.crm.model.Order;
 import com.sales.crm.model.OrderBookingSchedule;
 import com.sales.crm.model.OrderBookingStats;
+import com.sales.crm.model.ScheduledOrderSummary;
 
 @Service("orderService")
 public class OrderService {
@@ -21,11 +22,11 @@ public class OrderService {
 		return orderDAO.create(order);
 	}
 	
-	public void scheduleOrderBooking(OrderBookingSchedule orderBookingSchedule) throws Exception{
+	public int scheduleOrderBooking(OrderBookingSchedule orderBookingSchedule) throws Exception{
 		if(orderBookingSchedule.getVisitDate() == null){
 			orderBookingSchedule.setVisitDate(new Date());
 		}
-		orderDAO.scheduleOrderBooking( orderBookingSchedule);
+		return orderDAO.scheduleOrderBooking( orderBookingSchedule);
 	}
 	
 	public List<String> alreadyOrderBookingScheduledCustomer(OrderBookingSchedule orderBookingSchedule) throws Exception{
@@ -35,12 +36,12 @@ public class OrderService {
 		return orderDAO.alreadyOrderBookingScheduledCustomer( orderBookingSchedule);
 	}
 	
-	public void unScheduleOrderBooking(int orderScheduleID) throws Exception{
-		orderDAO.unScheduleOrderBooking(orderScheduleID);
+	public void unScheduleOrderBooking(int orderScheduleID, int customerID) throws Exception{
+		orderDAO.unScheduleOrderBooking(orderScheduleID, customerID);
 	}
 	
-	public List<Order> getOrders(int resellerID) throws Exception{
-		return orderDAO.getOrders(resellerID);
+	public List<Order> getOrders(int resellerID, int orderID) throws Exception{
+		return orderDAO.getOrders(resellerID, orderID);
 	}
 	
 	public OrderBookingStats getOrderBookingStats(int salesExecID, Date date) throws Exception{
@@ -53,6 +54,14 @@ public class OrderService {
 	
 	public List<OrderBookingSchedule> getOrdersBookingSchedules(int resellerID, int salesExecID, int beatID, Date date) throws Exception{
 		return orderDAO.getOrdersBookingSchedules(resellerID, salesExecID, beatID, date);
+	}
+	
+	public List<OrderBookingSchedule> getOrderScheduleReport(int resellerID, int salesExecID, int beatID, int customerID, int orderScheduleID, int status, Date date) throws Exception{
+		return orderDAO.getOrderScheduleReport(resellerID, salesExecID, beatID, customerID, orderScheduleID, status, date);
+	}
+	
+	public List<ScheduledOrderSummary> getScheduledOrderSummary(int resellerID, int salesExecID, Date visitDate){
+		return orderDAO.getScheduledOrderSummary(resellerID, salesExecID, visitDate);
 	}
 
 }

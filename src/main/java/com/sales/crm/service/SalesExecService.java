@@ -63,4 +63,8 @@ public class SalesExecService {
 		return salesExecDAO.getSalesExecutivesHavingBeatsAssigned(resellerID);
 	}
 	
+	public int getSalesExecutiveCount(int resellerID){
+		return salesExecDAO.getSalesExecutiveCount(resellerID);
+	}
+	
 }

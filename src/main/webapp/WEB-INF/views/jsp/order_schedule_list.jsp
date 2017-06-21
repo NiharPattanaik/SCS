@@ -108,7 +108,7 @@ table.table.table-striped thead {
             		<h3>Scheduled Order Bookings</h3>   
             	</div>
 	        	<div class="col-md-4 add_customer">
-	        		 <% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_SCHEDULE_VISIT.getResourcePermissionID())) { %>
+	        		 <% if(resourcePermIDs.contains(ResourcePermissionEnum.ORDER_SCHEDULE_ORDER_BOOKING.getResourcePermissionID())) { %>
 						<button type="submit" class="btn btn-primary" onclick="location.href='<%=request.getContextPath()%>/web/orderWeb/scheduleOrderBookingForm';">Schedule Order Booking</button>
 					<% } %>
 				</div>
@@ -147,6 +147,7 @@ table.table.table-striped thead {
 											<table class="table table-striped" id="myTable">
 									            <thead>
 									                <tr>
+									                	<th>Order Schedule ID</th>
 									                    <th>Customer Name</th>
 									                    <th>Beat</th>
 									                    <th>Sales Executive</th>
@@ -157,10 +158,11 @@ table.table.table-striped thead {
 									            	<c:if test="${fn:length(orderBookedSchedules) gt 0}">
 														<c:forEach var="orderBookedSchedule" items="${orderBookedSchedules}">  
 									               		 <tr>
+									               		 	<td>${orderBookedSchedule.bookingScheduleID}</td>
 										                 	<td>${orderBookedSchedule.customerName}</td>
 										                    <td>${orderBookedSchedule.beatName}</td>
 										                    <td>${orderBookedSchedule.salesExecName}</td>
-										                    <td><a href="#" id="link" data-params=${orderBookedSchedule.bookingScheduleID}>Cancel</a></td>
+										                    <td><a href="#" id="link" data-params=${orderBookedSchedule.bookingScheduleID} data-params1=${orderBookedSchedule.customerID}>Cancel</a></td>
 									                	</tr>
 									                	</c:forEach>
 													</c:if>
@@ -230,7 +232,7 @@ table.table.table-striped thead {
 				}
 				 $.ajax({
 						type : "GET",
-						url : "/crm/rest/orderReST/unscheduleOrderBooking/"+$(this).data('params'),
+						url : "/crm/rest/orderReST/unscheduleOrderBooking/"+$(this).data('params')+"/"+$(this).data('params1'),
 						dataType : "json",
 						success : function(data) {
 							$("#successModal").modal('show');
@@ -243,8 +245,9 @@ table.table.table-striped thead {
 									var result = data.businessEntities;
 									$.each(result,function(i,obj) {
 										dataFound = 1;
-										var row_data = "<tr><td>"+obj.customerName+"</td><td>"+obj.beatName+"</td><td>"+obj.salesExecName+"</td><td><a href=# id=link data-params="+obj.bookingScheduleID+">Cancel</a></td></tr>";
-						                $("#myTable > tbody").append(row_data);
+										var row_data = "<tr><td>"+obj.bookingScheduleID+"</td><td>"+obj.customerName+"</td><td>"+obj.beatName+"</td><td>"+obj.salesExecName+"</td><td><a href=# id=link data-params="+obj.bookingScheduleID+" data-params1="+obj.customerID+">Cancel</a></td></tr>";
+						                console.log(row_data);
+										$("#myTable > tbody").append(row_data);
 									});
 									if(dataFound == 0){
 										var row_data = "<br>No order booking is scheduled.";
@@ -279,8 +282,9 @@ table.table.table-striped thead {
 							var result = data.businessEntities;
 							$.each(result,function(i,obj) {
 								dataFound = 1;
-								var row_data = "<tr><td>"+obj.customerName+"</td><td>"+obj.beatName+"</td><td>"+obj.salesExecName+"</td><td><a href=# id=link data-params="+obj.bookingScheduleID+">Cancel</a></td></tr>";
-				                $("#myTable > tbody").append(row_data);
+								var row_data = "<tr><td>"+obj.bookingScheduleID+"</td><td>"+obj.customerName+"</td><td>"+obj.beatName+"</td><td>"+obj.salesExecName+"</td><td><a href=# id=link data-params="+obj.bookingScheduleID+" data-params1="+obj.customerID+">Cancel</a></td></tr>";
+								 console.log(row_data);
+								$("#myTable > tbody").append(row_data);
 							});
 							if(dataFound == 0){
 								var row_data = "<br>No order booking is scheduled.";

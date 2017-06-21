@@ -1,5 +1,6 @@
 package com.sales.crm.dao;
 
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,7 +21,6 @@ import com.sales.crm.model.Address;
 import com.sales.crm.model.Customer;
 import com.sales.crm.model.CustomerOrder;
 import com.sales.crm.model.Order;
-import com.sales.crm.model.OrderBookingSchedule;
 import com.sales.crm.model.TrimmedCustomer;
 import com.sales.crm.model.User;
 
@@ -201,7 +201,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME, b.ID order_booking_id FROM CUSTOMER a, ORDER_BOOKING_SCHEDULE b WHERE a.ID = b.CUSTOMER_ID AND b.SALES_EXEC_ID= ? AND b.VISIT_DATE = ? ");
+			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME, b.ID order_booking_id FROM CUSTOMER a, ORDER_BOOKING_SCHEDULE b, ORDER_BOOKING_SCHEDULE_CUSTOMERS c  WHERE a.ID = c.CUSTOMER_ID AND b.ID = c.ORDER_BOOKING_SCHEDULE_ID AND  b.SALES_EXEC_ID= ? AND b.VISIT_DATE = ?");
 			query.setParameter( 0, salesExecID);
 			query.setParameter(1, new java.sql.Date(visitDate.getTime()));
 			List results = query.list();
@@ -334,7 +334,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT ID, NAME FROM CUSTOMER  WHERE ID IN (SELECT CUSTOMER_ID FROM BEAT_CUSTOMER WHERE BEAT_ID = ? AND CUSTOMER_ID NOT IN (SELECT CUSTOMER_ID FROM ORDER_BOOKING_SCHEDULE WHERE VISIT_DATE = ?))");
+			SQLQuery query = session.createSQLQuery("SELECT ID, NAME FROM CUSTOMER  WHERE ID IN (SELECT CUSTOMER_ID FROM BEAT_CUSTOMER WHERE BEAT_ID = ? AND CUSTOMER_ID NOT IN (SELECT a.CUSTOMER_ID FROM ORDER_BOOKING_SCHEDULE_CUSTOMERS a, ORDER_BOOKING_SCHEDULE b where a.ORDER_BOOKING_SCHEDULE_ID = b.ID AND b.VISIT_DATE= ?))");
 			query.setParameter( 0, beatID);
 			query.setParameter(1, visitDate);
 			List results = query.list();
@@ -362,7 +362,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 		Map<TrimmedCustomer, List<Order>> custOrdersMap = new HashMap<TrimmedCustomer, List<Order>>();
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT c.ID CUST_ID, c.NAME CUST_NAME, b.* FROM ORDER_BOOKING_SCHEDULE a, ORDER_DETAILS b, CUSTOMER c  WHERE a.ID=b.ORDER_BOOKING_ID AND a.CUSTOMER_ID=c.ID AND a.VISIT_DATE < ? AND a.BEAT_ID= ? AND b.STATUS IN (2, 5) AND b.RESELLER_ID = ?");
+			SQLQuery query = session.createSQLQuery("SELECT c.ID CUST_ID, c.NAME CUST_NAME, b.* FROM ORDER_BOOKING_SCHEDULE a, ORDER_DETAILS b, CUSTOMER c, ORDER_BOOKING_SCHEDULE_CUSTOMERS d  WHERE a.ID=b.ORDER_BOOKING_ID AND d.CUSTOMER_ID=c.ID AND a.ID=d.ORDER_BOOKING_SCHEDULE_ID  AND a.VISIT_DATE < ? AND a.BEAT_ID= ? AND b.STATUS IN (2, 5) AND b.RESELLER_ID = ?");
 			query.setParameter( 0, visitDate);
 			query.setParameter(1, beatID);
 			query.setParameter(2, resellerID);
@@ -441,7 +441,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME, c.ID order_booking_id FROM CUSTOMER a, CUSTOMER_OTP b, ORDER_BOOKING_SCHEDULE c WHERE a.ID=b.CUSTOMER_ID AND a.ID=c.CUSTOMER_ID AND b.FIELD_EXEC_ID = ? AND b.OTP_TYPE= ? AND b.SUBMITTED_OTP IS NULL AND DATE(b.GENERATED_DATE_TIME) = CURDATE() AND c.VISIT_DATE = CURDATE()");
+			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME, c.ID order_booking_id FROM CUSTOMER a, CUSTOMER_OTP b, ORDER_BOOKING_SCHEDULE c, ORDER_BOOKING_SCHEDULE_CUSTOMERS d WHERE a.ID=b.CUSTOMER_ID AND a.ID=d.CUSTOMER_ID AND c.ID=d.ORDER_BOOKING_SCHEDULE_ID AND b.FIELD_EXEC_ID = ? AND b.OTP_TYPE= ? AND b.SUBMITTED_OTP IS NULL AND DATE(b.GENERATED_DATE_TIME) = CURDATE() AND c.VISIT_DATE = CURDATE()");
 			query.setParameter( 0, userID);
 			query.setParameter(1, otpType);
 			List results = query.list();
@@ -492,8 +492,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 		try{
 			session = sessionFactory.openSession();
 			StringBuilder queryBuilder = new StringBuilder(
-					"SELECT * FROM (SELECT a.ID, a.NAME, a.DESCRIPTION, X.NAME BEAT_NAME, b.CITY, b.CONTACT_PERSON, b.PHONE_NO FROM ADDRESS b, CUSTOMER_ADDRESS c, CUSTOMER a LEFT JOIN (SELECT e.BEAT_ID, e.CUSTOMER_ID, d.NAME FROM BEAT_CUSTOMER e, BEAT d where d.ID=e.BEAT_ID) X on a.ID=X.CUSTOMER_ID WHERE c.ADDRESS_ID=b.ID AND b.ADDRESS_TYPE=1 AND a.ID=c.CUSTOMER_ID AND a.RESELLER_ID ="+ resellerID +") XYZ"
-							+ resellerID);
+					"SELECT * FROM (SELECT a.ID, a.NAME, a.DESCRIPTION, X.NAME BEAT_NAME, b.CITY, b.CONTACT_PERSON, b.PHONE_NO FROM ADDRESS b, CUSTOMER_ADDRESS c, CUSTOMER a LEFT JOIN (SELECT e.BEAT_ID, e.CUSTOMER_ID, d.NAME FROM BEAT_CUSTOMER e, BEAT d where d.ID=e.BEAT_ID) X on a.ID=X.CUSTOMER_ID WHERE c.ADDRESS_ID=b.ID AND b.ADDRESS_TYPE=1 AND a.ID=c.CUSTOMER_ID AND a.RESELLER_ID ="+ resellerID +") XYZ");
 			if(filterCriteria != null && filterCriteria.size() > 0){
 				queryBuilder.append(" WHERE ");
 				int index = 0;
@@ -540,5 +539,26 @@ public class CustomerDAOImpl implements CustomerDAO{
 		return customers;
 	}
 	
+	@Override
+	public int getCustomersCount(int resellerID){
+		Session session = null;
+		int counts = 0;
+		try{
+			session = sessionFactory.openSession();
+			SQLQuery count = session.createSQLQuery("SELECT COUNT(*) FROM CUSTOMER WHERE RESELLER_ID= ?");
+			count.setParameter(0, resellerID);
+			List results = count.list();
+			if(results != null && results.size() == 1 ){
+				counts = ((BigInteger)results.get(0)).intValue();
+			}
+		}catch(Exception exception){
+			logger.error("Error while fetching number of customers.", exception);
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		return counts;
+	}
 	
 }

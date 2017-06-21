@@ -1,5 +1,6 @@
 package com.sales.crm.dao;
 
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -409,6 +410,29 @@ public class BeatDAOImpl implements BeatDAO {
 				session.close();
 			}
 		}
+	}
+	
+	
+	@Override
+	public int getBeatsCount(int resellerID){
+		Session session = null;
+		int counts = 0;
+		try{
+			session = sessionFactory.openSession();
+			SQLQuery count = session.createSQLQuery("SELECT COUNT(*) FROM BEAT WHERE RESELLER_ID= ?");
+			count.setParameter(0, resellerID);
+			List results = count.list();
+			if(results != null && results.size() == 1 ){
+				counts = ((BigInteger)results.get(0)).intValue();
+			}
+		}catch(Exception exception){
+			logger.error("Error while fetching number of customers.", exception);
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		return counts;
 	}
 
 }

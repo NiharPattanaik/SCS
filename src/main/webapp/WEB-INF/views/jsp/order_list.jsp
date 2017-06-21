@@ -56,7 +56,12 @@
     .the-table {
     table-layout: fixed;
     word-wrap: break-word;
-}
+	}
+	
+	table.table.table-striped thead {
+    background: #ddd;
+    padding: 10px 0 10px 0;
+	}
 
     </style>
 </head>
@@ -78,7 +83,7 @@
         	<div class="col-md-4 add_customer">
         	</div>
 		</div>        
-        <table class="table the-table">
+        <table class="table table-striped">
             <thead>
                 <tr>
                     <th>Order ID</th>

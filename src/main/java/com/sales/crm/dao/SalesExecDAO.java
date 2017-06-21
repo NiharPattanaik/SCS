@@ -31,4 +31,6 @@ public interface SalesExecDAO {
 	
 	List<SalesExecutive> getSalesExecutivesHavingBeatsAssigned(int resellerID);
 	
+	int getSalesExecutiveCount(int resellerID);
+	
 }

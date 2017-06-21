@@ -78,14 +78,14 @@
 					<br>
 					<br>
 					<c:choose>
-    					<c:when test="${fn:length(msg) gt 0}">
+    					<c:when test="${fn:length(errmsg) gt 0}">
        						<div class="alert alert-danger">
-	 						 <strong>Error!</strong><br> ${msg}
-						</div>
+	 							<strong>Error!</strong><br> ${errmsg}
+							</div>
     					</c:when>    
     					<c:otherwise>
         					<div class="alert alert-success">
-	 						 <strong>Success!</strong><br> Sales Executive Visit has been successfully scheduled.
+	 						 <strong>Success!</strong><br> ${succmsg}
 						</div>
     					</c:otherwise>
 					</c:choose>

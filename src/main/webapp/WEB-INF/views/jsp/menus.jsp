@@ -12,6 +12,7 @@
 					<a class="navbar-brand" href="#"></a>
 				</div>
 				<ul class="nav navbar-nav">
+					<li><a href="<%=request.getContextPath()%>/web/dashboardWeb/dashboard">Dashboard</a></li>
 					<% if(resourcePermIDs.contains(ResourcePermissionEnum.CUSTOMER_LIST.getResourcePermissionID())) { %>
 						<li><a href="<%=request.getContextPath()%>/web/customerWeb/list">Customers</a></li>
 					<% } %>	
@@ -34,11 +35,15 @@
 					<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="reportmenu">Order Management<span class="caret"></span></a>
         				<ul class="dropdown-menu" id="reportmenus">
-        					<li><a href="<%=request.getContextPath()%>/web/orderWeb/list">Orders</a></li>
-        					<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_VIEW_SCHEDULED_VISITS.getResourcePermissionID())) { %>
+        					<% if(resourcePermIDs.contains(ResourcePermissionEnum.ORDER_LIST.getResourcePermissionID())) { %>
+        						<li><a href="<%=request.getContextPath()%>/web/orderWeb/list">Orders</a></li>
+        					<% } %>		
+        					<% if(resourcePermIDs.contains(ResourcePermissionEnum.ORDER_VIEW_SCHEDULED_ORDER_BOOKINGS.getResourcePermissionID())) { %>
         						<li><a href="<%=request.getContextPath()%>/web/orderWeb/scheduledOrderBookings">Order Booking</a></li>
         					<% } %>	
-        					<li><a href="<%=request.getContextPath()%>/web/deliveryExecWeb/scheduledDeliveryBookings">Delivery Booking</a></li>
+        					<% if(resourcePermIDs.contains(ResourcePermissionEnum.ORDER_SCHEDULE_DELIVERY_BOOKING.getResourcePermissionID())) { %>
+        						<li><a href="<%=request.getContextPath()%>/web/deliveryExecWeb/scheduledDeliveryBookings">Delivery Booking</a></li>
+        					<% } %>		
         					<!-- li><a href="#">Payment Booking</a></li-->
 					    </ul>
         			</li>	
@@ -48,6 +53,7 @@
         					<% if(resourcePermIDs.contains(ResourcePermissionEnum.OTP_LIST.getResourcePermissionID())) { %>
 					          	<li><a href="<%=request.getContextPath()%>/web/otpWeb/report">OTP Report</a></li>
 					         <% } %>	
+					         <li><a href="<%=request.getContextPath()%>/web/orderWeb/orderScheduleReport">Order Schedule Report</a></li>
         				</ul>
         			</li>
 					<li class="dropdown">

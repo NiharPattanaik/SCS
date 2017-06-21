@@ -66,4 +66,8 @@ public class UserService {
 		userDAO.updateFirstLoginPassword(user);
 	}
 	
+	public List<User> getUsersByRole(int resellerID, int roleID){
+		return userDAO.getUserByRole(resellerID, roleID);
+	}
+	
 }

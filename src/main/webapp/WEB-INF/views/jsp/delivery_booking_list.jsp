@@ -93,7 +93,7 @@ legend {
             		<h3>Scheduled Delivery Bookings</h3>   
             	</div>
 	        	<div class="col-md-4 add_customer">
-	        		 <% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_SCHEDULE_VISIT.getResourcePermissionID())) { %>
+	        		 <% if(resourcePermIDs.contains(ResourcePermissionEnum.ORDER_SCHEDULE_DELIVERY_BOOKING.getResourcePermissionID())) { %>
 						<button type="submit" class="btn btn-primary" onclick="location.href='<%=request.getContextPath()%>/web/deliveryExecWeb/scheduleDeliveryBookingForm';">Schedule Delivery Booking</button>
 					<% } %>
 				</div>

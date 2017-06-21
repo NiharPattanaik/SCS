@@ -1,5 +1,6 @@
 package com.sales.crm.dao;
 
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -626,7 +627,7 @@ public class DeliveryExecDAOImpl implements DeliveryExecDAO {
 			SQLQuery deleteSchQuery = session.createSQLQuery(
 					"DELETE FROM DELIVERY_SCHEDULE WHERE CUSTOMER_ID IN (" +StringUtils.join(customerIDs, ",") +") AND VISIT_DATE = ?");
 			deleteSchQuery.setParameter(0, visitDate);
-			SQLQuery updateOrderQuery = session.createSQLQuery("UPDATE ORDER_DETAILS SET STATUS = 2 WHERE ORDER_BOOKING_ID IN (SELECT ID FROM ORDER_BOOKING_SCHEDULE WHERE CUSTOMER_ID IN (" +StringUtils.join(customerIDs, ",") +") ) AND STATUS = 3");
+			SQLQuery updateOrderQuery = session.createSQLQuery("UPDATE ORDER_DETAILS SET STATUS = 2 WHERE ORDER_BOOKING_ID IN (SELECT a.ID FROM ORDER_BOOKING_SCHEDULE a, ORDER_BOOKING_SCHEDULE_CUSTOMERS b WHERE a.ID=b.ORDER_BOOKING_SCHEDULE_ID AND b.CUSTOMER_ID IN (" +StringUtils.join(customerIDs, ",") +") ) AND STATUS = 3");
 			transaction = session.beginTransaction();
 			deleteSchQuery.executeUpdate();
 			updateOrderQuery.executeUpdate();
@@ -643,6 +644,28 @@ public class DeliveryExecDAOImpl implements DeliveryExecDAO {
 			}
 		}
 		
+	}
+	
+	@Override
+	public int getDeliveryExecutiveCount(int resellerID){
+		Session session = null;
+		int counts = 0;
+		try{
+			session = sessionFactory.openSession();
+			SQLQuery count = session.createSQLQuery("SELECT COUNT(*) FROM USER a, USER_ROLE b, RESELLER_USER c WHERE a.ID=b.USER_ID AND a.ID=c.USER_ID AND b.ROLE_ID= 3 AND c.RESELLER_ID=?");
+			count.setParameter(0, resellerID);
+			List results = count.list();
+			if(results != null && results.size() == 1 ){
+				counts = ((BigInteger)results.get(0)).intValue();
+			}
+		}catch(Exception exception){
+			logger.error("Error while fetching number of customers.", exception);
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		return counts;
 	}
 
 }

@@ -27,4 +27,6 @@ public interface BeatDAO {
 	
 	void deleteAssignedBeatCustomerLink(int beatID) throws Exception;
 	
+	int getBeatsCount(int resellerID);
+	
 }

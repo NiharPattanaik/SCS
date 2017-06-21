@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.sales.crm.exception.ErrorCodes;
 import com.sales.crm.model.Order;
@@ -61,7 +62,7 @@ public class OrderReSTController {
 		ReSTResponse response = new ReSTResponse();
 		int resellerID = (Integer) session.getAttribute("resellerID");
 		try{
-			List<Order> orders = orderService.getOrders(resellerID);
+			List<Order> orders = orderService.getOrders(resellerID, -1);
 			response.setBusinessEntities(orders);
 			response.setStatus(ReSTResponse.STATUS_SUCCESS);
 		}catch(Exception exception){
@@ -90,11 +91,11 @@ public class OrderReSTController {
 		
 	}
 	
-	@GetMapping(value="/unscheduleOrderBooking/{orderScheduleID}") 
-	public ResponseEntity<ReSTResponse> unscheduleOrderBooking(@PathVariable("orderScheduleID") int orderScheduleID){
+	@GetMapping(value="/unscheduleOrderBooking/{orderScheduleID}/{customerID}") 
+	public ResponseEntity<ReSTResponse> unscheduleOrderBooking(@PathVariable("orderScheduleID") int orderScheduleID, @PathVariable("customerID") int customerID){
 		ReSTResponse response = new ReSTResponse();
 		try{
-			orderService.unScheduleOrderBooking(orderScheduleID);
+			orderService.unScheduleOrderBooking(orderScheduleID, customerID);
 			response.setStatus(ReSTResponse.STATUS_SUCCESS);
 		}catch(Exception exception){
 			response.setStatus(ReSTResponse.STATUS_FAILURE);
@@ -129,6 +130,63 @@ public class OrderReSTController {
 			return new ResponseEntity<ReSTResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return new ResponseEntity<ReSTResponse>(response, HttpStatus.OK);
+	}
+	
+	@GetMapping(value="/orderScheduleReport/{salesExecID}/{beatID}/{visitDate}/{custID}/{status}")
+	public ResponseEntity<ReSTResponse> getOrderScheduleReport(@PathVariable("salesExecID") int salesExecID, @PathVariable("beatID") int beatID, @PathVariable("visitDate") String visitDateStr, @PathVariable("custID") int custID, @PathVariable("status") int status){
+		List<OrderBookingSchedule> orderBookingSchedules = new ArrayList<OrderBookingSchedule>();
+		ReSTResponse response = new ReSTResponse();
+		try{
+			Date visitDate = null;
+			//Hack by passing -
+			if(visitDateStr != null && !visitDateStr.equals("-")){
+				visitDate = new SimpleDateFormat("dd-MM-yyyy").parse(visitDateStr);
+			}else{
+				visitDate = new Date();
+			}
+			int resellerID = (Integer) session.getAttribute("resellerID");
+			orderBookingSchedules = orderService.getOrderScheduleReport(resellerID, salesExecID, beatID, custID, -1, status, visitDate);
+			response.setBusinessEntities(orderBookingSchedules);
+			response.setStatus(ReSTResponse.STATUS_SUCCESS);
+		}catch(Exception exception){
+			logger.error("Not able to fetch order schedule report data.", exception);
+			response.setStatus(ReSTResponse.STATUS_FAILURE);
+			response.setErrorCode(ErrorCodes.SYSTEM_ERROR);
+			response.setErrorMsg("Scheduled order booking could not be fetched successfully. Please try after sometime and if error persists, contact System Administrator");
+			return new ResponseEntity<ReSTResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		return new ResponseEntity<ReSTResponse>(response, HttpStatus.OK);
+		
+	}
+	
+	
+	@GetMapping(value="/dashboardOrderScheduleSummary/{salesExecID}/{visitDate}")
+	public ResponseEntity<ReSTResponse> getDashboardOrderScheduleSummary(@PathVariable("salesExecID") int salesExecID, @PathVariable("visitDate") String visitDateStr){
+		List<OrderBookingSchedule> orderBookingSchedules = new ArrayList<OrderBookingSchedule>();
+		ReSTResponse response = new ReSTResponse();
+		try{
+			Date visitDate = null;
+			//Hack by passing -
+			if(visitDateStr != null && !visitDateStr.equals("-")){
+				visitDate = new SimpleDateFormat("dd-MM-yyyy").parse(visitDateStr);
+			}else{
+				visitDate = new Date();
+			}
+			int resellerID = (Integer) session.getAttribute("resellerID");
+		//	orderBookingSchedules = orderService.getOrderScheduleReport(resellerID, salesExecID, beatID, custID, -1, status, visitDate);
+			response.setBusinessEntities(orderBookingSchedules);
+			response.setStatus(ReSTResponse.STATUS_SUCCESS);
+		}catch(Exception exception){
+			logger.error("Not able to fetch order schedule report data.", exception);
+			response.setStatus(ReSTResponse.STATUS_FAILURE);
+			response.setErrorCode(ErrorCodes.SYSTEM_ERROR);
+			response.setErrorMsg("Scheduled order booking could not be fetched successfully. Please try after sometime and if error persists, contact System Administrator");
+			return new ResponseEntity<ReSTResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		return new ResponseEntity<ReSTResponse>(response, HttpStatus.OK);
+		
 	}
 
 }

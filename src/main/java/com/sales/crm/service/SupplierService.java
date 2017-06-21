@@ -34,4 +34,7 @@ public class SupplierService {
 		return supplierDAO.getResellerSupplier(resellerID);
 	}
 	
+	public int getSuppliersCount(int resellerID){
+		return supplierDAO.getSuppliersCount(resellerID);
+	}
 }

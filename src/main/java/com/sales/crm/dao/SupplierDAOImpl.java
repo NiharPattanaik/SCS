@@ -1,10 +1,12 @@
 package com.sales.crm.dao;
 
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -140,5 +142,25 @@ public class SupplierDAOImpl implements SupplierDAO{
 		return suppliers;
 	}
 
-		
+	@Override
+	public int getSuppliersCount(int resellerID){
+		Session session = null;
+		int counts = 0;
+		try{
+			session = sessionFactory.openSession();
+			SQLQuery count = session.createSQLQuery("SELECT COUNT(*) FROM SUPPLIER WHERE RESELLER_ID= ?");
+			count.setParameter(0, resellerID);
+			List results = count.list();
+			if(results != null && results.size() == 1 ){
+				counts = ((BigInteger)results.get(0)).intValue();
+			}
+		}catch(Exception exception){
+			logger.error("Error while fetching number of suppliers.", exception);
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		return counts;
+	}	
 }

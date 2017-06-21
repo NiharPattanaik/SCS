@@ -201,6 +201,14 @@ public class UserWebController {
 		return new ModelAndView("/users_list","users", users);  
 	}
 	
+	
+	@GetMapping(value="/list/{roleID}")
+	public ModelAndView getUsersByRole(@PathVariable("roleID") int roleID){
+		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
+		List<User> users = userService.getUsersByRole(resellerID, roleID);
+		return new ModelAndView("/users_list","users", users);  
+	}
+	
 	@RequestMapping(value="/login",method = RequestMethod.POST)  
 	public ModelAndView login(HttpServletRequest request, HttpServletResponse response){
 		String userName = request.getParameter("uname");
@@ -234,7 +242,8 @@ public class UserWebController {
 			httpSession.setAttribute("resellerID", user.getResellerID());
 			httpSession.setAttribute("userFullName", user.getFirstName() + " " + (user.getLastName() != null ? user.getLastName() : ""));
 			httpSession.setAttribute("resourcePermIDs", resourcePermIDs);
-			return new ModelAndView(getHomePage(resourcePermIDs)); 
+			//return new ModelAndView(getHomePage(resourcePermIDs)); 
+			return new ModelAndView("redirect:/web/dashboardWeb/dashboard"); 
 		}
 	}
 	
@@ -260,33 +269,6 @@ public class UserWebController {
 		return new ModelAndView("/change_pass_conf", "msg", msg);
 	}	
 	
-	/**
-	@GetMapping(value="/createAdminUser/{resellerID}")  
-	public ModelAndView createAdminUser(@PathVariable int resellerID){
-		User user = new User();
-		user.setUserName("user"+resellerID);
-		user.setPassword("pass"+resellerID);
-		user.setFirstName("firstName");
-		user.setLastName("lastName");
-		user.setResellerID(resellerID);
-		Set<Integer> roleIDList = new HashSet<Integer>();
-		roleIDList.add(1);
-		user.setRoleIDs(roleIDList);
-		userService.createUser(user);
-		return new ModelAndView("/message", "message", "Admin User is successfully created. <br><b>User Name</b> - "+ user.getUserName() +"<br><b>password</b> - "+ user.getPassword());
-	}
-	**/
-	
-	private boolean isAdminUser(User user){
-		List<Role> roles = user.getRoles();
-		for(Role role : roles){
-			if(role.getRoleID() == 1){
-				return true;
-			}
-		}
-		
-		return false;
-	}
 	
 	
 	private String getHomePage(List resourcePermIDs){
@@ -310,7 +292,7 @@ public class UserWebController {
 			return "redirect:/web/salesExecWeb/beatlist";
 		}else if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_VIEW_ASSOCIATED_CUSTOMERS.getResourcePermissionID())){
 			return "redirect:/web/beatWeb/beat-customers/list";
-		}else if(resourcePermIDs.contains(ResourcePermissionEnum.USER_VIEW_SCHEDULED_VISITS.getResourcePermissionID())){
+		}else if(resourcePermIDs.contains(ResourcePermissionEnum.ORDER_VIEW_SCHEDULED_ORDER_BOOKINGS.getResourcePermissionID())){
 			return "redirect:/web/orderWeb/scheduledOrderBookings";
 		}
 		

@@ -81,4 +81,8 @@ public class CustomerService {
 	public List<Customer> search(int resellerID, Map<String, Object> filterCriteria)throws Exception{
 		return customerDAO.search(resellerID, filterCriteria);
 	}
+	
+	public int getCustomersCount(int resellerID){
+		return customerDAO.getCustomersCount(resellerID);
+	}
 }

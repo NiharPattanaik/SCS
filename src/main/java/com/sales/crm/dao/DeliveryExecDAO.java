@@ -37,4 +37,6 @@ public interface DeliveryExecDAO {
 	void scheduleDeliveryBooking(DeliveryBookingSchedule deliveryBookingSchedule) throws Exception;
 	
 	void unscheduleDeliveryBooking(List<Integer> customerIDs, Date visitDate) throws Exception;
+	
+	int getDeliveryExecutiveCount(int resellerID);
 }

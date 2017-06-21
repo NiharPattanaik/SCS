@@ -16,4 +16,6 @@ public interface SupplierDAO {
 	
 	List<Supplier> getResellerSupplier(int resellerID);
 	
+	int getSuppliersCount(int resellerID);
+	
 }

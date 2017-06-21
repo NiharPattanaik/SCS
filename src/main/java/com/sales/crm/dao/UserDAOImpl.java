@@ -291,6 +291,24 @@ public class UserDAOImpl implements UserDAO {
 				}
 				user.setCompanyID(Integer.valueOf(String.valueOf(objs[10])));
 				user.setResellerID(resellerID);
+				Role role = new Role();
+				switch(roleID){
+					case 1:
+						role.setDescription("Admin Role");
+						break;
+					case 2:
+						role.setDescription("Sales Executive");
+						break;
+					case 3:
+						role.setDescription("Delivery Executive");
+						break;
+					case 4:
+						role.setDescription("Collection Executive");
+						break;
+				}
+				List<Role> roles = new ArrayList<Role>();
+				roles.add(role);
+				user.setRoles(roles);
 				users.add(user);
 			}
 		}catch(Exception exception){

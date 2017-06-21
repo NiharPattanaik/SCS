@@ -1,5 +1,6 @@
 package com.sales.crm.dao;
 
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -23,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.sales.crm.model.Beat;
-import com.sales.crm.model.OrderStatusEnum;
 import com.sales.crm.model.SalesExecutive;
 import com.sales.crm.model.TrimmedCustomer;
 
@@ -338,7 +338,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 		try {
 			session = sessionFactory.openSession();
 			SQLQuery query = session.createSQLQuery(
-					"SELECT a.ID, a.FIRST_NAME, a.LAST_NAME FROM USER a, BEAT b, CUSTOMER c, ORDER_BOOKING_SCHEDULE d, RESELLER_USER e  WHERE a.ID=d.SALES_EXEC_ID AND b.ID=d.BEAT_ID AND c.ID=d.CUSTOMER_ID AND e.USER_ID=a.ID AND e.RESELLER_ID=? group by a.ID");
+					"SELECT a.ID, a.FIRST_NAME, a.LAST_NAME FROM USER a, BEAT b, CUSTOMER c, ORDER_BOOKING_SCHEDULE d, RESELLER_USER e, ORDER_BOOKING_SCHEDULE_CUSTOMERS f  WHERE a.ID=d.SALES_EXEC_ID AND b.ID=d.BEAT_ID AND c.ID=f.CUSTOMER_ID AND d.ID=f.ORDER_BOOKING_SCHEDULE_ID AND e.USER_ID=a.ID AND e.RESELLER_ID=? group by a.ID");
 			query.setParameter(0, resellerID);
 			List salesExecs = query.list();
 			for(Object obj : salesExecs){
@@ -464,9 +464,8 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 		List<TrimmedCustomer> trimmedCustomers = new ArrayList<TrimmedCustomer>();
 		try {
 			session = sessionFactory.openSession();
-			StringBuilder builder = new StringBuilder("SELECT b.ID CUST_ID, b.NAME CUST_NAME, d.NAME BEAT_NAME, c.FIRST_NAME, c.LAST_NAME FROM ORDER_BOOKING_SCHEDULE a, CUSTOMER b, USER c, BEAT d WHERE a.CUSTOMER_ID=b.ID AND a.BEAT_ID = d.ID AND a.SALES_EXEC_ID = c.ID AND a.RESELLER_ID=b.RESELLER_ID AND a.RESELLER_ID=d.RESELLER_ID AND a.RESELLER_ID=13 AND a.VISIT_DATE = '2017-06-12' AND a.STATUS=1;");
 			SQLQuery query = session.createSQLQuery(
-					"SELECT a.ID, a.NAME FROM CUSTOMER a, ORDER_BOOKING_SCHEDULE b WHERE a.ID=b.CUSTOMER_ID AND b.SALES_EXEC_ID= ? AND b.VISIT_DATE= ? AND b.BEAT_ID= ? group by a.ID");
+					"SELECT a.ID, a.NAME FROM CUSTOMER a, ORDER_BOOKING_SCHEDULE b, ORDER_BOOKING_SCHEDULE_CUSTOMERS c WHERE a.ID=c.CUSTOMER_ID AND c.ORDER_BOOKING_SCHEDULE_ID=b.ID AND b.SALES_EXEC_ID= ? AND b.VISIT_DATE= ? AND b.BEAT_ID= ? group by a.ID");
 			query.setParameter(0, salesExecID);
 			query.setParameter(1, visitDate);
 			query.setParameter(2, beatID);
@@ -511,5 +510,27 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 				session.close();
 			}
 		}
+	}
+	
+	@Override
+	public int getSalesExecutiveCount(int resellerID){
+		Session session = null;
+		int counts = 0;
+		try{
+			session = sessionFactory.openSession();
+			SQLQuery count = session.createSQLQuery("SELECT COUNT(*) FROM USER a, USER_ROLE b, RESELLER_USER c WHERE a.ID=b.USER_ID AND a.ID=c.USER_ID AND b.ROLE_ID= 2 AND c.RESELLER_ID=?");
+			count.setParameter(0, resellerID);
+			List results = count.list();
+			if(results != null && results.size() == 1 ){
+				counts = ((BigInteger)results.get(0)).intValue();
+			}
+		}catch(Exception exception){
+			logger.error("Error while fetching number of customers.", exception);
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		return counts;
 	}
 }

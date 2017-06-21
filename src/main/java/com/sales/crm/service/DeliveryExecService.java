@@ -74,4 +74,7 @@ public class DeliveryExecService {
 		deliveryDAO.unscheduleDeliveryBooking(customerIDs, visitDate);
 	}
 	
+	public int getDeliveryExecutiveCount(int resellerID){
+		return deliveryDAO.getDeliveryExecutiveCount(resellerID);
+	}
 }

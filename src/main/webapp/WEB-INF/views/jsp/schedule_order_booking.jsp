@@ -100,6 +100,7 @@
 										id="id_trial" />
 								</c:forEach>
 							</form:select>
+							<div id="salesExecName"></div>
 						</div>
 							
 						<div class="form-group required">
@@ -175,6 +176,8 @@
 			     var salesEXId = document.getElementById("sales_exec");
 				 var salesExecName = salesEXId.options[salesEXId.selectedIndex].text;
 			     $('#salesEX').text(salesExecName);
+			     var hidden = "<input type=hidden name=salesExecName id=salesExecName value='"+salesExecName+"'/>";
+			     $(hidden).appendTo('#salesExecName');
 			     
 			     //Beat
 			     var beatId = document.getElementById("beats");
