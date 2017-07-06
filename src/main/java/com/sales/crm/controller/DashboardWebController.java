@@ -67,12 +67,7 @@ public class DashboardWebController {
 		int numberOfSalesExecs = salesExecService.getSalesExecutiveCount(resellerID);
 		//Number of Delivery Execs
 		int numberOfDeliveryExecs = deliveryService.getDeliveryExecutiveCount(resellerID);
-		try {
-			scheduledOrderSummaries = orderService.getScheduledOrderSummary(resellerID, -1, new SimpleDateFormat("dd-MM-yyyy").parse("21-06-2017"));
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		scheduledOrderSummaries = orderService.getScheduledOrderSummary(resellerID, -1, new Date());
 		List<SalesExecutive> salesExecs = salesExecService.getSalesExecutives(resellerID);
 		modelMap.put("numberOfCustomers", numberOfCustomers);
 		modelMap.put("numberOfSuppliers", numberOfSuppliers);

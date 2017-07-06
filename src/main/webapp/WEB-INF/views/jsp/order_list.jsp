@@ -11,6 +11,10 @@
 	<link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
 	<script src="<%=request.getContextPath()%>/resources/js/jquery-3.2.0.min.js"></script>
 	<script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
+	<script src="<%=request.getContextPath()%>/resources/js/jquery.dataTables.min.js"></script>
+	<script src="<%=request.getContextPath()%>/resources/js/dataTables.bootstrap.min.js"></script>
+	<script src="<%=request.getContextPath()%>/resources/css/jquery.dataTables.min.css"></script>
+	<script src="<%=request.getContextPath()%>/resources/css/dataTables.bootstrap.min.css"></script>
 
 <style>
     .dpHeaderWrap {
@@ -62,8 +66,15 @@
     background: #ddd;
     padding: 10px 0 10px 0;
 	}
-
-    </style>
+	
+	.dataTables_paginate {
+    margin-top: -20px;
+    position: absolute;
+    text-align: right;
+    left: 55%;
+	}
+	
+	</style>
 </head>
 
 <body>
@@ -83,29 +94,23 @@
         	<div class="col-md-4 add_customer">
         	</div>
 		</div>        
-        <table class="table table-striped">
+        <table class="table table-striped" id="orderTable">
             <thead>
                 <tr>
                     <th>Order ID</th>
                     <th>Order Booking ID</th>
                     <th>Customer Name</th>
-                    <th>No Of Line Items</th>
-                    <th>Order Value(Aprox.)</th>
                     <th>Status</th>
-                    <th>Remarks</th>
                     <th>Creation Date</th>
                 </tr>
             </thead>
             <tbody>
             	<c:forEach var="order" items="${orders}">  
                 <tr>
-                 	<td>${order.orderID}</td>
+                 	<td><a href="<%=request.getContextPath()%>/web/orderWeb/${order.orderID}">${order.orderID}</a></td>
                 	<td>${order.orderBookingID}</td>
                 	<td>${order.customerName}</td>
-                    <td>${order.noOfLineItems}</td>
-                    <td>${order.bookValue}</td>
                     <td>${order.statusAsString}</td>
-                    <td>${order.remark}</td>
                     <td>${order.dateCreatedString}</td>
                 </tr>
                 </c:forEach>
@@ -113,5 +118,9 @@
         </table>
    	</div>
 </body>
-
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#orderTable').DataTable({searching: false, aaSorting: [], bLengthChange: false, pageLength: 10});
+} );
+</script>
 </html>

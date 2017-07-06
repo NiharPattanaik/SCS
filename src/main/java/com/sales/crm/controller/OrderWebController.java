@@ -11,10 +11,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.sales.crm.model.Beat;
-import com.sales.crm.model.Customer;
 import com.sales.crm.model.Order;
 import com.sales.crm.model.OrderBookingSchedule;
 import com.sales.crm.model.SalesExecutive;
@@ -38,6 +37,8 @@ import com.sales.crm.service.SalesExecService;
 @Controller
 @RequestMapping("/web/orderWeb")
 public class OrderWebController {
+	
+	private static Logger logger = Logger.getLogger(OrderWebController.class);
 	
 	@Autowired
 	private OrderService orderService;
@@ -53,6 +54,33 @@ public class OrderWebController {
 	
 	@Autowired
 	HttpSession httpSession;
+	
+	@GetMapping(value="/{orderID}")
+	public ModelAndView getOrderDetails(@PathVariable("orderID") int orderID) throws Exception{
+		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
+		Order order = null;
+		try{
+			List<Order> orders = orderService.getOrders(resellerID, orderID);
+			if(orders != null && !orders.isEmpty()){
+				order = orders.get(0);
+			}
+		}catch(Exception exception){
+			logger.error("Error while fetching order details.", exception);
+		}
+		return new ModelAndView("/order_details", "order", order);
+	}
+	
+	@GetMapping(value="/createOrderForm/{orderBookingID}/{customerID}/{customerName}")
+	public ModelAndView getCreateOrderForm(@PathVariable("orderBookingID") int orderBookingID,
+			@PathVariable("customerID") int customerID, @PathVariable("customerName") String customerName) {
+		Map<String, Object> modelMap = new HashMap<String, Object>();
+		modelMap.put("order", new Order());
+		modelMap.put("orderBookingID", orderBookingID);
+		modelMap.put("customerID", customerID);
+		modelMap.put("customerName", customerName);
+		return new ModelAndView("/create_order", modelMap);
+
+	}
 	
 	@GetMapping(value="/scheduledOrderBookings")
 	public ModelAndView getScheduledOrderBookingList() throws Exception{
@@ -196,6 +224,56 @@ public class OrderWebController {
 			//
 		}
 		return new ModelAndView("/order_list","orders", orders);  
+	}
+	
+	@GetMapping(value="/editOrderForm/{orderID}")
+	public ModelAndView getOrderForm(@PathVariable("orderID") int orderID){
+		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
+		Order order = null;
+		try{
+			List<Order> orders = orderService.getOrders(resellerID, orderID);
+			if(orders != null && !orders.isEmpty()){
+				order = orders.get(0);
+			}
+		}catch(Exception exception){
+			logger.error("Error while fetching order details.", exception);
+		}
+		return new ModelAndView("/edit_order", "order", order);
+	}
+	
+	@PostMapping(value="/update")
+	public ModelAndView updateOrder(@ModelAttribute("order") Order order){
+		String msg = "";
+		try{
+			order.setDateCreated(new SimpleDateFormat("dd-MM-yyyy").parse(order.getDateCreatedString()));
+			orderService.editOrder(order);
+		}catch(Exception exception){
+			logger.error("Error while updating the order : "+ order.getOrderID(), exception);
+			msg = "Order <b>"+ order.getOrderID() + "</b> could not be updated successfully. Please try again after sometime and if error persists"
+					+ ", contact System Administrator. ";
+		}
+		Map<String, Object> modelMap = new HashMap<String, Object>();
+		modelMap.put("msg", msg);
+		modelMap.put("orderID", order.getOrderID());
+		return new ModelAndView("/order_update_conf", modelMap);
+	}
+	
+	@PostMapping(value="/create")
+	public ModelAndView createOrder(@ModelAttribute("order") Order order){
+		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
+		String msg = "";
+		try{
+			order.setResellerID(resellerID);
+			orderService.create(order);
+		}catch(Exception exception){
+			logger.error("Error while creating the order.", exception);
+			msg = "Order could not be created successfully. Please try again after sometime and if error persists"
+					+ ", contact System Administrator. ";
+		}
+		Map<String, Object> modelMap = new HashMap<String, Object>();
+		modelMap.put("msg", msg);
+		modelMap.put("orderID", order.getOrderID());
+		return new ModelAndView("/order_create_conf", modelMap);
 	}
 	
 	

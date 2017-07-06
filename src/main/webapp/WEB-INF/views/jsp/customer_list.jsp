@@ -11,6 +11,9 @@
 	<link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
 	<script src="<%=request.getContextPath()%>/resources/js/jquery-3.2.0.min.js"></script>
 	<script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
+	<script src="<%=request.getContextPath()%>/resources/js/jquery.dataTables.min.js"></script>
+	<script src="<%=request.getContextPath()%>/resources/js/dataTables.bootstrap.min.js"></script>
+	<script src="<%=request.getContextPath()%>/resources/css/dataTables.bootstrap.min.css"></script>
 
 <style>
     .dpHeaderWrap {
@@ -74,6 +77,13 @@
     max-width: 100%;
     margin-bottom: 20px;
     margin-top: 10px;
+}
+
+.dataTables_paginate {
+    margin-top: -20px;
+    position: absolute;
+    text-align: right;
+    left: 55%;
 }
     </style>
     
@@ -159,6 +169,11 @@
    	</div>
 </body>
 	<script type="text/javascript">
+		
+		$(document).ready(function() {
+		    $('#custTable').DataTable({searching: false, aaSorting: [], bLengthChange: false, pageLength: 10});
+		} );
+	
 		$('#uploadBtn').click(function(){
 			$('#upload').click();
 		});
@@ -206,7 +221,7 @@
 					$("#custTable > tbody").empty();
 					var result = data.businessEntities;
 					$.each(result,function(i,customer) {
-						var row_data = "<tr><td>"+customer.name+"</td><td>"+customer.name+"</td><td>"+customer.description+"</td><td>"+customer.beatName+"</td><td>"+customer.address[0].city+"</td><td>"+customer.address[0].contactPerson+"</td><td>"+customer.address[0].phoneNumber+"</td></tr>";
+						var row_data = "<tr><td>"+customer.customerID+"</td><td>"+customer.name+"</td><td>"+customer.description+"</td><td>"+customer.beatName+"</td><td>"+customer.address[0].city+"</td><td>"+customer.address[0].contactPerson+"</td><td>"+customer.address[0].phoneNumber+"</td></tr>";
 		                $("#custTable > tbody").append(row_data);
 					});
 				}

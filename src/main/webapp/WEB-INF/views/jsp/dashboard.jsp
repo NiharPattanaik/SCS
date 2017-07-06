@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+
 <html lang="en">
 
 <head>
@@ -113,13 +115,18 @@ input[type=file] {
 	display: block;
 }
 
-tr {
+#schSummTbl tr {
 	width: 100%;
 	display: inline-table;
 	table-layout: fixed;
 }
 
-tbody {
+#schSummTbl table {
+	height: 300px;
+	display: -moz-groupbox;
+}
+
+#schSummTbl tbody {
 	overflow-y: scroll;
 	height: 150px;
 	width: 98%;
@@ -178,7 +185,7 @@ tbody {
 							<div class="form-group">
 								<select class="form-control"
 									id="sales_exec">
-									<option value="-1" label="-- Select --" />
+									<option value="-1" label="-- Sales Executive --" />
 									<c:forEach var="salesExec" items="${salesExecs}">
 										<option value="${ salesExec.userID }"
 											label="${ salesExec.name }"
@@ -188,7 +195,7 @@ tbody {
 							</div>
 						</div>
 						<div class="col-md-2" style="padding-right: 1px;">
-							<input id="dp" name="visitDate" class="dp form-control" type="text" value="">
+							<input id="dp" name="visitDate" class="dp form-control" type="text" value="--Visit Date--">
 						</div>
 						<div class="col-md-2">
 							<button type="submit" id="search" class="btn btn-primary"
@@ -196,7 +203,7 @@ tbody {
 						</div>
 					</form>
 				</div>
-				<table class="table table-striped" id="custTable">
+				<table class="table table-striped" id="schSummTbl">
 					<thead>
 						<tr>
 							<th>Schedule ID</th>
@@ -210,18 +217,23 @@ tbody {
 						</tr>
 					</thead>
 					<tbody>
-						<c:forEach var="scheduledOrderSummarie" items="${scheduledOrderSummaries}">  
-							<tr>
-								<td><a href="<%=request.getContextPath()%>/web/orderWeb/orderScheduleReport/${ scheduledOrderSummarie.scheduleID }">${ scheduledOrderSummarie.scheduleID }</a></td>
-								<td>${ scheduledOrderSummarie.visitDateStr }</td>
-								<td>${ scheduledOrderSummarie.salesExecName }</td>
-								<td>${ scheduledOrderSummarie.numberOfSchedules }</td>
-								<td>${ scheduledOrderSummarie.numberOfOrders }</td>
-								<td>${ scheduledOrderSummarie.numberOfOrdersPending }</td>
-								<td>${ scheduledOrderSummarie.numberOfLines }</td>
-								<td>${ scheduledOrderSummarie.totalBookValue }</td>
-							</tr>
-						</c:forEach>
+						<c:if test="${fn:length(scheduledOrderSummaries) gt 0}">
+							<c:forEach var="scheduledOrderSummarie" items="${scheduledOrderSummaries}">  
+								<tr>
+									<td><a href="<%=request.getContextPath()%>/web/orderWeb/orderScheduleReport/${ scheduledOrderSummarie.scheduleID }">${ scheduledOrderSummarie.scheduleID }</a></td>
+									<td>${ scheduledOrderSummarie.visitDateStr }</td>
+									<td>${ scheduledOrderSummarie.salesExecName }</td>
+									<td>${ scheduledOrderSummarie.numberOfSchedules }</td>
+									<td>${ scheduledOrderSummarie.numberOfOrders }</td>
+									<td>${ scheduledOrderSummarie.numberOfOrdersPending }</td>
+									<td>${ scheduledOrderSummarie.numberOfLines }</td>
+									<td>${ scheduledOrderSummarie.totalBookValue }</td>
+								</tr>
+							</c:forEach>
+						</c:if>
+						<c:if test="${fn:length(scheduledOrderSummaries) eq 0}">
+							<tr><td>No schedules available.</td><td></td><td></td><td></td></tr>
+						</c:if>	
 					</tbody>
 				</table>
 			</div>
@@ -231,35 +243,46 @@ tbody {
 <script type="text/javascript">
 	$(document).ready(function() {
 		
+		$('#sales_exec').change(function(){
+			if($("#sales_exec").prop('selectedIndex') != 0){
+				$('#search').prop('disabled', false);
+			}else{
+				$('#search').prop('disabled', true);
+			}
+		});
+		
+		$('#dp').blur(function() {
+			if($("#dp").val() != "--Visit Date--" && $('#dp').val()){
+				$('#search').prop('disabled', false);
+			}else{
+				$('#search').prop('disabled', true);
+			}
+		});
+		
 		$('#dp').datepicker({format: 'dd-mm-yyyy'});
 		
 		$('#search').click(function(){
 			var dataFound = 0;
 			//Hack
 			var date = "-";
-			if($('#dp').val()){
+			if($("#dp").val() != "--Visit Date--" && $('#dp').val()){
 				date=$('#dp').val();
 			}
 			$.ajax({
 				type : "GET",
-				url : "/crm/rest/orderReST/orderScheduleReport/"+$('#sales_exec').val()+"/"+$('#beat_id').val()+"/"+date+"/"+$('#cust_id').val()+"/"+$('#status').val(),
+				url : "/crm/rest/orderReST/dashboardOrderScheduleSummary/"+ date +"/"+ $('#sales_exec').val(),
 				dataType : "json",
 				success : function(data) {
-					$("#reportTbl > tbody").empty();
+					$("#schSummTbl > tbody").empty();
 					var result = data.businessEntities;
 					$.each(result,function(i,schedule) {
 						dataFound = 1;
-						var row_data = "<tr><td>"+schedule.bookingScheduleID+"</td>";
-						var orderTD="<td>-</td>";
-						if(schedule.orderID != 0){
-							orderTD = "<td><a href=/crm/web/orderWeb/list/"+schedule.orderID+">"+schedule.orderID+"</a></td>";
-						}
-						row_data = row_data + orderTD +"<td>"+schedule.beatName+"</td><td>"+schedule.customerName+"</td><td>"+schedule.salesExecName+"</td><td>"+schedule.visitDateAsString+"</td><td>"+schedule.statusAsString+"</td></tr>";
-		                $("#reportTbl > tbody").append(row_data);
+						row_data = "<tr><td><a href=/crm/web/orderWeb/orderScheduleReport/"+schedule.scheduleID+">"+schedule.scheduleID+"</a></td><td>"+schedule.visitDateStr+"</td><td>"+schedule.salesExecName+"</td><td>"+schedule.numberOfSchedules+"</td><td>"+schedule.numberOfOrders+"</td><td>"+schedule.numberOfOrdersPending+"</td><td>"+schedule.numberOfLines+"</td><td>"+schedule.totalBookValue+"</td></tr>";
+		                $("#schSummTbl > tbody").append(row_data);
 					});
 					if(dataFound == 0){
-						var row_data = "<br>No order booking is scheduled.";
-						 $("#reportTbl > tbody").append(row_data);
+						var row_data = "<br>No Schedules available.";
+						 $("#schSummTbl > tbody").append(row_data);
 					}
 				}
 			});

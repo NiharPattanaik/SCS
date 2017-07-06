@@ -22,6 +22,11 @@ public class OrderService {
 		return orderDAO.create(order);
 	}
 	
+	public int createWithOTP(Order order, String otp) throws Exception{
+		return orderDAO.createWithOTP(order, otp);
+	}
+	
+	
 	public int scheduleOrderBooking(OrderBookingSchedule orderBookingSchedule) throws Exception{
 		if(orderBookingSchedule.getVisitDate() == null){
 			orderBookingSchedule.setVisitDate(new Date());
@@ -62,6 +67,14 @@ public class OrderService {
 	
 	public List<ScheduledOrderSummary> getScheduledOrderSummary(int resellerID, int salesExecID, Date visitDate){
 		return orderDAO.getScheduledOrderSummary(resellerID, salesExecID, visitDate);
+	}
+	
+	public List<Order> getOrderDetails(int resellerID, int orderID) throws Exception{
+		return orderDAO.getOrders(resellerID, orderID);
+	}
+	
+	public void editOrder(Order order) throws Exception{
+		orderDAO.editOrder(order);
 	}
 
 }

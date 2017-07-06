@@ -12,6 +12,9 @@
 	<link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
 	<script src="<%=request.getContextPath()%>/resources/js/jquery-3.2.0.min.js"></script>
 	<script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
+	<script src="<%=request.getContextPath()%>/resources/js/jquery.dataTables.min.js"></script>
+	<script src="<%=request.getContextPath()%>/resources/js/dataTables.bootstrap.min.js"></script>
+	<script src="<%=request.getContextPath()%>/resources/css/dataTables.bootstrap.min.css"></script>
  
 <style>
     .dpHeaderWrap {
@@ -53,6 +56,19 @@
     margin-top: 12px;
     
     }
+    
+    table.table.table-striped thead {
+    background: #ddd;
+    padding: 10px 0 10px 0;
+	}
+	
+	.dataTables_paginate {
+    margin-top: -20px;
+    position: absolute;
+    text-align: right;
+    left: 55%;
+	}
+	
     </style>
 </head>
 
@@ -67,7 +83,6 @@
     <div class="container">
         <!-- Links -->
         <%@ include file="menus.jsp" %>
-        <!-- div class="row top-height"-->
         	<div class="row customer_list">
         		<div class="col-md-8">
             		<h2>Users List</h2>   
@@ -78,7 +93,7 @@
 					<% } %>	
 				</div>
 			</div>        
-            <table class="table">
+            <table class="table table-striped" id="userTable">
                 <thead>
                     <tr>
                         <th>User ID</th>
@@ -127,8 +142,11 @@
                     </c:forEach>
                 </tbody>
             </table>
-        <!--  /div-->
     </div>
 </body>
-
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#userTable').DataTable({searching: false, aaSorting: [], bLengthChange: false, pageLength: 10});
+} );
+</script>
 </html>

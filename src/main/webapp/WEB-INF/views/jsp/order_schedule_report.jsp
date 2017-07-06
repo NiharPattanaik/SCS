@@ -16,6 +16,10 @@
 	<script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
 	<link href="<%=request.getContextPath()%>/resources/css/bootstrap-datepicker.css" rel="stylesheet">
 	<script	src="<%=request.getContextPath()%>/resources/js/bootstrap-datepicker.js"></script>
+	<script src="<%=request.getContextPath()%>/resources/js/jquery.dataTables.min.js"></script>
+	<script src="<%=request.getContextPath()%>/resources/js/dataTables.bootstrap.min.js"></script>
+	<script src="<%=request.getContextPath()%>/resources/css/dataTables.bootstrap.min.css"></script>
+	
 	
 
 <style>
@@ -76,7 +80,14 @@
     padding: 10px 0 10px 0;
 	}
 	
-    </style>
+	.dataTables_paginate {
+    margin-top: -20px;
+    position: absolute;
+    text-align: right;
+    left: 55%;
+	}
+	
+	</style>
 </head>
 
 <body>
@@ -187,6 +198,7 @@
                     <th>Sales Exec Name</th>
                     <th>Visit Date</th>
                     <th>Status</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -195,7 +207,7 @@
                 		<tr>
 		                 	<td>${orderBookingSchedule.bookingScheduleID}</td>
 		                 	<% if(pageContext.getAttribute("orderBookingSchedule") != null &&  ((OrderBookingSchedule)pageContext.getAttribute("orderBookingSchedule")).getOrderID() != 0 ){%>
-		                		<td><a href="<%=request.getContextPath()%>/web/orderWeb/list/${orderBookingSchedule.orderID}">${orderBookingSchedule.orderID}</a></td>
+		                		<td><a href="<%=request.getContextPath()%>/web/orderWeb/${orderBookingSchedule.orderID}">${orderBookingSchedule.orderID}</a></td>
 		                	<%}else{ %>
 		                		<td>-</td>
 		                	<% } %>	
@@ -204,6 +216,11 @@
 		                    <td>${orderBookingSchedule.salesExecName}</td>
 		                    <td>${orderBookingSchedule.visitDateAsString}</td>
 		                    <td>${orderBookingSchedule.statusAsString}</td>
+		                    <% if(pageContext.getAttribute("orderBookingSchedule") != null &&  ((OrderBookingSchedule)pageContext.getAttribute("orderBookingSchedule")).getStatus() == 9 ){%>
+		                		<td>Create Order</td>
+		                	<%}else{ %>
+		                		<td>-</td>
+		                	<% } %>	
                			</tr>
                 	</c:forEach>
                 </c:if>
@@ -238,9 +255,14 @@
 						var row_data = "<tr><td>"+schedule.bookingScheduleID+"</td>";
 						var orderTD="<td>-</td>";
 						if(schedule.orderID != 0){
-							orderTD = "<td><a href=/crm/web/orderWeb/list/"+schedule.orderID+">"+schedule.orderID+"</a></td>";
+							orderTD = "<td><a href=/crm/web/orderWeb/"+schedule.orderID+">"+schedule.orderID+"</a></td>";
 						}
-						row_data = row_data + orderTD +"<td>"+schedule.beatName+"</td><td>"+schedule.customerName+"</td><td>"+schedule.salesExecName+"</td><td>"+schedule.visitDateAsString+"</td><td>"+schedule.statusAsString+"</td></tr>";
+						
+						var actionTD="<td>-</td>";
+						if(schedule.status == 9){
+							actionTD="<td><a href=/crm/web/orderWeb/createOrderForm/"+schedule.bookingScheduleID+"/"+ schedule.customerID +"/"+ schedule.customerName +">Create Order</a></td>";
+						}
+						row_data = row_data + orderTD +"<td>"+schedule.beatName+"</td><td>"+schedule.customerName+"</td><td>"+schedule.salesExecName+"</td><td>"+schedule.visitDateAsString+"</td><td>"+schedule.statusAsString+"</td>"+ actionTD + "</tr>";
 		                $("#reportTbl > tbody").append(row_data);
 					});
 					if(dataFound == 0){
@@ -251,6 +273,9 @@
 			});
 			return false;
 		});
+		
+		$('#reportTbl').DataTable({searching: false, aaSorting: [], bLengthChange: false, pageLength: 10});
 	});
+	
 </script>
 </html>

@@ -110,32 +110,32 @@ public class CustomerXLSProcessor {
 						}
 						break;
 					case 10:
-						cell.setCellType(Cell.CELL_TYPE_STRING);
-						if (cell == null || cell.getStringCellValue().trim().isEmpty()) {
+						if (cell == null) {
 							errorMsgs.add("Main Address Postal Code is required.");
 							hasErrors = true;
 						} else {
+							cell.setCellType(Cell.CELL_TYPE_STRING);
 							mainAddress.setPostalCode(cell.getStringCellValue());
 						}
 						break;
 					case 11:
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						if(cell != null){
+							cell.setCellType(Cell.CELL_TYPE_STRING);
 							mainAddress.setPhoneNumber(cell.getStringCellValue());
 						}
 						break;
 					case 12:
-						cell.setCellType(Cell.CELL_TYPE_STRING);
-						if (cell == null || cell.getStringCellValue().trim().isEmpty()) {
+						if (cell == null) {
 							errorMsgs.add("Main Address Primary Mobile Number is required.");
 							hasErrors = true;
 						} else {
+							cell.setCellType(Cell.CELL_TYPE_STRING);
 							mainAddress.setMobileNumberPrimary(cell.getStringCellValue());
 						}
 						break;
 					case 13:
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						if(cell != null){
+							cell.setCellType(Cell.CELL_TYPE_STRING);
 							mainAddress.setMobileNumberSecondary(cell.getStringCellValue());
 						}
 						break;
@@ -175,26 +175,26 @@ public class CustomerXLSProcessor {
 						}
 						break;
 					case 21:
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						if(cell != null){
+							cell.setCellType(Cell.CELL_TYPE_STRING);
 							billingAddress.setPostalCode(cell.getStringCellValue());
 						}
 						break;
 					case 22:
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						if(cell != null){
+							cell.setCellType(Cell.CELL_TYPE_STRING);
 							billingAddress.setPhoneNumber(cell.getStringCellValue());
 						}
 						break;
 					case 23:
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						if(cell != null){
+							cell.setCellType(Cell.CELL_TYPE_STRING);
 							billingAddress.setMobileNumberPrimary(cell.getStringCellValue());
 						}
 						break;
 					case 24:
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						if(cell != null){
+							cell.setCellType(Cell.CELL_TYPE_STRING);
 							billingAddress.setMobileNumberSecondary(cell.getStringCellValue());
 						}
 						break;
@@ -211,7 +211,7 @@ public class CustomerXLSProcessor {
 					customer.setResellerID(resellerID);
 					customers.add(customer);
 				} else {
-					errors.put(row.getRowNum(), errorMsgs);
+					errors.put(row.getRowNum()+1, errorMsgs);
 				}
 
 			}

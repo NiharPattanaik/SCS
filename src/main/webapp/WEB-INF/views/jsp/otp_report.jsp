@@ -11,6 +11,9 @@
 	<link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
 	<script src="<%=request.getContextPath()%>/resources/js/jquery-3.2.0.min.js"></script>
 	<script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
+	<script src="<%=request.getContextPath()%>/resources/js/jquery.dataTables.min.js"></script>
+	<script src="<%=request.getContextPath()%>/resources/js/dataTables.bootstrap.min.js"></script>
+	<script src="<%=request.getContextPath()%>/resources/css/dataTables.bootstrap.min.css"></script>
 
 <style>
     .dpHeaderWrap {
@@ -52,6 +55,19 @@
     margin-top: 12px;
     
     }
+    
+    table.table.table-striped thead {
+    background: #ddd;
+    padding: 10px 0 10px 0;
+	}
+	
+	.dataTables_paginate {
+    margin-top: -20px;
+    position: absolute;
+    text-align: right;
+    left: 55%;
+	}
+	
     </style>
 </head>
 
@@ -70,7 +86,7 @@
             		<h2>OTP Report</h2>   
             	</div>
 	      </div>        
-            <table class="table">
+            <table class="table table-striped" id="otpTable">
                 <thead>
                     <tr>
                         <th>Customer Name</th>
@@ -100,5 +116,9 @@
             </table>
         </div>
 </body>
-
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#otpTable').DataTable({searching: false, aaSorting: [], bLengthChange: false, pageLength: 10});
+} );
+</script>
 </html>

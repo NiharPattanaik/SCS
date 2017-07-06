@@ -4,7 +4,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import javax.servlet.http.HttpSession;
 
@@ -18,13 +17,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
 
 import com.sales.crm.exception.ErrorCodes;
 import com.sales.crm.model.Order;
 import com.sales.crm.model.OrderBookingSchedule;
 import com.sales.crm.model.OrderBookingStats;
 import com.sales.crm.model.ReSTResponse;
+import com.sales.crm.model.ScheduledOrderSummary;
 import com.sales.crm.service.OrderService;
 
 @RestController
@@ -47,6 +46,25 @@ public class OrderReSTController {
 		try{
 			order.setResellerID(resellerID);
 			orderID = orderService.create(order);
+			response.setBusinessEntityID(orderID);
+			response.setStatus(ReSTResponse.STATUS_SUCCESS);
+		}catch(Exception exception){
+			response.setStatus(ReSTResponse.STATUS_FAILURE);
+			response.setErrorCode(ErrorCodes.SYSTEM_ERROR);
+			response.setErrorMsg("Something is not right ! Please contact System Administrator");
+		}
+		return new ResponseEntity<ReSTResponse>(response, HttpStatus.OK);
+	}
+	
+	
+	@PostMapping(value="/createWithOTP/{otp}")
+	public ResponseEntity<ReSTResponse> createOrderWithOTP(@RequestBody Order order, @PathVariable("otp") String otp){
+		ReSTResponse response = new ReSTResponse();
+		int resellerID = (Integer) session.getAttribute("resellerID");
+		int orderID = -1;
+		try{
+			order.setResellerID(resellerID);
+			orderID = orderService.createWithOTP(order, otp);
 			response.setBusinessEntityID(orderID);
 			response.setStatus(ReSTResponse.STATUS_SUCCESS);
 		}catch(Exception exception){
@@ -161,9 +179,9 @@ public class OrderReSTController {
 	}
 	
 	
-	@GetMapping(value="/dashboardOrderScheduleSummary/{salesExecID}/{visitDate}")
+	@GetMapping(value="/dashboardOrderScheduleSummary/{visitDate}/{salesExecID}")
 	public ResponseEntity<ReSTResponse> getDashboardOrderScheduleSummary(@PathVariable("salesExecID") int salesExecID, @PathVariable("visitDate") String visitDateStr){
-		List<OrderBookingSchedule> orderBookingSchedules = new ArrayList<OrderBookingSchedule>();
+		List<ScheduledOrderSummary> scheduledOrderSummaries = new ArrayList<ScheduledOrderSummary>();
 		ReSTResponse response = new ReSTResponse();
 		try{
 			Date visitDate = null;
@@ -174,8 +192,8 @@ public class OrderReSTController {
 				visitDate = new Date();
 			}
 			int resellerID = (Integer) session.getAttribute("resellerID");
-		//	orderBookingSchedules = orderService.getOrderScheduleReport(resellerID, salesExecID, beatID, custID, -1, status, visitDate);
-			response.setBusinessEntities(orderBookingSchedules);
+			scheduledOrderSummaries = orderService.getScheduledOrderSummary(resellerID, salesExecID, visitDate);
+			response.setBusinessEntities(scheduledOrderSummaries);
 			response.setStatus(ReSTResponse.STATUS_SUCCESS);
 		}catch(Exception exception){
 			logger.error("Not able to fetch order schedule report data.", exception);

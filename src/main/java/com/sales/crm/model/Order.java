@@ -58,7 +58,10 @@ public class Order extends BusinessEntity{
 	private String statusAsString;
 
 	public String getDateCreatedString() {
-		return new SimpleDateFormat("dd-MM-yyyy").format(dateCreated);
+		if(dateCreatedString == null){
+			dateCreatedString = new SimpleDateFormat("dd-MM-yyyy").format(dateCreated);
+		}
+		return dateCreatedString;
 	}
 
 	public void setDateCreatedString(String dateCreatedString) {

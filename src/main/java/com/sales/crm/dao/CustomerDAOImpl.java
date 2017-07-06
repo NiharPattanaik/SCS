@@ -382,8 +382,8 @@ public class CustomerDAOImpl implements CustomerDAO{
 				order.setRemark(String.valueOf(objs[6]));
 				order.setStatus(Integer.valueOf(String.valueOf(objs[7])));
 				order.setResellerID(Integer.valueOf(String.valueOf(objs[8])));
-				if(objs[9] != null){
-					order.setDateCreated(new Date(dbFormat.parse(String.valueOf(objs[9])).getTime()));
+				if(objs[10] != null){
+					order.setDateCreated(new Date(dbFormat.parse(String.valueOf(objs[10])).getTime()));
 				}
 				
 				if(!custOrdersMap.containsKey(trimmedCustomer)){
@@ -502,9 +502,9 @@ public class CustomerDAOImpl implements CustomerDAO{
 					}
 					String searchParam = entry.getKey();
 					Object searchVal = entry.getValue();
-					if(searchVal instanceof String ){
+					if(!searchParam.equals("ID")){
 						queryBuilder.append(searchParam+" LIKE '%"+searchVal+"%'");
-					}else if(searchVal instanceof Integer){
+					}else {
 						queryBuilder.append(searchParam+" = "+searchVal);
 					}
 				}

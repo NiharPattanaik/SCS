@@ -29,4 +29,8 @@ public interface OrderDAO {
 	List<OrderBookingSchedule> getOrderScheduleReport(int resellerID, int salesExecID, int beatID, int customerID, int orderScheduleID, int status, Date date) throws Exception;
 	
 	List<ScheduledOrderSummary> getScheduledOrderSummary(int resellerID, int salesExecID, Date visitDate);
+	
+	void editOrder(Order order) throws Exception;
+	
+	int createWithOTP(Order order, String otp) throws Exception;
 }

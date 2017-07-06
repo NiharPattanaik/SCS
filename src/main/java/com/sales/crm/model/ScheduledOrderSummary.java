@@ -2,7 +2,7 @@ package com.sales.crm.model;
 
 import java.util.Date;
 
-public class ScheduledOrderSummary {
+public class ScheduledOrderSummary extends BusinessEntity{
 
 	private int scheduleID;
 	

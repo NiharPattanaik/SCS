@@ -108,7 +108,7 @@ public class OTPDAOImpl implements OTPDAO{
 	 * @throws Exception
 	 */
 	@Override
-	public void verifyOTP(int customerID, int otpType, String otp) throws Exception{
+	public void verifyAndStoreOTP(int customerID, int otpType, String otp) throws Exception{
 		Session session = null;
 		Transaction transaction = null;
 		try{
@@ -146,12 +146,38 @@ public class OTPDAOImpl implements OTPDAO{
 	}
 	
 	@Override
+	public void verifyOTP(int customerID, int otpType, String otp) throws Exception{
+		Session session = null;
+		try{
+			session = sessionFactory.openSession();
+			SQLQuery query = session.createSQLQuery(" SELECT ID FROM CUSTOMER_OTP WHERE CUSTOMER_ID= ? AND OTP_TYPE= ? AND GENERTAED_OTP= ? AND DATE(GENERATED_DATE_TIME)= CURDATE() AND SUBMITTED_DATE_TIME IS NULL AND SUBMITTED_OTP IS NULL");
+			query.setParameter(0, customerID);
+			query.setParameter(1, otpType);
+			query.setParameter(2, otp);
+			List results = query.list();
+			if(results != null && results.size() == 1){
+				//
+			}else{
+				logger.error("OTP "+ otp +" not found or expired for customer "+ customerID + ", otp type "+ otpType + ".");
+				throw new CRMException(ErrorCodes.OTP_MISMATCH, "OTP supplied could not match with the OTP generated.");
+			}
+		}catch(Exception exception){
+			logger.error("Error while verifying OTP", exception);
+			throw exception;
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+	}
+	
+	@Override
 	public List<CustomerOTP> getOTPReport(int resellerID){
 		Session session = null;
 		List<CustomerOTP> customerOTPs = new ArrayList<CustomerOTP>();
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT a.*, b.NAME, c.FIRST_NAME, c.LAST_NAME FROM CUSTOMER_OTP a, CUSTOMER b, USER c WHERE a.CUSTOMER_ID = b.ID AND a.FIELD_EXEC_ID = c.ID AND a.RESELLER_ID = ?");
+			SQLQuery query = session.createSQLQuery("SELECT a.*, b.NAME, c.FIRST_NAME, c.LAST_NAME FROM CUSTOMER_OTP a, CUSTOMER b, USER c WHERE a.CUSTOMER_ID = b.ID AND a.FIELD_EXEC_ID = c.ID AND a.RESELLER_ID = ? ORDER BY DATE_CREATED DESC");
 			query.setParameter(0, resellerID);
 			List results = query.list();
 			if(results != null && results.size() > 0){

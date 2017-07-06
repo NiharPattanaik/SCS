@@ -53,6 +53,13 @@
     margin-top: 12px;
     
     }
+    
+    table.table.table-striped thead {
+    background: #ddd;
+    padding: 10px 0 10px 0;
+	}
+	
+	
     </style>
 </head>
 
@@ -72,7 +79,7 @@
             		<h2>Roles List</h2>   
             	</div>
 	        </div>        
-            <table class="table">
+            <table class="table table-striped">
                 <thead>
                     <tr>
                         <th>Role ID</th>
