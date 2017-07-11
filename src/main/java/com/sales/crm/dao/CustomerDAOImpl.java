@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.sales.crm.model.Address;
+import com.sales.crm.model.Beat;
 import com.sales.crm.model.Customer;
 import com.sales.crm.model.CustomerOrder;
 import com.sales.crm.model.Order;
@@ -201,7 +202,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME, b.ID order_booking_id FROM CUSTOMER a, ORDER_BOOKING_SCHEDULE b, ORDER_BOOKING_SCHEDULE_CUSTOMERS c  WHERE a.ID = c.CUSTOMER_ID AND b.ID = c.ORDER_BOOKING_SCHEDULE_ID AND  b.SALES_EXEC_ID= ? AND b.VISIT_DATE = ?");
+			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME, b.ID order_booking_id FROM CUSTOMER a, ORDER_BOOKING_SCHEDULE b, ORDER_BOOKING_SCHEDULE_CUSTOMERS c  WHERE a.ID = c.CUSTOMER_ID AND b.ID = c.ORDER_BOOKING_SCHEDULE_ID AND  c.STATUS = 1 AND b.SALES_EXEC_ID= ? AND b.VISIT_DATE = ?");
 			query.setParameter( 0, salesExecID);
 			query.setParameter(1, new java.sql.Date(visitDate.getTime()));
 			List results = query.list();
@@ -470,8 +471,36 @@ public class CustomerDAOImpl implements CustomerDAO{
 		try{
 			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
+			int beatID = -1;
 			for(Customer customer : customers){
+				//check for beat
+				if(customer.getBeatName() != null && !customer.getBeatName().isEmpty()){
+					SQLQuery getBeatQry = session.createSQLQuery(" SELECT ID FROM BEAT WHERE LOWER(NAME) = ? AND RESELLER_ID = ?");
+					getBeatQry.setParameter( 0, customer.getBeatName().toLowerCase() );
+					getBeatQry.setParameter(1, customer.getResellerID());
+					List results = getBeatQry.list();
+					if(results.isEmpty()){
+						//create beat
+						Beat beat = new Beat();
+						beat.setResellerID(customer.getResellerID());
+						beat.setName(customer.getBeatName());
+						beat.setDescription(customer.getBeatName());
+						beat.setDateCreated(new Date());
+						session.save(beat);
+						beatID = beat.getBeatID();
+					}else{
+						for(Object obj : results){
+							beatID = Integer.valueOf(String.valueOf(obj));
+						}
+					}
+				}
+				//Save Customer
 				session.save(customer);
+				//Create customer-Beat link
+				SQLQuery beatCustInsert = session.createSQLQuery("INSERT INTO BEAT_CUSTOMER VALUES (?, ?)");
+				beatCustInsert.setParameter(0, beatID);
+				beatCustInsert.setParameter(1, customer.getCustomerID());
+				beatCustInsert.executeUpdate();
 			}
 			transaction.commit();
 		}catch(Exception exception){

@@ -198,6 +198,11 @@ public class CustomerXLSProcessor {
 							billingAddress.setMobileNumberSecondary(cell.getStringCellValue());
 						}
 						break;
+					case 25:
+						if(cell != null){
+							customer.setBeatName(cell.getStringCellValue());
+						}
+						break;
 					}
 
 				}
