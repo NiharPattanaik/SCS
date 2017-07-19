@@ -37,4 +37,21 @@ public class SupplierService {
 	public int getSuppliersCount(int resellerID){
 		return supplierDAO.getSuppliersCount(resellerID);
 	}
+	
+	public List<Supplier> getSuppManufacturerList(int resellerID){
+		return supplierDAO.getSuppManufacturerList(resellerID);
+	}
+	
+	public void assignManufacturer(int supplierID, List<Integer> manufacturerIDs) throws Exception{
+		supplierDAO.assignManufacturer(supplierID, manufacturerIDs);
+	}
+	
+	public void updateAssignedManufacturer(int supplierID, List<Integer> manufacturerIDs) throws Exception{
+		supplierDAO.updateAssignedManufacturer(supplierID, manufacturerIDs);
+	}
+	
+	public void deleteAassignedManufacturer(int supplierID) throws Exception{
+		supplierDAO.deleteAassignedManufacturer(supplierID);
+	}
+	
 }

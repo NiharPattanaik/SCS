@@ -40,6 +40,9 @@
 				<value>com.sales.crm.model.Order</value>
 				<value>com.sales.crm.model.SecurityQuestion</value>
 				<value>com.sales.crm.model.OrderBookingSchedule</value>
+				<value>com.sales.crm.model.SuppSalesOfficer</value>
+				<value>com.sales.crm.model.SuppAreaManager</value>
+				<value>com.sales.crm.model.Manufacturer</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">

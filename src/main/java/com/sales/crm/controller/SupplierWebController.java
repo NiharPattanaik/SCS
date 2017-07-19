@@ -17,13 +17,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.sales.crm.model.Manufacturer;
 import com.sales.crm.model.Supplier;
+import com.sales.crm.service.ManufacturerService;
 import com.sales.crm.service.SupplierService;
-import com.sales.crm.service.UserService;
 
 @Controller
 @RequestMapping("/web/supplierWeb")
@@ -34,7 +36,7 @@ public class SupplierWebController {
 	
 	
 	@Autowired
-	UserService userService;
+	ManufacturerService manufacturerService;
 	
 	@Autowired
 	HttpSession httpSession;
@@ -105,9 +107,71 @@ public class SupplierWebController {
 		return new ModelAndView("/supplier_list","suppliers", suppliers);  
 	}
 	
+	@GetMapping(value="/assignManufacturerForm") 
+	public ModelAndView getAssignManufacturerToSupplierForm(){
+		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
+		List<Supplier> suppliers = supplierService.getResellerSuppliers(resellerID);
+		List<Manufacturer> manufacturers = manufacturerService.getResellerManufacturers(resellerID);
+		Map<String, Object> modelMap = new HashMap<String, Object>();
+		modelMap.put("suppliers", suppliers);
+		modelMap.put("manufacturers", manufacturers);
+		modelMap.put("supplier", new Supplier());
+		return new ModelAndView("/assign_manufacturer_to_supplier", modelMap);
+	}
+	
+	@PostMapping(value="/assignManufacturer")
+	public ModelAndView assignManufacturer(@ModelAttribute("supplier") Supplier supplier){
+		String msg = "";
+		try{
+			supplierService.assignManufacturer(supplier.getSupplierID(), supplier.getManufacturerIDs());
+		}catch(Exception exception){
+			msg = "Manufacturers could not be successfully mapped to supplier. Please try after sometime and if error persists contact System Administrator";
+		}
+		return new ModelAndView("/assign_manufacturer_to_supplier_conf", "msg", msg);
+	}
+	
+	@GetMapping(value="/supp-manufacturer/list")
+	public ModelAndView suppManufacturerList(){
+		List<Supplier> suppliers = supplierService.getSuppManufacturerList(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		return new ModelAndView("/supp_manufacturer_list","suppliers", suppliers);  
+	}
+	
+	@GetMapping(value="/assignManufacturerEditForm/{supplierID}") 
+	public ModelAndView editAssignManufacturerForm(@PathVariable int supplierID){
+		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
+		List<Manufacturer> manufacturers = manufacturerService.getResellerManufacturers(resellerID);
+		Supplier supplier = supplierService.getSupplier(supplierID);
+		Map<String, Object> modelMap = new HashMap<String, Object>();
+		modelMap.put("manufacturers", manufacturers);
+		modelMap.put("supplier", supplier);
+		return new ModelAndView("/edit_assign_manufacturer_to_supplier", modelMap);
+	}
+	
+	@PostMapping(value="/updateAassignedManufacturer")
+	public ModelAndView updateAssignedManufacturer(@ModelAttribute("supplier") Supplier supplier){
+		String msg = "";
+		try{
+			supplierService.updateAssignedManufacturer(supplier.getSupplierID(), supplier.getManufacturerIDs());
+		}catch(Exception exception){
+			msg = "Manufacturers could not be successfully mapped to supplier. Please try after sometime and if error persists contact System Administrator";
+		}
+		return new ModelAndView("/edit_manufacturer_to_supplier_conf", "msg", msg);
+	}
+	
+	@GetMapping(value="/deleteAassignedManufacturer/{supplierID}")
+	public ModelAndView deleteAassignedManufacturer(@PathVariable int supplierID){
+		String msg = "";
+		try{
+			supplierService.deleteAassignedManufacturer(supplierID);
+		}catch(Exception exception){
+			msg = "Manufacturers mapped to supplier could not be removed successfully. Please try after sometime and if error persists contact System Administrator";
+		}
+		return new ModelAndView("/remove_supplier_manufacturer_conf","msg", msg); 
+	}
+	
 	@InitBinder
 	public void initBinder(WebDataBinder webDataBinder) {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 		dateFormat.setLenient(false);
 		webDataBinder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
 	}

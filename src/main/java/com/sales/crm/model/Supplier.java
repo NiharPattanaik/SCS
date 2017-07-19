@@ -13,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "SUPPLIER")
@@ -40,6 +41,18 @@ public class Supplier extends BusinessEntity{
 	
 	@OneToMany(orphanRemoval=true, cascade=CascadeType.ALL, fetch=FetchType.EAGER)
 	List<Address> address;
+	
+	@Transient
+	private SuppSalesOfficer salesOfficer;
+	
+	@Transient
+	private SuppAreaManager areaManager;
+	
+	@Transient
+	private List<Manufacturer> manufacturers;
+	
+	@Transient
+	private List<Integer> manufacturerIDs;
 	
 	public int getSupplierID() {
 		return supplierID;
@@ -71,11 +84,40 @@ public class Supplier extends BusinessEntity{
 	public void setAddress(List<Address> address) {
 		this.address = address;
 	}
+	public SuppSalesOfficer getSalesOfficer() {
+		return salesOfficer;
+	}
+	public void setSalesOfficer(SuppSalesOfficer salesOfficer) {
+		this.salesOfficer = salesOfficer;
+	}
+	public SuppAreaManager getAreaManager() {
+		return areaManager;
+	}
+	public void setAreaManager(SuppAreaManager areaManager) {
+		this.areaManager = areaManager;
+	}
+	
+	public List<Manufacturer> getManufacturers() {
+		return manufacturers;
+	}
+	public void setManufacturers(List<Manufacturer> manufacturers) {
+		this.manufacturers = manufacturers;
+	}
+	
+	public List<Integer> getManufacturerIDs() {
+		return manufacturerIDs;
+	}
+	public void setManufacturerIDs(List<Integer> manufacturerIDs) {
+		this.manufacturerIDs = manufacturerIDs;
+	}
 	@Override
 	public String toString() {
 		return "Supplier [supplierID=" + supplierID + ", resellerID=" + resellerID + ", name=" + name + ", description="
-				+ description + ", address=" + address + "]";
+				+ description + ", address=" + address + ", salesOfficer=" + salesOfficer + ", areaManager="
+				+ areaManager + "]";
 	}
+
+	
 	
 	
 	

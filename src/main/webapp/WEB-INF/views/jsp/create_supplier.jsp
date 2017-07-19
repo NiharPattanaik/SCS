@@ -11,6 +11,9 @@
 	<link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
 	<script src="<%=request.getContextPath()%>/resources/js/jquery-3.2.0.min.js"></script>
 	<script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
+	<link href="<%=request.getContextPath()%>/resources/css/bootstrap-datepicker.css" rel="stylesheet">
+	<script	src="<%=request.getContextPath()%>/resources/js/bootstrap-datepicker.js"></script>
+	
 
 <style>
 .dpHeaderWrap {
@@ -91,6 +94,42 @@ legend {
 							<label>Description</label>
 							<form:input name="description" cssClass="form-control"
 								path="description" />
+						</div>
+					</fieldset>
+					
+					<fieldset>
+						<legend>Sales Officer</legend>
+						<div class="form-group required">
+							<label class='control-label'>Name</label>
+							<form:input name="name" id="soname" cssClass="form-control" path="salesOfficer.name" />
+						</div>
+						<div class="form-group required">
+							<label class='control-label'>Effective From</label>
+							<form:input name="effectiveFrom" cssClass="dp form-control"
+								path="salesOfficer.effectiveFrom" id="soeffectiveFrom"/>
+						</div>
+						<div class="form-group required">
+							<label class='control-label'>Contact Number</label>
+							<form:input name="contactNo" id="socontactNo" cssClass="form-control"
+								path="salesOfficer.contactNo" />
+						</div>
+					</fieldset>
+					
+					<fieldset>
+						<legend>Area Manager</legend>
+						<div class="form-group required">
+							<label class='control-label'>Name</label>
+							<form:input name="name" id="amname" cssClass="form-control" path="areaManager.name" />
+						</div>
+						<div class="form-group required">
+							<label class='control-label'>Effective From</label>
+							<form:input name="effectiveFrom" cssClass="dp form-control"
+								path="areaManager.effectiveFrom" id="ameffectiveFrom"/>
+						</div>
+						<div class="form-group required">
+							<label class='control-label'>Contact Number</label>
+							<form:input name="contactNo" cssClass="form-control"
+								path="areaManager.contactNo" id="amcontactNo"/>
 						</div>
 					</fieldset>
 
@@ -225,6 +264,14 @@ legend {
 <script type="text/javascript">
 	$(document).ready(function() {
 			$("#name").prop('required',true);
+			$('#soname').prop('required',true);
+			$('#soeffectiveFrom').prop('required',true);
+			$('#socontactNo').prop('required',true);
+			$('#amname').prop('required',true);
+			$('#ameffectiveFrom').prop('required',true);
+			$('#amcontactNo').prop('required',true);
+			$('#soeffectiveFrom').datepicker({format: 'dd-mm-yyyy'});
+			$('#ameffectiveFrom').datepicker({format: 'dd-mm-yyyy'});
 	});
 </script>
 

@@ -18,4 +18,12 @@ public interface SupplierDAO {
 	
 	int getSuppliersCount(int resellerID);
 	
+	List<Supplier> getSuppManufacturerList(int resellerID);
+	
+	void assignManufacturer(int supplierID, List<Integer> manufacturerIDs) throws Exception;
+	
+	void updateAssignedManufacturer(int supplierID, List<Integer> manufacturerIDs) throws Exception;
+	
+	void deleteAassignedManufacturer(int supplierID) throws Exception;
+
 }

@@ -110,6 +110,32 @@ legend {
 						<label>Description :</label> <span>${supplier.description}</span>
 					</div>
 				</fieldset>
+				
+				<fieldset>
+					<legend>Sales Officer</legend>
+						<div class="form-group">
+							<label>Name : </label> <span>${supplier.salesOfficer.name}</span>
+						</div>
+						<div class="form-group">
+							<label>Effective From :</label> <span>${supplier.salesOfficer.effectiveFromStr}</span>
+						</div>
+						<div class="form-group">
+							<label>Contact Number :</label> <span>${supplier.salesOfficer.contactNo}</span>
+						</div>
+				</fieldset>
+				
+				<fieldset>
+					<legend>Area Manager</legend>
+						<div class="form-group">
+							<label>Name : </label> <span>${supplier.areaManager.name}</span>
+						</div>
+						<div class="form-group">
+							<label>Effective From :</label> <span>${supplier.areaManager.effectiveFromStr}</span>
+						</div>
+						<div class="form-group">
+							<label>Contact Number :</label> <span>${supplier.areaManager.contactNo}</span>
+						</div>
+				</fieldset>
 
 				<fieldset>
 					<legend>Main Address</legend>

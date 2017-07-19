@@ -107,7 +107,6 @@ public class UserWebController {
 	public ModelAndView editUserForm(@PathVariable int userID){
 		List<Role> roles = roleService.getRoles((User)httpSession.getAttribute("user"));
 		User user = userService.getUser(userID);
-		Set<Integer> rolesIDSet = new HashSet<Integer>();
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		modelMap.put("user", user);
 		modelMap.put("roles", roles);

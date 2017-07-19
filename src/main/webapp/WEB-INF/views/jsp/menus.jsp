@@ -27,7 +27,7 @@
 							<% if(resourcePermIDs.contains(ResourcePermissionEnum.SUPPLIER_LIST.getResourcePermissionID())) { %>
 								<li><a href="<%=request.getContextPath()%>/web/supplierWeb/list">Suppliers</a></li>
 							<% } %>	
-							
+							<li><a href="<%=request.getContextPath()%>/web/manufacturerWeb/list">Manufacturers</a></li>
 							<% if(resourcePermIDs.contains(ResourcePermissionEnum.AREA_LIST.getResourcePermissionID())) { %>
 								<li><a href="<%=request.getContextPath()%>/web/areaWeb/list">Areas</a></li>
 							<% } %>	
@@ -35,7 +35,7 @@
 							<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_LIST.getResourcePermissionID())) { %>
 								<li><a href="<%=request.getContextPath()%>/web/beatWeb/list">Beats</a></li>
 							<% } %>
-					    </ul>
+						</ul>
         			</li>	
 					<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="reportmenu">Order Management<span class="caret"></span></a>
@@ -87,6 +87,7 @@
 					          	<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_VIEW_ASSOCIATED_CUSTOMERS.getResourcePermissionID())) { %>
 					          		<li><a href="<%=request.getContextPath()%>/web/beatWeb/beat-customers/list">Beat - Customer</a></li>
 					          	<% } %>	
+					          	<li><a href="<%=request.getContextPath()%>/web/supplierWeb/supp-manufacturer/list">Supplier - Manufacturer</a></li>
 				        </ul>
       				</li>
 				</ul>		

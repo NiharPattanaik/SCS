@@ -100,6 +100,47 @@ legend {
 						<form:hidden name="resellerID" path="resellerID"
 							value="${ supplier.resellerID }" />
 					</fieldset>
+					
+					<fieldset>
+						<legend>Sales Officer Details</legend>
+						<div class="form-group required">
+							<label class='control-label'>Name</label>
+							<form:input name="name" cssClass="form-control" path="salesOfficer.name"
+								value="${supplier.salesOfficer.name}" />
+						</div>
+						<div class="form-group required">
+							<label class='control-label'>Effective From</label>
+							<form:input name="effectiveFrom" cssClass="dp form-control"
+								path="salesOfficer.effectiveFrom" id="soeffectiveFrom" value="${supplier.salesOfficer.effectiveFromStr}" />
+						</div>
+						<div class="form-group required">
+							<label class='control-label'>Contact Number</label>
+							<form:input name="contactNo" id="socontactNo" cssClass="form-control"
+								path="salesOfficer.contactNo" value="${supplier.salesOfficer.contactNo}"/>
+						</div>
+						<form:hidden name="salesOffID" path="salesOfficer.ID"
+							value="${ supplier.salesOfficer.ID }" />
+					</fieldset>
+					
+					<fieldset>
+						<legend>Area Manager</legend>
+						<div class="form-group required">
+							<label class='control-label'>Name</label>
+							<form:input name="name" id="amname" cssClass="form-control" path="areaManager.name" value="${supplier.areaManager.name}" />
+						</div>
+						<div class="form-group required">
+							<label class='control-label'>Effective From</label>
+							<form:input name="effectiveFrom" cssClass="dp form-control"
+								path="areaManager.effectiveFrom" id="ameffectiveFrom" value="${supplier.areaManager.effectiveFromStr}" />
+						</div>
+						<div class="form-group required">
+							<label class='control-label'>Contact Number</label>
+							<form:input name="contactNo" cssClass="form-control"
+								path="areaManager.contactNo" id="amcontactNo" value="${supplier.areaManager.contactNo}"/>
+						</div>
+						<form:hidden name="areaMgrID" path="areaManager.ID"
+							value="${ supplier.areaManager.ID }" />
+					</fieldset>
 
 					<fieldset>
 						<legend>Supplier Main Address</legend>
@@ -243,12 +284,12 @@ legend {
 					</fieldset>
 					<div>
 						<fmt:formatDate value="${ supplier.dateCreated }" type="date"
-								pattern="dd/MM/yyyy" var="createdDate" />
+								pattern="dd-MM-yyyy" var="createdDate" />
 						<form:hidden path="dateCreated" value="${createdDate}"/>
 					</div>
 					<div>
 						<fmt:formatDate value="${ supplier.dateModified }" type="date"
-								pattern="dd/MM/yyyy" var="modifiedDate" />
+								pattern="dd-MM-yyyy" var="modifiedDate" />
 						<form:hidden path="dateModified" value="${modifiedDate}"/>
 					</div>
 					<div>
