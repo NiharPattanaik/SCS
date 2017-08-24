@@ -81,36 +81,32 @@ legend {
 		<%@ include file="menus.jsp" %>
 		<div class="row top-height">
 			<div class="col-md-8 ">
-				<form:form modelAttribute="salesExec" method="post"
+				<form:form modelAttribute="suppSalesExecBeats" method="post"
 					action="/crm/web/salesExecWeb/assignBeat">
 					<fieldset>
 						<legend>Assign Beats to Sales Executive</legend>
 						<div class="form-group required">
-								<label class='control-label'>Sales Executive</label>
-								<form:select path="userID" cssClass="form-control" id="salesExecs">
-									<form:option value="-1" label="--- Select ---" />
-									<c:forEach var="salesExec" items="${salesExecs}">
-										<% 
-											if(!((SalesExecutive)pageContext.getAttribute("salesExec") != null 
-												&& ((SalesExecutive)pageContext.getAttribute("salesExec")).getBeats() != null 
-													&& ((SalesExecutive)pageContext.getAttribute("salesExec")).getBeats().size() > 0)){
-										%>
-											<form:option value="${ salesExec.userID }" label="${ salesExec.firstName } ${ salesExec.lastName }" />
-										<% 
-											}
-										%>
-											
+								<label class='control-label'>Supplier</label>
+								<form:select path="supplier.supplierID" cssClass="form-control" id="suppliers">
+									<form:option value="-1" label="--- Select ---" required="required"/>
+									<c:forEach var="csupplier" items="${suppliers}">
+										<form:option value="${ csupplier.supplierID }" label="${ csupplier.name }" required="required"/>
 									</c:forEach>
 								</form:select>
-							</div>
-							<div class="form-group required">
-								<label class='control-label'>Beats</label>
-								<form:select path="beatIDLists" cssClass="form-control" multiple="true" id="beats">
-									<form:option value="-1" label="--- Select ---" />
-									<form:options items="${beats}" itemValue="beatID"
-										itemLabel="name" />
+						</div>
+						<div class="form-group required">
+								<label class='control-label'>Sales Executives</label>
+								<form:select path="salesExecutive.userID" cssClass="form-control" id="salesExecs"
+									multiple="false">
+									<form:option value="-1" label="--- Select ---"/>
 								</form:select>
-							</div>
+						</div>
+						<div class="form-group required">
+							<label class='control-label'>Beats</label>
+							<form:select path="beatIDLists" cssClass="form-control" multiple="true" id="beats">
+								<form:option value="-1" label="--- Select ---" />
+							</form:select>
+						</div>
 					</fieldset>
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary">Submit</button>
@@ -123,10 +119,52 @@ legend {
 <script type="text/javascript">
 	$(document).ready(function() {
 		$("#salesExecs").prop('required',true);
-	});
-	
-	$(document).ready(function() {
 		$("#beats").prop('required',true);
+		
+		$('#suppliers').change(function() {
+			if($('#suppliers').val() != -1){
+				$.ajax({
+						type : "GET",
+						url : "/crm/rest/supplierReST/salesExecs/"+$('#suppliers').val(),
+						dataType : "json",
+						success : function(data) {
+							$('#salesExecs').empty();
+							var empty_select = "<option value=-1>--- Select ---</option>";
+							$(empty_select).appendTo('#salesExecs');
+							$.each(data,function(i,obj) {
+								var div_data = "<option value="+obj.userID+">"+ obj.name+ "</option>";
+								$(div_data).appendTo('#salesExecs');
+						});
+					}
+				});
+			}
+		});
+		
+		$('#salesExecs').change(function() {
+			var dataFound = false;
+			if($('#salesExecs').val() != -1){
+				$.ajax({
+						type : "GET",
+						url : "/crm/rest/beatReST/beatsNotMappedToSalesExec/"+$('#suppliers').val() +"/"+$('#salesExecs').val(),
+						dataType : "json",
+						success : function(data) {
+							$('#beats').empty();
+							$.each(data,function(i,obj) {
+								dataFound = true;
+								var div_data = "<option value="+obj.beatID+">"+ obj.name+ "</option>";
+								$(div_data).appendTo('#beats');
+						});
+					}
+				});
+			}
+			
+			//No data found
+			if(!dataFound){
+				$('#beats').empty();
+				var div_data = "<option value=> No Beats to map </option>";
+				$(div_data).appendTo('#beats');
+			}
+		});
 	});
 </script>
 </html>

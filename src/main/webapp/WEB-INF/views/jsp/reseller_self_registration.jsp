@@ -11,9 +11,7 @@
 	<link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
 	<script src="<%=request.getContextPath()%>/resources/js/jquery-3.2.0.min.js"></script>
 	<script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
-	<link href="<%=request.getContextPath()%>/resources/css/bootstrap-datepicker.css" rel="stylesheet">
-	<script	src="<%=request.getContextPath()%>/resources/js/bootstrap-datepicker.js"></script>
-
+	
 <style>
 .dpHeaderWrap {
 	position: relative;

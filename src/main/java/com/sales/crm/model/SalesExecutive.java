@@ -18,6 +18,10 @@ public class SalesExecutive extends User {
 	
 	@Transient
 	private List<Integer> customerIDs;
+	
+	//HACK, used from spring tag (assign_beat.jsp)
+	@Transient
+	private int supplierID;
 
 	public List<Beat> getBeats() {
 		return beats;
@@ -50,11 +54,25 @@ public class SalesExecutive extends User {
 	public void setCustomerIDs(List<Integer> customerIDs) {
 		this.customerIDs = customerIDs;
 	}
+	
+	
+
+	public int getSupplierID() {
+		return supplierID;
+	}
+
+	public void setSupplierID(int supplierID) {
+		this.supplierID = supplierID;
+	}
 
 	@Override
 	public String toString() {
-		return "SalesExecutive [beats=" + beats + ", beatIDLists=" + beatIDLists + ", visitDate=" + visitDate + "]";
+		return "SalesExecutive [beats=" + beats + ", beatIDLists=" + beatIDLists + ", visitDate=" + visitDate
+				+ ", customerIDs=" + customerIDs + ", supplierID=" + supplierID + ", companyID=" + companyID
+				+ ", dateCreated=" + dateCreated + ", dateModified=" + dateModified + "]";
 	}
+
+	
 	
 	
 }

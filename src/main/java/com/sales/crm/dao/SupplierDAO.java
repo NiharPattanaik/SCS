@@ -2,6 +2,7 @@ package com.sales.crm.dao;
 
 import java.util.List;
 
+import com.sales.crm.model.SuppSalesExecBeats;
 import com.sales.crm.model.Supplier;
 
 public interface SupplierDAO {
@@ -25,5 +26,16 @@ public interface SupplierDAO {
 	void updateAssignedManufacturer(int supplierID, List<Integer> manufacturerIDs) throws Exception;
 	
 	void deleteAassignedManufacturer(int supplierID) throws Exception;
+	
+	public List<Supplier> getSuppSalesExecsList(int resellerID) ;
+	
+	public void assignSalesExecutivesToSupplier(int resellerID, Supplier supplier) throws Exception;
 
+	void updateAssignedSalesExecs(int supplierID, List<Integer> salesExecIDs, int resellerID) throws Exception;
+	
+	void deleteAassignedSalesExec(int supplierID) throws Exception;
+	
+	List<SuppSalesExecBeats> getSuppSalesExecBeats(int resellerID);
+	
+	SuppSalesExecBeats getSuppSalesExecBeat(int resellerID, int suppID, int salesExecID);
 }

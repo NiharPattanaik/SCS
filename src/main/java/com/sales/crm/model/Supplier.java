@@ -54,6 +54,15 @@ public class Supplier extends BusinessEntity{
 	@Transient
 	private List<Integer> manufacturerIDs;
 	
+	@Transient
+	private List<Beat> beats;
+	
+	@Transient
+	private List<SalesExecutive> salesExecs;
+	
+	@Transient
+	private List<Integer> salesExecsIDs;
+	
 	public int getSupplierID() {
 		return supplierID;
 	}
@@ -110,15 +119,33 @@ public class Supplier extends BusinessEntity{
 	public void setManufacturerIDs(List<Integer> manufacturerIDs) {
 		this.manufacturerIDs = manufacturerIDs;
 	}
+	
+	public List<Beat> getBeats() {
+		return beats;
+	}
+	public void setBeats(List<Beat> beats) {
+		this.beats = beats;
+	}
+	
+	public List<SalesExecutive> getSalesExecs() {
+		return salesExecs;
+	}
+	public void setSalesExecs(List<SalesExecutive> salesExecs) {
+		this.salesExecs = salesExecs;
+	}
+	public List<Integer> getSalesExecsIDs() {
+		return salesExecsIDs;
+	}
+	public void setSalesExecsIDs(List<Integer> salesExecsIDs) {
+		this.salesExecsIDs = salesExecsIDs;
+	}
 	@Override
 	public String toString() {
 		return "Supplier [supplierID=" + supplierID + ", resellerID=" + resellerID + ", name=" + name + ", description="
 				+ description + ", address=" + address + ", salesOfficer=" + salesOfficer + ", areaManager="
-				+ areaManager + "]";
+				+ areaManager + ", manufacturers=" + manufacturers + ", manufacturerIDs=" + manufacturerIDs + ", beats="
+				+ beats + ", salesExecs=" + salesExecs + "]";
 	}
-
-	
-	
 	
 	
 }

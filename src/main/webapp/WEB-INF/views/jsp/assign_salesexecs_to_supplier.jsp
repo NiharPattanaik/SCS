@@ -8,7 +8,7 @@
 <html lang="en">
 
 <head>
-	<title>Assign Beats To Customer</title>
+	<title>Assign Sales Executive To Supplier</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
@@ -80,28 +80,29 @@ legend {
 		<%@ include file="menus.jsp" %>
 		<div class="row top-height">
 			<div class="col-md-8 ">
-				<form:form modelAttribute="customer" method="post"
-					action="/crm/web/beatWeb/assignBeatsToCustomer">
+				<form:form modelAttribute="supplier" method="post"
+					action="/crm/web/supplierWeb/assignSalesExecutive">
 					<fieldset>
-						<legend>Assign Beats to Customer</legend>
+						<legend>Assign Sales Executive to Supplier</legend>
 							<div class="form-group required">
-								<label class='control-label'>Customer</label>
-								<form:select path="customerID" cssClass="form-control"
-									id="customers" multiple="false">
-									<form:option value="-1" label="--- Select ---" />
-									<form:options items="${customers}" itemValue="customerID"
-										itemLabel="customerName" required="required" />
+								<label class='control-label'>Supplier</label>
+								<form:select path="supplierID" cssClass="form-control" id="suppliers">
+									<form:option value="-1" label="--- Select ---" required="required"/>
+									<c:forEach var="csupplier" items="${suppliers}">
+										<form:option value="${ csupplier.supplierID }" label="${ csupplier.name }" required="required"/>
+									</c:forEach>
 								</form:select>
 							</div>
 							<div class="form-group required">
-								<label class='control-label'>Beats</label>
-								<form:select path="beatIDs" cssClass="form-control" id="beats"
+								<label class='control-label'>Sales Executives</label>
+								<form:select path="salesExecsIDs" cssClass="form-control" id="salesExecs"
 									multiple="true">
+									<form:option value="-1" label="--- Select ---"/>
 								</form:select>
 							</div>
 					</fieldset>
 					<div class="form_submit">
-						<button type="submit" class="btn btn-primary">Submit</button>
+						<button type="submit" class="btn btn-primary" id="submitbtn">Submit</button>
 					</div>
 				</form:form>
 			</div>
@@ -110,26 +111,29 @@ legend {
 </body>
 <script type="text/javascript">
 	$(document).ready(function() {
-		$("#beats").prop('required',true);
+		$("#suppliers").prop('required',true);
 		
-		$("#customers").prop('required',true);
-		
-		$('#customers').change(function() {
-			if($('#customers').val() != -1){
+		$('#suppliers').change(function() {
+			if($('#suppliers').val() != -1){
 				$.ajax({
 						type : "GET",
-						url : "/crm/rest/beatReST/beatsNotMappedToCustomer/"+$('#customers').val(),
+						url : "/crm/rest/salesExecReST/salesExecNotMappedToSupp/"+$('#suppliers').val(),
 						dataType : "json",
 						success : function(data) {
-							$('#beats').empty();
+							$('#salesExecs').empty();
 							$.each(data,function(i,obj) {
-								var div_data = "<option value="+obj.beatID+">"+ obj.name+ "</option>";
-								$(div_data).appendTo('#beats');
+								var div_data = "<option value="+obj.userID+">"+ obj.name+ "</option>";
+								$(div_data).appendTo('#salesExecs');
 						});
 					}
 				});
 			}
-			});
+		});
+		$('#submitbtn').click(function(){
+		     /* when the submit button in the modal is clicked, submit the form */
+		   $('#myForm').submit();
+		});
+		
 	});
 	
 </script>

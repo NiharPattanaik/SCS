@@ -85,9 +85,10 @@
 				          		<% } %>	
 				          		
 					          	<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_VIEW_ASSOCIATED_CUSTOMERS.getResourcePermissionID())) { %>
-					          		<li><a href="<%=request.getContextPath()%>/web/beatWeb/beat-customers/list">Beat - Customer</a></li>
+					          		<li><a href="<%=request.getContextPath()%>/web/beatWeb/beat-customers/list">Customer - Beats</a></li>
 					          	<% } %>	
 					          	<li><a href="<%=request.getContextPath()%>/web/supplierWeb/supp-manufacturer/list">Supplier - Manufacturer</a></li>
+					          	<li><a href="<%=request.getContextPath()%>/web/supplierWeb/supp-salesexecs/list">Supplier - Sales Executives</a></li>
 				        </ul>
       				</li>
 				</ul>		

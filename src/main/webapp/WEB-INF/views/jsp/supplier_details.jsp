@@ -211,6 +211,19 @@ legend {
 						</div>
 					</fieldset>
 				</c:if>
+				<fieldset>
+					<legend>Beats</legend>
+					<div
+						style="width: 200px; min-height: 2px; max-height: 100px; overflow-y: auto;"
+						id="checks">
+						<ul>
+							<c:forEach var="beat" items="${supplier.beats}">
+								<li><a href="<%=request.getContextPath()%>/web/beatWeb/${beat.beatID}">${beat.name}</a></li>
+							</c:forEach>
+						</ul>
+
+					</div>
+				</fieldset>
 			</div>
 		</div>
 	</div>

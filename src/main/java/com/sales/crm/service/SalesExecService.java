@@ -25,12 +25,12 @@ public class SalesExecService {
 		return salesExecDAO.getSalesExecutives(resellerID);
 	}
 	
-	public void assignBeats(final int salesExecID, final List<Integer> beatIDs) throws Exception{
-		salesExecDAO.assignBeats(salesExecID, beatIDs);
+	public void assignBeats(int resellerID, int supplierID, int salesExecID, List<Integer> beatIDs) throws Exception{
+		salesExecDAO.assignBeats(resellerID, supplierID, salesExecID, beatIDs);
 	}
 
-	public void updateAssignedBeats(final int salesExecID, final List<Integer> beatIDs) throws Exception{
-		salesExecDAO.updateAssignedBeats(salesExecID, beatIDs);
+	public void updateAssignedBeats(int resellerID, int supplierID, int salesExecID, List<Integer> beatIDs) throws Exception{
+		salesExecDAO.updateAssignedBeats(resellerID, supplierID, salesExecID, beatIDs);
 	}
 	
 	public List<SalesExecutive> getSalesExecMapsBeatsCustomers(int resellerID){
@@ -55,8 +55,8 @@ public class SalesExecService {
 		return salesExecDAO.getScheduledVisitBeatCustomers(salesExecID, visitDate, beatID);
 	}
 	
-	public void deleteBeatAssignment(int salesExecID) throws Exception{
-		salesExecDAO.deleteBeatAssignment(salesExecID);
+	public void deleteBeatAssignment(int supplierID, int salesExecID) throws Exception{
+		salesExecDAO.deleteBeatAssignment(supplierID, salesExecID);
 	}
 	
 	public List<SalesExecutive> getSalesExecutivesHavingBeatsAssigned(int resellerID){
@@ -65,6 +65,10 @@ public class SalesExecService {
 	
 	public int getSalesExecutiveCount(int resellerID){
 		return salesExecDAO.getSalesExecutiveCount(resellerID);
+	}
+	
+	public List<SalesExecutive> getSalesExecsNotMappedToSupplier(int resellerID, int supplierID){
+		return salesExecDAO.getSalesExecsNotMappedToSupplier(resellerID, supplierID);
 	}
 	
 }

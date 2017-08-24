@@ -223,7 +223,7 @@ legend {
 						<legend>Beat Assignment</legend>
 						<div class="form-group">
 								<label>Beat</label>
-								<form:select path="beatID" cssClass="form-control" id="beats">
+								<form:select path="beatIDs" cssClass="form-control" id="beats" multiple="true">
 									<form:option value="-1" label="--- Select ---"/>
 									<c:forEach var="cbeat" items="${beats}">
 										<form:option value="${ cbeat.beatID }" label="${ cbeat.name }"/>

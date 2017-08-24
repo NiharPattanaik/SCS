@@ -61,10 +61,10 @@
 	
 	.dataTables_paginate {
     margin-top: -20px;
-    position: absolute;
     text-align: right;
-    left: 55%;
-	}
+    float: right;
+    display: block
+}
 
     </style>
 </head>

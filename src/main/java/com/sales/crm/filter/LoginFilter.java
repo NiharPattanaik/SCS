@@ -44,6 +44,7 @@ public class LoginFilter implements Filter {
         boolean saveReseller = false;
         boolean restValidateUser = false;
         boolean selfRegistration = false;
+        boolean resources = false;
         
         if(request.getRequestURI().equals(logoutURI)){
         	if(session != null){
@@ -57,11 +58,11 @@ public class LoginFilter implements Filter {
 			saveReseller = request.getRequestURI().contains("/web/resellerWeb/saveReseller") ? true : false;
 			restValidateUser = request.getRequestURI().contains("crm/rest/userReST/validateUser") ? true : false;
 			selfRegistration = request.getRequestURI().contains("web/resellerWeb/selfRegisterReseller") ? true : false;
-			
+			resources = request.getRequestURI().contains("/crm/resources/") ? true : false;
 			
 		}
 		
-        if(createResellerForm || saveReseller || loginRequest || loggedIn || restValidateUser || selfRegistration){
+        if(createResellerForm || saveReseller || loginRequest || loggedIn || restValidateUser || selfRegistration || resources){
         	chain.doFilter(request, response);
         }else if(restRequest){
         	if(validateRESTCredential(request, response)){

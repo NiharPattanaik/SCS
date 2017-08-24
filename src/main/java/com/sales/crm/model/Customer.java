@@ -56,10 +56,16 @@ public class Customer extends BusinessEntity{
 	private String salesExecName;
 	
 	@Transient
-	private int beatID = -1;
+	private String beatName;
 	
 	@Transient
-	private String beatName;
+	private List<Integer> beatIDs;
+	
+	@Transient
+	private List<Beat> beats;
+	
+	@Transient
+	private String customerIDStr;
 	
 	public int getCustomerID() {
 		return customerID;
@@ -109,11 +115,18 @@ public class Customer extends BusinessEntity{
 	public void setSalesExecName(String salesExecName) {
 		this.salesExecName = salesExecName;
 	}
-	public int getBeatID() {
-		return beatID;
+	
+	public List<Integer> getBeatIDs() {
+		return beatIDs;
 	}
-	public void setBeatID(int beatID) {
-		this.beatID = beatID;
+	public void setBeatIDs(List<Integer> beatIDs) {
+		this.beatIDs = beatIDs;
+	}
+	public List<Beat> getBeats() {
+		return beats;
+	}
+	public void setBeats(List<Beat> beats) {
+		this.beats = beats;
 	}
 	
 	public String getBeatName() {
@@ -122,13 +135,6 @@ public class Customer extends BusinessEntity{
 	public void setBeatName(String beatName) {
 		this.beatName = beatName;
 	}
-	@Override
-	public String toString() {
-		return "Customer [customerID=" + customerID + ", resellerID=" + resellerID + ", name=" + name + ", description="
-				+ description + ", visitDate=" + visitDate + ", address=" + address + ", salesExecID=" + salesExecID
-				+ ", salesExecName=" + salesExecName + ", beatID=" + beatID + "]";
-	}
-	
 	
 	
 }

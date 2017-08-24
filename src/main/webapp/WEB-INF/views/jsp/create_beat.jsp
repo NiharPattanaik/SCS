@@ -85,6 +85,14 @@ legend {
 					<fieldset>
 						<legend>Beat Details</legend>
 						<div class="form-group required">
+							<label class='control-label'>Supplier</label>
+							<form:select path="supplierIDStr" cssClass="form-control" id="supplier">
+								<form:option value="" label="--- Select ---" />
+								<form:options items="${suppliers}" itemValue="supplierID"
+									itemLabel="name" />
+							</form:select>
+						</div>
+						<div class="form-group required">
 							<label class='control-label'>Beat Name</label>
 							<form:input name="name" cssClass="form-control" path="name" required="required"/>
 						</div>
@@ -130,6 +138,7 @@ legend {
 	<script type="text/javascript">
 		$(document).ready(function() {
 	   		$("#name").prop('required',true);
+	   		$("#supplier").prop('required',true);
 		});
 	</script>
 </body>

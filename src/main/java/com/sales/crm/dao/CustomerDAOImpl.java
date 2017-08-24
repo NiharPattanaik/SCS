@@ -1,6 +1,9 @@
 package com.sales.crm.dao;
 
 import java.math.BigInteger;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -14,6 +17,7 @@ import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.jdbc.Work;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -50,12 +54,26 @@ public class CustomerDAOImpl implements CustomerDAO{
 			}
 			session.save(customer);
 			//Customer-Beat Assignment
-			if(customer.getBeatID() != -1){
-				SQLQuery customerBeatQuery = session.createSQLQuery("INSERT INTO BEAT_CUSTOMER VALUES (?, ?)");
-				customerBeatQuery.setParameter(0, customer.getBeatID());
-				customerBeatQuery.setParameter(1, customer.getCustomerID());
-				customerBeatQuery.executeUpdate();
-			}
+			final List<Integer> beatIDs = customer.getBeatIDs();
+			final int customerID = customer.getCustomerID();
+			session.doWork(new Work() {
+				@Override
+				public void execute(Connection connection) throws SQLException {
+					PreparedStatement pstmt = null;
+					try {
+						String sqlInsert = "INSERT INTO BEAT_CUSTOMER VALUES (?, ?)";
+						pstmt = connection.prepareStatement(sqlInsert);
+						for (int beatID : beatIDs) {
+							pstmt.setInt(1, beatID);
+							pstmt.setInt(2, customerID);
+							pstmt.addBatch();
+						}
+						pstmt.executeBatch();
+					} finally {
+						pstmt.close();
+					}
+				}
+			});
 			transaction.commit();
 		}catch(Exception e){
 			logger.error("Error while creating customer", e);
@@ -86,6 +104,26 @@ public class CustomerDAOImpl implements CustomerDAO{
 				customer.setSalesExecID(Integer.valueOf(String.valueOf(objs[0])));
 				customer.setSalesExecName(String.valueOf(objs[1]) + " " + String.valueOf(objs[2]) );
 			}
+			//GET Beats
+			List<Beat> beatList = new ArrayList<Beat>();
+			List<Integer> beatIDs = new ArrayList<Integer>();
+			SQLQuery beatsQry = session.createSQLQuery("SELECT * FROM BEAT WHERE ID IN (SELECT BEAT_ID FROM BEAT_CUSTOMER WHERE CUSTOMER_ID= ?)");
+			beatsQry.setParameter(0, customerID);
+			List beats = beatsQry.list();
+			for(Object obj : beats){
+				Object[] objs = (Object[])obj;
+				Beat beat = new Beat();
+				beat.setBeatID(Integer.valueOf(String.valueOf(objs[0])));
+				beat.setResellerID(Integer.valueOf(String.valueOf(objs[1])));
+				beat.setName(String.valueOf(objs[2]));
+				beat.setDescription(String.valueOf(objs[3]));
+				beat.setCoverageSchedule(String.valueOf(objs[4]));
+				beat.setDistance(Integer.valueOf(String.valueOf(objs[5])));
+				beatIDs.add(beat.getBeatID());
+				beatList.add(beat);
+			}
+			customer.setBeatIDs(beatIDs);
+			customer.setBeats(beatList);
 		}catch(Exception exception){
 			logger.error("Error while fetching customer details", exception);
 		}finally{
@@ -179,11 +217,36 @@ public class CustomerDAOImpl implements CustomerDAO{
 				user.setLastName(String.valueOf(objs[4]));
 				salesExecMap.put(customerId, user);
 			}
+			
+			//Fetch Beats
+			Map<Integer, List<Beat>> customerBeatMap = new HashMap<Integer, List<Beat>>();
+			SQLQuery customerBeatQry = session.createSQLQuery("SELECT  a.CUSTOMER_ID, b.* FROM BEAT_CUSTOMER a, BEAT b WHERE a.BEAT_ID = b.ID AND RESELLER_ID= ?");
+			customerBeatQry.setParameter(0, resellerID);
+			List custBeatsresults = customerBeatQry.list();
+			for(Object obj : custBeatsresults){
+				Object[] objs = (Object[])obj;
+				int customerId = Integer.valueOf(String.valueOf(objs[0]));
+				Beat beat = new Beat();
+				beat.setBeatID(Integer.valueOf(String.valueOf(objs[1])));
+				beat.setResellerID(Integer.valueOf(String.valueOf(objs[2])));
+				beat.setName(String.valueOf(objs[3]));
+				beat.setDescription(String.valueOf(objs[4]));
+				beat.setCoverageSchedule(String.valueOf(objs[5]));
+				beat.setDistance(Integer.valueOf(String.valueOf(objs[6])));
+				if(!customerBeatMap.containsKey(customerId)){
+					customerBeatMap.put(customerId, new ArrayList<Beat>());
+				}
+				customerBeatMap.get(customerId).add(beat);
+			}
+			
 			//Set Sales Execs in customer
 			for(Customer customer : customers){
 				if(salesExecMap.containsKey(customer.getCustomerID())){
 					customer.setSalesExecID(salesExecMap.get(customer.getCustomerID()).getUserID());
 					customer.setSalesExecName(salesExecMap.get(customer.getCustomerID()).getFirstName() +" "+salesExecMap.get(customer.getCustomerID()).getLastName());
+				}
+				if(customerBeatMap.containsKey(customer.getCustomerID())){
+					customer.setBeats(customerBeatMap.get(customer.getCustomerID()));
 				}
 			}
 		}catch(Exception exception){
@@ -276,59 +339,6 @@ public class CustomerDAOImpl implements CustomerDAO{
 	
 	}
 	
-	@Override
-	public List<TrimmedCustomer> getCustomersNotAssignedToAnyBeat(int resellerID){
-		Session session = null;
-		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
-		try{
-			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT ID, NAME FROM CUSTOMER WHERE ID NOT IN (SELECT CUSTOMER_ID FROM BEAT_CUSTOMER) AND RESELLER_ID= ? ");
-			query.setParameter( 0, resellerID);
-			List results = query.list();
-			for(Object obj : results){
-				Object[] objs = (Object[])obj;
-				TrimmedCustomer trimmedCustomer = new TrimmedCustomer();
-				trimmedCustomer.setCustomerID(Integer.valueOf(String.valueOf(objs[0])));
-				trimmedCustomer.setCustomerName(String.valueOf(objs[1]));
-				customers.add(trimmedCustomer);
-			}
-		}catch(Exception exception){
-			logger.error("Error while getting Trimmed customer not assigned to any beat.", exception);
-		}finally{
-			if(session != null){
-				session.close();
-			}
-		}
-		return customers;
-	}
-	
-	@Override
-	public List<TrimmedCustomer> getCustomersBeatAssignmentForEdit(int beatID, int resellerID){
-		Session session = null;
-		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
-		try{
-			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT ID, NAME FROM CUSTOMER WHERE ID NOT IN (SELECT CUSTOMER_ID FROM BEAT_CUSTOMER WHERE BEAT_ID != ? ) AND RESELLER_ID= ? ");
-			query.setParameter( 0, beatID);
-			query.setParameter(1, resellerID);
-			List results = query.list();
-			for(Object obj : results){
-				Object[] objs = (Object[])obj;
-				TrimmedCustomer trimmedCustomer = new TrimmedCustomer();
-				trimmedCustomer.setCustomerID(Integer.valueOf(String.valueOf(objs[0])));
-				trimmedCustomer.setCustomerName(String.valueOf(objs[1]));
-				customers.add(trimmedCustomer);
-			}
-		}catch(Exception exception){
-			logger.error("Error while getting Trimmed customer for beat-customer edit.", exception);
-		}finally{
-			if(session != null){
-				session.close();
-			}
-		}
-		return customers;
-	}
-
 	@Override
 	public List<TrimmedCustomer> getCustomersToSchedule(int beatID, Date visitDate) {
 		Session session = null;

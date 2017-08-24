@@ -54,6 +54,16 @@ public class Beat extends BusinessEntity {
 	@Transient
 	private List<Integer> areaIDs;
 	
+	@Transient
+	private int supplierID;
+	
+	@Transient
+	private List<Supplier> suppliers;
+	
+	//HACK FOR UI, PLEASE DON'T USE
+	@Transient
+	private String supplierIDStr;
+	
 	public int getBeatID() {
 		return beatID;
 	}
@@ -134,15 +144,31 @@ public class Beat extends BusinessEntity {
 	public void setAreaIDs(List<Integer> areaIDs) {
 		this.areaIDs = areaIDs;
 	}
-
-	@Override
-	public String toString() {
-		return "Beat [beatID=" + beatID + ", name=" + name + ", description=" + description + ", coverageSchedule="
-				+ coverageSchedule + ", distance=" + distance + ", resellerID=" + resellerID + ", areas=" + areas
-				+ ", customers=" + customers + ", customerIDs=" + customerIDs + ", areaIDs=" + areaIDs + "]";
+	
+	public int getSupplierID() {
+		return supplierID;
 	}
 
-	
-	
+	public void setSupplierID(int supplierID) {
+		this.supplierID = supplierID;
+	}
+
+	public List<Supplier> getSuppliers() {
+		return suppliers;
+	}
+
+	public void setSuppliers(List<Supplier> suppliers) {
+		this.suppliers = suppliers;
+	}
+
+	public String getSupplierIDStr() {
+		return supplierIDStr;
+	}
+
+	public void setSupplierIDStr(String supplierIDStr) {
+		this.supplierIDStr = supplierIDStr;
+	}
+
+		
 	
 }

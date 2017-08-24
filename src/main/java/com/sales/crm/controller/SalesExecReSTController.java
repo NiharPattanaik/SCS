@@ -68,5 +68,10 @@ public class SalesExecRESTController {
 		}
 		return salesExecService.getScheduledVisitBeatCustomers(salesExecID, date, beatID);
 	}
+	
+	@GetMapping(value="/salesExecNotMappedToSupp/{supplierID}")
+	public List<SalesExecutive> getSalesExecNotMappedToSupp(@PathVariable("supplierID") int supplierID){
+		return salesExecService.getSalesExecsNotMappedToSupplier(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))), supplierID);
+	}
 
 }

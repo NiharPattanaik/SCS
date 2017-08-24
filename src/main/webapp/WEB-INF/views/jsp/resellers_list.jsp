@@ -11,6 +11,11 @@
 	<link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
 	<script src="<%=request.getContextPath()%>/resources/js/jquery-3.2.0.min.js"></script>
 	<script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
+	<script src="<%=request.getContextPath()%>/resources/js/jquery.dataTables.min.js"></script>
+	<script src="<%=request.getContextPath()%>/resources/js/dataTables.bootstrap.min.js"></script>
+	<script src="<%=request.getContextPath()%>/resources/css/jquery.dataTables.min.css"></script>
+	<script src="<%=request.getContextPath()%>/resources/css/dataTables.bootstrap.min.css"></script>
+	
 
 <style>
     .dpHeaderWrap {
@@ -52,6 +57,23 @@
     margin-top: 12px;
     
     }
+    
+     .the-table {
+    table-layout: fixed;
+    word-wrap: break-word;
+	}
+	
+	table.table.table-striped thead {
+    background: #ddd;
+    padding: 10px 0 10px 0;
+	}
+	
+    .dataTables_paginate {
+    margin-top: -20px;
+    text-align: right;
+    float: right;
+    display: block
+  }
     </style>
 </head>
 
@@ -70,7 +92,7 @@
            		<h2>Reseller List</h2>   
            	</div>
       </div>        
-        <table class="table">
+        <table class="table table-striped" id="resellerTable">
             <thead>
                 <tr>
                     <th>Reseller ID</th>
@@ -98,5 +120,9 @@
         </table>
    	</div>
 </body>
-
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#resellerTable').DataTable({searching: false, aaSorting: [], bLengthChange: false, pageLength: 10});
+} );
+</script>
 </html>

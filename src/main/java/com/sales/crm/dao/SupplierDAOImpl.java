@@ -21,8 +21,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.sales.crm.model.Address;
+import com.sales.crm.model.Beat;
 import com.sales.crm.model.Manufacturer;
+import com.sales.crm.model.SalesExecutive;
 import com.sales.crm.model.SuppAreaManager;
+import com.sales.crm.model.SuppSalesExecBeats;
 import com.sales.crm.model.SuppSalesOfficer;
 import com.sales.crm.model.Supplier;
 
@@ -112,10 +115,51 @@ public class SupplierDAOImpl implements SupplierDAO{
 				supplier.setAreaManager(ams.get(0));
 			}
 			//Get Mapped Manufacturers
-			SQLQuery manufQuery = session.createSQLQuery("SELECT MANUFACTURER_ID FROM SUPPLIER_MANUFACTURER WHERE SUPPLIER_ID= ?");
+			SQLQuery manufQuery = session.createSQLQuery("SELECT MANUFACTURER_ID FROM SUPPLIER_MANUFACTURER WHERE SUPPLIER_ID = ?");
 			manufQuery.setParameter(0, supplier.getSupplierID());
 			List<Integer> manufacturerIDs = manufQuery.list();
 			supplier.setManufacturerIDs(manufacturerIDs);
+			
+			//Get beats
+			List<Beat> beats = new ArrayList<Beat>();
+			SQLQuery beatQuery = session.createSQLQuery("SELECT * FROM BEAT WHERE ID IN (SELECT BEAT_ID FROM SUPPLIER_BEAT WHERE SUPPLIER_ID = ?)");
+			beatQuery.setParameter(0, supplierID);
+			List resutls = beatQuery.list();
+			for (Object obj : resutls) {
+				Object[] objs = (Object[]) obj;
+				Beat beat = new Beat();
+				beat.setBeatID(Integer.valueOf(String.valueOf(objs[0])));
+				beat.setName(String.valueOf(objs[2]));
+				beats.add(beat);
+			}
+			if(beats.size() > 0){
+				supplier.setBeats(beats);
+			}
+			
+			//Get Sales Executives
+			List<SalesExecutive> salesExecs = new ArrayList<SalesExecutive>();
+			List<Integer> salesExecIDs = new ArrayList<Integer>();
+			SQLQuery salesExecsQry = session.createSQLQuery("SELECT a.* FROM USER a, SUPPLIER_SALES_EXECUTIVES b WHERE  a.ID = b.SALES_EXEC_ID AND b.RESELLER_ID=? AND b.SUPPLIER_ID = ?");
+			salesExecsQry.setParameter(0, supplier.getResellerID());
+			salesExecsQry.setParameter(1, supplierID);
+			List lists = salesExecsQry.list();
+			for(Object obj : lists){
+				Object[] objs = (Object[])obj;
+				SalesExecutive salesExecutive = new SalesExecutive();
+				salesExecutive.setUserID(Integer.valueOf(String.valueOf(objs[0])));
+				salesExecutive.setUserName(String.valueOf(objs[1]));
+				salesExecutive.setDescription(String.valueOf(objs[3]));
+				salesExecutive.setEmailID(String.valueOf(objs[4]));
+				salesExecutive.setMobileNo(String.valueOf(objs[5]));
+				salesExecutive.setFirstName(String.valueOf(objs[6]));
+				salesExecutive.setLastName(String.valueOf(objs[7]));
+				salesExecutive.setStatus(Integer.valueOf(String.valueOf(objs[8])));
+				salesExecs.add(salesExecutive);
+				salesExecIDs.add(salesExecutive.getUserID());
+			}
+			supplier.setSalesExecs(salesExecs);
+			supplier.setSalesExecsIDs(salesExecIDs);
+			
 		}catch(Exception exception){
 			logger.error("Error while fetching supplier details", exception);
 		}finally{
@@ -294,6 +338,49 @@ public class SupplierDAOImpl implements SupplierDAO{
 		}
 		return new ArrayList<Supplier>(suppMap.values());
 	}
+	
+	@Override
+	public List<Supplier> getSuppSalesExecsList(int resellerID) {
+		Session session = null;
+		Map<Integer, Supplier> suppMap = new HashMap<Integer, Supplier>();
+		try{
+			session = sessionFactory.openSession();
+			SQLQuery query = session.createSQLQuery("SELECT a.ID SUPP_ID, a.NAME SUPP_NAME, b.ID SALES_EXEC_ID, b.FIRST_NAME, b.LAST_NAME FROM SUPPLIER a, USER b, "
+					+ "SUPPLIER_SALES_EXECUTIVES c WHERE a.ID=c.SUPPLIER_ID AND b.ID=c.SALES_EXEC_ID AND c.RESELLER_ID= ?");
+			query.setParameter(0, resellerID);
+			List results = query.list();
+			for(Object obj : results){
+				Object[] objs = (Object[])obj;
+				//Supplier
+				Supplier supplier = null;
+				if(suppMap.get(Integer.valueOf(String.valueOf(objs[0]))) != null){
+					supplier = suppMap.get(Integer.valueOf(String.valueOf(objs[0])));
+				}else{
+					supplier = new Supplier();
+					supplier.setSupplierID(Integer.valueOf(String.valueOf(objs[0])));
+					supplier.setName(String.valueOf(objs[1]));
+					suppMap.put(supplier.getSupplierID(), supplier);
+				}
+				//Sales Executive
+				SalesExecutive salesExecutive = new SalesExecutive();
+				salesExecutive.setUserID(Integer.valueOf(String.valueOf(objs[2])));
+				salesExecutive.setFirstName(String.valueOf(objs[3]));
+				salesExecutive.setLastName(String.valueOf(objs[4]));
+				//Set in supplier
+				if(supplier.getSalesExecs() == null){
+					supplier.setSalesExecs(new ArrayList<SalesExecutive>());
+				}
+				supplier.getSalesExecs().add(salesExecutive);
+			}
+		}catch(Exception exception){
+			logger.error("Error while fetching supplier-salesexecutive mapping.", exception);
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		return new ArrayList<Supplier>(suppMap.values());
+	}
 
 	@Override
 	public void assignManufacturer(int supplierID, List<Integer> manufacturerIDs) throws Exception{
@@ -406,6 +493,231 @@ public class SupplierDAOImpl implements SupplierDAO{
 		}
 	
 		
+	}
+
+	@Override
+	public void assignSalesExecutivesToSupplier(int resellerID, Supplier supplier) throws Exception {
+		Session session = null;
+		Transaction transaction = null;
+		try {
+			session = sessionFactory.openSession();
+			transaction = session.beginTransaction();
+			final List<Integer> salesExecIDs = supplier.getSalesExecsIDs();
+			final int supplierID = supplier.getSupplierID();
+			session.doWork(new Work() {
+				@Override
+				public void execute(Connection connection) throws SQLException {
+					PreparedStatement pstmt = null;
+					try {
+						String sqlInsert = "INSERT INTO SUPPLIER_SALES_EXECUTIVES (SUPPLIER_ID, SALES_EXEC_ID, RESELLER_ID, DATE_CREATED) VALUES (?, ?, ?, ?)";
+						pstmt = connection.prepareStatement(sqlInsert);
+						for (int salesExecID : salesExecIDs) {
+							pstmt.setInt(1, supplierID);
+							pstmt.setInt(2, salesExecID);
+							pstmt.setInt(3, resellerID);
+							pstmt.setDate(4, new java.sql.Date(new Date().getTime()));
+							pstmt.addBatch();
+						}
+						pstmt.executeBatch();
+					} finally {
+						pstmt.close();
+					}
+				}
+			});
+			transaction.commit();
+		} catch (Exception exception) {
+			logger.error("Error while assigning sales executives to Supplier.", exception);
+			if (transaction != null) {
+				transaction.rollback();
+			}
+			throw exception;
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	}
+
+	@Override
+	public void updateAssignedSalesExecs(int supplierID, List<Integer> salesExecIDs, int resellerID) throws Exception {
+		Session session = null;
+		Transaction transaction = null;
+		try {
+			session = sessionFactory.openSession();
+			transaction = session.beginTransaction();
+			//Remove existing mapping
+			SQLQuery removeMapping = session.createSQLQuery("DELETE FROM SUPPLIER_SALES_EXECUTIVES WHERE SUPPLIER_ID = ?");
+			removeMapping.setParameter(0, supplierID);
+			removeMapping.executeUpdate();
+			// get Connction from Session
+			session.doWork(new Work() {
+				@Override
+				public void execute(Connection connection) throws SQLException {
+					PreparedStatement pstmt = null;
+					try {
+						String sqlInsert = "INSERT INTO SUPPLIER_SALES_EXECUTIVES (SUPPLIER_ID, SALES_EXEC_ID, RESELLER_ID, DATE_CREATED) VALUES (?, ?, ?, ?)";
+						pstmt = connection.prepareStatement(sqlInsert);
+						for (int salesExecID : salesExecIDs) {
+							pstmt.setInt(1, supplierID);
+							pstmt.setInt(2, salesExecID);
+							pstmt.setInt(3, resellerID);
+							pstmt.setDate(4, new java.sql.Date(new Date().getTime()));
+							pstmt.addBatch();
+						}
+						pstmt.executeBatch();
+					} finally {
+						pstmt.close();
+					}
+				}
+			});
+			transaction.commit();
+		} catch (Exception exception) {
+			logger.error("Error while assigning manufacturer to Supplier.", exception);
+			if (transaction != null) {
+				transaction.rollback();
+			}
+			throw exception;
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	
+		
+	}
+
+	@Override
+	public void deleteAassignedSalesExec(int supplierID) throws Exception {
+		Session session = null;
+		Transaction transaction = null;
+		try {
+			session = sessionFactory.openSession();
+			transaction = session.beginTransaction();
+			//Remove existing mapping
+			SQLQuery removeMapping = session.createSQLQuery("DELETE FROM SUPPLIER_SALES_EXECUTIVES WHERE SUPPLIER_ID = ?");
+			removeMapping.setParameter(0, supplierID);
+			removeMapping.executeUpdate();
+			transaction.commit();
+		} catch (Exception exception) {
+			logger.error("Error while removing assigned manufacturer to Supplier.", exception);
+			if (transaction != null) {
+				transaction.rollback();
+			}
+			throw exception;
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	
+		
+	}
+
+	@Override
+	public List<SuppSalesExecBeats> getSuppSalesExecBeats(int resellerID) {
+		Session session = null;
+		Map<String, SuppSalesExecBeats> suppMap = new HashMap<String, SuppSalesExecBeats>();
+		try {
+			session = sessionFactory.openSession();
+			SQLQuery query = session.createSQLQuery(
+					"SELECT a.ID SUPP_ID, a.NAME SUPP_NAME, c.ID SALES_EXEC_ID, c.FIRST_NAME FIRST_NAME, c.LAST_NAME LAST_NAME, b.ID BEAT_ID, b.NAME BEAT_NAME "
+					+ "FROM SUPPLIER a, BEAT b, USER c, SUPPLIER_SALES_EXEC_BEATS d WHERE a.ID=d.SUPPLIER_ID AND b.ID=d.BEAT_ID AND c.ID = d.SALES_EXEC_ID AND d.RESELLER_ID= ?");
+			query.setParameter(0, resellerID);
+			List lists = query.list();
+			for (Object obj : lists) {
+				Object[] objs = (Object[]) obj;
+				
+				Supplier supplier = new Supplier();
+				supplier.setSupplierID(Integer.valueOf(String.valueOf(objs[0])));
+				supplier.setName(String.valueOf(objs[1]));
+				
+				SalesExecutive salesExecutive = new SalesExecutive();
+				salesExecutive.setUserID(Integer.valueOf(String.valueOf(objs[2])));
+				salesExecutive.setFirstName(String.valueOf(objs[3]));
+				salesExecutive.setLastName(String.valueOf(objs[4]));
+				
+				Beat beat = new Beat();
+				beat.setBeatID(Integer.valueOf(String.valueOf(objs[5])));
+				beat.setName(String.valueOf(objs[6]));
+				
+				if(!suppMap.containsKey(supplier.getSupplierID()+"-"+salesExecutive.getUserID())){
+					SuppSalesExecBeats suppSalesExecBeats = new SuppSalesExecBeats();
+					suppSalesExecBeats.setSupplier(supplier);
+					suppSalesExecBeats.setSalesExecutive(salesExecutive);
+					List<Beat> beats = new ArrayList<>();
+					beats.add(beat);
+					suppSalesExecBeats.setBeats(beats);
+					suppMap.put(supplier.getSupplierID()+"-"+salesExecutive.getUserID(), suppSalesExecBeats);
+				}else{
+					suppMap.get(supplier.getSupplierID()+"-"+salesExecutive.getUserID()).getBeats().add(beat);
+				}
+			}
+		} catch (Exception exception) {
+			logger.error("Error while removing assigned manufacturer to Supplier.", exception);
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+		return new ArrayList<SuppSalesExecBeats>(suppMap.values());
+	}
+	
+	
+	@Override
+	public SuppSalesExecBeats getSuppSalesExecBeat(int resellerID, int suppID, int salesExecID) {
+		Session session = null;
+		SuppSalesExecBeats suppSalesExecBeat = null;
+		List<Integer> beatIDsList = new ArrayList<Integer>();
+		try {
+			session = sessionFactory.openSession();
+			SQLQuery query = session.createSQLQuery(
+					"SELECT a.ID SUPP_ID, a.NAME SUPP_NAME, c.ID SALES_EXEC_ID, c.FIRST_NAME FIRST_NAME, c.LAST_NAME LAST_NAME, b.ID BEAT_ID, b.NAME BEAT_NAME "
+					+ "FROM SUPPLIER a, BEAT b, USER c, SUPPLIER_SALES_EXEC_BEATS d WHERE a.ID=d.SUPPLIER_ID AND b.ID=d.BEAT_ID AND c.ID = d.SALES_EXEC_ID AND d.RESELLER_ID= ? "
+					+ "AND d.SUPPLIER_ID=? AND d.SALES_EXEC_ID = ?");
+			query.setParameter(0, resellerID);
+			query.setParameter(1, suppID);
+			query.setParameter(2, salesExecID);
+			List lists = query.list();
+			boolean added = false;
+			for (Object obj : lists) {
+				Object[] objs = (Object[]) obj;
+				if(!added){
+					suppSalesExecBeat = new SuppSalesExecBeats();
+					Supplier supplier = new Supplier();
+					supplier.setSupplierID(Integer.valueOf(String.valueOf(objs[0])));
+					supplier.setName(String.valueOf(objs[1]));
+					
+					SalesExecutive salesExecutive = new SalesExecutive();
+					salesExecutive.setUserID(Integer.valueOf(String.valueOf(objs[2])));
+					salesExecutive.setFirstName(String.valueOf(objs[3]));
+					salesExecutive.setLastName(String.valueOf(objs[4]));
+					suppSalesExecBeat.setSupplier(supplier);
+					suppSalesExecBeat.setSalesExecutive(salesExecutive);
+					Beat beat = new Beat();
+					beat.setBeatID(Integer.valueOf(String.valueOf(objs[5])));
+					beat.setName(String.valueOf(objs[6]));
+					List<Beat> beats = new ArrayList<>();
+					beats.add(beat);
+					beatIDsList.add(beat.getBeatID());
+					suppSalesExecBeat.setBeatIDLists(beatIDsList);
+					suppSalesExecBeat.setBeats(beats);
+					added = true;
+				}else{
+					Beat beat = new Beat();
+					beat.setBeatID(Integer.valueOf(String.valueOf(objs[5])));
+					beat.setName(String.valueOf(objs[6]));
+					suppSalesExecBeat.getBeatIDLists().add(beat.getBeatID());
+					suppSalesExecBeat.getBeats().add(beat);
+				}
+			}
+		} catch (Exception exception) {
+			logger.error("Error while removing assigned manufacturer to Supplier.", exception);
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+		return suppSalesExecBeat;
 	}
 
 }

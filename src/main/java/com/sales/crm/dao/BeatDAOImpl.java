@@ -4,14 +4,11 @@ import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -26,6 +23,7 @@ import org.springframework.stereotype.Repository;
 
 import com.sales.crm.model.Area;
 import com.sales.crm.model.Beat;
+import com.sales.crm.model.Supplier;
 import com.sales.crm.model.TrimmedCustomer;
 
 @Repository("beatDAO")
@@ -46,15 +44,21 @@ public class BeatDAOImpl implements BeatDAO {
 			transaction = session.beginTransaction();
 			beat.setDateCreated(new Date());
 			session.save(beat);
-			// create user_role
+			// create beat_area
 			if (beat.getAreaIDs() != null && beat.getAreaIDs().size() > 0) {
 				for (int areaID : beat.getAreaIDs()) {
-					SQLQuery createUserRole = session.createSQLQuery("INSERT INTO BEAT_AREA VALUES (?, ?)");
-					createUserRole.setParameter(0, beat.getBeatID());
-					createUserRole.setParameter(1, areaID);
-					createUserRole.executeUpdate();
+					SQLQuery createBeatArea = session.createSQLQuery("INSERT INTO BEAT_AREA VALUES (?, ?)");
+					createBeatArea.setParameter(0, beat.getBeatID());
+					createBeatArea.setParameter(1, areaID);
+					createBeatArea.executeUpdate();
 				}
 			}
+			//create supplier-beat
+			SQLQuery createSuppBeat = session.createSQLQuery("INSERT INTO SUPPLIER_BEAT (SUPPLIER_ID, BEAT_ID, DATE_CREATED) VALUES (?, ?, ?)");
+			createSuppBeat.setParameter(0, beat.getSupplierID());
+			createSuppBeat.setParameter(1, beat.getBeatID());
+			createSuppBeat.setParameter(2, new Date());
+			createSuppBeat.executeUpdate();
 			transaction.commit();
 		} catch (Exception e) {
 			logger.error("Error while creating beat.", e);
@@ -105,6 +109,19 @@ public class BeatDAOImpl implements BeatDAO {
 				customerIDs.add(Integer.valueOf(String.valueOf(obj)));
 			}
 			
+			//Get BEAT Suppliers
+			List<Supplier> suppliers = new ArrayList<Supplier>();
+			SQLQuery supplierQry = session.createSQLQuery("SELECT * FROM SUPPLIER WHERE ID IN (SELECT SUPPLIER_ID FROM SUPPLIER_BEAT WHERE BEAT_ID = ?)");
+			supplierQry.setParameter(0, beatID);
+			List resutls = supplierQry.list();
+			for (Object obj : resutls) {
+				Object[] objs = (Object[]) obj;
+				Supplier supplier = new Supplier();
+				supplier.setSupplierID(Integer.valueOf(String.valueOf(objs[0])));
+				supplier.setName(String.valueOf(objs[1]));
+				suppliers.add(supplier);
+			}
+			
 			//Add Areas
 			if(areaList.size() > 0){
 				beat.setAreas(areaList);
@@ -114,6 +131,11 @@ public class BeatDAOImpl implements BeatDAO {
 			//Add Customer IDS
 			if(customerIDs.size() > 0){
 				beat.setCustomerIDs(customerIDs);
+			}
+			
+			//Add suppliers
+			if(suppliers.size() > 0){
+				beat.setSuppliers(suppliers);
 			}
 		} catch (Exception exception) {
 			logger.error("Error while fetching beat details.", exception);
@@ -278,7 +300,7 @@ public class BeatDAOImpl implements BeatDAO {
 	}
 
 	@Override
-	public void assignBeatToCustomers(final int beatID, final List<Integer> customerIDs) throws Exception{
+	public void assignBeatsToCustomer(final int customerID, final List<Integer> beatIDs) throws Exception{
 		Session session = null;
 		Transaction transaction = null;
 		try {
@@ -292,9 +314,9 @@ public class BeatDAOImpl implements BeatDAO {
 					try {
 						String sqlInsert = "INSERT INTO BEAT_CUSTOMER VALUES (?, ?)";
 						pstmt = connection.prepareStatement(sqlInsert);
-						for (int i = 0; i < customerIDs.size(); i++) {
+						for (int beatID : beatIDs) {
 							pstmt.setInt(1, beatID);
-							pstmt.setInt(2, customerIDs.get(i));
+							pstmt.setInt(2, customerID);
 							pstmt.addBatch();
 						}
 						pstmt.executeBatch();
@@ -305,7 +327,7 @@ public class BeatDAOImpl implements BeatDAO {
 			});
 			transaction.commit();
 		} catch (Exception exception) {
-			logger.error("Error while assigning beat to customer.", exception);
+			logger.error("Error while assigning beats to customer.", exception);
 			if (transaction != null) {
 				transaction.rollback();
 			}
@@ -319,15 +341,15 @@ public class BeatDAOImpl implements BeatDAO {
 	
 	
 	@Override
-	public void updateAssignedBeatToCustomers(final int beatID, final List<Integer> customerIDs) {
+	public void updateAssignedBeatToCustomers(int customerID, List<Integer> beatIDs) throws Exception{
 		Session session = null;
 		Transaction transaction = null;
 		try {
 			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
 			//Delete existing Beat-Customer
-			SQLQuery deleteSalesExecBeats = session.createSQLQuery("DELETE FROM BEAT_CUSTOMER WHERE BEAT_ID =? ");
-			deleteSalesExecBeats.setParameter(0, beatID);
+			SQLQuery deleteSalesExecBeats = session.createSQLQuery("DELETE FROM BEAT_CUSTOMER WHERE CUSTOMER_ID =? ");
+			deleteSalesExecBeats.setParameter(0, customerID);
 			deleteSalesExecBeats.executeUpdate();
 			// get Connction from Session
 			session.doWork(new Work() {
@@ -337,9 +359,9 @@ public class BeatDAOImpl implements BeatDAO {
 					try {
 						String sqlInsert = "INSERT INTO BEAT_CUSTOMER VALUES (?, ?)";
 						pstmt = connection.prepareStatement(sqlInsert);
-						for (int i = 0; i < customerIDs.size(); i++) {
+						for (int beatID : beatIDs) {
 							pstmt.setInt(1, beatID);
-							pstmt.setInt(2, customerIDs.get(i));
+							pstmt.setInt(2, customerID);
 							pstmt.addBatch();
 						}
 						pstmt.executeBatch();
@@ -354,6 +376,7 @@ public class BeatDAOImpl implements BeatDAO {
 			if (transaction != null) {
 				transaction.rollback();
 			}
+			throw e;
 		} finally {
 			if (session != null) {
 				session.close();
@@ -389,18 +412,18 @@ public class BeatDAOImpl implements BeatDAO {
 	}
 
 	@Override
-	public void deleteAssignedBeatCustomerLink(int beatID) throws Exception{
+	public void deleteAssignedBeatCustomerLink(int customerID) throws Exception{
 		Session session = null;
 		Transaction transaction = null;
 		try {
 			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
-			SQLQuery query = session.createSQLQuery("DELETE FROM BEAT_CUSTOMER WHERE BEAT_ID= ?");
-			query.setParameter(0, beatID);
+			SQLQuery query = session.createSQLQuery("DELETE FROM BEAT_CUSTOMER WHERE CUSTOMER_ID= ?");
+			query.setParameter(0, customerID);
 			query.executeUpdate();
 			transaction.commit();
 		} catch (Exception exception) {
-			logger.error("Sales Executive beats could not be successfully removed", exception);
+			logger.error("Customer beats could not be successfully removed", exception);
 			if (transaction != null) {
 				transaction.rollback();
 			}
@@ -433,6 +456,70 @@ public class BeatDAOImpl implements BeatDAO {
 			}
 		}
 		return counts;
+	}
+
+	@Override
+	public List<Beat> getBeatsNotMappedToCustomer(int customerID) {
+		Session session = null;
+		List<Beat> beats = new ArrayList<Beat>();
+		try {
+			session = sessionFactory.openSession();
+			SQLQuery beatsQuery = session.createSQLQuery("SELECT * FROM BEAT WHERE ID NOT IN (SELECT BEAT_ID FROM BEAT_CUSTOMER WHERE CUSTOMER_ID= ?)");
+			beatsQuery.setParameter(0, customerID);
+			List beatList = beatsQuery.list();
+			for(Object obj : beatList){
+				Object[] objs = (Object[])obj;
+				Beat beat = new Beat();
+				beat.setBeatID(Integer.valueOf(String.valueOf(objs[0])));
+				beat.setResellerID(Integer.valueOf(String.valueOf(objs[1])));
+				beat.setName(String.valueOf(objs[2]));
+				beat.setDescription(String.valueOf(objs[3]));
+				beat.setCoverageSchedule(String.valueOf(objs[4]));
+				beat.setDistance(Integer.valueOf(String.valueOf(objs[5])));
+				beats.add(beat);
+			}
+			return beats;
+		} catch (Exception exception) {
+			logger.error("Error while getting beats for customer.", exception);
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public List<Beat> getBeatsNotMappedToSalesExec(int resellerID, int supplierID, int salesExecID) {
+		Session session = null;
+		List<Beat> beats = new ArrayList<Beat>();
+		try {
+			session = sessionFactory.openSession();
+			SQLQuery beatsQuery = session.createSQLQuery("SELECT * FROM BEAT WHERE ID NOT IN (SELECT BEAT_ID FROM SUPPLIER_SALES_EXEC_BEATS WHERE SUPPLIER_ID= ? AND SALES_EXEC_ID = ?) AND RESELLER_ID= ?");
+			beatsQuery.setParameter(0, supplierID);
+			beatsQuery.setParameter(1, salesExecID);
+			beatsQuery.setParameter(2, resellerID);
+			List beatList = beatsQuery.list();
+			for(Object obj : beatList){
+				Object[] objs = (Object[])obj;
+				Beat beat = new Beat();
+				beat.setBeatID(Integer.valueOf(String.valueOf(objs[0])));
+				beat.setResellerID(Integer.valueOf(String.valueOf(objs[1])));
+				beat.setName(String.valueOf(objs[2]));
+				beat.setDescription(String.valueOf(objs[3]));
+				beat.setCoverageSchedule(String.valueOf(objs[4]));
+				beat.setDistance(Integer.valueOf(String.valueOf(objs[5])));
+				beats.add(beat);
+			}
+			return beats;
+		} catch (Exception exception) {
+			logger.error("Error while getting beats not mapped to sales executive.", exception);
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+		return null;
 	}
 
 }

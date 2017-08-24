@@ -25,10 +25,13 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.sales.crm.model.Area;
 import com.sales.crm.model.Beat;
+import com.sales.crm.model.Customer;
+import com.sales.crm.model.Supplier;
 import com.sales.crm.model.TrimmedCustomer;
 import com.sales.crm.service.AreaService;
 import com.sales.crm.service.BeatService;
 import com.sales.crm.service.CustomerService;
+import com.sales.crm.service.SupplierService;
 import com.sales.crm.service.UserService;
 
 @Controller
@@ -50,6 +53,9 @@ public class BeatWebController {
 	@Autowired
 	CustomerService customerService;
 	
+	@Autowired
+	SupplierService supplierService;
+	
 	@GetMapping(value="/{beatID}")
 	public ModelAndView get(@PathVariable int beatID){
 		Beat beat = beatService.getBeat(beatID);
@@ -59,10 +65,13 @@ public class BeatWebController {
 	
 	@RequestMapping(value="/createBeatForm", method = RequestMethod.GET)  
 	public ModelAndView createBeatForm(Model model){
-		List<Area> areas = areaService.getResellerAreasNotMappedToBeat(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
+		List<Area> areas = areaService.getResellerAreasNotMappedToBeat(resellerID);
+		List<Supplier> suppliers = supplierService.getResellerSuppliers(resellerID);
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		modelMap.put("areas", areas);
 		modelMap.put("beat", new Beat());
+		modelMap.put("suppliers", suppliers);
 		return new ModelAndView("/create_beat", modelMap);
 	}
 	
@@ -87,12 +96,13 @@ public class BeatWebController {
 		if(beat.getCoverageSchedule().equals("-1")){
 			beat.setCoverageSchedule("");
 		}
+		beat.setSupplierID(Integer.parseInt(beat.getSupplierIDStr()));
 		beat.setResellerID(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
 		String msg = "";
 		try{
 			beatService.createBeat(beat);
 		}catch(Exception exception){
-			msg = "New Beat could not be created successfully, please contact System Administrator. ";
+			msg = "New Beat could not be created successfully. Please try after sometine, if error persists contact System Administrator.";
 		}
 		return new ModelAndView("/create_beat_conf", "msg", msg);
 	}
@@ -106,7 +116,7 @@ public class BeatWebController {
 		try {
 			beatService.updateBeat(beat);
 		} catch (Exception exception) {
-			msg = "Beat details could not be updated successfully, please contact System Administrator. ";
+			msg = "Beat details could not be updated successfully. Please try after sometine, if error persists contact System Administrator. ";
 		}
 		Map<String, String> modelMap = new HashMap<String, String>();
 		modelMap.put("msg", msg);
@@ -120,7 +130,7 @@ public class BeatWebController {
 		try{
 			beatService.deleteBeat(beatID);
 		}catch(Exception exception){
-			msg = "Beat could not be successfully removed, please contact System Administrator";
+			msg = "Beat could not be successfully removed. Please try after sometine, if error persists contact System Administrator.";
 		}
 		return new ModelAndView("/delete_beat_conf","msg", msg);  
 	}
@@ -134,62 +144,63 @@ public class BeatWebController {
 	
 	@GetMapping(value="/beat-customers/list")
 	public ModelAndView getBeatCustomers(){
-		List<Beat> beats = beatService.getResellerBeats(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
-		return new ModelAndView("/beat_customers_list","beats", beats);  
+		List<Customer> customers = customerService.getResellerCustomers(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		return new ModelAndView("/beat_customers_list","customers", customers);  
 	}
 	
-	@GetMapping(value="/assignCustomerForm") 
-	public ModelAndView getAssignBeatToCustomerForm(){
+	@GetMapping(value="/assignBeatsForm") 
+	public ModelAndView getAssignBeatsFormForm(){
 		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
-		List<Beat> beats = beatService.getResellerBeats(resellerID);
-		List<TrimmedCustomer> customers = customerService.getCustomersNotAssignedToAnyBeat(resellerID);
+		List<TrimmedCustomer> customers = customerService.getResellerTrimmedCustomers(resellerID);
 		Map<String, Object> modelMap = new HashMap<String, Object>();
-		modelMap.put("beats", beats);
 		modelMap.put("customers", customers);
-		modelMap.put("beat", new Beat());
+		modelMap.put("customer", new Customer());
 		return new ModelAndView("/assign_beats_to_customer", modelMap);
 	}
 	
-	@PostMapping(value="/assignBeatToCustomers")
-	public ModelAndView assignBeatToCustomers(@ModelAttribute("beat") Beat beat){
+	@PostMapping(value="/assignBeatsToCustomer")
+	public ModelAndView assignBeatsToCustomer(@ModelAttribute("customer") Customer customer){
 		String msg = "";
 		try{
-			beatService.assignBeatToCustomers(beat.getBeatID(), beat.getCustomerIDs());
+			beatService.assignBeatsToCustomer(customer.getCustomerID(), customer.getBeatIDs());
 		}catch(Exception exception){
-			msg = "Customers could not be successfully assigned to beat. Please contact System Administrator";
+			msg = "Customers could not be successfully assigned to beat. Please try after sometine, if error persists contact System Administrator.";
 		}
 		return new ModelAndView("/assign_beat_customers_conf", "msg", msg);
 	}
 	
-	@GetMapping(value="/assignedBeatCustomerEditForm/{beatID}") 
-	public ModelAndView editAssignedBeatToCustomerForm(@PathVariable int beatID){
+	@GetMapping(value="/assignedBeatCustomerEditForm/{customerID}") 
+	public ModelAndView editAssignedBeatToCustomerForm(@PathVariable("customerID") int customerID){
 		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
-		List<TrimmedCustomer> customers = customerService.getCustomersBeatAssignmentForEdit(beatID, resellerID);
-		Beat beat = beatService.getBeat(beatID);
+		//List<TrimmedCustomer> customers = customerService.getCustomersBeatAssignmentForEdit(beatID, resellerID);
+		//Beat beat = beatService.getBeat(beatID);
+		Customer customer = customerService.getCustomer(customerID);
+		List<Beat> beats = beatService.getResellerBeats(resellerID);
 		Map<String, Object> modelMap = new HashMap<String, Object>();
-		modelMap.put("customers", customers);
-		modelMap.put("beat", beat);
+		modelMap.put("customer", customer);
+		modelMap.put("beats", beats);
+		//modelMap.put("customer", new Customer());
 		return new ModelAndView("/edit_assigned_beats_to_customer", modelMap);
 	}
 	
 	@PostMapping(value="/updateAssignedBeatToCustomers")
-	public ModelAndView updateAssignedBeatToCustomers(@ModelAttribute("beat") Beat beat){
+	public ModelAndView updateAssignedBeatToCustomers(@ModelAttribute("customer") Customer customer){
 		String msg = "";
 		try{
-			beatService.updateAssignedBeatToCustomers(beat.getBeatID(), beat.getCustomerIDs());
+			beatService.updateAssignedBeatToCustomers(customer.getCustomerID(), customer.getBeatIDs());
 		}catch(Exception exception){
-			msg = "Assigned customers to beat could not be updated successfully. Please contact System Administrator";
+			msg = "Assigned customers to beat could not be updated successfully. Please try after sometine, if error persists contact System Administrator.";
 		}
 		return new ModelAndView("/update_beat_customers_conf", "msg", msg);
 	}
 	
-	@GetMapping(value="/deleteAssignedBeatCustomerLink/{beatID}")
-	public ModelAndView deleteAssignedBeatCustomerLink(@PathVariable int beatID){
+	@GetMapping(value="/deleteAssignedBeatCustomerLink/{customerID}")
+	public ModelAndView deleteAssignedBeatCustomerLink(@PathVariable("customerID") int customerID){
 		String msg = "";
 		try{
-			beatService.deleteAssignedBeatCustomerLink(beatID);
+			beatService.deleteAssignedBeatCustomerLink(customerID);
 		}catch(Exception exception){
-			msg = "Beats associated to Sales Executive could not be removed successfully. Please contact System Administrator.";
+			msg = "Beats associated to customers could not be removed successfully. Please try after sometine, if error persists contact System Administrator.";
 		}
 		return new ModelAndView("/remove_beat_customers_conf","msg", msg); 
 	}

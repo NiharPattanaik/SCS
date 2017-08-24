@@ -89,6 +89,7 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
+                    	<th>Supplier</th>
                         <th>Sales Executive Name</th>
                         <th>Assigned Beats</th>
                         <% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_EDIT_ASSIGNED_BEATS.getResourcePermissionID())) { %>
@@ -101,11 +102,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                	<c:forEach var="salesExec" items="${salesExecs}">  
+                	<c:forEach var="suppSalesExecBeat" items="${suppSalesExecBeats}">  
                     <tr>
-                   		<td>${salesExec.firstName} ${salesExec.lastName}</td>
+                    	<td>${suppSalesExecBeat.supplier.name}</td>
+                   		<td>${suppSalesExecBeat.salesExecutive.firstName} ${suppSalesExecBeat.salesExecutive.lastName}</td>
                         <% String values=""; %>
-						<c:forEach var="beat" items="${salesExec.beats}">
+						<c:forEach var="beat" items="${suppSalesExecBeat.beats}">
   								<%
   									if(values.isEmpty()){
   										if((Beat)pageContext.getAttribute("beat") != null  && ((Beat)pageContext.getAttribute("beat")).getName() != null){
@@ -121,10 +123,10 @@
 						</c:forEach>
 						<td><%= values %></td>
 						<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_EDIT_ASSIGNED_BEATS.getResourcePermissionID())) { %>
-							<td><a href="<%=request.getContextPath()%>/web/salesExecWeb/assignBeatEditForm/${salesExec.userID}">Edit</a></td>
+							<td><a href="<%=request.getContextPath()%>/web/salesExecWeb/assignBeatEditForm/${suppSalesExecBeat.supplier.supplierID}/${suppSalesExecBeat.salesExecutive.userID}">Edit</a></td>
 						<% } %>	
 						<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_DELETE_ASSIGNED_BEATS.getResourcePermissionID())) { %>
-							<td><a href="<%=request.getContextPath()%>/web/salesExecWeb/deleteBeatsAssignment/${salesExec.userID}">Delete</a></td>
+							<td><a href="<%=request.getContextPath()%>/web/salesExecWeb/deleteBeatsAssignment/${suppSalesExecBeat.supplier.supplierID}/${suppSalesExecBeat.salesExecutive.userID}">Delete</a></td>
 						<% } %>
                     </tr>
                     </c:forEach>

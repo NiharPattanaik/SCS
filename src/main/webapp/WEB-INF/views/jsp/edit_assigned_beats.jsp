@@ -75,15 +75,19 @@ legend {
 		<%@ include file="menus.jsp" %>
 		<div class="row top-height">
 			<div class="col-md-8 ">
-				<form:form modelAttribute="salesExec" method="post"
+				<form:form modelAttribute="suppSalesExecBeats" method="post"
 					action="/crm/web/salesExecWeb/updateAssignedBeats">
 					<fieldset>
 						<legend>Assign Beats to Sales Executive</legend>
-						<div class="form-group">
+							<div class="form-group">
+								<label>Supplier</label>
+								<form:input name="supplierName" cssClass="form-control"
+								path="supplier.name" value="${ suppSalesExecBeats.supplier.name }" readonly="true"/>
+							</div>
+							<div class="form-group">
 								<label>Sales Executive</label>
-								<form:select path="userID" cssClass="form-control">
-									<form:option value="${ salesExec.userID }" label="${salesExec.firstName} ${salesExec.lastName}" />
-								</form:select>
+								<form:input name="supplierID" cssClass="form-control"
+								path="salesExecutive.name" value="${ suppSalesExecBeats.salesExecutive.name }" readonly="true"/>
 							</div>
 							<div class="form-group">
 								<label>Beats</label>
@@ -93,6 +97,8 @@ legend {
 										itemLabel="name" />
 								</form:select>
 							</div>
+							<form:hidden path="supplier.supplierID" value="${ suppSalesExecBeats.supplier.supplierID }"/>
+							<form:hidden path="salesExecutive.userID" value="${ suppSalesExecBeats.salesExecutive.userID }"/>
 					</fieldset>
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary">Submit</button>

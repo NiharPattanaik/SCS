@@ -8,7 +8,7 @@
 <html lang="en">
 
 <head>
-	<title>Edit Assign Beats To Customers</title>
+	<title>Edit Supplier Sales Exec Mapping</title>
 	<!-- Bootstrap Core CSS -->
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -75,24 +75,24 @@ legend {
 		<%@ include file="menus.jsp" %>
 		<div class="row top-height">
 			<div class="col-md-8 ">
-				<form:form modelAttribute="customer" method="post"
-					action="/crm/web/beatWeb/updateAssignedBeatToCustomers">
+				<form:form modelAttribute="supplier" method="post"
+					action="/crm/web/supplierWeb/updateAassignedSalesexecs">
 					<fieldset>
-						<legend>Edit Assigned Beats to Customer</legend>
+						<legend>Supplier to Sales Executive Mapping</legend>
 						<div class="form-group">
-							<label>Customer</label>
-							<form:input name="name" cssClass="form-control" path="name"
-								value="${ccustomer.name}" readonly="true" />
-						</div>
-						<div class="form-group required" >
-							<label class='control-label'>Beats</label>
-							<form:select path="beatIDs" cssClass="form-control" id="beats"
-								multiple="true">
-								<form:options items="${beats}" itemValue="beatID"
-									itemLabel="name" />
-							</form:select>
-						</div>
-						<form:hidden path="customerID" value="${ccustomer.customerID}" name="customerID"/>
+								<label>Supplier</label>
+								<form:select path="supplierID" cssClass="form-control">
+									<form:option value="${ supplier.supplierID }" label="${supplier.name}" />
+								</form:select>
+							</div>
+							<div class="form-group">
+								<label>Sales Executives</label>
+								<form:select path="salesExecsIDs" cssClass="form-control" multiple="true">
+									<form:option value="-1" label="--- Select ---" />
+									<form:options items="${salesExecs}" itemValue="userID"
+										itemLabel="name" />
+								</form:select>
+							</div>
 					</fieldset>
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary">Submit</button>

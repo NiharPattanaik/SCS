@@ -50,14 +50,6 @@ public class CustomerService {
 		return customerDAO.getCustomerPrimaryMobileNo(customerID);
 	}
 	
-	public List<TrimmedCustomer> getCustomersNotAssignedToAnyBeat(int resellerID){
-		return customerDAO.getCustomersNotAssignedToAnyBeat(resellerID);
-	}
-	
-	public List<TrimmedCustomer> getCustomersBeatAssignmentForEdit(int beatID, int resellerID){
-		return customerDAO.getCustomersBeatAssignmentForEdit(beatID, resellerID);
-	}
-	
 	public List<TrimmedCustomer> getCustomersToSchedule(int beatID, Date visitDate){
 		return customerDAO.getCustomersToSchedule(beatID, visitDate);
 	}

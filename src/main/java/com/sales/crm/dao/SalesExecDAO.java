@@ -13,9 +13,9 @@ public interface SalesExecDAO {
 	
 	List<SalesExecutive> getSalesExecutives(int resellerID);
 	
-	void assignBeats(int salesExecID, List<Integer> beatIDs) throws Exception;
+	void assignBeats(int resellerID, int supplierID, int salesExecID, List<Integer> beatIDs) throws Exception;
 	
-	void updateAssignedBeats(final int salesExecID, final List<Integer> beatIDs) throws Exception;
+	void updateAssignedBeats(int resellerID, int supplierID, int salesExecID, List<Integer> beatIDs) throws Exception;
 	
 	List<SalesExecutive> getSalesExecMapsBeatsCustomers(int resellerID);
 	
@@ -27,10 +27,11 @@ public interface SalesExecDAO {
 	
 	List<TrimmedCustomer> getScheduledVisitBeatCustomers(int salesExecID, Date visitDate, int beatID);
 	
-	void deleteBeatAssignment(int salesExecID) throws Exception;
+	void deleteBeatAssignment(int supplierID, int salesExecID) throws Exception;
 	
 	List<SalesExecutive> getSalesExecutivesHavingBeatsAssigned(int resellerID);
 	
 	int getSalesExecutiveCount(int resellerID);
 	
+	List<SalesExecutive> getSalesExecsNotMappedToSupplier(int resellerID, int supplierID);
 }

@@ -35,23 +35,31 @@ public class BeatService {
 		return beatDAO.getResellerBeats(resellerID);
 	}
 	
-	public void assignBeatToCustomers(int beatID, List<Integer> customerIDs) throws Exception{
-		beatDAO.assignBeatToCustomers(beatID, customerIDs);	
+	public void assignBeatsToCustomer(int customerID, List<Integer> beatIDs) throws Exception{
+		beatDAO.assignBeatsToCustomer(customerID, beatIDs);	
 	}
 	
-	public void updateAssignedBeatToCustomers(int beatID, List<Integer> customerIDs){
-		beatDAO.updateAssignedBeatToCustomers(beatID, customerIDs);
+	public void updateAssignedBeatToCustomers(int customerID, List<Integer> beatIDs) throws Exception{
+		beatDAO.updateAssignedBeatToCustomers(customerID, beatIDs);
 	}
 	
 	public List<TrimmedCustomer> getBeatCustomers(int beatID){
 		return beatDAO.getBeatCustomers( beatID);
 	}
 	
-	public void deleteAssignedBeatCustomerLink(int beatID) throws Exception{
-		beatDAO.deleteAssignedBeatCustomerLink(beatID);
+	public void deleteAssignedBeatCustomerLink(int customerID) throws Exception{
+		beatDAO.deleteAssignedBeatCustomerLink(customerID);
 	}
 	
 	public int getBeatsCount(int resellerID){
 		return beatDAO.getBeatsCount(resellerID);
+	}
+	
+	public List<Beat> getBeatsNotMappedToCustomer(int customerID){
+		return beatDAO.getBeatsNotMappedToCustomer(customerID);
+	}
+	
+	public List<Beat> getBeatsNotMappedToSalesExec(int resellerID, int supplierID, int salesExecID){
+		return beatDAO.getBeatsNotMappedToSalesExec(resellerID, supplierID, salesExecID);
 	}
 }

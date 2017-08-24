@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+<%@page import="com.sales.crm.model.SalesExecutive"%>
+<%@page import="com.sales.crm.service.SalesExecService"%>
+<%@page import="com.sales.crm.model.Supplier"%>
 <%@page import="com.sales.crm.model.Customer"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>    
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>    
@@ -8,7 +11,7 @@
 <html lang="en">
 
 <head>
-    <title>Beat customers</title>
+    <title>Supplier Sales Executives</title>
     <!-- Bootstrap Core CSS -->
   	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -78,63 +81,52 @@
         <%@ include file="menus.jsp" %>
         	<div class="row customer_list">
         		<div class="col-md-8">
-            		<h2>Customer and Beats</h2>   
+            		<h2>Supplier and Sales Executives</h2>   
             	</div>
             	<div class="col-md-4 add_customer">
-            		<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_ASSOCIATE_CUSTOMERS.getResourcePermissionID())) { %>
-						<button type="submit" class="btn btn-primary"
-							onclick="location.href='<%=request.getContextPath()%>/web/beatWeb/assignBeatsForm';">
-							Assign Beat To Customer</button>
-					<% } %>	
+            			<button type="submit" class="btn btn-primary"
+							onclick="location.href='<%=request.getContextPath()%>/web/supplierWeb/assignSalesExecutiveForm';">
+							Assign Sales Executives To Supplier</button>
 				</div>
 	        </div>        
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Customer Name</th>
-                        <th>Assigned Beats</th>
-                        <% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_EDIT_ASSOCIATED_CUSTOMERS.getResourcePermissionID())) { %>
-                       		<th></th>
-                       	<% } %>	
-                       	
-                       	<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_DELETE_ASSOCIATED_CUSTOMERS.getResourcePermissionID())) { %>
-                        	<th></th>
-                        <% } %>	
+                        <th>Supplier Name</th>
+                        <th>Sales Executives</th>
+                       	<th></th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                	<c:forEach var="customer" items="${customers}">
+                	<c:forEach var="supplier" items="${suppliers}">
                 	<%
-                		if(((Customer)pageContext.getAttribute("customer")).getBeats() !=  null &&
-                				((Customer)pageContext.getAttribute("customer")).getBeats().size() > 0){
+                		if(((Supplier)pageContext.getAttribute("supplier")).getSalesExecs() !=  null &&
+                				((Supplier)pageContext.getAttribute("supplier")).getSalesExecs().size() > 0){
                 			
                 	%>  
                     <tr>
-                   		<td>${customer.name}</td>
+                   		<td>${supplier.name}</td>
                         <% String values=""; %>
-						<c:forEach var="beat" items="${customer.beats}">
+						<c:forEach var="salesExec" items="${supplier.salesExecs}">
   								<%
   									if(values.isEmpty()){
-  										if((Beat)pageContext.getAttribute("beat") != null  && ((Beat)pageContext.getAttribute("beat")).getName() != null){
-  											values = values+ ((Beat)pageContext.getAttribute("beat")).getName();
+  										if((SalesExecutive)pageContext.getAttribute("salesExec") != null  && ((SalesExecutive)pageContext.getAttribute("salesExec")).getName() != null){
+  											values = values+ ((SalesExecutive)pageContext.getAttribute("salesExec")).getName();
   										}
   									}else{
   										values = values + " ,";
-  										if((Beat)pageContext.getAttribute("beat") != null  && ((Beat)pageContext.getAttribute("beat")).getName() != null){
-  											values = values+ ((Beat)pageContext.getAttribute("beat")).getName();
+  										if((SalesExecutive)pageContext.getAttribute("salesExec") != null  && ((SalesExecutive)pageContext.getAttribute("salesExec")).getName() != null){
+  											values = values+ ((SalesExecutive)pageContext.getAttribute("salesExec")).getName();
   										}
   									}
   								%>
 						</c:forEach>
 						<td><%= values %></td>
-						<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_EDIT_ASSOCIATED_CUSTOMERS.getResourcePermissionID())) { %>
-							<td><a href="<%=request.getContextPath()%>/web/beatWeb/assignedBeatCustomerEditForm/${customer.customerID}">Edit</a></td>
-						<% } %>	
+						<td><a href="<%=request.getContextPath()%>/web/supplierWeb/assignSalesExecEditForm/${supplier.supplierID}">Edit</a></td>
 						
-						<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_DELETE_ASSOCIATED_CUSTOMERS.getResourcePermissionID())) { %>
-							<td><a href="<%=request.getContextPath()%>/web/beatWeb/deleteAssignedBeatCustomerLink/${customer.customerID}">Delete</a></td>
-						<% } %>	
-                    </tr>
+						<td><a href="<%=request.getContextPath()%>/web/supplierWeb/deleteAassignedSalesexec/${supplier.supplierID}">Delete</a></td>
+					</tr>
                     <% 
                 		}
                     %>

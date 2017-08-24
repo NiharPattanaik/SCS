@@ -3,7 +3,6 @@ package com.sales.crm.dao;
 import java.util.List;
 
 import com.sales.crm.model.Beat;
-import com.sales.crm.model.Customer;
 import com.sales.crm.model.TrimmedCustomer;
 
 public interface BeatDAO {
@@ -18,15 +17,18 @@ public interface BeatDAO {
 	
 	List<Beat> getResellerBeats(int resellerID);
 	
+	void assignBeatsToCustomer(int customerID, List<Integer> beatIDs) throws Exception;
 	
-	void assignBeatToCustomers(int beatID, List<Integer> customerIDs) throws Exception;
-	
-	void updateAssignedBeatToCustomers(final int beatID, final List<Integer> customerIDs);
+	void updateAssignedBeatToCustomers(int customerID, List<Integer> beatIDs) throws Exception;
 	
 	List<TrimmedCustomer> getBeatCustomers( int beatID);
 	
-	void deleteAssignedBeatCustomerLink(int beatID) throws Exception;
+	void deleteAssignedBeatCustomerLink(int customerID) throws Exception;
 	
 	int getBeatsCount(int resellerID);
+	
+	List<Beat> getBeatsNotMappedToCustomer(int customerID);
+	
+	List<Beat> getBeatsNotMappedToSalesExec(int resellerID, int supplierID, int salesExecID);
 	
 }
