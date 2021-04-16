@@ -17,58 +17,58 @@ public class SalesExecService {
 	@Autowired
 	SalesExecDAO salesExecDAO;
 	
-	public SalesExecutive getSalesExecutive(int salesExecID){
-		return salesExecDAO.get(salesExecID);
+	public SalesExecutive getSalesExecutive(int salesExecID, int tenantID){
+		return salesExecDAO.get(salesExecID, tenantID);
 	}
 
-	public List<SalesExecutive> getSalesExecutives(int resellerID){
-		return salesExecDAO.getSalesExecutives(resellerID);
+	public List<SalesExecutive> getSalesExecutives(int tenantID){
+		return salesExecDAO.getSalesExecutives(tenantID);
 	}
 	
-	public void assignBeats(int resellerID, int supplierID, int salesExecID, List<Integer> beatIDs) throws Exception{
-		salesExecDAO.assignBeats(resellerID, supplierID, salesExecID, beatIDs);
+	public void assignBeats(int tenantID, int manufacturerID, int salesExecID, List<Integer> beatIDs) throws Exception{
+		salesExecDAO.assignBeats(tenantID, manufacturerID, salesExecID, beatIDs);
 	}
 
-	public void updateAssignedBeats(int resellerID, int supplierID, int salesExecID, List<Integer> beatIDs) throws Exception{
-		salesExecDAO.updateAssignedBeats(resellerID, supplierID, salesExecID, beatIDs);
+	public void updateAssignedBeats(int tenantID, int manufacturerID, int salesExecID, List<Integer> beatIDs) throws Exception{
+		salesExecDAO.updateAssignedBeats(tenantID, manufacturerID, salesExecID, beatIDs);
 	}
 	
-	public List<SalesExecutive> getSalesExecMapsBeatsCustomers(int resellerID){
-		return salesExecDAO.getSalesExecMapsBeatsCustomers(resellerID);
+	public List<SalesExecutive> getSalesExecMapsBeatsCustomers(int tenantID){
+		return salesExecDAO.getSalesExecMapsBeatsCustomers(tenantID);
 	}
 	
-	public List<Beat> getAssignedBeats(int salesExecID){
-		return salesExecDAO.getAssignedBeats(salesExecID);
+	public List<Beat> getAssignedBeats(int salesExecID, int tenantID){
+		return salesExecDAO.getAssignedBeats(salesExecID, tenantID);
 	}
 	
 	
 	
-	public List<Beat> getScheduledVisitSalesExecBeats(int salesExecID, Date visitDate){
-		return salesExecDAO.getScheduledVisitSalesExecBeats(salesExecID, visitDate);
+	public List<Beat> getScheduledVisitSalesExecBeats(int salesExecID, Date visitDate, int tenantID){
+		return salesExecDAO.getScheduledVisitSalesExecBeats(salesExecID, visitDate, tenantID);
 	}
 	
-	public List<SalesExecutive> getScheduledVisitSalesExecs(Date visitDate, int resellerID){
-		return salesExecDAO.getScheduledVisitSalesExecs(visitDate, resellerID);
+	public List<SalesExecutive> getScheduledVisitSalesExecs(Date visitDate, int tenantID){
+		return salesExecDAO.getScheduledVisitSalesExecs(visitDate, tenantID);
 	}
 	
-	public List<TrimmedCustomer> getScheduledVisitBeatCustomers(int salesExecID, Date visitDate, int beatID){
-		return salesExecDAO.getScheduledVisitBeatCustomers(salesExecID, visitDate, beatID);
+	public List<TrimmedCustomer> getScheduledVisitBeatCustomers(int salesExecID, Date visitDate, int beatID, int tenantID){
+		return salesExecDAO.getScheduledVisitBeatCustomers(salesExecID, visitDate, beatID, tenantID);
 	}
 	
-	public void deleteBeatAssignment(int supplierID, int salesExecID) throws Exception{
-		salesExecDAO.deleteBeatAssignment(supplierID, salesExecID);
+	public void deleteBeatAssignment(int manufacturerID, int salesExecID, int tenantID) throws Exception{
+		salesExecDAO.deleteBeatAssignment(manufacturerID, salesExecID, tenantID);
 	}
 	
-	public List<SalesExecutive> getSalesExecutivesHavingBeatsAssigned(int resellerID){
-		return salesExecDAO.getSalesExecutivesHavingBeatsAssigned(resellerID);
+	public List<SalesExecutive> getSalesExecutivesHavingBeatsAssigned(int tenantID){
+		return salesExecDAO.getSalesExecutivesHavingBeatsAssigned(tenantID);
 	}
 	
-	public int getSalesExecutiveCount(int resellerID){
-		return salesExecDAO.getSalesExecutiveCount(resellerID);
+	public int getSalesExecutiveCount(int tenantID){
+		return salesExecDAO.getSalesExecutiveCount(tenantID);
 	}
 	
-	public List<SalesExecutive> getSalesExecsNotMappedToSupplier(int resellerID, int supplierID){
-		return salesExecDAO.getSalesExecsNotMappedToSupplier(resellerID, supplierID);
+	public List<SalesExecutive> getSalesExecsNotMappedToManufacturer(int tenantID, int manufacturerID){
+		return salesExecDAO.getSalesExecsNotMappedToManufacturer(tenantID, manufacturerID);
 	}
 	
 }

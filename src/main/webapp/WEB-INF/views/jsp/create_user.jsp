@@ -146,7 +146,7 @@ legend {
 							</div>
 						</fieldset>
 					</div>
-					<form:hidden path="status" name="status" value="1"/>
+					<form:hidden path="statusID" name="statusID" value="2"/>
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</div>

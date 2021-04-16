@@ -57,10 +57,10 @@ public class OrderWebController {
 	
 	@GetMapping(value="/{orderID}")
 	public ModelAndView getOrderDetails(@PathVariable("orderID") int orderID) throws Exception{
-		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
 		Order order = null;
 		try{
-			List<Order> orders = orderService.getOrders(resellerID, orderID);
+			List<Order> orders = orderService.getOrders(tenantID, orderID);
 			if(orders != null && !orders.isEmpty()){
 				order = orders.get(0);
 			}
@@ -84,13 +84,14 @@ public class OrderWebController {
 	
 	@GetMapping(value="/scheduledOrderBookings")
 	public ModelAndView getScheduledOrderBookingList() throws Exception{
-		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
-		List<SalesExecutive> salesExecs = salesExecService.getSalesExecMapsBeatsCustomers(resellerID);
-		List<OrderBookingSchedule> orderBookingSchedules = orderService.getAllOrderBookedForToday(resellerID);
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
+		//List<SalesExecutive> salesExecs = salesExecService.getSalesExecMapsBeatsCustomers(tenantID);
+		List<OrderBookingSchedule> orderBookingSchedules = orderService.getAllOrderBookedForToday(tenantID);
 		Map<String, Object> modelMap = new HashMap<String, Object>();
-		modelMap.put("salesExecs", salesExecs);
+		//modelMap.put("salesExecs", salesExecs);
 		modelMap.put("orderBookingSchedule", new OrderBookingSchedule());
 		modelMap.put("orderBookedSchedules", orderBookingSchedules);
+		modelMap.put("tenantID", tenantID);
 		return new ModelAndView("/order_schedule_list", modelMap);
 	}
 
@@ -101,7 +102,7 @@ public class OrderWebController {
 		List<String> customerNames = null;
 		int orderScheduleID = -1;
 		try{
-			orderBookingSchedule.setResellerID(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+			orderBookingSchedule.setTenantID(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 			customerNames = orderService.alreadyOrderBookingScheduledCustomer(orderBookingSchedule);
 			if(customerNames != null && customerNames.size() > 0){
 				errmsg = "<br>Customers <br><b>"+ StringUtils.join(customerNames, "<br>") +"</b><br>are already scheduled for a visit for <b>" + new SimpleDateFormat("dd-MM-yyyy").format(orderBookingSchedule.getVisitDate()) + "</b> date.";
@@ -112,7 +113,7 @@ public class OrderWebController {
 		
 		if(errmsg.equals("")){
 			try{
-				orderBookingSchedule.setResellerID(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+				orderBookingSchedule.setTenantID(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 				orderScheduleID = orderService.scheduleOrderBooking(orderBookingSchedule);
 				succmsg = "Order booking scheduled for sales exec <b>"+ (String)request.getParameter("salesExecName") +"</b> is successful for date <b>"+ new SimpleDateFormat("dd-MM-yyyy").format(orderBookingSchedule.getVisitDate())+ "</b> with reference number <b>"+ orderScheduleID +"</b>.";
 			}catch(Exception exception){
@@ -148,26 +149,28 @@ public class OrderWebController {
 	
 	@GetMapping(value="/scheduleOrderBookingForm")
 	public ModelAndView getScheduleOrderBookingForm(){
-		List<SalesExecutive> salesExecs = salesExecService.getSalesExecutives(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
+		List<SalesExecutive> salesExecs = salesExecService.getSalesExecutives(tenantID);
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		modelMap.put("salesExecs", salesExecs);
 		modelMap.put("orderBookingSchedule", new OrderBookingSchedule());
+		modelMap.put("tenantID", tenantID);
 		return new ModelAndView("/schedule_order_booking", modelMap);
 	}
 	
 	@GetMapping(value="/orderScheduleReport")
 	public ModelAndView getOrderScheduleReport(){
-		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
 		List<OrderBookingSchedule> orderBookingSchedules = new ArrayList<OrderBookingSchedule>();
 		List<SalesExecutive> salesExecs = new ArrayList<SalesExecutive>();
 		List<Beat> beats = new ArrayList<Beat>();
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>();
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		try{
-			orderBookingSchedules = orderService.getOrderScheduleReport(resellerID, -1, -1, -1, -1, -1, new Date());
-			salesExecs = salesExecService.getSalesExecutives(resellerID);
-			beats = beatService.getResellerBeats(resellerID);
-			customers = customerService.getResellerTrimmedCustomers(resellerID);
+			orderBookingSchedules = orderService.getOrderScheduleReport(tenantID, -1, -1, -1, -1, -1, new Date());
+			salesExecs = salesExecService.getSalesExecutives(tenantID);
+			beats = beatService.getTenantBeats(tenantID);
+			customers = customerService.getTenantTrimmedCustomers(tenantID);
 			modelMap.put("orderBookingSchedules", orderBookingSchedules);
 			modelMap.put("salesExecs", salesExecs);
 			modelMap.put("beats", beats);
@@ -181,17 +184,17 @@ public class OrderWebController {
 	
 	@GetMapping(value="/orderScheduleReport/{scheduleID}")
 	public ModelAndView getOrderScheduleReportForASchedule(@PathVariable("scheduleID") int scheduleID){
-		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
 		List<OrderBookingSchedule> orderBookingSchedules = new ArrayList<OrderBookingSchedule>();
 		List<SalesExecutive> salesExecs = new ArrayList<SalesExecutive>();
 		List<Beat> beats = new ArrayList<Beat>();
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>();
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		try{
-			orderBookingSchedules = orderService.getOrderScheduleReport(resellerID, -1, -1, -1, scheduleID, -1, null);
-			salesExecs = salesExecService.getSalesExecutives(resellerID);
-			beats = beatService.getResellerBeats(resellerID);
-			customers = customerService.getResellerTrimmedCustomers(resellerID);
+			orderBookingSchedules = orderService.getOrderScheduleReport(tenantID, -1, -1, -1, scheduleID, -1, null);
+			salesExecs = salesExecService.getSalesExecutives(tenantID);
+			beats = beatService.getTenantBeats(tenantID);
+			customers = customerService.getTenantTrimmedCustomers(tenantID);
 			modelMap.put("orderBookingSchedules", orderBookingSchedules);
 			modelMap.put("salesExecs", salesExecs);
 			modelMap.put("beats", beats);
@@ -208,7 +211,7 @@ public class OrderWebController {
 	public ModelAndView list(){
 		List<Order> orders = new ArrayList<Order>();
 		try{
-			orders = orderService.getOrders(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))), -1);
+			orders = orderService.getOrders(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))), -1);
 		}catch(Exception exception){
 			//
 		}
@@ -219,7 +222,7 @@ public class OrderWebController {
 	public ModelAndView getOrderList(@PathVariable("orderID") int orderID){
 		List<Order> orders = new ArrayList<Order>();
 		try{
-			orders = orderService.getOrders(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))), orderID);
+			orders = orderService.getOrders(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))), orderID);
 		}catch(Exception exception){
 			//
 		}
@@ -228,10 +231,10 @@ public class OrderWebController {
 	
 	@GetMapping(value="/editOrderForm/{orderID}")
 	public ModelAndView getOrderForm(@PathVariable("orderID") int orderID){
-		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
 		Order order = null;
 		try{
-			List<Order> orders = orderService.getOrders(resellerID, orderID);
+			List<Order> orders = orderService.getOrders(tenantID, orderID);
 			if(orders != null && !orders.isEmpty()){
 				order = orders.get(0);
 			}
@@ -260,10 +263,10 @@ public class OrderWebController {
 	
 	@PostMapping(value="/create")
 	public ModelAndView createOrder(@ModelAttribute("order") Order order){
-		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
 		String msg = "";
 		try{
-			order.setResellerID(resellerID);
+			order.setTenantID(tenantID);
 			orderService.create(order);
 		}catch(Exception exception){
 			logger.error("Error while creating the order.", exception);

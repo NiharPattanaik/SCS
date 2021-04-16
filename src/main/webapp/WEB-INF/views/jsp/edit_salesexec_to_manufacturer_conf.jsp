@@ -8,7 +8,7 @@
 <html lang="en">
 
 <head>
-<title>Delete Supplier</title>
+<title>Edit Sales Executive to Manufacturer</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
@@ -85,13 +85,13 @@
     					</c:when>    
     					<c:otherwise>
         					<div class="alert alert-success">
-	 						 <strong>Success!</strong><br> Supplier has been successfully deleted.
+	 						 <strong>Success!</strong><br> Sales Executive mapped to manufacturer are successfully updated.
 						</div>
     					</c:otherwise>
 					</c:choose>
 					<div class="form_submit">
-						<a href="<%=request.getContextPath()%>/web/supplierWeb/list" class="btn btn-primary">View List Of Suppliers</a>
-						<a href="<%=request.getContextPath()%>/web/supplierWeb/createSupplierForm" class="btn btn-primary">Add a New Supplier</a>
+						<a href="<%=request.getContextPath()%>/web/manufacturerWeb/manufacturer-salesexecs/list" class="btn btn-primary">View Manufacturer to Sales Executives Mapping</a>
+						<a href="<%=request.getContextPath()%>/web/manufacturerWeb/assignSalesExecutiveForm" class="btn btn-primary">New Manufacturer to Sales Executives Mapping</a>
 					</div>
 			</div>
 		</div>

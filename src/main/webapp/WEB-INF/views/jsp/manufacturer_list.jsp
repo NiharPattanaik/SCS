@@ -64,13 +64,7 @@
     text-align: right;
     float: right;
     display: block
-   }
-	
-	.modal-custom-footer {
-    padding: 15px;
-    text-align: center;
-    border-top: 1px solid #e5e5e5;
- 	}
+}
 
     </style>
 </head>
@@ -87,70 +81,48 @@
         <%@ include file="menus.jsp" %>
         	<div class="row customer_list">
         		<div class="col-md-8">
-            		<h2>Manufacturer List</h2>   
+            		<h2>Manufacturers List</h2>   
             	</div>
 	        	<div class="col-md-4 add_customer">
-	        			<button type="submit" class="btn btn-primary" onclick="location.href='<%=request.getContextPath()%>/web/manufacturerWeb/createManufacturerForm';">Add New Manufacturer</button>
+	        		<% if(resourcePermIDs.contains(ResourcePermissionEnum.MANUFACTURER_CREATE.getResourcePermissionID())) { %>
+						<button type="submit" class="btn btn-primary" onclick="location.href='<%=request.getContextPath()%>/web/manufacturerWeb/createManufacturerForm';">Add New Manufacturer</button>
+					<% } %>
 				</div>
 			</div>        
-            <table class="table table-striped" id="manufactTable">
+			<table class="table table-striped" id="manufTable">
                 <thead>
                     <tr>
                         <th>Manufacturer ID</th>
-                        <th>Short Name</th>
-                        <th>Full Name</th>
-                        <th>Division</th>
-                        <th></th>
-                        <th></th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Manufacturer Sales Officer</th>
+                        <th>Manufacturer Area Manager</th>
+                        <th>City</th>
                     </tr>
                 </thead>
                 <tbody>
                 	<c:forEach var="manufacturer" items="${manufacturers}">  
                     <tr>
-                    	<td>${manufacturer.manufacturerID}</td>
-                    	<td>${manufacturer.shortName}</td>
-                        <td>${manufacturer.fullName}</td>
-                        <td>${manufacturer.division}</td>
-                        <td><a href="<%=request.getContextPath()%>/web/manufacturerWeb/editManufacturerForm/${manufacturer.manufacturerID}">Edit</a></td>
-                        <!-- td><a href="<%=request.getContextPath()%>/web/manufacturerWeb/delete/${manufacturer.manufacturerID}">Delete</a></td-->
-                        <td><a href=# id=order-link data-toggle=modal data-target=#confirm data-manfname=${manufacturer.fullName} data-manfid=${manufacturer.manufacturerID}>Delete</a></td>
+                    	<% if(resourcePermIDs.contains(ResourcePermissionEnum.MANUFACTURER_READ.getResourcePermissionID())) { %>
+                    		<td><a href="<%=request.getContextPath()%>/web/manufacturerWeb/${manufacturer.manufacturerID}">${manufacturer.manufacturerID}</a></td>
+                    	<% } else { %>	
+                    		<td>${manufacturer.manufacturerID}</td>
+                    	<%  } %>
+                        <td>${manufacturer.name}</td>
+                        <td>${manufacturer.description}</td>
+                        <td>${manufacturer.salesOfficer.name}</td>
+                        <td>${manufacturer.areaManager.name}</td>
+                        <td>${manufacturer.address[0].city}</td>
                     </tr>
                     </c:forEach>
                 </tbody>
             </table>
         </div>
-        
-      <div class="modal fade" id="confirm" tabindex="-1" role="dialog"
-		aria-labelledby="myModalLabel" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<b>Confirm !</b>
-				</div>
-				<div class="modal-body">
-					Are you sure you want to remove the Manufacturer ?
-				</div>
-				<div class="modal-custom-footer">
-					<button type="submit" id="modalSubmit" class="btn btn-primary">Confirm</button>
-					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-					<script type="text/javascript">
-						var manfid="";
-						$('#confirm').on('show.bs.modal', function (e) {
-							manfid = $(e.relatedTarget).data('manfid');
-						});
-						$('#modalSubmit').click(function(){
-						   window.location.href = "/crm/web/manufacturerWeb/delete/"+manfid
-						});
-					</script>
-				</div>
-			</div>
-		</div>
-	</div>
 </body>
 
 <script type="text/javascript">
 $(document).ready(function() {
-    $('#manufactTable').DataTable({searching: false, aaSorting: [], bLengthChange: false, pageLength: 10});
+    $('#manufTable').DataTable({searching: false, aaSorting: [], bLengthChange: false, pageLength: 10});
 } );
 
 </script>

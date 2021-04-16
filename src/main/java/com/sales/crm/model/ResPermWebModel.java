@@ -6,7 +6,7 @@ public class ResPermWebModel {
 	
 	private List<Integer> resourcePermIDList;
 	
-	private int resellerID;
+	private int tenantID;
 	
 	private int roleID;
 
@@ -18,12 +18,13 @@ public class ResPermWebModel {
 		this.resourcePermIDList = resourcePermIDList;
 	}
 
-	public int getResellerID() {
-		return resellerID;
+
+	public int getTenantID() {
+		return tenantID;
 	}
 
-	public void setResellerID(int resellerID) {
-		this.resellerID = resellerID;
+	public void setTenantID(int tenantID) {
+		this.tenantID = tenantID;
 	}
 
 	public int getRoleID() {

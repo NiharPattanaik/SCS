@@ -15,8 +15,8 @@ public class BeatService {
 	@Autowired
 	private BeatDAO beatDAO;
 	
-	public Beat getBeat(int beatID){
-		return beatDAO.get(beatID);
+	public Beat getBeat(int beatID, int tenantID){
+		return beatDAO.get(beatID, tenantID);
 	}
 	
 	public void createBeat(Beat beat) throws Exception{
@@ -27,39 +27,39 @@ public class BeatService {
 		beatDAO.update(beat);
 	}
 	
-	public void deleteBeat(int beatID) throws Exception{
-		beatDAO.delete(beatID);
+	public void deleteBeat(int beatID, int tenantID) throws Exception{
+		beatDAO.delete(beatID, tenantID);
 	}
 	
-	public List<Beat> getResellerBeats(int resellerID){
-		return beatDAO.getResellerBeats(resellerID);
+	public List<Beat> getTenantBeats(int tenantID){
+		return beatDAO.getTenantBeats(tenantID);
 	}
 	
-	public void assignBeatsToCustomer(int customerID, List<Integer> beatIDs) throws Exception{
-		beatDAO.assignBeatsToCustomer(customerID, beatIDs);	
+	public void assignBeatsToCustomer(int customerID, List<Integer> beatIDs, int tenantID) throws Exception{
+		beatDAO.assignBeatsToCustomer(customerID, beatIDs, tenantID);	
 	}
 	
-	public void updateAssignedBeatToCustomers(int customerID, List<Integer> beatIDs) throws Exception{
-		beatDAO.updateAssignedBeatToCustomers(customerID, beatIDs);
+	public void updateAssignedBeatToCustomers(int customerID, List<Integer> beatIDs, int tenantID) throws Exception{
+		beatDAO.updateAssignedBeatToCustomers(customerID, beatIDs, tenantID);
 	}
 	
-	public List<TrimmedCustomer> getBeatCustomers(int beatID){
-		return beatDAO.getBeatCustomers( beatID);
+	public List<TrimmedCustomer> getBeatCustomers(int beatID, int tenantID){
+		return beatDAO.getBeatCustomers( beatID, tenantID);
 	}
 	
-	public void deleteAssignedBeatCustomerLink(int customerID) throws Exception{
-		beatDAO.deleteAssignedBeatCustomerLink(customerID);
+	public void deleteAssignedBeatCustomerLink(int customerID, int tenantID) throws Exception{
+		beatDAO.deleteAssignedBeatCustomerLink(customerID, tenantID);
 	}
 	
-	public int getBeatsCount(int resellerID){
-		return beatDAO.getBeatsCount(resellerID);
+	public int getBeatsCount(int tenantID){
+		return beatDAO.getBeatsCount(tenantID);
 	}
 	
-	public List<Beat> getBeatsNotMappedToCustomer(int customerID){
-		return beatDAO.getBeatsNotMappedToCustomer(customerID);
+	public List<Beat> getBeatsNotMappedToCustomer(int customerID, int tenantID){
+		return beatDAO.getBeatsNotMappedToCustomer(customerID, tenantID);
 	}
 	
-	public List<Beat> getBeatsNotMappedToSalesExec(int resellerID, int supplierID, int salesExecID){
-		return beatDAO.getBeatsNotMappedToSalesExec(resellerID, supplierID, salesExecID);
+	public List<Beat> getBeatsNotMappedToSalesExec(int tenantID, int manufacturerID, int salesExecID){
+		return beatDAO.getBeatsNotMappedToSalesExec(tenantID, manufacturerID, salesExecID);
 	}
 }

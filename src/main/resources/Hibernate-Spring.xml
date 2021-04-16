@@ -12,7 +12,7 @@
 
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
 		destroy-method="close">
-		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
 		<property name="url" value="jdbc:mysql://localhost:3306/salescrm" />
 		<property name="username" value="salescrm" />
 		<property name="password" value="salescrm123" />
@@ -31,7 +31,7 @@
 				<value>com.sales.crm.model.Customer</value>
 				<value>com.sales.crm.model.Reseller</value>
 				<value>com.sales.crm.model.Employee</value>
-				<value>com.sales.crm.model.Supplier</value>
+				<value>com.sales.crm.model.Manufacturer</value>
 				<value>com.sales.crm.model.User</value>
 				<value>com.sales.crm.model.Role</value>
 				<value>com.sales.crm.model.Area</value>
@@ -40,16 +40,16 @@
 				<value>com.sales.crm.model.Order</value>
 				<value>com.sales.crm.model.SecurityQuestion</value>
 				<value>com.sales.crm.model.OrderBookingSchedule</value>
-				<value>com.sales.crm.model.SuppSalesOfficer</value>
-				<value>com.sales.crm.model.SuppAreaManager</value>
-				<value>com.sales.crm.model.Manufacturer</value>
+				<value>com.sales.crm.model.ManufacturerSalesOfficer</value>
+				<value>com.sales.crm.model.ManufacturerAreaManager</value>
+				<value>com.sales.crm.model.Tenant</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">
 			<props>
 				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
 				<prop key="hibernate.current_session_context_class">thread</prop>
-				<prop key="hibernate.show_sql">false</prop>
+				<prop key="hibernate.show_sql">true</prop>
 			</props>
 		</property>
 	</bean>

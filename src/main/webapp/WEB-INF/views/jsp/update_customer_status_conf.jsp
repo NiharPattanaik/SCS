@@ -8,7 +8,7 @@
 <html lang="en">
 
 <head>
-<title>Assigned Sales Executive to Supplier</title>
+<title>Update Customer Status</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
@@ -78,20 +78,20 @@
 					<br>
 					<br>
 					<c:choose>
-    					<c:when test="${fn:length(msg) gt 0}">
+    					<c:when test="${fn:length(map['msg']) gt 0}">
        						<div class="alert alert-danger">
-	 						 <strong>Error!</strong><br> ${msg}
+	 						 <strong>Error!</strong><br> ${map['msg']}
 						</div>
     					</c:when>    
     					<c:otherwise>
         					<div class="alert alert-success">
-	 						 <strong>Success!</strong><br> Sales Executives are successfully mapped to supplier.
+        					 <strong>Success!</strong><br> Customer has been successfully ${map['action']}.
 						</div>
     					</c:otherwise>
 					</c:choose>
 					<div class="form_submit">
-						<a href="<%=request.getContextPath()%>/web/supplierWeb/supp-salesexecs/list" class="btn btn-primary">View Supplier to Sales Executive Mapping</a>
-						<a href="<%=request.getContextPath()%>/web/supplierWeb/assignSalesExecutiveForm" class="btn btn-primary">New Supplier to Sales Executive Mapping</a>
+						<a href="<%=request.getContextPath()%>/web/customerWeb/list" class="btn btn-primary">View List Of Customers</a>
+						<a href="<%=request.getContextPath()%>/web/customerWeb/${map['customerID']}" class="btn btn-primary">View Detail</a>
 					</div>
 			</div>
 		</div>

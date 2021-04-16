@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -23,7 +24,8 @@ import org.springframework.stereotype.Repository;
 
 import com.sales.crm.model.Area;
 import com.sales.crm.model.Beat;
-import com.sales.crm.model.Supplier;
+import com.sales.crm.model.EntityStatusEnum;
+import com.sales.crm.model.Manufacturer;
 import com.sales.crm.model.TrimmedCustomer;
 
 @Repository("beatDAO")
@@ -43,22 +45,25 @@ public class BeatDAOImpl implements BeatDAO {
 			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
 			beat.setDateCreated(new Date());
+			beat.setCode(UUID.randomUUID().toString());
+			beat.setStatusID(EntityStatusEnum.ACTIVE.getEntityStatus());
 			session.save(beat);
 			// create beat_area
 			if (beat.getAreaIDs() != null && beat.getAreaIDs().size() > 0) {
 				for (int areaID : beat.getAreaIDs()) {
-					SQLQuery createBeatArea = session.createSQLQuery("INSERT INTO BEAT_AREA VALUES (?, ?)");
+					SQLQuery createBeatArea = session.createSQLQuery("INSERT INTO BEAT_AREA (BEAT_ID, AREA_ID, TENANT_ID, DATE_CREATED) VALUES (?, ?, ?, CURDATE())");
 					createBeatArea.setParameter(0, beat.getBeatID());
 					createBeatArea.setParameter(1, areaID);
+					createBeatArea.setParameter(2, beat.getTenantID());
 					createBeatArea.executeUpdate();
 				}
 			}
-			//create supplier-beat
-			SQLQuery createSuppBeat = session.createSQLQuery("INSERT INTO SUPPLIER_BEAT (SUPPLIER_ID, BEAT_ID, DATE_CREATED) VALUES (?, ?, ?)");
-			createSuppBeat.setParameter(0, beat.getSupplierID());
-			createSuppBeat.setParameter(1, beat.getBeatID());
-			createSuppBeat.setParameter(2, new Date());
-			createSuppBeat.executeUpdate();
+			//create manufacturer-beat
+			SQLQuery createManufBeat = session.createSQLQuery("INSERT INTO MANUFACTURER_BEAT (MANUFACTURER_ID, BEAT_ID, TENANT_ID, DATE_CREATED) VALUES (?, ?, ?, CURDATE())");
+			createManufBeat.setParameter(0, beat.getManufacturerID());
+			createManufBeat.setParameter(1, beat.getBeatID());
+			createManufBeat.setParameter(2, beat.getTenantID());
+			createManufBeat.executeUpdate();
 			transaction.commit();
 		} catch (Exception e) {
 			logger.error("Error while creating beat.", e);
@@ -74,7 +79,7 @@ public class BeatDAOImpl implements BeatDAO {
 	}
 
 	@Override
-	public Beat get(int beatID) {
+	public Beat get(int beatID, int tenantID) {
 
 		Session session = null;
 		Beat beat = null;
@@ -82,8 +87,9 @@ public class BeatDAOImpl implements BeatDAO {
 			session = sessionFactory.openSession();
 			beat = (Beat) session.get(Beat.class, beatID);
 			//Get Areas
-			SQLQuery areasQuery = session.createSQLQuery("SELECT b.BEAT_ID, a.* FROM AREA a, BEAT_AREA b WHERE a.ID = b.AREA_ID AND b.BEAT_ID= ?");
+			SQLQuery areasQuery = session.createSQLQuery("SELECT b.BEAT_ID, a.* FROM AREA a, BEAT_AREA b WHERE a.ID = b.AREA_ID AND a.TENANT_ID=b.TENANT_ID AND b.BEAT_ID= ? AND a.TENANT_ID = ?");
 			areasQuery.setParameter(0, beat.getBeatID());
+			areasQuery.setParameter(1, tenantID);
 			List areas = areasQuery.list();
 			List<Area> areaList = new ArrayList<Area>();
 			List<Integer> areaIDs = new ArrayList<Integer>();
@@ -91,35 +97,39 @@ public class BeatDAOImpl implements BeatDAO {
 				Object[] objs = (Object[]) obj;
 				Area area = new Area();
 				area.setAreaID(Integer.valueOf(String.valueOf(objs[1])));
-				area.setResellerID(Integer.valueOf(String.valueOf(objs[2])));
+				area.setCode(String.valueOf(objs[2]));
 				area.setName(String.valueOf(objs[3]));
 				area.setDescription(String.valueOf(objs[4]));
 				area.setWordNo(String.valueOf(objs[5]));
 				area.setPinCode(String.valueOf(objs[6]));
+				area.setTenantID(Integer.valueOf(String.valueOf(objs[7])));
 				areaList.add(area);
 				areaIDs.add(area.getAreaID());
 			}
 			
 			//GET Beat Customers
 			List<Integer> customerIDs = new ArrayList<Integer>();
-			SQLQuery beatCustomersQuery = session.createSQLQuery("SELECT a.ID FROM CUSTOMER a, BEAT_CUSTOMER b WHERE a.ID = b.CUSTOMER_ID AND b.BEAT_ID=? ");
+			SQLQuery beatCustomersQuery = session.createSQLQuery("SELECT a.ID FROM CUSTOMER a, BEAT_CUSTOMER b WHERE a.ID = b.CUSTOMER_ID AND a.TENANT_ID=b.TENANT_ID AND b.BEAT_ID=? AND a.TENANT_ID = ?");
 			beatCustomersQuery.setParameter(0, beatID);
+			beatCustomersQuery.setParameter(1, tenantID);
 			List beatCustIDList = beatCustomersQuery.list();
 			for (Object obj : beatCustIDList) {
 				customerIDs.add(Integer.valueOf(String.valueOf(obj)));
 			}
 			
-			//Get BEAT Suppliers
-			List<Supplier> suppliers = new ArrayList<Supplier>();
-			SQLQuery supplierQry = session.createSQLQuery("SELECT * FROM SUPPLIER WHERE ID IN (SELECT SUPPLIER_ID FROM SUPPLIER_BEAT WHERE BEAT_ID = ?)");
-			supplierQry.setParameter(0, beatID);
-			List resutls = supplierQry.list();
+			//Get BEAT Manufacturer
+			List<Manufacturer> manufacturers = new ArrayList<Manufacturer>();
+			SQLQuery manufacturerQry = session.createSQLQuery("SELECT * FROM MANUFACTURER WHERE ID IN (SELECT MANUFACTURER_ID FROM MANUFACTURER_BEAT WHERE BEAT_ID = ? AND TENANT_ID = ?)");
+			manufacturerQry.setParameter(0, beatID);
+			manufacturerQry.setParameter(1, tenantID);
+			List resutls = manufacturerQry.list();
 			for (Object obj : resutls) {
 				Object[] objs = (Object[]) obj;
-				Supplier supplier = new Supplier();
-				supplier.setSupplierID(Integer.valueOf(String.valueOf(objs[0])));
-				supplier.setName(String.valueOf(objs[1]));
-				suppliers.add(supplier);
+				Manufacturer manufacturer = new Manufacturer();
+				manufacturer.setManufacturerID(Integer.valueOf(String.valueOf(objs[0])));
+				manufacturer.setCode(String.valueOf(objs[1]));
+				manufacturer.setName(String.valueOf(objs[2]));
+				manufacturers.add(manufacturer);
 			}
 			
 			//Add Areas
@@ -133,9 +143,9 @@ public class BeatDAOImpl implements BeatDAO {
 				beat.setCustomerIDs(customerIDs);
 			}
 			
-			//Add suppliers
-			if(suppliers.size() > 0){
-				beat.setSuppliers(suppliers);
+			//Add manufacturer
+			if(manufacturers.size() > 0){
+				beat.setManufacturers(manufacturers);
 			}
 		} catch (Exception exception) {
 			logger.error("Error while fetching beat details.", exception);
@@ -165,9 +175,13 @@ public class BeatDAOImpl implements BeatDAO {
 			deleteUserRole.executeUpdate();
 			if(beat.getAreaIDs() != null && beat.getAreaIDs().size() > 0){
 				for(int areaID : beat.getAreaIDs()){
-					SQLQuery createBeatArea = session.createSQLQuery("INSERT INTO BEAT_AREA VALUES (?, ?)");
+					if(areaID == -1) {
+						continue;
+					}
+					SQLQuery createBeatArea = session.createSQLQuery("INSERT INTO BEAT_AREA (BEAT_ID, AREA_ID, TENANT_ID, DATE_CREATED) VALUES (?, ?, ?, CURDATE())");
 					createBeatArea.setParameter(0, beat.getBeatID());
 					createBeatArea.setParameter(1, areaID);
+					createBeatArea.setParameter(2, beat.getTenantID());
 					createBeatArea.executeUpdate();
 				}
 			}
@@ -188,7 +202,7 @@ public class BeatDAOImpl implements BeatDAO {
 	}
 
 	@Override
-	public void delete(int beatID) throws Exception{
+	public void delete(int beatID, int tenantID) throws Exception{
 		Session session = null;
 		Transaction transaction = null;
 		try {
@@ -196,8 +210,9 @@ public class BeatDAOImpl implements BeatDAO {
 			Beat beat = (Beat) session.get(Beat.class, beatID);
 			transaction = session.beginTransaction();
 			//Delete BEAT_AREA
-			SQLQuery beatAreaQuery = session.createSQLQuery("DELETE FROM BEAT_AREA WHERE BEAT_ID=? ");
+			SQLQuery beatAreaQuery = session.createSQLQuery("DELETE FROM BEAT_AREA WHERE BEAT_ID=? AND TENANT_ID = ?");
 			beatAreaQuery.setParameter(0, beatID);
+			beatAreaQuery.setParameter(1, tenantID);
 			beatAreaQuery.executeUpdate();
 			//Delete Beat
 			session.delete(beat);
@@ -217,18 +232,18 @@ public class BeatDAOImpl implements BeatDAO {
 	}
 
 	@Override
-	public List<Beat> getResellerBeats(int resellerID) {
+	public List<Beat> getTenantBeats(int tenantID) {
 		Session session = null;
 		List<Beat> beats = null;
 		try {
 			session = sessionFactory.openSession();
-			Query query = session.createQuery("from Beat where resellerID = :resellerID order by DATE_CREATED DESC");
-			query.setParameter("resellerID", resellerID);
+			Query query = session.createQuery("from Beat where tenantID = :tenantID order by DATE_CREATED DESC");
+			query.setParameter("tenantID", tenantID);
 			beats = query.list();
 
 			// get beat ids
-			SQLQuery beatsIDQuery = session.createSQLQuery("SELECT ID FROM BEAT WHERE RESELLER_ID= ?");
-			beatsIDQuery.setParameter(0, resellerID);
+			SQLQuery beatsIDQuery = session.createSQLQuery("SELECT ID FROM BEAT WHERE TENANT_ID= ?");
+			beatsIDQuery.setParameter(0, tenantID);
 			List beatIDs = beatsIDQuery.list();
 
 			//Beat-Area Map
@@ -241,19 +256,21 @@ public class BeatDAOImpl implements BeatDAO {
 			if (beatIDs != null && beatIDs.size() > 0) {
 				// Get Areas
 				SQLQuery areasQuery = session.createSQLQuery(
-						"SELECT b.BEAT_ID, a.* FROM AREA a, BEAT_AREA b WHERE a.ID = b.AREA_ID AND b.BEAT_ID IN ("
+						"SELECT b.BEAT_ID, a.* FROM AREA a, BEAT_AREA b WHERE a.ID = b.AREA_ID AND a.TENANT_ID=b.TENANT_ID AND a.TENANT_ID= ? AND b.BEAT_ID IN ("
 								+ StringUtils.join(beatIDs, ",") + ")");
+				areasQuery.setParameter(0, tenantID);
 				List areas = areasQuery.list();
 				for (Object obj : areas) {
 					Object[] objs = (Object[]) obj;
 					int beatID = Integer.valueOf(String.valueOf(objs[0]));
 					Area area = new Area();
 					area.setAreaID(Integer.valueOf(String.valueOf(objs[1])));
-					area.setResellerID(Integer.valueOf(String.valueOf(objs[2])));
+					area.setCode(String.valueOf(objs[2]));
 					area.setName(String.valueOf(objs[3]));
 					area.setDescription(String.valueOf(objs[4]));
 					area.setWordNo(String.valueOf(objs[5]));
 					area.setPinCode(String.valueOf(objs[6]));
+					area.setTenantID(Integer.valueOf(String.valueOf(objs[7])));
 
 					if (!beatAreaMap.containsKey(beatID)) {
 						beatAreaMap.put(beatID, new ArrayList<Area>());
@@ -262,14 +279,15 @@ public class BeatDAOImpl implements BeatDAO {
 				}
 				
 				//GET Beat Customers
-				SQLQuery beatCustomersQuery = session.createSQLQuery("SELECT b.BEAT_ID, a.* FROM CUSTOMER a, BEAT_CUSTOMER b WHERE a.ID = b.CUSTOMER_ID");
+				SQLQuery beatCustomersQuery = session.createSQLQuery("SELECT b.BEAT_ID, a.* FROM CUSTOMER a, BEAT_CUSTOMER b WHERE a.ID = b.CUSTOMER_ID AND a.TENANT_ID=b.TENANT_ID AND a.TENANT_ID = ?");
+				beatCustomersQuery.setParameter(0, tenantID);
 				List beatCustList = beatCustomersQuery.list();
 				for (Object obj : beatCustList) {
 					Object[] objs = (Object[]) obj;
 					int beatID = Integer.valueOf(String.valueOf(objs[0]));
 					TrimmedCustomer customer = new TrimmedCustomer();
 					customer.setCustomerID(Integer.valueOf(String.valueOf(objs[1])));
-					customer.setCustomerName(String.valueOf(objs[2]));
+					customer.setCustomerName(String.valueOf(objs[3]));
 					
 					if(!beatCustomersMap.containsKey(beatID)){
 						beatCustomersMap.put(beatID, new ArrayList<TrimmedCustomer>());
@@ -290,7 +308,7 @@ public class BeatDAOImpl implements BeatDAO {
 			}
 
 		} catch (Exception exception) {
-			logger.error("Error while fetching reseller beats.", exception);
+			logger.error("Error while fetching tenant beats.", exception);
 		} finally {
 			if (session != null) {
 				session.close();
@@ -300,7 +318,7 @@ public class BeatDAOImpl implements BeatDAO {
 	}
 
 	@Override
-	public void assignBeatsToCustomer(final int customerID, final List<Integer> beatIDs) throws Exception{
+	public void assignBeatsToCustomer(final int customerID, final List<Integer> beatIDs, int tenantID) throws Exception{
 		Session session = null;
 		Transaction transaction = null;
 		try {
@@ -312,11 +330,12 @@ public class BeatDAOImpl implements BeatDAO {
 				public void execute(Connection connection) throws SQLException {
 					PreparedStatement pstmt = null;
 					try {
-						String sqlInsert = "INSERT INTO BEAT_CUSTOMER VALUES (?, ?)";
+						String sqlInsert = "INSERT INTO BEAT_CUSTOMER (BEAT_ID, CUSTOMER_ID, TENANT_ID, DATE_CREATED) VALUES (?, ?, ?, CURDATE())";
 						pstmt = connection.prepareStatement(sqlInsert);
 						for (int beatID : beatIDs) {
 							pstmt.setInt(1, beatID);
 							pstmt.setInt(2, customerID);
+							pstmt.setInt(3, tenantID);
 							pstmt.addBatch();
 						}
 						pstmt.executeBatch();
@@ -341,15 +360,16 @@ public class BeatDAOImpl implements BeatDAO {
 	
 	
 	@Override
-	public void updateAssignedBeatToCustomers(int customerID, List<Integer> beatIDs) throws Exception{
+	public void updateAssignedBeatToCustomers(int customerID, List<Integer> beatIDs, int tenantID) throws Exception{
 		Session session = null;
 		Transaction transaction = null;
 		try {
 			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
 			//Delete existing Beat-Customer
-			SQLQuery deleteSalesExecBeats = session.createSQLQuery("DELETE FROM BEAT_CUSTOMER WHERE CUSTOMER_ID =? ");
+			SQLQuery deleteSalesExecBeats = session.createSQLQuery("DELETE FROM BEAT_CUSTOMER WHERE CUSTOMER_ID =? AND TENANT_ID = ?");
 			deleteSalesExecBeats.setParameter(0, customerID);
+			deleteSalesExecBeats.setParameter(1, tenantID);
 			deleteSalesExecBeats.executeUpdate();
 			// get Connction from Session
 			session.doWork(new Work() {
@@ -357,11 +377,12 @@ public class BeatDAOImpl implements BeatDAO {
 				public void execute(Connection connection) throws SQLException {
 					PreparedStatement pstmt = null;
 					try {
-						String sqlInsert = "INSERT INTO BEAT_CUSTOMER VALUES (?, ?)";
+						String sqlInsert = "INSERT INTO BEAT_CUSTOMER (BEAT_ID, CUSTOMER_ID, TENANT_ID, DATE_CREATED) VALUES (?, ?, ?, CURDATE())";
 						pstmt = connection.prepareStatement(sqlInsert);
 						for (int beatID : beatIDs) {
 							pstmt.setInt(1, beatID);
 							pstmt.setInt(2, customerID);
+							pstmt.setInt(3, tenantID);
 							pstmt.addBatch();
 						}
 						pstmt.executeBatch();
@@ -385,19 +406,20 @@ public class BeatDAOImpl implements BeatDAO {
 	}
 
 	@Override
-	public List<TrimmedCustomer> getBeatCustomers(int beatID) {
+	public List<TrimmedCustomer> getBeatCustomers(int beatID, int tenantID) {
 		Session session = null;
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>();
 		try {
 			session = sessionFactory.openSession();
-			SQLQuery beatsQuery = session.createSQLQuery("SELECT a.ID, a.NAME FROM CUSTOMER a, BEAT_CUSTOMER b WHERE a.ID = b.CUSTOMER_ID AND b.BEAT_ID = ?");
+			SQLQuery beatsQuery = session.createSQLQuery("SELECT a.ID, a.NAME FROM CUSTOMER a, BEAT_CUSTOMER b WHERE a.ID = b.CUSTOMER_ID AND a.TENANT_ID=b.TENANT_ID AND b.BEAT_ID = ? AND a.TENANT_ID = ?");
 			beatsQuery.setParameter(0, beatID);
+			beatsQuery.setParameter(1, tenantID);
 			List customerList = beatsQuery.list();
 			for(Object obj : customerList){
 				Object[] objs = (Object[])obj;
 				TrimmedCustomer customer = new TrimmedCustomer();
 				customer.setCustomerID(Integer.valueOf(String.valueOf(objs[0])));
-				customer.setCustomerName(String.valueOf(objs[1]));
+				customer.setCustomerName(String.valueOf(objs[2]));
 				customers.add(customer)	;		
 			}
 			return customers;
@@ -412,14 +434,15 @@ public class BeatDAOImpl implements BeatDAO {
 	}
 
 	@Override
-	public void deleteAssignedBeatCustomerLink(int customerID) throws Exception{
+	public void deleteAssignedBeatCustomerLink(int customerID, int tenantID) throws Exception{
 		Session session = null;
 		Transaction transaction = null;
 		try {
 			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
-			SQLQuery query = session.createSQLQuery("DELETE FROM BEAT_CUSTOMER WHERE CUSTOMER_ID= ?");
+			SQLQuery query = session.createSQLQuery("DELETE FROM BEAT_CUSTOMER WHERE CUSTOMER_ID= ? AND TENANT_ID = ?");
 			query.setParameter(0, customerID);
+			query.setParameter(1, tenantID);
 			query.executeUpdate();
 			transaction.commit();
 		} catch (Exception exception) {
@@ -437,13 +460,13 @@ public class BeatDAOImpl implements BeatDAO {
 	
 	
 	@Override
-	public int getBeatsCount(int resellerID){
+	public int getBeatsCount(int tenantID){
 		Session session = null;
 		int counts = 0;
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery count = session.createSQLQuery("SELECT COUNT(*) FROM BEAT WHERE RESELLER_ID= ?");
-			count.setParameter(0, resellerID);
+			SQLQuery count = session.createSQLQuery("SELECT COUNT(*) FROM BEAT WHERE TENANT_ID= ?");
+			count.setParameter(0, tenantID);
 			List results = count.list();
 			if(results != null && results.size() == 1 ){
 				counts = ((BigInteger)results.get(0)).intValue();
@@ -459,23 +482,25 @@ public class BeatDAOImpl implements BeatDAO {
 	}
 
 	@Override
-	public List<Beat> getBeatsNotMappedToCustomer(int customerID) {
+	public List<Beat> getBeatsNotMappedToCustomer(int customerID, int tenantID) {
 		Session session = null;
 		List<Beat> beats = new ArrayList<Beat>();
 		try {
 			session = sessionFactory.openSession();
-			SQLQuery beatsQuery = session.createSQLQuery("SELECT * FROM BEAT WHERE ID NOT IN (SELECT BEAT_ID FROM BEAT_CUSTOMER WHERE CUSTOMER_ID= ?)");
+			SQLQuery beatsQuery = session.createSQLQuery("SELECT * FROM BEAT WHERE ID NOT IN (SELECT BEAT_ID FROM BEAT_CUSTOMER WHERE CUSTOMER_ID= ? AND TENANT_ID = ?)");
 			beatsQuery.setParameter(0, customerID);
+			beatsQuery.setParameter(1, tenantID);
 			List beatList = beatsQuery.list();
 			for(Object obj : beatList){
 				Object[] objs = (Object[])obj;
 				Beat beat = new Beat();
 				beat.setBeatID(Integer.valueOf(String.valueOf(objs[0])));
-				beat.setResellerID(Integer.valueOf(String.valueOf(objs[1])));
+				beat.setCode(String.valueOf(objs[1]));
 				beat.setName(String.valueOf(objs[2]));
 				beat.setDescription(String.valueOf(objs[3]));
 				beat.setCoverageSchedule(String.valueOf(objs[4]));
 				beat.setDistance(Integer.valueOf(String.valueOf(objs[5])));
+				beat.setTenantID(Integer.valueOf(String.valueOf(objs[6])));
 				beats.add(beat);
 			}
 			return beats;
@@ -490,25 +515,26 @@ public class BeatDAOImpl implements BeatDAO {
 	}
 
 	@Override
-	public List<Beat> getBeatsNotMappedToSalesExec(int resellerID, int supplierID, int salesExecID) {
+	public List<Beat> getBeatsNotMappedToSalesExec(int tenantID, int manufacturerID, int salesExecID) {
 		Session session = null;
 		List<Beat> beats = new ArrayList<Beat>();
 		try {
 			session = sessionFactory.openSession();
-			SQLQuery beatsQuery = session.createSQLQuery("SELECT * FROM BEAT WHERE ID NOT IN (SELECT BEAT_ID FROM SUPPLIER_SALES_EXEC_BEATS WHERE SUPPLIER_ID= ? AND SALES_EXEC_ID = ?) AND RESELLER_ID= ?");
-			beatsQuery.setParameter(0, supplierID);
+			SQLQuery beatsQuery = session.createSQLQuery("SELECT * FROM BEAT WHERE ID NOT IN (SELECT BEAT_ID FROM MANUFACTURER_SALES_EXEC_BEATS WHERE MANUFACTURER_ID= ? AND SALES_EXEC_ID = ?) AND TENANT_ID= ?");
+			beatsQuery.setParameter(0, manufacturerID);
 			beatsQuery.setParameter(1, salesExecID);
-			beatsQuery.setParameter(2, resellerID);
+			beatsQuery.setParameter(2, tenantID);
 			List beatList = beatsQuery.list();
 			for(Object obj : beatList){
 				Object[] objs = (Object[])obj;
 				Beat beat = new Beat();
 				beat.setBeatID(Integer.valueOf(String.valueOf(objs[0])));
-				beat.setResellerID(Integer.valueOf(String.valueOf(objs[1])));
+				beat.setCode(String.valueOf(objs[1]));
 				beat.setName(String.valueOf(objs[2]));
 				beat.setDescription(String.valueOf(objs[3]));
 				beat.setCoverageSchedule(String.valueOf(objs[4]));
 				beat.setDistance(Integer.valueOf(String.valueOf(objs[5])));
+				beat.setTenantID(Integer.valueOf(String.valueOf(objs[6])));
 				beats.add(beat);
 			}
 			return beats;

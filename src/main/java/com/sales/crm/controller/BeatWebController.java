@@ -26,12 +26,12 @@ import org.springframework.web.servlet.ModelAndView;
 import com.sales.crm.model.Area;
 import com.sales.crm.model.Beat;
 import com.sales.crm.model.Customer;
-import com.sales.crm.model.Supplier;
+import com.sales.crm.model.Manufacturer;
 import com.sales.crm.model.TrimmedCustomer;
 import com.sales.crm.service.AreaService;
 import com.sales.crm.service.BeatService;
 import com.sales.crm.service.CustomerService;
-import com.sales.crm.service.SupplierService;
+import com.sales.crm.service.ManufacturerService;
 import com.sales.crm.service.UserService;
 
 @Controller
@@ -54,32 +54,33 @@ public class BeatWebController {
 	CustomerService customerService;
 	
 	@Autowired
-	SupplierService supplierService;
+	ManufacturerService manufacturerService;
 	
 	@GetMapping(value="/{beatID}")
 	public ModelAndView get(@PathVariable int beatID){
-		Beat beat = beatService.getBeat(beatID);
+		Beat beat = beatService.getBeat(beatID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		return new ModelAndView("/beat_details", "beat", beat);
 		
 	}
 	
 	@RequestMapping(value="/createBeatForm", method = RequestMethod.GET)  
 	public ModelAndView createBeatForm(Model model){
-		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
-		List<Area> areas = areaService.getResellerAreasNotMappedToBeat(resellerID);
-		List<Supplier> suppliers = supplierService.getResellerSuppliers(resellerID);
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
+		List<Area> areas = areaService.getTenantAreasNotMappedToBeat(tenantID);
+		List<Manufacturer> manufacturer = manufacturerService.getTenantManufacturers(tenantID);
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		modelMap.put("areas", areas);
 		modelMap.put("beat", new Beat());
-		modelMap.put("suppliers", suppliers);
+		modelMap.put("manufacturers", manufacturer);
 		return new ModelAndView("/create_beat", modelMap);
 	}
 	
 	@RequestMapping(value="/editBeatForm/{beatID}", method = RequestMethod.GET)  
 	public ModelAndView editBeatForm(@PathVariable int beatID){
-		List<Area> areas = areaService.getResellerAreasNotMappedToBeatForEdit(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))), beatID);
-		List<Area> beatAreas = areaService.getBeatAreas(beatID);
-		Beat beat = beatService.getBeat(beatID);
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
+		List<Area> areas = areaService.getTenantAreasNotMappedToBeatForEdit(tenantID, beatID);
+		List<Area> beatAreas = areaService.getBeatAreas(beatID, tenantID);
+		Beat beat = beatService.getBeat(beatID, tenantID);
 		List<Integer> areaIDs = new ArrayList<Integer>();
 		for(Area area : beatAreas){
 			areaIDs.add(area.getAreaID());
@@ -96,8 +97,8 @@ public class BeatWebController {
 		if(beat.getCoverageSchedule().equals("-1")){
 			beat.setCoverageSchedule("");
 		}
-		beat.setSupplierID(Integer.parseInt(beat.getSupplierIDStr()));
-		beat.setResellerID(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		beat.setManufacturerID(Integer.parseInt(beat.getManufacturerIDStr()));
+		beat.setTenantID(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		String msg = "";
 		try{
 			beatService.createBeat(beat);
@@ -128,7 +129,7 @@ public class BeatWebController {
 	public ModelAndView delete(@PathVariable int beatID){
 		String msg = "";
 		try{
-			beatService.deleteBeat(beatID);
+			beatService.deleteBeat(beatID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		}catch(Exception exception){
 			msg = "Beat could not be successfully removed. Please try after sometine, if error persists contact System Administrator.";
 		}
@@ -138,23 +139,24 @@ public class BeatWebController {
 	@GetMapping(value="/list")
 	public ModelAndView list() {
 		List<Beat> beats = beatService
-				.getResellerBeats(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+				.getTenantBeats(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		return new ModelAndView("/beat_list", "beats", beats);
 	}
 	
 	@GetMapping(value="/beat-customers/list")
 	public ModelAndView getBeatCustomers(){
-		List<Customer> customers = customerService.getResellerCustomers(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		List<Customer> customers = customerService.getTenantCustomers(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		return new ModelAndView("/beat_customers_list","customers", customers);  
 	}
 	
 	@GetMapping(value="/assignBeatsForm") 
 	public ModelAndView getAssignBeatsFormForm(){
-		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
-		List<TrimmedCustomer> customers = customerService.getResellerTrimmedCustomers(resellerID);
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
+		List<TrimmedCustomer> customers = customerService.getTenantTrimmedCustomers(tenantID);
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		modelMap.put("customers", customers);
 		modelMap.put("customer", new Customer());
+		modelMap.put("tenantID", tenantID);
 		return new ModelAndView("/assign_beats_to_customer", modelMap);
 	}
 	
@@ -162,7 +164,7 @@ public class BeatWebController {
 	public ModelAndView assignBeatsToCustomer(@ModelAttribute("customer") Customer customer){
 		String msg = "";
 		try{
-			beatService.assignBeatsToCustomer(customer.getCustomerID(), customer.getBeatIDs());
+			beatService.assignBeatsToCustomer(customer.getCustomerID(), customer.getBeatIDs(), customer.getTenantID());
 		}catch(Exception exception){
 			msg = "Customers could not be successfully assigned to beat. Please try after sometine, if error persists contact System Administrator.";
 		}
@@ -171,11 +173,11 @@ public class BeatWebController {
 	
 	@GetMapping(value="/assignedBeatCustomerEditForm/{customerID}") 
 	public ModelAndView editAssignedBeatToCustomerForm(@PathVariable("customerID") int customerID){
-		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
 		//List<TrimmedCustomer> customers = customerService.getCustomersBeatAssignmentForEdit(beatID, resellerID);
 		//Beat beat = beatService.getBeat(beatID);
-		Customer customer = customerService.getCustomer(customerID);
-		List<Beat> beats = beatService.getResellerBeats(resellerID);
+		Customer customer = customerService.getCustomer(customerID, tenantID);
+		List<Beat> beats = beatService.getTenantBeats(tenantID);
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		modelMap.put("customer", customer);
 		modelMap.put("beats", beats);
@@ -187,7 +189,7 @@ public class BeatWebController {
 	public ModelAndView updateAssignedBeatToCustomers(@ModelAttribute("customer") Customer customer){
 		String msg = "";
 		try{
-			beatService.updateAssignedBeatToCustomers(customer.getCustomerID(), customer.getBeatIDs());
+			beatService.updateAssignedBeatToCustomers(customer.getCustomerID(), customer.getBeatIDs(), Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		}catch(Exception exception){
 			msg = "Assigned customers to beat could not be updated successfully. Please try after sometine, if error persists contact System Administrator.";
 		}
@@ -198,7 +200,7 @@ public class BeatWebController {
 	public ModelAndView deleteAssignedBeatCustomerLink(@PathVariable("customerID") int customerID){
 		String msg = "";
 		try{
-			beatService.deleteAssignedBeatCustomerLink(customerID);
+			beatService.deleteAssignedBeatCustomerLink(customerID,Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		}catch(Exception exception){
 			msg = "Beats associated to customers could not be removed successfully. Please try after sometine, if error persists contact System Administrator.";
 		}

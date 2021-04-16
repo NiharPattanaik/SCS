@@ -2,46 +2,14 @@ package com.sales.crm.model;
 
 import java.util.List;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
 import javax.persistence.Transient;
 
-@Entity
-@Table(name = "RESELLER")
-@AttributeOverrides({
-	@AttributeOverride(name = "companyID", column = @Column(name = "COMPANY_ID")),
-	@AttributeOverride(name = "dateCreated", column = @Column(name = "DATE_CREATED")),
-	@AttributeOverride(name = "dateModified", column = @Column(name = "DATE_MODIFIED"))})
-
-public class Reseller extends BusinessEntity{
+public class Reseller extends Tenant{
 	
 	private static final long serialVersionUID = 0l;
 	
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "ID", unique = true, nullable = false)
+	@Transient
 	private int resellerID;
-	
-	@Column(name = "NAME")
-	private String name;
-	
-	@Column(name = "DESCRIPTION")
-	private String description;
-	
-	@OneToMany(orphanRemoval=true, cascade=CascadeType.ALL, fetch=FetchType.EAGER )
-	private List<Address> address;
-	
-	@Column(name="STATUS")
-	private int status;
 	
 	@Transient
 	private List<Customer> customers;
@@ -52,33 +20,6 @@ public class Reseller extends BusinessEntity{
 	@Transient
 	private List<Area> areas;
 	
-	@Transient
-	private String statusText;
-	
-	public int getResellerID() {
-		return resellerID;
-	}
-	public void setResellerID(int resellerID) {
-		this.resellerID = resellerID;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public String getDescription() {
-		return description;
-	}
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	public List<Address> getAddress() {
-		return address;
-	}
-	public void setAddress(List<Address> addresses) {
-		this.address = addresses;
-	}
 	public List<Customer> getCustomers() {
 		return customers;
 	}
@@ -97,26 +38,54 @@ public class Reseller extends BusinessEntity{
 	public void setAreas(List<Area> areas) {
 		this.areas = areas;
 	}
-	public int getStatus() {
-		return status;
-	}
-	public void setStatus(int status) {
-		this.status = status;
-	}
 	
-	public String getStatusText() {
-		return statusText;
+	public int getResellerID() {
+		return getTenantID();
 	}
-	public void setStatusText(String statusText) {
-		this.statusText = statusText;
+	public void setResellerID(int resellerID) {
+		setTenantID(resellerID);
 	}
-	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((areas == null) ? 0 : areas.hashCode());
+		result = prime * result + ((beats == null) ? 0 : beats.hashCode());
+		result = prime * result + ((customers == null) ? 0 : customers.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Reseller other = (Reseller) obj;
+		if (areas == null) {
+			if (other.areas != null)
+				return false;
+		} else if (!areas.equals(other.areas))
+			return false;
+		if (beats == null) {
+			if (other.beats != null)
+				return false;
+		} else if (!beats.equals(other.beats))
+			return false;
+		if (customers == null) {
+			if (other.customers != null)
+				return false;
+		} else if (!customers.equals(other.customers))
+			return false;
+		return true;
+	}
 	@Override
 	public String toString() {
-		return "Reseller [resellerID=" + resellerID + ", name=" + name + ", description=" + description + ", address="
-				+ address + ", status=" + status + ", customers=" + customers + ", beats=" + beats + ", areas=" + areas
-				+ "]";
+		return "Reseller [customers=" + customers + ", beats=" + beats + ", areas=" + areas + "]";
 	}
+	
+
 	
 	
 }

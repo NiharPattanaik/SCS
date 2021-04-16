@@ -7,6 +7,11 @@ import javax.persistence.Transient;
 
 public class SalesExecutive extends User {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	@Transient
 	private List<Beat> beats;
 	
@@ -21,7 +26,10 @@ public class SalesExecutive extends User {
 	
 	//HACK, used from spring tag (assign_beat.jsp)
 	@Transient
-	private int supplierID;
+	private int manufacturerID;
+	
+	@Transient
+	private int tenantID;
 
 	public List<Beat> getBeats() {
 		return beats;
@@ -57,22 +65,80 @@ public class SalesExecutive extends User {
 	
 	
 
-	public int getSupplierID() {
-		return supplierID;
+	public int getManufacturerID() {
+		return manufacturerID;
 	}
 
-	public void setSupplierID(int supplierID) {
-		this.supplierID = supplierID;
+	public void setManufacturerID(int manufacturerID) {
+		this.manufacturerID = manufacturerID;
+	}
+	
+	
+
+	public int getTenantID() {
+		return tenantID;
+	}
+
+	public void setTenantID(int tenantID) {
+		this.tenantID = tenantID;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((beatIDLists == null) ? 0 : beatIDLists.hashCode());
+		result = prime * result + ((beats == null) ? 0 : beats.hashCode());
+		result = prime * result + ((customerIDs == null) ? 0 : customerIDs.hashCode());
+		result = prime * result + manufacturerID;
+		result = prime * result + tenantID;
+		result = prime * result + ((visitDate == null) ? 0 : visitDate.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SalesExecutive other = (SalesExecutive) obj;
+		if (beatIDLists == null) {
+			if (other.beatIDLists != null)
+				return false;
+		} else if (!beatIDLists.equals(other.beatIDLists))
+			return false;
+		if (beats == null) {
+			if (other.beats != null)
+				return false;
+		} else if (!beats.equals(other.beats))
+			return false;
+		if (customerIDs == null) {
+			if (other.customerIDs != null)
+				return false;
+		} else if (!customerIDs.equals(other.customerIDs))
+			return false;
+		if (manufacturerID != other.manufacturerID)
+			return false;
+		if (tenantID != other.tenantID)
+			return false;
+		if (visitDate == null) {
+			if (other.visitDate != null)
+				return false;
+		} else if (!visitDate.equals(other.visitDate))
+			return false;
+		return true;
 	}
 
 	@Override
 	public String toString() {
 		return "SalesExecutive [beats=" + beats + ", beatIDLists=" + beatIDLists + ", visitDate=" + visitDate
-				+ ", customerIDs=" + customerIDs + ", supplierID=" + supplierID + ", companyID=" + companyID
+				+ ", customerIDs=" + customerIDs + ", manufacturerID=" + manufacturerID + ", tenantID=" + tenantID
 				+ ", dateCreated=" + dateCreated + ", dateModified=" + dateModified + "]";
 	}
 
-	
 	
 	
 }

@@ -86,21 +86,48 @@ legend {
 			<div class="col-md-4">
 				<h2>Customers Details</h2>
 			</div>
-			<div class="col-md-4 add_customer">
+			<div class="col-md-5 add_customer">
+			
 				<% if(resourcePermIDs.contains(ResourcePermissionEnum.CUSTOMER_UPDATE.getResourcePermissionID())) { %>
 					<button type="submit" class="btn btn-primary"
 						onclick="location.href='<%=request.getContextPath()%>/web/customerWeb/editCustomerForm/${customer.customerID}';">
 						Modify Customer</button>
 				<% } %>
 				
-				<% if(resourcePermIDs.contains(ResourcePermissionEnum.CUSTOMER_DELETE.getResourcePermissionID())) { %>
-					<button type="submit" class="btn btn-primary" id="deleteBtn" data-toggle="modal" data-target="#confirm">
-						Delete Customer</button>
-				<% } %>
+				<c:if test = "${customer.statusID == 2}">
+					<c:choose>
+						<c:when test = "${customer.isOrderingProcessInProgress}">
+							<a href=# id=link class="btn btn-primary" data-toggle=modal data-target=#confirm-submit>Deactivate Customer</a>	
+						</c:when>
+						<c:otherwise>
+							<button type="submit" class="btn btn-primary" id="deactivateBtn" data-toggle="modal" data-target="#deactivateModal">
+								Deactivate Customer</button>
+						</c:otherwise>	
+					</c:choose>	
+					
+					<% if(resourcePermIDs.contains(ResourcePermissionEnum.CUSTOMER_DELETE.getResourcePermissionID())) { %>
+						<c:choose>
+							<c:when test = "${customer.isOrderingProcessInProgress}">
+								<a href=# id=link class="btn btn-primary" data-toggle=modal data-target=#confirm-submit>Delete Customer</a>	
+							</c:when>
+							<c:otherwise>
+									<button type="submit" class="btn btn-primary" id="deleteBtn" data-toggle="modal" data-target="#confirm">
+										Delete Customer</button>
+							</c:otherwise>				
+						</c:choose>	
+					<% } %>
+				</c:if>
+				
+				<c:if test = "${customer.statusID == 3}">
+					<button type="submit" class="btn btn-primary" id="deactivateBtn" data-toggle="modal" data-target="#activateModal">
+							Activate Customer</button>
+				</c:if>
+				
+				
 			</div>
 		</div>
 		<div class="row top-height">
-			<div class="col-md-8 ">
+			<div class="col-md-9 ">
 
 				<fieldset>
 					<legend>Customer Details</legend>
@@ -201,11 +228,83 @@ legend {
 					?
 				</div>
 				<div class="modal-custom-footer">
-					<button type="submit" id="modalSubmit" class="btn btn-primary">Confirm</button>
+					<button type="submit" id="delete" class="btn btn-primary">Confirm</button>
 					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
 					<script type="text/javascript">
-						$('#modalSubmit').click(function(){
+						$('#delete').click(function(){
 						   window.location.href = "/crm/web/customerWeb/delete/${customer.customerID}"
+						});
+					</script>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+	<div class="modal fade" id="confirm-submit" tabindex="-1" role="dialog"
+	aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<b>Warning !</b>
+			</div>
+				<div class="modal-body">
+					The Customer can't be Deactivated or Deleted because of the following reasons
+					<ul>
+						<li>A Sales Executive visit is planned for the customer.</li>
+						<li>Order is in progress.</li>
+						<li>Payment is not yet completed for delivered Orders.</li>
+					</ul>
+				</div>
+				<div class="modal-custom-footer">
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+			</div>
+		</div>
+	</div>
+	</div>
+
+
+	<div class="modal fade" id="deactivateModal" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<b>Confirm de-activation of customer.</b>
+				</div>
+				<div class="modal-body">
+					Are you sure you want to deactivate the customer, <span><b>${customer.name}</b></span>
+					?
+				</div>
+				<div class="modal-custom-footer">
+					<button type="submit" id="deactivate" class="btn btn-primary">Confirm</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+					<script type="text/javascript">
+						$('#deactivate').click(function(){
+						   window.location.href = "/crm/web/customerWeb/deactivate/${customer.customerID}"
+						});
+					</script>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal fade" id="activateModal" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<b>Confirm activation of customer.</b>
+				</div>
+				<div class="modal-body">
+					Are you sure you want to activate the customer, <span><b>${customer.name}</b></span>
+					?
+				</div>
+				<div class="modal-custom-footer">
+					<button type="submit" id="activate" class="btn btn-primary">Confirm</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+					<script type="text/javascript">
+						$('#activate').click(function(){
+						   window.location.href = "/crm/web/customerWeb/activate/${customer.customerID}"
 						});
 					</script>
 				</div>

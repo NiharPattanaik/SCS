@@ -2,8 +2,8 @@ package com.sales.crm.dao;
 
 import java.util.List;
 
-import com.sales.crm.model.Reseller;
 import com.sales.crm.model.SecurityQuestion;
+import com.sales.crm.model.Tenant;
 import com.sales.crm.model.User;
 
 public interface UserDAO {
@@ -14,13 +14,13 @@ public interface UserDAO {
 	
 	void update(User user) throws Exception;
 	
-	void delete(int userID);
+	void delete(int userID, int tenantID);
 	
-	List<User> getResellerUsers(int resellerID, int loggedInUserID);
+	List<User> getTenantUsers(int tenantID, int loggedInUserID);
 	
-	List<User> getUserByRole(int resellerID, int roleID);
+	List<User> getUserByRole(int tenantID, int roleID);
 	
-	Reseller getUserReseller(int userId);
+	Tenant getUserTenant(int userId);
 	
 	User getUser(String userName) throws Exception;
 	
@@ -32,5 +32,5 @@ public interface UserDAO {
 	
 	List<SecurityQuestion> getAllSecurityQuestions();
 	
-	void updateFirstLoginPassword(User user);
+	//void updateFirstLoginPassword(User user);
 }

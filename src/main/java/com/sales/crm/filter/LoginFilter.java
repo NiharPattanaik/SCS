@@ -2,9 +2,7 @@ package com.sales.crm.filter;
 
 import java.io.IOException;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.servlet.Filter;
@@ -45,6 +43,9 @@ public class LoginFilter implements Filter {
         boolean restValidateUser = false;
         boolean selfRegistration = false;
         boolean resources = false;
+        boolean createTenantForm = false;
+        boolean selfRegistrationTenant = false;
+        
         
         if(request.getRequestURI().equals(logoutURI)){
         	if(session != null){
@@ -59,11 +60,14 @@ public class LoginFilter implements Filter {
 			restValidateUser = request.getRequestURI().contains("crm/rest/userReST/validateUser") ? true : false;
 			selfRegistration = request.getRequestURI().contains("web/resellerWeb/selfRegisterReseller") ? true : false;
 			resources = request.getRequestURI().contains("/crm/resources/") ? true : false;
+			createTenantForm = request.getRequestURI().contains("/web/tenantWeb/selfRegisterTenantForm") ? true : false;
+			selfRegistrationTenant = request.getRequestURI().contains("web/tenantWeb/selfRegisterTenant") ? true : false;
 			
 		}
 		
-        if(createResellerForm || saveReseller || loginRequest || loggedIn || restValidateUser || selfRegistration || resources){
-        	chain.doFilter(request, response);
+		if (createResellerForm || saveReseller || loginRequest || loggedIn || restValidateUser || selfRegistration
+				|| resources || createTenantForm || selfRegistrationTenant) {
+		 	chain.doFilter(request, response);
         }else if(restRequest){
         	if(validateRESTCredential(request, response)){
         		chain.doFilter(request, response);
@@ -137,7 +141,7 @@ public class LoginFilter implements Filter {
 			}
 			HttpSession session = request.getSession(true);
 			session.setAttribute("user", user);
-			session.setAttribute("resellerID", user.getResellerID());
+			session.setAttribute("tenantID", user.getTenantID());
 			return true;
 		}
 		return false;	

@@ -1,17 +1,21 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <html lang="en">
 
 <head>
-	<title>Edit Area</title>
-	<!-- Bootstrap Core CSS -->
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
-	<script src="<%=request.getContextPath()%>/resources/js/jquery-3.2.0.min.js"></script>
-	<script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
+<title>Edit Area</title>
+<!-- Bootstrap Core CSS -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link
+	href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css"
+	rel="stylesheet" />
+<script
+	src="<%=request.getContextPath()%>/resources/js/jquery-3.2.0.min.js"></script>
+<script
+	src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
 
 <style>
 .dpHeaderWrap {
@@ -61,12 +65,10 @@ legend {
 	text-align: right;
 }
 
-.form-group.required .control-label:after { 
-   content:"*";
-   color:red;
+.form-group.required .control-label:after {
+	content: "*";
+	color: red;
 }
-
-
 </style>
 </head>
 
@@ -77,7 +79,7 @@ legend {
 	</header>
 	<!-- Header -->
 	<div class="container">
-		<%@ include file="menus.jsp" %>
+		<%@ include file="menus.jsp"%>
 		<div class="row top-height">
 			<div class="col-md-8 ">
 				<h2>Edit Area</h2>
@@ -87,8 +89,8 @@ legend {
 						<legend>Area Details</legend>
 						<div class="form-group required">
 							<label class='control-label'>Area Name</label>
-							<form:input name="name" cssClass="form-control"
-								path="name" value="${ area.name }" />
+							<form:input name="name" cssClass="form-control" path="name"
+								value="${ area.name }" />
 						</div>
 						<div class="form-group">
 							<label>Description</label>
@@ -97,29 +99,33 @@ legend {
 						</div>
 						<div class="form-group">
 							<label>Word Number</label>
-							<form:input name="wordNo" cssClass="form-control"
-								path="wordNo" value="${ area.wordNo }" />
+							<form:input name="wordNo" cssClass="form-control" path="wordNo"
+								value="${ area.wordNo }" />
 						</div>
 						<div class="form-group">
 							<label>PIN Code</label>
 							<form:input name="pinCode" cssClass="form-control" path="pinCode"
 								value="${ area.pinCode }" />
 						</div>
-						<form:hidden path="areaID" name="areaID" value="${ area.areaID }"/>
-						<form:hidden path="resellerID" name="resellerID" value="${ area.resellerID }"/>
+						<form:hidden path="areaID" name="areaID" value="${ area.areaID }" />
+						<form:hidden path="tenantID" name="tenantID"
+							value="${ area.tenantID }" />
+						<form:hidden path="statusID" name="statusID" value="${ area.statusID }" />	
 					</fieldset>
 					<div>
 						<fmt:formatDate value="${ area.dateCreated }" type="date"
-								pattern="dd/MM/yyyy" var="createdDate" />
-						<form:hidden path="dateCreated" value="${createdDate}"/>
+							pattern="dd/MM/yyyy" var="createdDate" />
+						<form:hidden path="dateCreated" value="${createdDate}" />
 					</div>
 					<div>
 						<fmt:formatDate value="${ area.dateModified }" type="date"
-								pattern="dd/MM/yyyy" var="modifiedDate" />
-						<form:hidden path="dateModified" value="${modifiedDate}"/>
+							pattern="dd/MM/yyyy" var="modifiedDate" />
+						<form:hidden path="dateModified" value="${modifiedDate}" />
 					</div>
 					<div>
-						<form:hidden path="companyID" value="${ area.companyID }"/>
+						<form:hidden name="tenantID" path="tenantID"
+							value="${ area.tenantID }" />
+						<form:hidden name="code" path="code" value="${ area.code }" />
 					</div>
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary">Submit</button>

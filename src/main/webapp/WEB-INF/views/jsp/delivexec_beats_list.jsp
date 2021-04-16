@@ -54,6 +54,11 @@
     margin-top: 12px;
     
     }
+    
+    table.table.table-striped thead {
+    background: #ddd;
+    padding: 10px 0 10px 0;
+	}
     </style>
 </head>
 
@@ -80,7 +85,7 @@
 					<% } %>			
 				</div>
 	        </div>        
-            <table class="table">
+            <table class="table table-striped">
                 <thead>
                     <tr>
                         <th>Delivery Executive Name</th>

@@ -22,12 +22,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.sales.crm.model.Beat;
-import com.sales.crm.model.SalesExecutive;
-import com.sales.crm.model.SuppSalesExecBeats;
-import com.sales.crm.model.Supplier;
+import com.sales.crm.model.Manufacturer;
+import com.sales.crm.model.ManufacturerSalesExecBeats;
 import com.sales.crm.service.BeatService;
+import com.sales.crm.service.ManufacturerService;
 import com.sales.crm.service.SalesExecService;
-import com.sales.crm.service.SupplierService;
 
 @Controller
 @RequestMapping("/web/salesExecWeb")
@@ -43,21 +42,21 @@ public class SalesExecWebController {
 	HttpSession httpSession;
 	
 	@Autowired
-	SupplierService supplierService;
+	ManufacturerService manufacturerService;
 	
 	
 	@GetMapping(value="/beatlist")
 	public ModelAndView salesExecBeatsList(){
 		//List<SalesExecutive> salesExecs = salesExecService.getSalesExecutivesHavingBeatsAssigned(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
-		List<SuppSalesExecBeats> suppSalesExecBeats = supplierService.getSuppSalesExecBeats(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
-		return new ModelAndView("/salesexec_beats_list","suppSalesExecBeats", suppSalesExecBeats);  
+		List<ManufacturerSalesExecBeats> manufSalesExecBeats = manufacturerService.getManufSalesExecBeats(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
+		return new ModelAndView("/salesexec_beats_list","manufSalesExecBeats", manufSalesExecBeats);  
 	}
 	
-	@GetMapping(value="/deleteBeatsAssignment/{supplierID}/{salesExecID}")
-	public ModelAndView deleteBeatAssignment(@PathVariable("supplierID") int supplierID, @PathVariable("salesExecID") int salesExecID){
+	@GetMapping(value="/deleteBeatsAssignment/{manufacturerID}/{salesExecID}")
+	public ModelAndView deleteBeatAssignment(@PathVariable("manufacturerID") int manufacturerID, @PathVariable("salesExecID") int salesExecID){
 		String msg = "";
 		try{
-			salesExecService.deleteBeatAssignment(supplierID, salesExecID);
+			salesExecService.deleteBeatAssignment(manufacturerID, salesExecID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		}catch(Exception exception){
 			msg = "Beats associated to Sales Executive could not be removed successfully. Please contact System Administrator.";
 		}
@@ -67,20 +66,21 @@ public class SalesExecWebController {
 	@GetMapping(value="/assignBeatForm") 
 	public ModelAndView assignBeatToSalesExecForm(){
 		Map<String, Object> modelMap = new HashMap<String, Object>();
-		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
-		List<Supplier> suppliers = supplierService.getResellerSuppliers(resellerID);
-		SuppSalesExecBeats suppSalesExecBeats = new SuppSalesExecBeats();
-		modelMap.put("suppliers", suppliers);
-		modelMap.put("suppSalesExecBeats", suppSalesExecBeats);
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
+		List<Manufacturer> manufacturers = manufacturerService.getTenantManufacturers(tenantID);
+		ManufacturerSalesExecBeats manufSalesExecBeats = new ManufacturerSalesExecBeats();
+		modelMap.put("manufacturers", manufacturers);
+		modelMap.put("manufSalesExecBeats", manufSalesExecBeats);
+		modelMap.put("tenantID", tenantID);
 		return new ModelAndView("/assign_beats", modelMap);
 	}
 	
 	@PostMapping(value="/assignBeat") 
-	public ModelAndView assignBeatToSalesExec(@ModelAttribute("suppSalesExecBeats") SuppSalesExecBeats suppSalesExecBeats){
+	public ModelAndView assignBeatToSalesExec(@ModelAttribute("manufSalesExecBeats") ManufacturerSalesExecBeats manufSalesExecBeats){
 		String msg = "";
 		try{
-			int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
-			salesExecService.assignBeats(resellerID, suppSalesExecBeats.getSupplier().getSupplierID(), suppSalesExecBeats.getSalesExecutive().getUserID(),suppSalesExecBeats.getBeatIDLists());
+			int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
+			salesExecService.assignBeats(tenantID, manufSalesExecBeats.getManufacturer().getManufacturerID(), manufSalesExecBeats.getSalesExecutive().getUserID(),manufSalesExecBeats.getBeatIDLists());
 		}catch(Exception exception){
 			msg = "Sales Executive to Beats assignment could not be processed successfully. Please contact System Administrator.";
 		}
@@ -88,23 +88,23 @@ public class SalesExecWebController {
 	}
 	
 	
-	@GetMapping(value="/assignBeatEditForm/{suppID}/{salesExecID}") 
-	public ModelAndView assignBeatToSalesExecEditForm(@PathVariable("suppID") int suppID, @PathVariable("salesExecID") int salesExecID){
+	@GetMapping(value="/assignBeatEditForm/{manufID}/{salesExecID}") 
+	public ModelAndView assignBeatToSalesExecEditForm(@PathVariable("manufID") int manufID, @PathVariable("salesExecID") int salesExecID){
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		//SalesExecutive salesExec = salesExecService.getSalesExecutive(salesExecID);
-		List<Beat> beats = beatService.getResellerBeats(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
-		SuppSalesExecBeats suppSalesExecBeats = supplierService.getSuppSalesExecBeat(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))), suppID, salesExecID);
+		List<Beat> beats = beatService.getTenantBeats(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
+		ManufacturerSalesExecBeats manufSalesExecBeats = manufacturerService.getManufSalesExecBeat(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))), manufID, salesExecID);
 		modelMap.put("beats", beats);
-		modelMap.put("suppSalesExecBeats", suppSalesExecBeats);
+		modelMap.put("manufSalesExecBeats", manufSalesExecBeats);
 		return new ModelAndView("/edit_assigned_beats", modelMap);
 	}
 	
 	@PostMapping(value="/updateAssignedBeats") 
-	public ModelAndView updateAssignedBeat(@ModelAttribute("suppSalesExecBeats") SuppSalesExecBeats suppSalesExecBeats){
+	public ModelAndView updateAssignedBeat(@ModelAttribute("manufSalesExecBeats") ManufacturerSalesExecBeats manufSalesExecBeats){
 		String msg = "";
 		try{
-			int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
-			salesExecService.updateAssignedBeats(resellerID, suppSalesExecBeats.getSupplier().getSupplierID(), suppSalesExecBeats.getSalesExecutive().getUserID(), suppSalesExecBeats.getBeatIDLists());
+			int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
+			salesExecService.updateAssignedBeats(tenantID, manufSalesExecBeats.getManufacturer().getManufacturerID(), manufSalesExecBeats.getSalesExecutive().getUserID(), manufSalesExecBeats.getBeatIDLists());
 		}catch(Exception exception){
 			msg = "Beats assigned to Sales Executive could not be updated successfully. Please contact System Administrator.";
 		}

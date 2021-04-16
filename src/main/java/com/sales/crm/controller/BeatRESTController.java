@@ -17,27 +17,29 @@ import com.sales.crm.service.BeatService;
 @RestController
 @RequestMapping("/rest/beatReST")
 public class BeatRESTController {
-	
+
 	@Autowired
 	BeatService beatService;
-	
+
 	@Autowired
 	HttpSession httpSession;
-	
-	@GetMapping(value="/{beatID}")
-	public List<TrimmedCustomer> getBeatCustomers(@PathVariable int beatID){
-		return beatService.getBeatCustomers(beatID);
+
+	@GetMapping(value = "/{beatID}/{tenantID}")
+	public List<TrimmedCustomer> getBeatCustomers(@PathVariable("beatID") int beatID,
+			@PathVariable("tenantID") int tenantID) {
+		return beatService.getBeatCustomers(beatID, tenantID);
 	}
-	
-	@GetMapping(value="/beatsNotMappedToCustomer/{customerID}")
-	public List<Beat> getBeatsNotMappedToCustomer(@PathVariable("customerID") int customerID){
-		return beatService.getBeatsNotMappedToCustomer(customerID);
+
+	@GetMapping(value = "/beatsNotMappedToCustomer/{customerID}/{tenantID}")
+	public List<Beat> getBeatsNotMappedToCustomer(@PathVariable("customerID") int customerID,
+			@PathVariable("tenantID") int tenantID) {
+		return beatService.getBeatsNotMappedToCustomer(customerID, tenantID);
 	}
-	
-	@GetMapping(value="/beatsNotMappedToSalesExec/{supplierID}/{salesExecID}")
-	public List<Beat> getBeatsNotMappedToSalesExec(@PathVariable("supplierID") int supplierID, @PathVariable("salesExecID") int salesExecID){
-		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
-		return beatService.getBeatsNotMappedToSalesExec(resellerID, supplierID, salesExecID);
+
+	@GetMapping(value = "/beatsNotMappedToSalesExec/{manufacturerID}/{salesExecID}/{tenantID}")
+	public List<Beat> getBeatsNotMappedToSalesExec(@PathVariable("manufacturerID") int manufacturerID,
+			@PathVariable("salesExecID") int salesExecID, @PathVariable("tenantID") int tenantID) {
+		return beatService.getBeatsNotMappedToSalesExec(tenantID, manufacturerID, salesExecID);
 	}
 
 }

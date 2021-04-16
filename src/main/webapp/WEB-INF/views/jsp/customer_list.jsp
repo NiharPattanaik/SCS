@@ -146,6 +146,7 @@
                     <th>City</th>
                     <th>Contact Person</th>
                     <th>Phone Number</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -162,6 +163,7 @@
                     <td>${customer.address[0].city}</td>
                     <td>${customer.address[0].contactPerson}</td>
                     <td>${customer.address[0].phoneNumber}</td>
+                    <td>${customer.statusAsString}</td>
                 </tr>
                 </c:forEach>
             </tbody>

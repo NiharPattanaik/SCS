@@ -1,3 +1,4 @@
+
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
@@ -5,17 +6,24 @@
 <html lang="en">
 
 <head>
-	<title>Edit Customer</title>
-	<!-- Bootstrap Core CSS -->
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
-	<script src="<%=request.getContextPath()%>/resources/js/jquery-3.2.0.min.js"></script>
-	<script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
-	<link href="<%=request.getContextPath()%>/resources/css/bootstrap-datepicker.css" rel="stylesheet">
-	<script src="<%=request.getContextPath()%>/resources/js/bootstrap-datepicker.js"></script>
-	
-	
+<title>Edit Customer</title>
+<!-- Bootstrap Core CSS -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link
+	href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css"
+	rel="stylesheet" />
+<script
+	src="<%=request.getContextPath()%>/resources/js/jquery-3.2.0.min.js"></script>
+<script
+	src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
+<link
+	href="<%=request.getContextPath()%>/resources/css/bootstrap-datepicker.css"
+	rel="stylesheet">
+<script
+	src="<%=request.getContextPath()%>/resources/js/bootstrap-datepicker.js"></script>
+
+
 <style>
 .dpHeaderWrap {
 	position: relative;
@@ -64,12 +72,10 @@ legend {
 	text-align: right;
 }
 
-.form-group.required .control-label:after { 
-   content:"*";
-   color:red;
+.form-group.required .control-label:after {
+	content: "*";
+	color: red;
 }
-
-
 </style>
 </head>
 
@@ -80,7 +86,7 @@ legend {
 	</header>
 	<!-- Header -->
 	<div class="container">
-		<%@ include file="menus.jsp" %>
+		<%@ include file="menus.jsp"%>
 		<div class="row top-height">
 			<div class="col-md-8 ">
 				<h2>Edit Customer</h2>
@@ -100,8 +106,10 @@ legend {
 						</div>
 						<form:hidden name="customerID" path="customerID"
 							value="${ customer.customerID }" />
-						<form:hidden name="resellerID" path="resellerID"
-							value="${ customer.resellerID }" />
+						<form:hidden name="tenantID" path="tenantID"
+							value="${ customer.tenantID }" />
+						<form:hidden name="code" path="code" value="${ customer.code }" />
+						<form:hidden name="statusID" path="statusID" value="${ customer.statusID }" />
 					</fieldset>
 
 					<fieldset>
@@ -165,13 +173,28 @@ legend {
 							<label class='control-label'>Mobile Number(Primary)</label>
 							<form:input name="mobileNumberPrimary" cssClass="form-control"
 								path="address[0].mobileNumberPrimary"
-								value="${ customer.address[0].mobileNumberPrimary }" maxlength="10"/>
+								value="${ customer.address[0].mobileNumberPrimary }"
+								maxlength="10" />
 						</div>
 						<div class="form-group">
 							<label>Mobile Number(Secondary)</label>
 							<form:input name="mobileNumberSecondary" cssClass="form-control"
 								path="address[0].mobileNumberSecondary"
 								value="${ customer.address[0].mobileNumberSecondary }" />
+						</div>
+						<form:hidden name="tenantID" path="address[0].tenantID"
+							value="${ customer.address[0].tenantID }" />
+						<form:hidden name="code" path="address[0].code" value="${ customer.address[0].code }" />
+						<form:hidden name="statusID" path="address[0].statusID" value="${ customer.address[0].statusID }" />
+						<div>
+							<fmt:formatDate value="${ customer.address[0].dateCreated }" type="date"
+								pattern="dd-MM-yyyy" var="createdDate" />
+							<form:hidden path="address[0].dateCreated" value="${createdDate}" />
+						</div>
+						<div>
+							<fmt:formatDate value="${ customer.address[0].dateModified }" type="date"
+								pattern="dd-MM-yyyy" var="modifiedDate" />
+							<form:hidden path="address[0].dateModified" value="${modifiedDate}" />
 						</div>
 					</fieldset>
 					<fieldset>
@@ -243,19 +266,30 @@ legend {
 								path="address[1].mobileNumberSecondary"
 								value="${ customer.address[1].mobileNumberSecondary }" />
 						</div>
+						<form:hidden name="tenantID" path="address[1].tenantID"
+							value="${ customer.address[1].tenantID }" />
+						<form:hidden name="code" path="address[1].code" value="${ address[1].code }" />
+						<form:hidden name="statusID" path="address[1].statusID" value="${ address[1].statusID }" />
+						<div>
+							<fmt:formatDate value="${ customer.address[1].dateCreated }" type="date"
+								pattern="dd-MM-yyyy" var="createdDate" />
+							<form:hidden path="address[1].dateCreated" value="${createdDate}" />
+						</div>
+						<div>
+							<fmt:formatDate value="${ customer.address[1].dateModified }" type="date"
+								pattern="dd-MM-yyyy" var="modifiedDate" />
+							<form:hidden path="address[1].dateModified" value="${modifiedDate}" />
+						</div>
 					</fieldset>
 					<div>
 						<fmt:formatDate value="${ customer.dateCreated }" type="date"
-								pattern="dd/MM/yyyy" var="createdDate" />
-						<form:hidden path="dateCreated" value="${createdDate}"/>
+							pattern="dd-MM-yyyy" var="createdDate" />
+						<form:hidden path="dateCreated" value="${createdDate}" />
 					</div>
 					<div>
 						<fmt:formatDate value="${ customer.dateModified }" type="date"
-								pattern="dd/MM/yyyy" var="modifiedDate" />
-						<form:hidden path="dateModified" value="${modifiedDate}"/>
-					</div>
-					<div>
-						<form:hidden path="companyID" value="${ customer.companyID }"/>
+							pattern="dd-MM-yyyy" var="modifiedDate" />
+						<form:hidden path="dateModified" value="${modifiedDate}" />
 					</div>
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary">Submit</button>

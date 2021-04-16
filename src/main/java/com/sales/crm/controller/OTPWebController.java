@@ -26,8 +26,7 @@ public class OTPWebController {
 	
 	@GetMapping(value="/report")
 	public ModelAndView getOTPReport(){
-		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
-		List<CustomerOTP> customerOTPs = otpService.getOTPReport(resellerID);
+		List<CustomerOTP> customerOTPs = otpService.getOTPReport(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		return new ModelAndView("/otp_report", "customerOTPs", customerOTPs);
 		
 	}
@@ -35,7 +34,7 @@ public class OTPWebController {
 	@GetMapping(value="/delete/{otpID}")
 	public ModelAndView deleteOTP(@PathVariable int otpID){
 		try{
-			otpService.deleteOTP(otpID);
+			otpService.deleteOTP(otpID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		}catch(Exception exception){
 			
 		}

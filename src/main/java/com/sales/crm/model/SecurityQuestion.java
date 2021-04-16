@@ -1,5 +1,7 @@
 package com.sales.crm.model;
 
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,7 +12,11 @@ import javax.persistence.Transient;
 
 @Entity
 @Table(name = "SECURITY_QUESTIONS")
-public class SecurityQuestion {
+@AttributeOverrides({
+	@AttributeOverride(name = "tenantID", column = @Column(name = "TENANT_ID")),
+	@AttributeOverride(name = "dateCreated", column = @Column(name = "DATE_CREATED")),
+	@AttributeOverride(name = "dateModified", column = @Column(name = "DATE_MODIFIED"))})
+public class SecurityQuestion extends BusinessEntity{
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,7 +47,6 @@ public class SecurityQuestion {
 	public void setAnswer(String answer) {
 		this.answer = answer;
 	}
-	
 	
 
 }

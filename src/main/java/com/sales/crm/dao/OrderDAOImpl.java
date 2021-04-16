@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -19,6 +20,7 @@ import org.hibernate.jdbc.Work;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.sales.crm.model.EntityStatusEnum;
 import com.sales.crm.model.Order;
 import com.sales.crm.model.OrderBookingSchedule;
 import com.sales.crm.model.OrderBookingStats;
@@ -33,6 +35,18 @@ public class OrderDAOImpl implements OrderDAO {
 	
 	private static Logger logger = Logger.getLogger(OrderDAOImpl.class);
 	
+	private static List<Integer> statusList;
+	
+	static {
+		statusList = new ArrayList<Integer>();
+		statusList.add(EntityStatusEnum.ORDER_CREATED.getEntityStatus());
+		statusList.add(EntityStatusEnum.DELIVERY_SCHEDULED.getEntityStatus());
+		statusList.add(EntityStatusEnum.DELIVERY_COMPLETED.getEntityStatus());
+		statusList.add(EntityStatusEnum.PARTIALLY_DELIVERED.getEntityStatus());
+		statusList.add(EntityStatusEnum.PAYMENT_SCHEDULED.getEntityStatus());
+		statusList.add(EntityStatusEnum.PARTIALLY_PAID.getEntityStatus());
+	}
+	
 	@Override
 	public int create(Order order) throws Exception{
 		Session session = null;
@@ -41,13 +55,15 @@ public class OrderDAOImpl implements OrderDAO {
 			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
 			order.setDateCreated(new Date());
-			order.setStatus(OrderStatusEnum.ORDER_CREATED.getOrderStatus());
+			order.setStatusID(EntityStatusEnum.ORDER_CREATED.getEntityStatus());
+			order.setCode(UUID.randomUUID().toString());
 			logger.debug(" Order :: "+ order);
 			session.save(order);
 			//Set status in ORDER_BOOKING_SCHEDULE_CUSTOMERS
-			SQLQuery updateStatus = session.createSQLQuery("UPDATE ORDER_BOOKING_SCHEDULE_CUSTOMERS SET STATUS = "+OrderStatusEnum.ORDER_CREATED.getOrderStatus() + " WHERE ORDER_BOOKING_SCHEDULE_ID = ? AND CUSTOMER_ID = ?");
-			updateStatus.setParameter(0, order.getOrderBookingID());
-			updateStatus.setParameter(1, order.getCustomerID());
+			SQLQuery updateStatus = session.createSQLQuery("UPDATE ORDER_BOOKING_SCHEDULE_CUSTOMERS SET STATUS_ID = ? WHERE ORDER_BOOKING_SCHEDULE_ID = ? AND CUSTOMER_ID = ?");
+			updateStatus.setParameter(0, EntityStatusEnum.ORDER_CREATED.getEntityStatus());
+			updateStatus.setParameter(1, order.getOrderBookingID());
+			updateStatus.setParameter(2, order.getCustomerID());
 			updateStatus.executeUpdate();
 			transaction.commit();
 		}catch(Exception e){
@@ -72,21 +88,28 @@ public class OrderDAOImpl implements OrderDAO {
 		try {
 			final List<Integer> custIDList = orderBookingSchedule.getCustomerIDs();
 			session = sessionFactory.openSession();
-			orderBookingSchedule.setDateCreated(new Date());
 			transaction = session.beginTransaction();
-			session.save(orderBookingSchedule);
+			SQLQuery query = session.createSQLQuery("INSERT INTO ORDER_BOOKING_SCHEDULE (SALES_EXEC_ID, BEAT_ID, VISIT_DATE, TENANT_ID, DATE_CREATED) VALUES (?, ?, ?, ?, CURDATE())");
+			query.setInteger(0, orderBookingSchedule.getSalesExecutiveID());
+			query.setInteger(1, orderBookingSchedule.getBeatID());
+			query.setDate(2, orderBookingSchedule.getVisitDate());
+			query.setInteger(3, orderBookingSchedule.getTenantID());
+			query.executeUpdate();
+			orderBookingSchedule.setBookingScheduleID(((BigInteger) session.createSQLQuery("SELECT LAST_INSERT_ID()").uniqueResult()).intValue());
+			
 			// get Connction from Session
 			session.doWork(new Work() {
 				@Override
 				public void execute(Connection connection) throws SQLException {
 					PreparedStatement pstmt = null;
 					try {
-						String sqlInsert = "INSERT INTO ORDER_BOOKING_SCHEDULE_CUSTOMERS (ORDER_BOOKING_SCHEDULE_ID, CUSTOMER_ID, STATUS) VALUES (?, ?, ?)";
+						String sqlInsert = "INSERT INTO ORDER_BOOKING_SCHEDULE_CUSTOMERS (ORDER_BOOKING_SCHEDULE_ID, CUSTOMER_ID, STATUS_ID, TENANT_ID, DATE_CREATED) VALUES (?, ?, ?, ?, CURDATE())";
 						pstmt = connection.prepareStatement(sqlInsert);
 						for (int i = 0; i < custIDList.size(); i++) {
 							pstmt.setInt(1, orderBookingSchedule.getBookingScheduleID());
 							pstmt.setInt(2, orderBookingSchedule.getCustomerIDs().get(i));
-							pstmt.setInt(3, OrderStatusEnum.ORDER_BOOKING_SCHEDULED.getOrderStatus());
+							pstmt.setInt(3, EntityStatusEnum.ORDER_BOOKING_SCHEDULED.getEntityStatus());
+							pstmt.setInt(4, orderBookingSchedule.getTenantID());
 							pstmt.addBatch();
 						}
 						pstmt.executeBatch();
@@ -117,11 +140,11 @@ public class OrderDAOImpl implements OrderDAO {
 		try {
 			session = sessionFactory.openSession();
 			SQLQuery query = session.createSQLQuery(
-					"SELECT a.NAME FROM CUSTOMER a, ORDER_BOOKING_SCHEDULE b, ORDER_BOOKING_SCHEDULE_CUSTOMERS c WHERE a.ID=c.CUSTOMER_ID AND b.ID=c.ORDER_BOOKING_SCHEDULE_ID AND b.SALES_EXEC_ID=? AND b.BEAT_ID=? AND b.VISIT_DATE = ? AND b.RESELLER_ID= ? AND c.CUSTOMER_ID IN ("+ StringUtils.join(orderBookingSchedule.getCustomerIDs(), ",")+") group by a.NAME");
+					"SELECT a.NAME FROM CUSTOMER a, ORDER_BOOKING_SCHEDULE b, ORDER_BOOKING_SCHEDULE_CUSTOMERS c WHERE a.ID=c.CUSTOMER_ID AND b.ID=c.ORDER_BOOKING_SCHEDULE_ID AND b.SALES_EXEC_ID=? AND b.BEAT_ID=? AND b.VISIT_DATE = ? AND b.TENANT_ID= ? AND c.CUSTOMER_ID IN ("+ StringUtils.join(orderBookingSchedule.getCustomerIDs(), ",")+") group by a.NAME");
 			query.setParameter(0, orderBookingSchedule.getSalesExecutiveID());
 			query.setParameter(1, orderBookingSchedule.getBeatID());
 			query.setParameter(2, orderBookingSchedule.getVisitDate());
-			query.setParameter(3, orderBookingSchedule.getResellerID());
+			query.setParameter(3, orderBookingSchedule.getTenantID());
 			List lists = query.list();
 			for(Object obj : lists){
 				customerNames.add(String.valueOf(obj));
@@ -139,7 +162,7 @@ public class OrderDAOImpl implements OrderDAO {
 	
 
 	@Override
-	public void unScheduleOrderBooking(int orderScheduleID, int customerID) throws Exception{
+	public void unScheduleOrderBooking(int orderScheduleID, int customerID, int tenantID) throws Exception{
 		Session session = null;
 		Transaction transaction = null;
 		try {
@@ -147,19 +170,23 @@ public class OrderDAOImpl implements OrderDAO {
 			transaction = session.beginTransaction();
 			
 			//Delete from ORDER_BOOKING_SCHEDULE_CUSTOMERS
-			SQLQuery deleteScheduledCust = session.createSQLQuery("DELETE FROM ORDER_BOOKING_SCHEDULE_CUSTOMERS WHERE ORDER_BOOKING_SCHEDULE_ID = ? AND CUSTOMER_ID = ? AND STATUS = 1");
+			SQLQuery deleteScheduledCust = session.createSQLQuery("DELETE FROM ORDER_BOOKING_SCHEDULE_CUSTOMERS WHERE ORDER_BOOKING_SCHEDULE_ID = ? AND CUSTOMER_ID = ? AND STATUS_ID = ? AND TENANT_ID = ?");
 			deleteScheduledCust.setParameter(0, orderScheduleID);
 			deleteScheduledCust.setParameter(1, customerID);
+			deleteScheduledCust.setParameter(2, EntityStatusEnum.ORDER_BOOKING_SCHEDULED.getEntityStatus());
+			deleteScheduledCust.setParameter(3, tenantID);
 			deleteScheduledCust.executeUpdate();
 			
 			//Delete from ORDER_BOOKING_SCHEDULE if no reference in ORDER_BOOKING_SCHEDULE_CUSTOMERS
-			SQLQuery getSchedulesForCust = session.createSQLQuery("SELECT COUNT(*) FROM ORDER_BOOKING_SCHEDULE_CUSTOMERS WHERE ORDER_BOOKING_SCHEDULE_ID = ?");
+			SQLQuery getSchedulesForCust = session.createSQLQuery("SELECT COUNT(*) FROM ORDER_BOOKING_SCHEDULE_CUSTOMERS WHERE ORDER_BOOKING_SCHEDULE_ID = ? AND TENANT_ID = ?");
 			getSchedulesForCust.setParameter(0, orderScheduleID);
+			getSchedulesForCust.setParameter(1, tenantID);
 			List counts = getSchedulesForCust.list();
 			if(counts != null && counts.size() == 1 && ((BigInteger)counts.get(0)).intValue() == 0){
 				SQLQuery query = session.createSQLQuery(
-						"DELETE FROM ORDER_BOOKING_SCHEDULE WHERE ID = ?");
+						"DELETE FROM ORDER_BOOKING_SCHEDULE WHERE ID = ? AND TENANT_ID = ?");
 				query.setParameter(0, orderScheduleID);
+				query.setParameter(1, tenantID);
 				query.executeUpdate();
 			}
 			transaction.commit();
@@ -177,60 +204,61 @@ public class OrderDAOImpl implements OrderDAO {
 	}
 	
 	@Override
-	public List<Order> getOrders(int resellerID, int orderID) throws Exception {
+	public List<Order> getOrders(int tenantID, int orderID) throws Exception {
 		Session session = null;
 		List<Order> orders = new ArrayList<Order>();
 		SQLQuery orderQuery = null;
 		try{
 			session = sessionFactory.openSession();
 			if(orderID != -1){
-				orderQuery = session.createSQLQuery("SELECT a.*, c.NAME FROM ORDER_DETAILS a, ORDER_BOOKING_SCHEDULE b, CUSTOMER c  WHERE a.ORDER_BOOKING_ID = b.ID AND a.CUSTOMER_ID = c.ID AND a.RESELLER_ID= ? AND a.ID= ? ORDER BY a.DATE_CREATED DESC");
-				orderQuery.setParameter(0, resellerID);
+				orderQuery = session.createSQLQuery("SELECT a.*, c.NAME FROM ORDER_DETAILS a, ORDER_BOOKING_SCHEDULE b, CUSTOMER c  WHERE a.ORDER_BOOKING_ID = b.ID AND a.CUSTOMER_ID = c.ID AND a.TENANT_ID= ? AND a.ID= ? ORDER BY a.DATE_CREATED DESC");
+				orderQuery.setParameter(0, tenantID);
 				orderQuery.setParameter(1, orderID);
 			}else{
-				orderQuery = session.createSQLQuery("SELECT a.*, c.NAME FROM ORDER_DETAILS a, ORDER_BOOKING_SCHEDULE b, CUSTOMER c  WHERE a.ORDER_BOOKING_ID = b.ID AND a.CUSTOMER_ID = c.ID AND a.RESELLER_ID= ? ORDER BY a.DATE_CREATED DESC");
-				orderQuery.setParameter(0, resellerID);
+				orderQuery = session.createSQLQuery("SELECT a.*, c.NAME FROM ORDER_DETAILS a, ORDER_BOOKING_SCHEDULE b, CUSTOMER c  WHERE a.ORDER_BOOKING_ID = b.ID AND a.CUSTOMER_ID = c.ID AND a.TENANT_ID= ? ORDER BY a.DATE_CREATED DESC");
+				orderQuery.setParameter(0, tenantID);
 			}
 			List results = orderQuery.list();
 			for(Object obj : results){
 				Object[] objs = (Object[])obj;
 				Order order = new Order();
 				order.setOrderID(Integer.valueOf(String.valueOf(objs[0])));
-				order.setOrderBookingID(Integer.valueOf(String.valueOf(objs[1])));
-				order.setNoOfLineItems(Integer.valueOf(String.valueOf(objs[2])));
-				order.setBookValue(Double.valueOf(String.valueOf(objs[3])));
-				order.setRemark(String.valueOf(objs[4]));
-				order.setStatus(Integer.valueOf(String.valueOf(objs[5])));
-				switch(order.getStatus()){
-					case 1:
+				order.setCode(String.valueOf(objs[1]));
+				order.setOrderBookingID(Integer.valueOf(String.valueOf(objs[2])));
+				order.setNoOfLineItems(Integer.valueOf(String.valueOf(objs[3])));
+				order.setBookValue(Double.valueOf(String.valueOf(objs[4])));
+				order.setRemark(String.valueOf(objs[5]));
+				order.setStatusID(Integer.valueOf(String.valueOf(objs[6])));
+				switch(order.getStatusID()){
+					case 50:
 						order.setStatusAsString("Order Booking Scheduled");
 						break;
-					case 2:
+					case 51:
 						order.setStatusAsString("Order Created");
 						break;
-					case 3:
+					case 52:
 						order.setStatusAsString("Delivery Scheduled");
 						break;
-					case 4:
+					case 53:
 						order.setStatusAsString("Delivery Completed");
 						break;
-					case 5:
+					case 54:
 						order.setStatusAsString("Delivery Partial");
 						break;
-					case 6:
+					case 55:
 						order.setStatusAsString("Payment Scheduled");
 						break;	
-					case 7:
+					case 56:
 						order.setStatusAsString("Payment Completed");
 						break;	
-					case 8:
+					case 57:
 						order.setStatusAsString("Payment Partial");
 						break;		
 				}
-				order.setResellerID(Integer.valueOf(String.valueOf(objs[6])));
 				order.setCustomerID(Integer.valueOf(String.valueOf(objs[7])));
-				if(objs[8] != null){
-					order.setDateCreated(new Date(new SimpleDateFormat("yyyy-MM-dd").parse(String.valueOf(objs[8])).getTime()));
+				order.setTenantID(Integer.valueOf(String.valueOf(objs[8])));
+				if(objs[9] != null){
+					order.setDateCreated(new Date(new SimpleDateFormat("yyyy-MM-dd").parse(String.valueOf(objs[9])).getTime()));
 				}
 				order.setCustomerName(String.valueOf(objs[11]));
 				orders.add(order);
@@ -247,31 +275,36 @@ public class OrderDAOImpl implements OrderDAO {
 	}
 
 	@Override
-	public OrderBookingStats getOrderBookingStats(int salesExecID, Date date) throws Exception{
+	public OrderBookingStats getOrderBookingStats(int salesExecID, Date date, int tenantID) throws Exception{
 		Session session = null;
 		OrderBookingStats orderBookingStats = new OrderBookingStats();
 		try{
 			session = sessionFactory.openSession();
 			//all orders booked
-			SQLQuery allOrderBooking = session.createSQLQuery("SELECT b.NAME FROM ORDER_BOOKING_SCHEDULE_CUSTOMERS a, CUSTOMER b WHERE a.CUSTOMER_ID = b.ID AND ORDER_BOOKING_SCHEDULE_ID IN (SELECT ID FROM ORDER_BOOKING_SCHEDULE WHERE SALES_EXEC_ID = ? AND VISIT_DATE = ?)");
+			SQLQuery allOrderBooking = session.createSQLQuery("SELECT b.NAME FROM ORDER_BOOKING_SCHEDULE_CUSTOMERS a, CUSTOMER b WHERE a.CUSTOMER_ID = b.ID AND a.TENANT_ID=b.TENANT_ID AND ORDER_BOOKING_SCHEDULE_ID IN (SELECT ID FROM ORDER_BOOKING_SCHEDULE WHERE SALES_EXEC_ID = ? AND VISIT_DATE = ?) AND a.TENANT_ID = ?");
 			allOrderBooking.setParameter(0, salesExecID);
 			allOrderBooking.setParameter(1, new java.sql.Date(date.getTime()));
+			allOrderBooking.setParameter(2, tenantID);
 			List<String> allOrderBookedCustomers = allOrderBooking.list();
 			orderBookingStats.setTotalNoOfVisits(allOrderBookedCustomers.size());
 			orderBookingStats.setAllCustomersForVisit(allOrderBookedCustomers);
 			
 			//Order Booking completed
-			SQLQuery completedOrderBookingQuery = session.createSQLQuery("SELECT b.NAME FROM ORDER_BOOKING_SCHEDULE_CUSTOMERS a, CUSTOMER b WHERE a.CUSTOMER_ID = b.ID AND ORDER_BOOKING_SCHEDULE_ID IN (SELECT ID FROM ORDER_BOOKING_SCHEDULE WHERE SALES_EXEC_ID = ? AND VISIT_DATE = ? ) AND STATUS=2");
+			SQLQuery completedOrderBookingQuery = session.createSQLQuery("SELECT b.NAME FROM ORDER_BOOKING_SCHEDULE_CUSTOMERS a, CUSTOMER b WHERE a.CUSTOMER_ID = b.ID AND a.TENANT_ID=b.TENANT_ID AND ORDER_BOOKING_SCHEDULE_ID IN (SELECT ID FROM ORDER_BOOKING_SCHEDULE WHERE SALES_EXEC_ID = ? AND VISIT_DATE = ? ) AND a.STATUS_ID = ? AND a.TENANT_ID = ?");
 			completedOrderBookingQuery.setParameter(0, salesExecID);
 			completedOrderBookingQuery.setParameter(1, new java.sql.Date(date.getTime()));
+			completedOrderBookingQuery.setParameter(2, EntityStatusEnum.ORDER_CREATED.getEntityStatus());
+			completedOrderBookingQuery.setParameter(3, tenantID);
 			List<String> allOrderCompletedCustomers = completedOrderBookingQuery.list();
 			orderBookingStats.setNoOfVisitsCompleted(allOrderCompletedCustomers.size());
 			orderBookingStats.setCompletedCustomers(allOrderCompletedCustomers);
 			
 			//Order Booking Pending
-			SQLQuery pendingOrderBookingQuery = session.createSQLQuery("SELECT b.NAME FROM ORDER_BOOKING_SCHEDULE_CUSTOMERS a, CUSTOMER b WHERE a.CUSTOMER_ID = b.ID AND ORDER_BOOKING_SCHEDULE_ID IN (SELECT ID FROM ORDER_BOOKING_SCHEDULE WHERE SALES_EXEC_ID = ? AND VISIT_DATE = ? ) AND STATUS=1");
+			SQLQuery pendingOrderBookingQuery = session.createSQLQuery("SELECT b.NAME FROM ORDER_BOOKING_SCHEDULE_CUSTOMERS a, CUSTOMER b WHERE a.CUSTOMER_ID = b.ID AND a.TENANT_ID=b.TENANT_ID AND ORDER_BOOKING_SCHEDULE_ID IN (SELECT ID FROM ORDER_BOOKING_SCHEDULE WHERE SALES_EXEC_ID = ? AND VISIT_DATE = ? ) AND a.STATUS_ID= ? AND a.TENANT_ID = ?");
 			pendingOrderBookingQuery.setParameter(0, salesExecID);
 			pendingOrderBookingQuery.setParameter(1, new java.sql.Date(date.getTime()));
+			pendingOrderBookingQuery.setParameter(2, EntityStatusEnum.ORDER_BOOKING_SCHEDULED);
+			pendingOrderBookingQuery.setParameter(3, tenantID);
 			List<String> pendingOrderCustomers = pendingOrderBookingQuery.list();
 			orderBookingStats.setNoOfVisitsPending(pendingOrderCustomers.size());
 			orderBookingStats.setPendingCustomers(pendingOrderCustomers);
@@ -289,15 +322,16 @@ public class OrderDAOImpl implements OrderDAO {
 	}
 
 	@Override
-	public List<OrderBookingSchedule> getAllOrderBookedForDate(int resellerID, Date date) throws Exception{
+	public List<OrderBookingSchedule> getAllOrderBookedForDate(int tenantID, Date date) throws Exception{
 		Session session = null;
 		List<OrderBookingSchedule> orderSchedules = new ArrayList<OrderBookingSchedule>();
 		try{
 			session = sessionFactory.openSession();
 			SQLQuery query = session.createSQLQuery(
-					"SELECT a.ID, b.ID CUST_ID, b.NAME CUST_NAME, d.ID BEAT_ID, d.NAME BEAT_NAME, c.ID SALES_EXEC_ID, c.FIRST_NAME, c.LAST_NAME FROM ORDER_BOOKING_SCHEDULE a, CUSTOMER b, USER c, BEAT d, ORDER_BOOKING_SCHEDULE_CUSTOMERS e WHERE e.CUSTOMER_ID=b.ID AND e.ORDER_BOOKING_SCHEDULE_ID=a.ID AND a.BEAT_ID = d.ID AND a.SALES_EXEC_ID = c.ID AND a.RESELLER_ID=b.RESELLER_ID AND a.RESELLER_ID=d.RESELLER_ID AND a.RESELLER_ID= ? AND a.VISIT_DATE = ? AND e.STATUS=1");
-			query.setParameter(0, resellerID);
+					"SELECT a.ID, b.ID CUST_ID, b.NAME CUST_NAME, d.ID BEAT_ID, d.NAME BEAT_NAME, c.ID SALES_EXEC_ID, c.FIRST_NAME, c.LAST_NAME FROM ORDER_BOOKING_SCHEDULE a, CUSTOMER b, USER c, BEAT d, ORDER_BOOKING_SCHEDULE_CUSTOMERS e WHERE e.CUSTOMER_ID=b.ID AND e.ORDER_BOOKING_SCHEDULE_ID=a.ID AND a.BEAT_ID = d.ID AND a.SALES_EXEC_ID = c.ID AND a.TENANT_ID=b.TENANT_ID AND a.TENANT_ID=d.TENANT_ID AND a.TENANT_ID= ? AND a.VISIT_DATE = ? AND e.STATUS_ID= ?");
+			query.setParameter(0, tenantID);
 			query.setParameter(1, new java.sql.Date(date.getTime()));
+			query.setParameter(2, EntityStatusEnum.ORDER_BOOKING_SCHEDULED.getEntityStatus());
 			List results = query.list();
 			for(Object obj : results){
 				Object[] objs = (Object[])obj;
@@ -324,17 +358,21 @@ public class OrderDAOImpl implements OrderDAO {
 		return orderSchedules;
 	}
 	
-	
+	/**
+	 * 
+	 * Fetch schedules with status 1
+	 * 
+	 */
 	@Override
-	public List<OrderBookingSchedule> getOrdersBookingSchedules(int resellerID, int salesExecID, int beatID, Date date) throws Exception{
+	public List<OrderBookingSchedule> getOrdersBookingSchedules(int tenantID, int salesExecID, int beatID, Date date) throws Exception{
 		Session session = null;
 		List<OrderBookingSchedule> orderSchedules = new ArrayList<OrderBookingSchedule>();
 		try{
 			session = sessionFactory.openSession();
 			StringBuilder sqlBuilder = new StringBuilder(
-					"SELECT a.ID, b.ID CUST_ID, b.NAME CUST_NAME, d.ID BEAT_ID, d.NAME BEAT_NAME, c.ID SALES_EXEC_ID, c.FIRST_NAME, c.LAST_NAME FROM ORDER_BOOKING_SCHEDULE a, CUSTOMER b, USER c, BEAT d, ORDER_BOOKING_SCHEDULE_CUSTOMERS e WHERE e.CUSTOMER_ID=b.ID AND e.ORDER_BOOKING_SCHEDULE_ID=a.ID AND a.BEAT_ID = d.ID AND a.SALES_EXEC_ID = c.ID AND a.RESELLER_ID=b.RESELLER_ID AND a.RESELLER_ID=d.RESELLER_ID AND e.STATUS=1");
+					"SELECT a.ID, b.ID CUST_ID, b.NAME CUST_NAME, d.ID BEAT_ID, d.NAME BEAT_NAME, c.ID SALES_EXEC_ID, c.FIRST_NAME, c.LAST_NAME FROM ORDER_BOOKING_SCHEDULE a, CUSTOMER b, USER c, BEAT d, ORDER_BOOKING_SCHEDULE_CUSTOMERS e WHERE e.CUSTOMER_ID=b.ID AND e.ORDER_BOOKING_SCHEDULE_ID=a.ID AND a.BEAT_ID = d.ID AND a.SALES_EXEC_ID = c.ID AND a.TENANT_ID=b.TENANT_ID AND a.TENANT_ID=d.TENANT_ID AND e.STATUS_ID = "+ EntityStatusEnum.ORDER_BOOKING_SCHEDULED.getEntityStatus());
 			//Add Reseller ID
-			sqlBuilder.append(" AND a.RESELLER_ID ="+ resellerID);
+			sqlBuilder.append(" AND a.TENANT_ID ="+ tenantID);
 			//Sales Exec Id
 			if(salesExecID > 0){
 				sqlBuilder.append(" AND a.SALES_EXEC_ID ="+ salesExecID);
@@ -379,13 +417,13 @@ public class OrderDAOImpl implements OrderDAO {
 	
 	
 	@Override
-	public List<OrderBookingSchedule> getOrderScheduleReport(int resellerID, int salesExecID, int beatID, int customerID, int orderScheduleID, int status, Date date) throws Exception{
+	public List<OrderBookingSchedule> getOrderScheduleReport(int tenantID, int salesExecID, int beatID, int customerID, int orderScheduleID, int status, Date date) throws Exception{
 		Session session = null;
 		List<OrderBookingSchedule> orderSchedules = new ArrayList<OrderBookingSchedule>();
 		boolean whereClauseAdded = false;
 		try{
 			StringBuilder sqlBuilder = new StringBuilder(
-					"SELECT * FROM (SELECT ORDER_SCHEDULE_ID, ORDER_DETAILS.ID ORDER_ID, CUST_ID, BEAT_ID, SALES_EXEC_ID, VISIT_DATE SALES_VISIT_DATE, BEAT_NAME, CUST_NAME, FIRST_NAME, LAST_NAME, ORDER_SCHEDULE.STATUS STATUS FROM (SELECT a.ID ORDER_SCHEDULE_ID, a.VISIT_DATE, b.ID CUST_ID, b.NAME CUST_NAME, d.ID BEAT_ID, d.NAME BEAT_NAME, c.ID SALES_EXEC_ID, c.FIRST_NAME, c.LAST_NAME, e.STATUS FROM ORDER_BOOKING_SCHEDULE a, CUSTOMER b, USER c, BEAT d, ORDER_BOOKING_SCHEDULE_CUSTOMERS e WHERE e.CUSTOMER_ID=b.ID AND e.ORDER_BOOKING_SCHEDULE_ID=a.ID AND a.BEAT_ID = d.ID AND a.SALES_EXEC_ID = c.ID AND a.RESELLER_ID=b.RESELLER_ID AND a.RESELLER_ID=d.RESELLER_ID AND a.RESELLER_ID = "+ resellerID +") ORDER_SCHEDULE LEFT JOIN ORDER_DETAILS ON ORDER_SCHEDULE.ORDER_SCHEDULE_ID = ORDER_DETAILS.ORDER_BOOKING_ID AND ORDER_SCHEDULE.CUST_ID = ORDER_DETAILS.CUSTOMER_ID) FINAL");
+					"SELECT * FROM (SELECT ORDER_SCHEDULE_ID, ORDER_DETAILS.ID ORDER_ID, CUST_ID, BEAT_ID, SALES_EXEC_ID, VISIT_DATE SALES_VISIT_DATE, BEAT_NAME, CUST_NAME, FIRST_NAME, LAST_NAME, ORDER_SCHEDULE.STATUS_ID STATUS FROM (SELECT a.ID ORDER_SCHEDULE_ID, a.VISIT_DATE, b.ID CUST_ID, b.NAME CUST_NAME, d.ID BEAT_ID, d.NAME BEAT_NAME, c.ID SALES_EXEC_ID, c.FIRST_NAME, c.LAST_NAME, e.STATUS_ID FROM ORDER_BOOKING_SCHEDULE a, CUSTOMER b, USER c, BEAT d, ORDER_BOOKING_SCHEDULE_CUSTOMERS e WHERE e.CUSTOMER_ID=b.ID AND e.ORDER_BOOKING_SCHEDULE_ID=a.ID AND a.BEAT_ID = d.ID AND a.SALES_EXEC_ID = c.ID AND a.TENANT_ID=b.TENANT_ID AND a.TENANT_ID=d.TENANT_ID AND a.TENANT_ID = "+ tenantID +") ORDER_SCHEDULE LEFT JOIN ORDER_DETAILS ON ORDER_SCHEDULE.ORDER_SCHEDULE_ID = ORDER_DETAILS.ORDER_BOOKING_ID AND ORDER_SCHEDULE.CUST_ID = ORDER_DETAILS.CUSTOMER_ID) FINAL");
 			
 			if (salesExecID > 0 || beatID > 0 || customerID > 0 || date != null || orderScheduleID > 0) {
 				sqlBuilder.append(" WHERE ");
@@ -432,7 +470,7 @@ public class OrderDAOImpl implements OrderDAO {
 				if(whereClauseAdded){
 					sqlBuilder.append(" AND ");
 				}
-				sqlBuilder.append(" STATUS ="+ status);
+				sqlBuilder.append(" STATUS_ID ="+ status);
 				whereClauseAdded = true;
 			}
 			
@@ -463,31 +501,31 @@ public class OrderDAOImpl implements OrderDAO {
 				if(String.valueOf(objs[10]) != null && !String.valueOf(objs[10]).equals("null")){
 					orderBookingSchedule.setStatus(Integer.valueOf(String.valueOf(objs[10])));
 					switch(orderBookingSchedule.getStatus()){
-					case 1:
+					case 50:
 						orderBookingSchedule.setStatusAsString("Order Booking Scheduled");
 						break;
-					case 2:
+					case 51:
 						orderBookingSchedule.setStatusAsString("Order Created");
 						break;
-					case 3:
+					case 52:
 						orderBookingSchedule.setStatusAsString("Delivery Scheduled");
 						break;
-					case 4:
+					case 53:
 						orderBookingSchedule.setStatusAsString("Delivery Completed");
 						break;
-					case 5:
+					case 54:
 						orderBookingSchedule.setStatusAsString("Delivery Partial");
 						break;
-					case 6:
+					case 55:
 						orderBookingSchedule.setStatusAsString("Payment Scheduled");
 						break;	
-					case 7:
+					case 56:
 						orderBookingSchedule.setStatusAsString("Payment Completed");
 						break;	
-					case 8:
+					case 57:
 						orderBookingSchedule.setStatusAsString("Payment Partial");
 						break;	
-					case 9:
+					case 60:
 						orderBookingSchedule.setStatusAsString("OTP Verified (Order Creation Failed)");
 						break;		
 					}
@@ -510,7 +548,7 @@ public class OrderDAOImpl implements OrderDAO {
 	}
 	
 	@Override
-	public List<ScheduledOrderSummary> getScheduledOrderSummary(int resellerID, int salesExecID, Date visitDate){
+	public List<ScheduledOrderSummary> getScheduledOrderSummary(int tenantID, int salesExecID, Date visitDate){
 		
 		Session session = null;
 		List<ScheduledOrderSummary> orderSchedules = new ArrayList<ScheduledOrderSummary>();
@@ -518,8 +556,8 @@ public class OrderDAOImpl implements OrderDAO {
 			String visitDateStr = new SimpleDateFormat("yyyy-MM-dd").format(visitDate);
 			StringBuilder queryBuilder = new StringBuilder(
 					"SELECT a.ORDER_SCHEDULE_ID, a.VISIT_DATE, a.SALES_EXEC_ID, a.FIRST_NAME, a.LAST_NAME, b. TOTAL_SCHEDULED, IFNULL(a.ORDER_COUNT, 0) 'ORDER_COUNT', IFNULL(a.LINES, 0) 'LINES', IFNULL(a.VALUE, 0) 'VALUE' "
-					+ "FROM (SELECT * FROM (SELECT a.ID ORDER_SCHEDULE_ID, a.VISIT_DATE, c.ID SALES_EXEC_ID, c.FIRST_NAME, c.LAST_NAME FROM ORDER_BOOKING_SCHEDULE a, USER c WHERE a.SALES_EXEC_ID = c.ID AND a.RESELLER_ID ="+ resellerID +" ) A "
-					+ "LEFT JOIN (SELECT DISTINCT ORDER_BOOKING_ID, COUNT(ID) 'ORDER_COUNT', SUM(NO_OF_LINE_ITEMS) 'LINES', SUM(BOOK_VALUE) 'VALUE' FROM ORDER_DETAILS WHERE RESELLER_ID= "+ resellerID +" GROUP BY ORDER_BOOKING_ID) B ON A.ORDER_SCHEDULE_ID = B.ORDER_BOOKING_ID) a, "
+					+ "FROM (SELECT * FROM (SELECT a.ID ORDER_SCHEDULE_ID, a.VISIT_DATE, c.ID SALES_EXEC_ID, c.FIRST_NAME, c.LAST_NAME FROM ORDER_BOOKING_SCHEDULE a, USER c WHERE a.SALES_EXEC_ID = c.ID AND a.TENANT_ID ="+ tenantID +" ) A "
+					+ "LEFT JOIN (SELECT DISTINCT ORDER_BOOKING_ID, COUNT(ID) 'ORDER_COUNT', SUM(NO_OF_LINE_ITEMS) 'LINES', SUM(BOOK_VALUE) 'VALUE' FROM ORDER_DETAILS WHERE TENANT_ID= "+ tenantID +" GROUP BY ORDER_BOOKING_ID) B ON A.ORDER_SCHEDULE_ID = B.ORDER_BOOKING_ID) a, "
 					+ "(SELECT ORDER_BOOKING_SCHEDULE_ID, COUNT(CUSTOMER_ID) 'TOTAL_SCHEDULED' FROM ORDER_BOOKING_SCHEDULE_CUSTOMERS GROUP BY ORDER_BOOKING_SCHEDULE_ID) b WHERE a.ORDER_SCHEDULE_ID=b.ORDER_BOOKING_SCHEDULE_ID AND VISIT_DATE= '"+ visitDateStr + "'");
 			
 			if(salesExecID != -1){
@@ -604,11 +642,12 @@ public class OrderDAOImpl implements OrderDAO {
 			
 			//Create Order
 			order.setDateCreated(new Date());
-			order.setStatus(OrderStatusEnum.ORDER_CREATED.getOrderStatus());
+			order.setCode(UUID.randomUUID().toString());
+			order.setStatusID(OrderStatusEnum.ORDER_CREATED.getOrderStatus());
 			logger.debug(" Order :: "+ order);
 			session.save(order);
 			//Set status in ORDER_BOOKING_SCHEDULE_CUSTOMERS
-			SQLQuery updateStatus = session.createSQLQuery("UPDATE ORDER_BOOKING_SCHEDULE_CUSTOMERS SET STATUS = "+OrderStatusEnum.ORDER_CREATED.getOrderStatus() + " WHERE ORDER_BOOKING_SCHEDULE_ID = ? AND CUSTOMER_ID = ?");
+			SQLQuery updateStatus = session.createSQLQuery("UPDATE ORDER_BOOKING_SCHEDULE_CUSTOMERS SET STATUS_ID = "+OrderStatusEnum.ORDER_CREATED.getOrderStatus() + " WHERE ORDER_BOOKING_SCHEDULE_ID = ? AND CUSTOMER_ID = ?");
 			updateStatus.setParameter(0, order.getOrderBookingID());
 			updateStatus.setParameter(1, order.getCustomerID());
 			updateStatus.executeUpdate();
@@ -627,6 +666,56 @@ public class OrderDAOImpl implements OrderDAO {
 		}
 		
 		return order.getOrderID();
+	}
+
+	//Check if status is ORDER Scheduled
+	public boolean isOrderBookingScheduledForCustomer(int customerID, int tenantID) {
+		Session session = null;
+		try{
+			session = sessionFactory.openSession();
+			SQLQuery query = session.createSQLQuery("SELECT ID FROM ORDER_BOOKING_SCHEDULE_CUSTOMERS WHERE CUSTOMER_ID = ? AND TENANT_ID = ? AND STATUS_ID ="+ EntityStatusEnum.ORDER_BOOKING_SCHEDULED.getEntityStatus());
+			query.setInteger(0, customerID);
+			query.setInteger(1, tenantID);
+			List count = query.list();
+			if(count != null && count.size() > 0 ){
+				return true;
+			}
+		}catch(Exception e) {
+			logger.error("Error while fetching customer order schedule status", e);
+		}
+		return false;
+	}
+	
+	//Check if status is ORDER Scheduled
+	//Order Created Or Delivery Scheduled or Partially Delivered
+	//Order Delivered Or Payment Scheduled OR Partially Paid
+	public boolean isOrderingProcessInProgressForCustomer(int customerID, int tenantID) {
+		Session session = null;
+		try{
+			session = sessionFactory.openSession();
+			SQLQuery query = session.createSQLQuery("SELECT order_booking_schedule_id " + 
+					" FROM   order_booking_schedule_customers " + 
+					" WHERE  customer_id =  ? " + 
+					"       AND tenant_id = ? " + 
+					"       AND status_id = "+ EntityStatusEnum.ORDER_BOOKING_SCHEDULED.getEntityStatus()+ 
+					" UNION " + 
+					" SELECT id " + 
+					" FROM   order_details " + 
+					" WHERE  customer_id = ? " + 
+					"       AND tenant_id = ? " + 
+					"       AND status_id IN ( "+ StringUtils.join(statusList, ",")+")");
+			query.setInteger(0, customerID);
+			query.setInteger(1, tenantID);
+			query.setInteger(2, customerID);
+			query.setInteger(3, tenantID);
+			List count = query.list();
+			if(count != null && count.size() > 0){
+				return true;
+			}
+		}catch(Exception e) {
+			logger.error("Error while fetching customer order schedule status", e);
+		}
+		return false;
 	}
 
 }

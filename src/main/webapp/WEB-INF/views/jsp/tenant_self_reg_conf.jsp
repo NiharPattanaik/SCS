@@ -8,7 +8,7 @@
 <html lang="en">
 
 <head>
-<title>Edit Sales Executive to Supplier</title>
+<title>Create Area</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
@@ -72,29 +72,44 @@
 	<!-- Header -->
 	<div class="container">
 		<!-- Links -->
-		<%@ include file="menus.jsp" %>
+		<nav class="navbar navbar-inverse">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="#"></a>
+				</div>
+				
+			</div>
+		</nav>
 		<div class="row top-height">
 			<div class="col-md-8 ">
 					<br>
 					<br>
 					<c:choose>
-    					<c:when test="${fn:length(msg) gt 0}">
+    					<c:when test="${fn:length(map['errMsg']) gt 0}">
        						<div class="alert alert-danger">
-	 						 <strong>Error!</strong><br> ${msg}
+	 						 <strong>Error!</strong><br> ${map['errMsg']}
 						</div>
     					</c:when>    
     					<c:otherwise>
         					<div class="alert alert-success">
-	 						 <strong>Success!</strong><br> Sales Executived mapped to supplier are successfully updated.
+	 						 <strong>Success!</strong>${map['succMsg']}.
 						</div>
     					</c:otherwise>
 					</c:choose>
-					<div class="form_submit">
-						<a href="<%=request.getContextPath()%>/web/supplierWeb/supp-salesexecs/list" class="btn btn-primary">View Supplier to Sales Executives Mapping</a>
-						<a href="<%=request.getContextPath()%>/web/supplierWeb/assignSalesExecutiveForm" class="btn btn-primary">New Supplier to Sales Executives Mapping</a>
-					</div>
+					<c:choose>
+    					<c:when test="${fn:length(map['errMsg']) gt 0}">
+							<div class="form_submit">
+								<button type="submit" class="btn btn-primary" onclick="goBack()">Back</button>
+							</div>
+						</c:when>  	
+					</c:choose>	
 			</div>
 		</div>
 	</div>
+	<script>
+		function goBack() {
+   		 window.history.back();
+	}
+</script>
 	</body>
 </html>

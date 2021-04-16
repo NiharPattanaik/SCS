@@ -1,7 +1,6 @@
 package com.sales.crm.service;
 
-import java.net.Inet4Address;
-import java.util.ArrayList;
+import java.security.DrbgParameters.Reseed;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -24,8 +23,10 @@ import com.sales.crm.dao.CustomerDAO;
 import com.sales.crm.dao.ResellerDAO;
 import com.sales.crm.model.Address;
 import com.sales.crm.model.BusinessEntity;
+import com.sales.crm.model.EntityStatusEnum;
 import com.sales.crm.model.Reseller;
-import com.sales.crm.model.Role;
+import com.sales.crm.model.Tenant;
+import com.sales.crm.model.TenantType;
 import com.sales.crm.model.User;
 
 @Service("resellerService")
@@ -41,21 +42,60 @@ public class ResellerService {
 	UserService userService;
 	
 	@Autowired
+	TenantService tenantService;
+	
+	@Autowired
+	BeatService beatService;
+	
+	@Autowired
+	AreaService areaService;
+	
+	@Autowired
 	DataSourceTransactionManager transactionManager;
 	
 	public Reseller getReseller(int resellerID){
-		Reseller reseller = resellerDAO.get(resellerID);
-		reseller.setCustomers(customerService.getResellerCustomers(resellerID));
+		//Reseller reseller = resellerDAO.get(resellerID);
+		//reseller.setCustomers(customerService.getTenantCustomers(resellerID));
+		Tenant tenant = tenantService.getTenant(resellerID);
+		Reseller reseller = new Reseller();
+		reseller.setTenantID(tenant.getTenantID());
+		reseller.setName(tenant.getName());
+		reseller.setDescription(tenant.getDescription());
+		reseller.setCode(tenant.getCode());
+		reseller.setDateCreated(tenant.getDateCreated());
+		reseller.setDateModified(tenant.getDateModified());
+		//Set Address
+		reseller.setAddress(tenant.getAddress());
+		//Set Customers
+		reseller.setCustomers(customerService.getTenantCustomers(resellerID));
+		//Beats
+		reseller.setBeats(beatService.getTenantBeats(resellerID));
+		//Area
+		reseller.setAreas(areaService.getTenantAreas(resellerID));
 		return reseller;
 	}
 	
+	public void updateReseller(Reseller reseller){
+		Tenant tenant = new Tenant();
+		tenant.setAddress(reseller.getAddress());
+		tenant.setCode(reseller.getCode());
+		tenant.setDateCreated(reseller.getDateCreated());
+		tenant.setDateModified(reseller.getDateModified());
+		tenant.setDescription(reseller.getDescription());
+		tenant.setName(reseller.getName());
+		tenant.setStatusID(reseller.getStatusID());
+		tenant.setStatusText(reseller.getStatusText());
+		tenant.setTenantID(reseller.getResellerID());
+		tenant.setTenantType(TenantType.RESELLER.getTenantType());
+		tenantService.updateTenant(tenant);
+	}
+	
+	
+	/**
 	public void createReseller(Reseller reseller) throws Exception{
 		resellerDAO.create(reseller);
 	}
 	
-	public void updateReseller(Reseller reseller){
-		resellerDAO.update(reseller);
-	}
 	
 	public void deleteReseller(int resellerID){
 		resellerDAO.delete(resellerID);
@@ -65,6 +105,7 @@ public class ResellerService {
 		return resellerDAO.isEmailIDAlreadyUsed(emailID);
 	}
 	
+	*/
 	public List<Reseller> getResellers() throws Exception{
 		return resellerDAO.getResellers();
 	}
@@ -73,13 +114,13 @@ public class ResellerService {
 		try{
 			Reseller reseller = resellerDAO.get(resellerID);
 			//update reseller
-			reseller.setStatus(BusinessEntity.STATUS_ACTIVE);
+			reseller.setStatusID(EntityStatusEnum.ACTIVE.getEntityStatus());
 			resellerDAO.update(reseller);
 			//create user
 			User user = new User();
 			
 			user.setPassword(String.valueOf(new Date().getTime()));
-			user.setResellerID(resellerID);
+			user.setTenantID(resellerID);
 			for(Address address : reseller.getAddress()){
 				if(address.getAddrressType() == 1){
 					user.setEmailID(address.getEmailID());

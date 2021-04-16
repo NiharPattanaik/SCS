@@ -37,15 +37,16 @@ public class OTPDAOImpl implements OTPDAO{
 		try {
 			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
-			Query query = session.createQuery("from CustomerOTP where customerID = :customerID and otpType = :otpType and DATE(otpGeneratedDateTime) = current_date()");
+			Query query = session.createQuery("from CustomerOTP where customerID = :customerID and otpType = :otpType and DATE(otpGeneratedDateTime) = current_date() and tenantID = :tenantID");
 			query.setParameter("customerID", customerOTP.getCustomerID());
 			query.setParameter("otpType", customerOTP.getOtpType());
+			query.setParameter("tenantID", customerOTP.getTenantID());
 			dbCustomerOTPList = query.list();
 			if(dbCustomerOTPList != null && dbCustomerOTPList.size() > 0){
 				for(CustomerOTP dbCustomerOTP : dbCustomerOTPList){
 					if(dbCustomerOTP.getSubmiitedOTP() != null ||
 							dbCustomerOTP.getOtpSubmitedDateTime() != null){
-						logger.error("OTP is already used for customer "+ customerOTP.getCompanyID() + " of OTP Type "+customerOTP.getOtpType() );	
+						logger.error("OTP is already used for customer "+ customerOTP.getTenantID() + " of OTP Type "+customerOTP.getOtpType() );	
 						throw new CRMException(ErrorCodes.OTP_ALREADY_VERIFIED, "OTP for this customer is already used");
 					}else{
 						logger.warn("OTP generated earlier but not used and regenerating again.");
@@ -75,14 +76,15 @@ public class OTPDAOImpl implements OTPDAO{
 
 	
 	@Override
-	public void removeGeneratedOTP(int otpID) throws Exception{
+	public void removeGeneratedOTP(int otpID, int tenantID) throws Exception{
 		Session session = null;
 		Transaction transaction = null;
 		try{
 			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
-			SQLQuery query = session.createSQLQuery("DELETE FROM CUSTOMER_OTP WHERE ID=? ");
+			SQLQuery query = session.createSQLQuery("DELETE FROM CUSTOMER_OTP WHERE ID=? AND TENANT_ID = ?");
 			query.setParameter( 0, otpID);
+			query.setParameter( 1, tenantID);
 			query.executeUpdate();
 			transaction.commit();
 		}catch(Exception exception){
@@ -108,23 +110,25 @@ public class OTPDAOImpl implements OTPDAO{
 	 * @throws Exception
 	 */
 	@Override
-	public void verifyAndStoreOTP(int customerID, int otpType, String otp) throws Exception{
+	public void verifyAndStoreOTP(int customerID, int otpType, String otp, int tenantID) throws Exception{
 		Session session = null;
 		Transaction transaction = null;
 		try{
 			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
-			SQLQuery query = session.createSQLQuery(" SELECT ID FROM CUSTOMER_OTP WHERE CUSTOMER_ID= ? AND OTP_TYPE= ? AND GENERTAED_OTP= ? AND DATE(GENERATED_DATE_TIME)= CURDATE() AND SUBMITTED_DATE_TIME IS NULL AND SUBMITTED_OTP IS NULL");
+			SQLQuery query = session.createSQLQuery(" SELECT ID FROM CUSTOMER_OTP WHERE CUSTOMER_ID= ? AND OTP_TYPE= ? AND GENERTAED_OTP= ? AND TENANT_ID = ? AND DATE(GENERATED_DATE_TIME)= CURDATE() AND SUBMITTED_DATE_TIME IS NULL AND SUBMITTED_OTP IS NULL");
 			query.setParameter(0, customerID);
 			query.setParameter(1, otpType);
 			query.setParameter(2, otp);
+			query.setParameter(3, tenantID);
 			List results = query.list();
 			if(results != null && results.size() == 1){
 				for(Object obj : results){
 					int otpID = Integer.valueOf(String.valueOf(obj));
-					SQLQuery updateQuery = session.createSQLQuery("UPDATE CUSTOMER_OTP SET SUBMITTED_OTP=?, SUBMITTED_DATE_TIME=NOW(), DATE_MODIFIED=CURDATE() WHERE ID=? ");
+					SQLQuery updateQuery = session.createSQLQuery("UPDATE CUSTOMER_OTP SET SUBMITTED_OTP=?, SUBMITTED_DATE_TIME=NOW(), DATE_MODIFIED=CURDATE() WHERE ID=? AND TENANT_ID = ? ");
 					updateQuery.setParameter(0, otp);
 					updateQuery.setParameter(1, otpID);
+					updateQuery.setParameter(2, tenantID);
 					updateQuery.executeUpdate();
 				}
 			}else{
@@ -146,14 +150,15 @@ public class OTPDAOImpl implements OTPDAO{
 	}
 	
 	@Override
-	public void verifyOTP(int customerID, int otpType, String otp) throws Exception{
+	public void verifyOTP(int customerID, int otpType, String otp, int tenantID) throws Exception{
 		Session session = null;
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery(" SELECT ID FROM CUSTOMER_OTP WHERE CUSTOMER_ID= ? AND OTP_TYPE= ? AND GENERTAED_OTP= ? AND DATE(GENERATED_DATE_TIME)= CURDATE() AND SUBMITTED_DATE_TIME IS NULL AND SUBMITTED_OTP IS NULL");
+			SQLQuery query = session.createSQLQuery(" SELECT ID FROM CUSTOMER_OTP WHERE CUSTOMER_ID= ? AND OTP_TYPE= ? AND GENERTAED_OTP= ? AND TENANT_ID = ? AND DATE(GENERATED_DATE_TIME)= CURDATE() AND SUBMITTED_DATE_TIME IS NULL AND SUBMITTED_OTP IS NULL");
 			query.setParameter(0, customerID);
 			query.setParameter(1, otpType);
 			query.setParameter(2, otp);
+			query.setParameter(3, tenantID);
 			List results = query.list();
 			if(results != null && results.size() == 1){
 				//
@@ -172,23 +177,23 @@ public class OTPDAOImpl implements OTPDAO{
 	}
 	
 	@Override
-	public List<CustomerOTP> getOTPReport(int resellerID){
+	public List<CustomerOTP> getOTPReport(int tenantID){
 		Session session = null;
 		List<CustomerOTP> customerOTPs = new ArrayList<CustomerOTP>();
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT a.*, b.NAME, c.FIRST_NAME, c.LAST_NAME FROM CUSTOMER_OTP a, CUSTOMER b, USER c WHERE a.CUSTOMER_ID = b.ID AND a.FIELD_EXEC_ID = c.ID AND a.RESELLER_ID = ? ORDER BY DATE_CREATED DESC");
-			query.setParameter(0, resellerID);
+			SQLQuery query = session.createSQLQuery("SELECT a.*, b.NAME, c.FIRST_NAME, c.LAST_NAME FROM CUSTOMER_OTP a, CUSTOMER b, USER c WHERE a.CUSTOMER_ID = b.ID AND a.FIELD_EXEC_ID = c.ID AND a.TENANT_ID = ? ORDER BY DATE_CREATED DESC");
+			query.setParameter(0, tenantID);
 			List results = query.list();
 			if(results != null && results.size() > 0){
 				for(Object obj : results){
 					Object[] objs = (Object[])obj;
 					CustomerOTP customerOTP = new CustomerOTP();
 					customerOTP.setOtpID(Integer.parseInt(String.valueOf(objs[0])));
-					customerOTP.setCustomerName(String.valueOf(objs[13]));
-					customerOTP.setSalesExecName(String.valueOf(objs[14]) +" "+ String.valueOf(objs[15]));
-					customerOTP.setGenaratedOTP(String.valueOf(objs[4]));
-					int otpType = Integer.valueOf(String.valueOf(objs[6]));
+					customerOTP.setCustomerName(String.valueOf(objs[12]));
+					customerOTP.setSalesExecName(String.valueOf(objs[13]) +" "+ String.valueOf(objs[14]));
+					customerOTP.setGenaratedOTP(String.valueOf(objs[3]));
+					int otpType = Integer.valueOf(String.valueOf(objs[5]));
 					switch(otpType){
 					case 1:
 						customerOTP.setOtpStringType("Order Booking");
@@ -200,9 +205,10 @@ public class OTPDAOImpl implements OTPDAO{
 						customerOTP.setOtpStringType("Payment Confirmation");
 						break;
 					}
-					customerOTP.setOtpStatus(String.valueOf(objs[5]).equals("null") ? "Not Used" : "Verified");
-					customerOTP.setStringDateGenerated(String.valueOf(objs[7]));
-					customerOTP.setStringDateUsed(String.valueOf(objs[8]).equals("null") ? "" : String.valueOf(objs[8]));
+					//customerOTP.setOtpStatus(String.valueOf(objs[5]).equals("null") ? "Not Used" : "Verified");
+					customerOTP.setStringDateGenerated(String.valueOf(objs[6]));
+					customerOTP.setStringDateUsed(String.valueOf(objs[7]).equals("null") ? "" : String.valueOf(objs[7]));
+					customerOTP.setTenantID(Integer.parseInt(String.valueOf(objs[9])));
 					customerOTPs.add(customerOTP);
 				}
 			}

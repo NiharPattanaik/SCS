@@ -1,28 +1,22 @@
 package com.sales.crm.model;
 
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
 @Entity
 @Table(name = "CUSTOMER")
 @AttributeOverrides({
-	@AttributeOverride(name = "companyID", column = @Column(name = "COMPANY_ID")),
+	@AttributeOverride(name = "statusID", column = @Column(name = "STATUS_ID")),
+	@AttributeOverride(name = "tenantID", column = @Column(name = "TENANT_ID")),
 	@AttributeOverride(name = "dateCreated", column = @Column(name = "DATE_CREATED")),
 	@AttributeOverride(name = "dateModified", column = @Column(name = "DATE_MODIFIED"))})
 public class Customer extends BusinessEntity{
@@ -34,8 +28,8 @@ public class Customer extends BusinessEntity{
 	@Column(name = "ID", unique = true, nullable = false)
 	private int customerID;
 	
-	@Column(name = "RESELLER_ID")
-	private int resellerID;
+	@Column(name = "CODE")
+	private String code;
 	
 	@Column(name = "NAME")
 	private String name;
@@ -43,10 +37,9 @@ public class Customer extends BusinessEntity{
 	@Column(name = "DESCRIPTION")
 	private String description;
 	
-	@Column(name = "VISIT_DATE")
-	private Date visitDate;
 	
-	@OneToMany(orphanRemoval=true, cascade=CascadeType.ALL, fetch=FetchType.EAGER)
+	//@OneToMany(orphanRemoval=true, cascade=CascadeType.ALL, fetch=FetchType.EAGER)
+	@Transient
 	private List<Address> address;
 	
 	@Transient
@@ -67,17 +60,24 @@ public class Customer extends BusinessEntity{
 	@Transient
 	private String customerIDStr;
 	
+	@Transient
+	private boolean isOrderingProcessInProgress;
+	
+	@Transient
+	private String statusAsString;
+	
 	public int getCustomerID() {
 		return customerID;
 	}
 	public void setCustomerID(int customerID) {
 		this.customerID = customerID;
 	}
-	public int getResellerID() {
-		return resellerID;
+	
+	public String getCode() {
+		return code;
 	}
-	public void setResellerID(int resellerID) {
-		this.resellerID = resellerID;
+	public void setCode(String code) {
+		this.code = code;
 	}
 	public String getName() {
 		return name;
@@ -91,12 +91,7 @@ public class Customer extends BusinessEntity{
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public Date getVisitDate() {
-		return visitDate;
-	}
-	public void setVisitDate(Date visitDate) {
-		this.visitDate = visitDate;
-	}
+	
 	public List<Address> getAddress() {
 		return address;
 	}
@@ -134,6 +129,122 @@ public class Customer extends BusinessEntity{
 	}
 	public void setBeatName(String beatName) {
 		this.beatName = beatName;
+	}
+	
+	public String getCustomerIDStr() {
+		return customerIDStr;
+	}
+	public void setCustomerIDStr(String customerIDStr) {
+		this.customerIDStr = customerIDStr;
+	}
+	
+	public boolean getIsOrderingProcessInProgress() {
+		return isOrderingProcessInProgress;
+	}
+	public void setOrderingProcessInProgress(boolean isOrderingProcessInProgress) {
+		this.isOrderingProcessInProgress = isOrderingProcessInProgress;
+	}
+	
+	public String getStatusAsString() {
+		return statusAsString;
+	}
+	public void setStatusAsString(String statusAsString) {
+		this.statusAsString = statusAsString;
+	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((address == null) ? 0 : address.hashCode());
+		result = prime * result + ((beatIDs == null) ? 0 : beatIDs.hashCode());
+		result = prime * result + ((beatName == null) ? 0 : beatName.hashCode());
+		result = prime * result + ((beats == null) ? 0 : beats.hashCode());
+		result = prime * result + ((code == null) ? 0 : code.hashCode());
+		result = prime * result + customerID;
+		result = prime * result + ((customerIDStr == null) ? 0 : customerIDStr.hashCode());
+		result = prime * result + ((description == null) ? 0 : description.hashCode());
+		result = prime * result + (isOrderingProcessInProgress ? 1231 : 1237);
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + salesExecID;
+		result = prime * result + ((salesExecName == null) ? 0 : salesExecName.hashCode());
+		result = prime * result + ((statusAsString == null) ? 0 : statusAsString.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Customer other = (Customer) obj;
+		if (address == null) {
+			if (other.address != null)
+				return false;
+		} else if (!address.equals(other.address))
+			return false;
+		if (beatIDs == null) {
+			if (other.beatIDs != null)
+				return false;
+		} else if (!beatIDs.equals(other.beatIDs))
+			return false;
+		if (beatName == null) {
+			if (other.beatName != null)
+				return false;
+		} else if (!beatName.equals(other.beatName))
+			return false;
+		if (beats == null) {
+			if (other.beats != null)
+				return false;
+		} else if (!beats.equals(other.beats))
+			return false;
+		if (code == null) {
+			if (other.code != null)
+				return false;
+		} else if (!code.equals(other.code))
+			return false;
+		if (customerID != other.customerID)
+			return false;
+		if (customerIDStr == null) {
+			if (other.customerIDStr != null)
+				return false;
+		} else if (!customerIDStr.equals(other.customerIDStr))
+			return false;
+		if (description == null) {
+			if (other.description != null)
+				return false;
+		} else if (!description.equals(other.description))
+			return false;
+		if (isOrderingProcessInProgress != other.isOrderingProcessInProgress)
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (salesExecID != other.salesExecID)
+			return false;
+		if (salesExecName == null) {
+			if (other.salesExecName != null)
+				return false;
+		} else if (!salesExecName.equals(other.salesExecName))
+			return false;
+		if (statusAsString == null) {
+			if (other.statusAsString != null)
+				return false;
+		} else if (!statusAsString.equals(other.statusAsString))
+			return false;
+		return true;
+	}
+	@Override
+	public String toString() {
+		return "Customer [customerID=" + customerID + ", code=" + code + ", name=" + name + ", description="
+				+ description + ", address=" + address + ", salesExecID=" + salesExecID + ", salesExecName="
+				+ salesExecName + ", beatName=" + beatName + ", beatIDs=" + beatIDs + ", beats=" + beats
+				+ ", customerIDStr=" + customerIDStr + ", isOrderingProcessInProgress=" + isOrderingProcessInProgress
+				+ ", statusAsString=" + statusAsString + ", tenantID=" + tenantID + ", dateCreated=" + dateCreated
+				+ ", dateModified=" + dateModified + ", statusID=" + statusID + "]";
 	}
 	
 	

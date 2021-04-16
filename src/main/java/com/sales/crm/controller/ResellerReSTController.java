@@ -1,14 +1,8 @@
 package com.sales.crm.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,7 +16,7 @@ public class ResellerReSTController {
 	@Autowired
 	ResellerService resellerService;
 	
-	
+	/**
 	@PutMapping
 	public ResponseEntity<Reseller> create(@RequestBody Reseller reseller){
 		try {
@@ -33,12 +27,14 @@ public class ResellerReSTController {
 		}
 		return new ResponseEntity<Reseller>(reseller, HttpStatus.CREATED);
 	}
+	*/
 	
 	@GetMapping(value="/{resellerID}")
 	public Reseller get(@PathVariable int resellerID){
 		return resellerService.getReseller(resellerID);
 	}
 	
+	/**
 	@PostMapping
 	public ResponseEntity<Reseller> update(@RequestBody Reseller reseller){
 		resellerService.updateReseller(reseller);
@@ -49,6 +45,6 @@ public class ResellerReSTController {
 	public void delete(@PathVariable int resellerID){
 		resellerService.deleteReseller(resellerID);
 	}
-	
+	*/
 	
 }

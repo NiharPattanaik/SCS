@@ -16,10 +16,11 @@ import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.sales.crm.dao.CustomerDAO;
-import com.sales.crm.dao.ResellerDAO;
+import com.sales.crm.dao.TenantDAO;
 import com.sales.crm.model.Address;
 import com.sales.crm.model.Customer;
 import com.sales.crm.model.Reseller;
+import com.sales.crm.model.Tenant;
 import com.sales.crm.model.User;
 import com.sales.crm.service.CustomerService;
 import com.sales.crm.service.UserService;
@@ -45,7 +46,7 @@ public class ResellerCustomerDataTest {
 	Session session;
 	
 	static ClassPathXmlApplicationContext context ;
-	static ResellerDAO dao;
+	static TenantDAO dao;
 	static CustomerDAO customerDAO;
 	static CustomerService customerService;
 	static UserService userService;
@@ -54,7 +55,7 @@ public class ResellerCustomerDataTest {
 	public static void init() {
 		context = new ClassPathXmlApplicationContext("Hibernate-Spring.xml");
 		try{
-			dao = (ResellerDAO) context.getBean("resellerDAO");
+			dao = (TenantDAO) context.getBean("tenantDAO");
 			customerDAO = (CustomerDAO) context.getBean("customerDAO");
 			customerService = (CustomerService)context.getBean("customerService");
 			userService = (UserService)context.getBean("userService");
@@ -156,7 +157,7 @@ public class ResellerCustomerDataTest {
 				customer1 = new Customer();
 		customer1.setName("cust1");
 		customer1.setDescription("cust1_desc");
-		customer1.setVisitDate(new Date());
+		//customer1.setVisitDate(new Date());
 		customer1.setDateCreated(new Date());
 		List<Address> address = new ArrayList<Address>();
 		address.add(main_customer1Add);
@@ -167,7 +168,7 @@ public class ResellerCustomerDataTest {
 		customer2 = new Customer();
 		customer2.setName("cust2");
 		customer2.setDescription("cust2_desc");
-		customer2.setVisitDate(new Date());
+		//customer2.setVisitDate(new Date());
 		customer2.setDateCreated(new Date());
 		
 		
@@ -198,7 +199,7 @@ public class ResellerCustomerDataTest {
 		user.setLastName("test_n_name");
 		user.setMobileNo("test_m_number");
 		user.setPassword("test_pass");
-		user.setResellerID(13);
+		user.setTenantID(13);
 		try{
 			userService.createUser(user);
 		}catch(Exception exception){
@@ -211,7 +212,7 @@ public class ResellerCustomerDataTest {
 	@Test
 	public void getTrimmedCustomers(){
 		try{
-			customerService.getResellerTrimmedCustomers(13);
+			customerService.getTenantTrimmedCustomers(13);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -219,7 +220,7 @@ public class ResellerCustomerDataTest {
 	
 	@Test
 	public void testGetCustomer(){
-		customerDAO.get(22);
+		//customerDAO.get(22);
 	}
 
 	@Test
@@ -233,13 +234,13 @@ public class ResellerCustomerDataTest {
 
 			// Insert
 			dao.create(reseller);
-			int id = reseller.getResellerID();
+			int id = reseller.getTenantID();
 
 			// Fetch
-			Reseller reseller1 = dao.get(id);
+			Tenant tenant1 = dao.get(id);
 
 			// Test
-			assertEquals(reseller.getName(), reseller1.getName());
+			assertEquals(reseller.getName(), tenant1.getName());
 
 			// Delete
 			// dao.delete(reseller1.getResellerID());
@@ -289,7 +290,7 @@ public class ResellerCustomerDataTest {
 	@Test
 	public void testGetResellerCustomers(){
 		try{
-			customerDAO.getResellerCustomers(13);
+			customerDAO.getTenantCustomers(13);
 		}catch(Exception exception){
 			exception.printStackTrace();
 		}
@@ -353,7 +354,7 @@ public class ResellerCustomerDataTest {
 			reseller.setAddress(addresses);
 			//Save Reseller
 			session.save(reseller);
-			int id = reseller.getResellerID();
+			int id = reseller.getTenantID();
 
 			// Fetch Reseller
 			Reseller reseller = (Reseller) session.load(Reseller.class, id);
@@ -396,16 +397,16 @@ public class ResellerCustomerDataTest {
 			session.beginTransaction();
 			//Save Reseller
 			session.save(reseller);
-			int resellerId = reseller.getResellerID();
+			int tenantID = reseller.getTenantID();
 			
-			customer1.setResellerID(resellerId);
-			customer2.setResellerID(resellerId);
+			customer1.setTenantID(tenantID);
+			customer2.setTenantID(tenantID);
 			
 			//Save Customer
 			
 			
 			//Fetch Reseller
-			Reseller reseller1 = (Reseller)session.load(Reseller.class, resellerId);
+			Reseller reseller1 = (Reseller)session.load(Reseller.class, tenantID);
 			
 			assertEquals(2, reseller1.getCustomers().size());
 			

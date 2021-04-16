@@ -5,7 +5,7 @@
 <html lang="en">
 
 <head>
-	<title>Supplier Details</title>
+	<title>Manufacturer Details</title>
 	<!-- Bootstrap Core CSS -->
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -83,18 +83,18 @@ legend {
 		<%@ include file="menus.jsp" %>
 		<div class="row customer_list">
 			<div class="col-md-4">
-				<h2>Suppliers Details</h2>
+				<h2>Manufacturer Details</h2>
 			</div>
 			<div class="col-md-4 add_customer">
-				<% if(resourcePermIDs.contains(ResourcePermissionEnum.SUPPLIER_UPDATE.getResourcePermissionID())) { %>
+				<% if(resourcePermIDs.contains(ResourcePermissionEnum.MANUFACTURER_UPDATE.getResourcePermissionID())) { %>
 					<button type="submit" class="btn btn-primary"
-						onclick="location.href='<%=request.getContextPath()%>/web/supplierWeb/editSupplierForm/${supplier.supplierID}';">
-						Modify Supplier</button>
+						onclick="location.href='<%=request.getContextPath()%>/web/manufacturerWeb/editManufacturerForm/${manufacturer.manufacturerID}';">
+						Modify Manufacturer</button>
 				<% } %>
 				
-				<% if(resourcePermIDs.contains(ResourcePermissionEnum.SUPPLIER_DELETE.getResourcePermissionID())) { %>
+				<% if(resourcePermIDs.contains(ResourcePermissionEnum.MANUFACTURER_DELETE.getResourcePermissionID())) { %>
 					<button type="submit" class="btn btn-primary" id="deleteBtn" data-toggle="modal" data-target="#confirm">
-						Delete Supplier</button>
+						Delete Manufacturer</button>
 				<% } %>		
 			</div>
 		</div>
@@ -102,112 +102,112 @@ legend {
 			<div class="col-md-8 ">
 
 				<fieldset>
-					<legend>Supplier Details</legend>
+					<legend>Manufacturer Details</legend>
 					<div>
-						<label>Name : </label> <span>${supplier.name}</span>
+						<label>Name : </label> <span>${manufacturer.name}</span>
 					</div>
 					<div class="form-group">
-						<label>Description :</label> <span>${supplier.description}</span>
+						<label>Description :</label> <span>${manufacturer.description}</span>
 					</div>
 				</fieldset>
 				
 				<fieldset>
 					<legend>Sales Officer</legend>
 						<div class="form-group">
-							<label>Name : </label> <span>${supplier.salesOfficer.name}</span>
+							<label>Name : </label> <span>${manufacturer.salesOfficer.name}</span>
 						</div>
 						<div class="form-group">
-							<label>Effective From :</label> <span>${supplier.salesOfficer.effectiveFromStr}</span>
+							<label>Effective From :</label> <span>${manufacturer.salesOfficer.effectiveFromStr}</span>
 						</div>
 						<div class="form-group">
-							<label>Contact Number :</label> <span>${supplier.salesOfficer.contactNo}</span>
+							<label>Contact Number :</label> <span>${manufacturer.salesOfficer.contactNo}</span>
 						</div>
 				</fieldset>
 				
 				<fieldset>
 					<legend>Area Manager</legend>
 						<div class="form-group">
-							<label>Name : </label> <span>${supplier.areaManager.name}</span>
+							<label>Name : </label> <span>${manufacturer.areaManager.name}</span>
 						</div>
 						<div class="form-group">
-							<label>Effective From :</label> <span>${supplier.areaManager.effectiveFromStr}</span>
+							<label>Effective From :</label> <span>${manufacturer.areaManager.effectiveFromStr}</span>
 						</div>
 						<div class="form-group">
-							<label>Contact Number :</label> <span>${supplier.areaManager.contactNo}</span>
+							<label>Contact Number :</label> <span>${manufacturer.areaManager.contactNo}</span>
 						</div>
 				</fieldset>
 
 				<fieldset>
 					<legend>Main Address</legend>
 					<div class="form-group">
-						<label>Contact Person :</label> <span>${supplier.address[0].contactPerson}</span>
+						<label>Contact Person :</label> <span>${manufacturer.address[0].contactPerson}</span>
 					</div>
 					<div class="form-group">
-						<label>Address Line 1 :</label> <span>${supplier.address[0].addressLine1}</span>
+						<label>Address Line 1 :</label> <span>${manufacturer.address[0].addressLine1}</span>
 					</div>
 					<div class="form-group">
-						<label>Address Line 2 :</label> <span>${supplier.address[0].addressLine2}</span>
+						<label>Address Line 2 :</label> <span>${manufacturer.address[0].addressLine2}</span>
 					</div>
 					<div class="form-group">
-						<label>Street :</label> <span>${supplier.address[0].street}</span>
+						<label>Street :</label> <span>${manufacturer.address[0].street}</span>
 					</div>
 					<div class="form-group">
-						<label>City :</label> <span>${supplier.address[0].city}</span>
+						<label>City :</label> <span>${manufacturer.address[0].city}</span>
 					</div>
 					<div class="form-group">
-						<label>State :</label> <span>${supplier.address[0].state}</span>
+						<label>State :</label> <span>${manufacturer.address[0].state}</span>
 					</div>
 					<div class="form-group">
-						<label>Country : </label> <span>${supplier.address[0].country}</span>
+						<label>Country : </label> <span>${manufacturer.address[0].country}</span>
 					</div>
 					<div class="form-group">
-						<label>Postal Code :</label> <span>${supplier.address[0].postalCode}</span>
+						<label>Postal Code :</label> <span>${manufacturer.address[0].postalCode}</span>
 					</div>
 					<div class="form-group">
-						<label>Phone Number :</label> <span>${supplier.address[0].phoneNumber}</span>
+						<label>Phone Number :</label> <span>${manufacturer.address[0].phoneNumber}</span>
 					</div>
 					<div class="form-group">
-						<label>Mobile Number(Primary) :</label> <span>${supplier.address[0].mobileNumberPrimary}</span>
+						<label>Mobile Number(Primary) :</label> <span>${manufacturer.address[0].mobileNumberPrimary}</span>
 					</div>
 					<div class="form-group">
-						<label>Mobile Number(Secondary) :</label> <span>${supplier.address[0].mobileNumberSecondary}</span>
+						<label>Mobile Number(Secondary) :</label> <span>${manufacturer.address[0].mobileNumberSecondary}</span>
 					</div>
 				</fieldset>
-				<c:if test="${not empty supplier.address[1]}">
+				<c:if test="${not empty manufacturer.address[1]}">
 					<fieldset>
 						<legend>Billing Address</legend>
 						<div class="form-group">
-							<label>Contact Person :</label> <span>${supplier.address[1].contactPerson}</span>
+							<label>Contact Person :</label> <span>${manufacturer.address[1].contactPerson}</span>
 						</div>
 						<div class="form-group">
-							<label>Address Line 1 :</label> <span>${supplier.address[1].addressLine1}</span>
+							<label>Address Line 1 :</label> <span>${manufacturer.address[1].addressLine1}</span>
 						</div>
 						<div class="form-group">
-							<label>Address Line 2 :</label> <span>${supplier.address[1].addressLine2}</span>
+							<label>Address Line 2 :</label> <span>${manufacturer.address[1].addressLine2}</span>
 						</div>
 						<div class="form-group">
-							<label>Street :</label> <span>${supplier.address[1].street}</span>
+							<label>Street :</label> <span>${manufacturer.address[1].street}</span>
 						</div>
 						<div class="form-group">
-							<label>City :</label> <span>${supplier.address[1].city}</span>
+							<label>City :</label> <span>${manufacturer.address[1].city}</span>
 						</div>
 						<div class="form-group">
-							<label>State :</label> <span>${supplier.address[1].state}</span>
+							<label>State :</label> <span>${manufacturer.address[1].state}</span>
 						</div>
 						<div class="form-group">
-							<label>Country : </label> <span>${supplier.address[1].country}</span>
+							<label>Country : </label> <span>${manufacturer.address[1].country}</span>
 						</div>
 						<div class="form-group">
-							<label>Postal Code :</label> <span>${supplier.address[1].postalCode}</span>
+							<label>Postal Code :</label> <span>${manufacturer.address[1].postalCode}</span>
 						</div>
 						<div class="form-group">
-							<label>Phone Number :</label> <span>${supplier.address[1].phoneNumber}</span>
+							<label>Phone Number :</label> <span>${manufacturer.address[1].phoneNumber}</span>
 						</div>
 						<div class="form-group">
-							<label>Mobile Number(Primary) :</label> <span>${supplier.address[1].mobileNumberPrimary}</span>
+							<label>Mobile Number(Primary) :</label> <span>${manufacturer.address[1].mobileNumberPrimary}</span>
 						</div>
 						<div class="form-group">
-							<label>Mobile Number(Secondary) :</label> <span>${supplier.address[1].mobileNumberSecondary}</span>
+							<label>Mobile Number(Secondary) :</label> <span>${manufacturer.address[1].mobileNumberSecondary}</span>
 						</div>
 					</fieldset>
 				</c:if>
@@ -217,7 +217,7 @@ legend {
 						style="width: 200px; min-height: 2px; max-height: 100px; overflow-y: auto;"
 						id="checks">
 						<ul>
-							<c:forEach var="beat" items="${supplier.beats}">
+							<c:forEach var="beat" items="${manufacturer.beats}">
 								<li><a href="<%=request.getContextPath()%>/web/beatWeb/${beat.beatID}">${beat.name}</a></li>
 							</c:forEach>
 						</ul>
@@ -232,10 +232,10 @@ legend {
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<b>Confirm removal of supplier.</b>
+					<b>Confirm removal of manufacturer.</b>
 				</div>
 				<div class="modal-body">
-					Are you sure you want to remove the supplier, <span><b>${supplier.name}</b></span>
+					Are you sure you want to remove the manufacturer, <span><b>${manufacturer.name}</b></span>
 					?
 				</div>
 				<div class="modal-custom-footer">
@@ -243,7 +243,7 @@ legend {
 					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
 					<script type="text/javascript">
 						$('#modalSubmit').click(function(){
-						   window.location.href = "/crm/web/supplierWeb/delete/${supplier.supplierID}"
+						   window.location.href = "/crm/web/manufacturerWeb/delete/${manufacturer.manufacturerID}"
 						});
 					</script>
 				</div>

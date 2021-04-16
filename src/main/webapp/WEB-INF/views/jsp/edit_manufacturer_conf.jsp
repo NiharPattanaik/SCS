@@ -8,7 +8,7 @@
 <html lang="en">
 
 <head>
-<title>Create Manufacturer</title>
+<title>Edit Manufacturer</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
@@ -91,6 +91,7 @@
 					</c:choose>
 					<div class="form_submit">
 						<a href="<%=request.getContextPath()%>/web/manufacturerWeb/list" class="btn btn-primary">View List Of Manufacturers</a>
+						<a href="<%=request.getContextPath()%>/web/manufacturerWeb/${map['manufacturerID']}" class="btn btn-primary">View Detail</a>
 					</div>
 			</div>
 		</div>

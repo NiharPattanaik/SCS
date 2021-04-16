@@ -10,7 +10,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
@@ -26,7 +25,6 @@ import org.springframework.web.servlet.ModelAndView;
 import com.sales.crm.model.Beat;
 import com.sales.crm.model.DeliveryBookingSchedule;
 import com.sales.crm.model.DeliveryExecutive;
-import com.sales.crm.model.OrderBookingSchedule;
 import com.sales.crm.service.BeatService;
 import com.sales.crm.service.DeliveryExecService;
 
@@ -46,24 +44,27 @@ public class DeliveryExecWebController {
 
 	@GetMapping(value="/scheduledDeliveryBookings")
 	public ModelAndView getScheduledDeliveryBookingsList(){
-		List<DeliveryExecutive> delivExecs = deliveryExecService.getDeliveryExecutivesScheduled(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
+		List<DeliveryExecutive> delivExecs = deliveryExecService.getDeliveryExecutivesScheduled(tenantID);
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		modelMap.put("delivExecs", delivExecs);
 		modelMap.put("deliveryBookingSchedule", new DeliveryBookingSchedule());
+		modelMap.put("tenantID", tenantID);
 		return new ModelAndView("/delivery_booking_list", modelMap);
 	}
 	
 	@GetMapping(value="/beatlist")
 	public ModelAndView salesExecBeatsList(){
-		List<DeliveryExecutive> delivExecs = deliveryExecService.getDelivExecutivesHavingBeatsAssigned(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		List<DeliveryExecutive> delivExecs = deliveryExecService.getDelivExecutivesHavingBeatsAssigned(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		return new ModelAndView("/delivexec_beats_list","delivExecs", delivExecs);  
 	}
 	
 	@GetMapping(value="/assignBeatForm") 
 	public ModelAndView assignBeatToSalesExecForm(){
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
 		Map<String, Object> modelMap = new HashMap<String, Object>();
-		List<DeliveryExecutive> delivExecs = deliveryExecService.getDeliveryExecutives(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
-		List<Beat> beats = beatService.getResellerBeats(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")))) ;
+		List<DeliveryExecutive> delivExecs = deliveryExecService.getDeliveryExecutives(tenantID);
+		List<Beat> beats = beatService.getTenantBeats(tenantID) ;
 		modelMap.put("delivExecs", delivExecs);
 		modelMap.put("beats", beats);
 		modelMap.put("delivExec", new DeliveryExecutive());
@@ -71,11 +72,12 @@ public class DeliveryExecWebController {
 	}
 	
 	@PostMapping(value="/assignBeat") 
-	public ModelAndView assignBeatToSalesExec(@ModelAttribute("delivExec") DeliveryExecutive delivExec){
+	public ModelAndView assignBeatToSalesExec(@ModelAttribute("delivExec") DeliveryExecutive delivExec) {
 		String msg = "";
-		try{
-			deliveryExecService.assignBeats(delivExec.getUserID(),delivExec.getBeatIDLists());
-		}catch(Exception exception){
+		try {
+			deliveryExecService.assignBeats(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))),
+					delivExec.getUserID(), delivExec.getBeatIDLists());
+		} catch (Exception exception) {
 			msg = "Delivery Executive to Beats assignment could not be processed successfully. Please contact System Administrator.";
 		}
 		return new ModelAndView("/delivery_exec_assign_beats_conf", "msg", msg);
@@ -83,9 +85,10 @@ public class DeliveryExecWebController {
 	
 	@GetMapping(value="/assignBeatEditForm/{delivExecID}") 
 	public ModelAndView assignBeatToSalesExecEditForm(@PathVariable int delivExecID){
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
 		Map<String, Object> modelMap = new HashMap<String, Object>();
-		DeliveryExecutive delivExec = deliveryExecService.getDelivExecutive(delivExecID);
-		List<Beat> beats = beatService.getResellerBeats(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		DeliveryExecutive delivExec = deliveryExecService.getDelivExecutive(delivExecID, tenantID);
+		List<Beat> beats = beatService.getTenantBeats(tenantID);
 		modelMap.put("delivExec", delivExec);
 		modelMap.put("beats", beats);
 		return new ModelAndView("/edit_assigned_beats_to_delivery_exec", modelMap);
@@ -95,7 +98,7 @@ public class DeliveryExecWebController {
 	public ModelAndView updateAssignedBeat(@ModelAttribute("delivExec") DeliveryExecutive delivExec){
 		String msg = "";
 		try{
-			deliveryExecService.updateAssignedBeats(delivExec.getUserID(), delivExec.getBeatIDLists());
+			deliveryExecService.updateAssignedBeats(delivExec.getTenantID(), delivExec.getUserID(), delivExec.getBeatIDLists());
 		}catch(Exception exception){
 			msg = "Beats assigned to Delivery Executive could not be updated successfully. Please contact System Administrator.";
 		}
@@ -106,7 +109,7 @@ public class DeliveryExecWebController {
 	public ModelAndView deleteBeatAssignment(@PathVariable int delivExecID){
 		String msg = "";
 		try{
-			deliveryExecService.deleteBeatAssignment(delivExecID);
+			deliveryExecService.deleteBeatAssignment(delivExecID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		}catch(Exception exception){
 			msg = "Beats associated to Delivery Executive could not be removed successfully. Please contact System Administrator.";
 		}
@@ -115,10 +118,12 @@ public class DeliveryExecWebController {
 	
 	@GetMapping(value="/scheduleDeliveryBookingForm")
 	public ModelAndView getScheduleOrderBookingForm(){
-		List<DeliveryExecutive> delivExecs = deliveryExecService.getDeliveryExecutives(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
+		List<DeliveryExecutive> delivExecs = deliveryExecService.getDeliveryExecutives(tenantID);
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		modelMap.put("delivExecs", delivExecs);
 		modelMap.put("deliveryBookingSchedule", new DeliveryBookingSchedule());
+		modelMap.put("tenantID", tenantID);
 		return new ModelAndView("/schedule_delivery_booking", modelMap);
 	}
 	
@@ -139,7 +144,7 @@ public class DeliveryExecWebController {
 				}
 			}
 			deliveryBookingSchedule.setCustomerOrderMap(customerOrderMap);
-			deliveryBookingSchedule.setResellerID(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+			deliveryBookingSchedule.setTenantID(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		}catch(Exception exception){
 			msg = "Scheduling of order delivery could not be processed successfully, please contact the System Administrator.";
 		}
@@ -158,7 +163,7 @@ public class DeliveryExecWebController {
 	public ModelAndView unscheduleDeliveryBooking(@ModelAttribute("deliveryBookingSchedule") DeliveryBookingSchedule deliveryBookingSchedule){
 		String msg = "";
 		try{
-			deliveryExecService.unscheduleDeliveryBooking(deliveryBookingSchedule.getCustomerIDs(), deliveryBookingSchedule.getVisitDate());
+			deliveryExecService.unscheduleDeliveryBooking(deliveryBookingSchedule.getCustomerIDs(), deliveryBookingSchedule.getVisitDate(), Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		}catch(Exception exception){
 			msg = "Customer visits could not be cancelled successfully. Please try after sometine and if error persists contact System Administrator.";
 		}

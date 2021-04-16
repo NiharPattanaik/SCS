@@ -115,6 +115,7 @@
 							</div>
 						</div>
 					</fieldset>
+					<form:hidden name="tenantID" path="tenantID" id="tenantID" value="${ tenantID }" />
 					<div class="form_submit">
 						<input type="button" name="btn" value="Schedule" id="submitBtn" data-toggle="modal" data-target="#confirm-submit" class="btn btn-primary" />
 					</div>
@@ -128,7 +129,7 @@
 				$('#sales_exec').change(function() {
 					$.ajax({
 							type : "GET",
-							url : "/crm/rest/salesExecReST/"+$('#sales_exec').val(),
+							url : "/crm/rest/salesExecReST/"+$('#sales_exec').val() + "/"+$('#tenantID').val(),
 							dataType : "json",
 							success : function(data) {
 								$('#beats').empty();
@@ -149,7 +150,7 @@
 					var isCusromerPresent = false;
 					$.ajax({
 							type : "GET",
-							url : "/crm/rest/customer/toSchedule/"+$('#beats').val() + "/"+$('#dp').val(),
+							url : "/crm/rest/customer/toSchedule/"+$('#beats').val() + "/"+$('#dp').val() + "/"+$('#tenantID').val(),
 							dataType : "json",
 							success : function(data) {
 								$('#checks').empty();

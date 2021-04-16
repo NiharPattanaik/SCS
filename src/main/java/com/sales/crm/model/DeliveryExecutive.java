@@ -52,10 +52,55 @@ public class DeliveryExecutive extends User {
 	}
 
 	@Override
-	public String toString() {
-		return "DeliveryExecutive [beats=" + beats + ", beatIDLists=" + beatIDLists + ", visitDate=" + visitDate
-				+ ", customerIDs=" + customerIDs + "]";
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((beatIDLists == null) ? 0 : beatIDLists.hashCode());
+		result = prime * result + ((beats == null) ? 0 : beats.hashCode());
+		result = prime * result + ((customerIDs == null) ? 0 : customerIDs.hashCode());
+		result = prime * result + ((visitDate == null) ? 0 : visitDate.hashCode());
+		return result;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DeliveryExecutive other = (DeliveryExecutive) obj;
+		if (beatIDLists == null) {
+			if (other.beatIDLists != null)
+				return false;
+		} else if (!beatIDLists.equals(other.beatIDLists))
+			return false;
+		if (beats == null) {
+			if (other.beats != null)
+				return false;
+		} else if (!beats.equals(other.beats))
+			return false;
+		if (customerIDs == null) {
+			if (other.customerIDs != null)
+				return false;
+		} else if (!customerIDs.equals(other.customerIDs))
+			return false;
+		if (visitDate == null) {
+			if (other.visitDate != null)
+				return false;
+		} else if (!visitDate.equals(other.visitDate))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "DeliveryExecutive [beats=" + beats + ", beatIDLists=" + beatIDLists + ", visitDate=" + visitDate
+				+ ", customerIDs=" + customerIDs + ", tenantID=" + getTenantID() + ", dateCreated=" + dateCreated
+				+ ", dateModified=" + dateModified + "]";
+	}
+
+	
 	
 }

@@ -127,10 +127,10 @@ legend {
 						</div>
 					</fieldset>
 					<div>
-						<form:hidden path="companyID" value="${ order.companyID }"/>
-						<form:hidden path="resellerID" name="resellerID" value="${ order.resellerID }"/>
+						<form:hidden path="tenantID" name="tenantID" value="${ order.tenantID }"/>
 						<form:hidden path="customerID" name="customerID" value="${ order.customerID }"/>
-						<form:hidden path="status" name="status" value="${ order.status }"/>
+						<form:hidden path="status" name="status" value="${ order.statusID }"/>
+						<form:hidden path="code" name="code" value="${ order.code }"/>
 					</div>
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary">Submit</button>

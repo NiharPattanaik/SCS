@@ -1,7 +1,5 @@
 package com.sales.crm.controller;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -13,7 +11,6 @@ import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -24,7 +21,7 @@ import com.sales.crm.service.CustomerService;
 import com.sales.crm.service.DeliveryExecService;
 import com.sales.crm.service.OrderService;
 import com.sales.crm.service.SalesExecService;
-import com.sales.crm.service.SupplierService;
+import com.sales.crm.service.ManufacturerService;
 
 @Controller
 @RequestMapping("/web/dashboardWeb")
@@ -47,7 +44,7 @@ public class DashboardWebController {
 	HttpSession httpSession;
 	
 	@Autowired
-	SupplierService supplierService;
+	ManufacturerService manufacturerService;
 	
 	@Autowired
 	DeliveryExecService deliveryService;
@@ -56,21 +53,18 @@ public class DashboardWebController {
 	public ModelAndView getDashboard(){
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		List<ScheduledOrderSummary> scheduledOrderSummaries = new ArrayList<ScheduledOrderSummary>();
-		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
 		//Number Of Customers
-		int numberOfCustomers = customerService.getCustomersCount(resellerID);
-		//Number Of Suppliers
-		int numberOfSuppliers = supplierService.getSuppliersCount(resellerID);
+		int numberOfCustomers = customerService.getCustomersCount(tenantID);
 		//Number of Beats
-		int numberOfBeats = beatService.getBeatsCount(resellerID);
+		int numberOfBeats = beatService.getBeatsCount(tenantID);
 		//Number of SalesExecuties
-		int numberOfSalesExecs = salesExecService.getSalesExecutiveCount(resellerID);
+		int numberOfSalesExecs = salesExecService.getSalesExecutiveCount(tenantID);
 		//Number of Delivery Execs
-		int numberOfDeliveryExecs = deliveryService.getDeliveryExecutiveCount(resellerID);
-		scheduledOrderSummaries = orderService.getScheduledOrderSummary(resellerID, -1, new Date());
-		List<SalesExecutive> salesExecs = salesExecService.getSalesExecutives(resellerID);
+		int numberOfDeliveryExecs = deliveryService.getDeliveryExecutiveCount(tenantID);
+		scheduledOrderSummaries = orderService.getScheduledOrderSummary(tenantID, -1, new Date());
+		List<SalesExecutive> salesExecs = salesExecService.getSalesExecutives(tenantID);
 		modelMap.put("numberOfCustomers", numberOfCustomers);
-		modelMap.put("numberOfSuppliers", numberOfSuppliers);
 		modelMap.put("numberOfBeats", numberOfBeats);
 		modelMap.put("numberOfSalesExecs", numberOfSalesExecs);
 		modelMap.put("numberOfDeliveryExecs", numberOfDeliveryExecs);

@@ -89,7 +89,7 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                    	<th>Supplier</th>
+                    	<th>Manufacturer</th>
                         <th>Sales Executive Name</th>
                         <th>Assigned Beats</th>
                         <% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_EDIT_ASSIGNED_BEATS.getResourcePermissionID())) { %>
@@ -102,12 +102,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                	<c:forEach var="suppSalesExecBeat" items="${suppSalesExecBeats}">  
+                	<c:forEach var="manufSalesExecBeats" items="${manufSalesExecBeatss}">  
                     <tr>
-                    	<td>${suppSalesExecBeat.supplier.name}</td>
-                   		<td>${suppSalesExecBeat.salesExecutive.firstName} ${suppSalesExecBeat.salesExecutive.lastName}</td>
+                    	<td>${manufSalesExecBeats.manufacturer.name}</td>
+                   		<td>${manufSalesExecBeats.salesExecutive.firstName} ${manufSalesExecBeats.salesExecutive.lastName}</td>
                         <% String values=""; %>
-						<c:forEach var="beat" items="${suppSalesExecBeat.beats}">
+						<c:forEach var="beat" items="${manufSalesExecBeats.beats}">
   								<%
   									if(values.isEmpty()){
   										if((Beat)pageContext.getAttribute("beat") != null  && ((Beat)pageContext.getAttribute("beat")).getName() != null){
@@ -123,10 +123,10 @@
 						</c:forEach>
 						<td><%= values %></td>
 						<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_EDIT_ASSIGNED_BEATS.getResourcePermissionID())) { %>
-							<td><a href="<%=request.getContextPath()%>/web/salesExecWeb/assignBeatEditForm/${suppSalesExecBeat.supplier.supplierID}/${suppSalesExecBeat.salesExecutive.userID}">Edit</a></td>
+							<td><a href="<%=request.getContextPath()%>/web/salesExecWeb/assignBeatEditForm/${manufSalesExecBeats.manufacturer.manufacturerID}/${manufSalesExecBeats.salesExecutive.userID}">Edit</a></td>
 						<% } %>	
 						<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_DELETE_ASSIGNED_BEATS.getResourcePermissionID())) { %>
-							<td><a href="<%=request.getContextPath()%>/web/salesExecWeb/deleteBeatsAssignment/${suppSalesExecBeat.supplier.supplierID}/${suppSalesExecBeat.salesExecutive.userID}">Delete</a></td>
+							<td><a href="<%=request.getContextPath()%>/web/salesExecWeb/deleteBeatsAssignment/${manufSalesExecBeats.manufacturer.manufacturerID}/${manufSalesExecBeats.salesExecutive.userID}">Delete</a></td>
 						<% } %>
                     </tr>
                     </c:forEach>

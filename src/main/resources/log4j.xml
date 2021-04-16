@@ -24,7 +24,7 @@
 	<!-- Application Loggers -->
 	<logger name="com.sales.crm">
 		<level value="debug" />
-		<appender-ref ref="file" />
+		<appender-ref ref="console" />
 	</logger>
 	
 	<!-- 3rdparty Loggers -->

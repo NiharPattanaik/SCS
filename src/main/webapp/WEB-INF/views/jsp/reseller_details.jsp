@@ -89,7 +89,7 @@ legend {
 				<% } %>		
 				
 				<% if(resourcePermIDs.contains(ResourcePermissionEnum.RESELLER_APPROVE.getResourcePermissionID())
-						&& ((Reseller)request.getAttribute("reseller")).getStatus() == 1) { %>
+						&& ((Reseller)request.getAttribute("reseller")).getStatusID() == 2) { %>
 					<button type="submit" class="btn btn-primary"
 						onclick="location.href='<%=request.getContextPath()%>/web/resellerWeb/activate/${reseller.resellerID}';">Activate</button>
 				<% } %>	

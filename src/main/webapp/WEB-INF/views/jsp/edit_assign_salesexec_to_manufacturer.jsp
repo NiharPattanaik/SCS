@@ -8,7 +8,7 @@
 <html lang="en">
 
 <head>
-	<title>Edit Supplier Manufacturer Mapping</title>
+	<title>Edit Manufacturer Sales Exec Mapping</title>
 	<!-- Bootstrap Core CSS -->
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -75,22 +75,22 @@ legend {
 		<%@ include file="menus.jsp" %>
 		<div class="row top-height">
 			<div class="col-md-8 ">
-				<form:form modelAttribute="supplier" method="post"
-					action="/crm/web/supplierWeb/updateAassignedManufacturer">
+				<form:form modelAttribute="manufacturer" method="post"
+					action="/crm/web/manufacturerWeb/updateAassignedSalesexecs">
 					<fieldset>
-						<legend>Supplier to Manufacturer Mapping</legend>
+						<legend>Manufacturer to Sales Executive Mapping</legend>
 						<div class="form-group">
-								<label>Supplier</label>
-								<form:select path="supplierID" cssClass="form-control">
-									<form:option value="${ supplier.supplierID }" label="${supplier.name}" />
+								<label>Manufacturer</label>
+								<form:select path="manufacturerID" cssClass="form-control">
+									<form:option value="${ manufacturer.manufacturerID }" label="${manufacturer.name}" />
 								</form:select>
 							</div>
 							<div class="form-group">
-								<label>Manufacturer</label>
-								<form:select path="manufacturerIDs" cssClass="form-control" multiple="true">
+								<label>Sales Executives</label>
+								<form:select path="salesExecsIDs" cssClass="form-control" multiple="true">
 									<form:option value="-1" label="--- Select ---" />
-									<form:options items="${manufacturers}" itemValue="manufacturerID"
-										itemLabel="fullName" />
+									<form:options items="${salesExecs}" itemValue="userID"
+										itemLabel="name" />
 								</form:select>
 							</div>
 					</fieldset>

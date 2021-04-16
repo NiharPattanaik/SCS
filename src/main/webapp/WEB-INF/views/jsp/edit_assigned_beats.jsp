@@ -75,19 +75,19 @@ legend {
 		<%@ include file="menus.jsp" %>
 		<div class="row top-height">
 			<div class="col-md-8 ">
-				<form:form modelAttribute="suppSalesExecBeats" method="post"
+				<form:form modelAttribute="manufSalesExecBeats" method="post"
 					action="/crm/web/salesExecWeb/updateAssignedBeats">
 					<fieldset>
 						<legend>Assign Beats to Sales Executive</legend>
 							<div class="form-group">
-								<label>Supplier</label>
-								<form:input name="supplierName" cssClass="form-control"
-								path="supplier.name" value="${ suppSalesExecBeats.supplier.name }" readonly="true"/>
+								<label>Manufacturer</label>
+								<form:input name="manufacturerName" cssClass="form-control"
+								path="manufacturer.name" value="${ manufSalesExecBeats.manufacturer.name }" readonly="true"/>
 							</div>
 							<div class="form-group">
 								<label>Sales Executive</label>
-								<form:input name="supplierID" cssClass="form-control"
-								path="salesExecutive.name" value="${ suppSalesExecBeats.salesExecutive.name }" readonly="true"/>
+								<form:input name="manufacturerID" cssClass="form-control"
+								path="salesExecutive.name" value="${ manufSalesExecBeats.salesExecutive.name }" readonly="true"/>
 							</div>
 							<div class="form-group">
 								<label>Beats</label>
@@ -97,8 +97,8 @@ legend {
 										itemLabel="name" />
 								</form:select>
 							</div>
-							<form:hidden path="supplier.supplierID" value="${ suppSalesExecBeats.supplier.supplierID }"/>
-							<form:hidden path="salesExecutive.userID" value="${ suppSalesExecBeats.salesExecutive.userID }"/>
+							<form:hidden path="manufacturer.manufacturerID" value="${ manufSalesExecBeats.manufacturer.manufacturerID }"/>
+							<form:hidden path="salesExecutive.userID" value="${ manufSalesExecBeats.salesExecutive.userID }"/>
 					</fieldset>
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary">Submit</button>

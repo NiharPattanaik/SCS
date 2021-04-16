@@ -155,8 +155,8 @@ input[type=file] {
 				<div class="numberCircle"><span><a href="<%=request.getContextPath()%>/web/customerWeb/list">${ numberOfCustomers }</a></span></div>
 			</div>
 			<div class="col-md-1 box-style">
-				<p align="center"><b>Suppliers</b></p>
-				<div class="numberCircle"><span><a href="<%=request.getContextPath()%>/web/supplierWeb/list">${ numberOfSuppliers }</a></span></div>
+				<p align="center"><b>Manufacturers</b></p>
+				<div class="numberCircle"><span><a href="<%=request.getContextPath()%>/web/manufacturerWeb/list">${ numberOfManufacturers }</a></span></div>
 			</div>
 			<div class="col-md-1 box-style">
 				<p align="center"><b>Beats</b></p>

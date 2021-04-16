@@ -10,33 +10,35 @@ import com.sales.crm.model.DeliveryExecutive;
 
 public interface DeliveryExecDAO {
 	
-	List<DeliveryExecutive> getDelivExecutivesHavingBeatsAssigned(int resellerID);
+	List<DeliveryExecutive> getDelivExecutivesHavingBeatsAssigned(int tenantID);
 	
-	List<DeliveryExecutive> getDeliveryExecutives(int resellerID);
+	List<DeliveryExecutive> getDeliveryExecutives(int tenantID);
 	
-	void assignBeats(int salesExecID, List<Integer> beatIDs) throws Exception;
+	void assignBeats(int tenantID, int salesExecID, List<Integer> beatIDs) throws Exception;
 	
-	DeliveryExecutive getDelivExecutive(int delivExecID);
+	DeliveryExecutive getDelivExecutive(int delivExecID, int tenantID);
 	
-	void updateAssignedBeats( int salesExecID,  List<Integer> beatIDs) throws Exception;
+	void updateAssignedBeats(int tenantID, int salesExecID,  List<Integer> beatIDs) throws Exception;
 	
-	void deleteBeatAssignment(int delivExecID) throws Exception;
+	void deleteBeatAssignment(int delivExecID, int tenantID) throws Exception;
 	
-	List<DeliveryExecutive> getDeliveryExecutivesScheduled(int resellerID);
+	List<DeliveryExecutive> getDeliveryExecutivesScheduled(int tenantID);
 	
-	List<Beat> getAssignedBeats(int delivExecID);
+	List<Beat> getAssignedBeats(int delivExecID, int tenantID);
 	
-	List<Beat> getScheduledVisitDelivExecBeats(int delivExecID, Date visitDate);
+	List<Beat> getScheduledVisitDelivExecBeats(int delivExecID, Date visitDate, int tenantID);
 	
-	List<DeliveryExecutive> getScheduledVisitDelivExecs(Date visitDate, int resellerID);
+	List<DeliveryExecutive> getScheduledVisitDelivExecs(Date visitDate, int tenantID);
 	
-	List<CustomerOrder> getScheduledCustomersOrdersForDelivery(int delivExecID, Date visitDate, int beatID);
+	List<CustomerOrder> getScheduledCustomersOrdersForDelivery(int delivExecID, Date visitDate, int beatID, int tenantID);
 	
 	List<String> alreadyDeliveryBookingScheduledCustomer(DeliveryBookingSchedule deliveryBookingSchedule) throws Exception;
 	
 	void scheduleDeliveryBooking(DeliveryBookingSchedule deliveryBookingSchedule) throws Exception;
 	
-	void unscheduleDeliveryBooking(List<Integer> customerIDs, Date visitDate) throws Exception;
+	void unscheduleDeliveryBooking(List<Integer> customerIDs, Date visitDate, int tenantID) throws Exception;
 	
-	int getDeliveryExecutiveCount(int resellerID);
+	int getDeliveryExecutiveCount(int tenantID);
+	
+	List<DeliveryBookingSchedule> getAllDeliveryBookedForDate(int tenantID, Date date);
 }

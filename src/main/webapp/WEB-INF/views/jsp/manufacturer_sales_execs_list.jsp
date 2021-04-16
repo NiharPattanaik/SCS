@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <%@page import="com.sales.crm.model.SalesExecutive"%>
 <%@page import="com.sales.crm.service.SalesExecService"%>
-<%@page import="com.sales.crm.model.Supplier"%>
+<%@page import="com.sales.crm.model.Manufacturer"%>
 <%@page import="com.sales.crm.model.Customer"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>    
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>    
@@ -11,7 +11,7 @@
 <html lang="en">
 
 <head>
-    <title>Supplier Sales Executives</title>
+    <title>Manufacturer Sales Executives</title>
     <!-- Bootstrap Core CSS -->
   	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -81,34 +81,34 @@
         <%@ include file="menus.jsp" %>
         	<div class="row customer_list">
         		<div class="col-md-8">
-            		<h2>Supplier and Sales Executives</h2>   
+            		<h2>Manufacturer and Sales Executives</h2>   
             	</div>
             	<div class="col-md-4 add_customer">
             			<button type="submit" class="btn btn-primary"
-							onclick="location.href='<%=request.getContextPath()%>/web/supplierWeb/assignSalesExecutiveForm';">
-							Assign Sales Executives To Supplier</button>
+							onclick="location.href='<%=request.getContextPath()%>/web/manufacturerWeb/assignSalesExecutiveForm';">
+							Assign Sales Executives To Manufacturer</button>
 				</div>
 	        </div>        
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Supplier Name</th>
+                        <th>Manufacturer Name</th>
                         <th>Sales Executives</th>
                        	<th></th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                	<c:forEach var="supplier" items="${suppliers}">
+                	<c:forEach var="manufacturer" items="${manufacturers}">
                 	<%
-                		if(((Supplier)pageContext.getAttribute("supplier")).getSalesExecs() !=  null &&
-                				((Supplier)pageContext.getAttribute("supplier")).getSalesExecs().size() > 0){
+                		if(((Manufacturer)pageContext.getAttribute("manufacturer")).getSalesExecs() !=  null &&
+                				((Manufacturer)pageContext.getAttribute("manufacturer")).getSalesExecs().size() > 0){
                 			
                 	%>  
                     <tr>
-                   		<td>${supplier.name}</td>
+                   		<td>${manufacturer.name}</td>
                         <% String values=""; %>
-						<c:forEach var="salesExec" items="${supplier.salesExecs}">
+						<c:forEach var="salesExec" items="${manufacturer.salesExecs}">
   								<%
   									if(values.isEmpty()){
   										if((SalesExecutive)pageContext.getAttribute("salesExec") != null  && ((SalesExecutive)pageContext.getAttribute("salesExec")).getName() != null){
@@ -123,9 +123,9 @@
   								%>
 						</c:forEach>
 						<td><%= values %></td>
-						<td><a href="<%=request.getContextPath()%>/web/supplierWeb/assignSalesExecEditForm/${supplier.supplierID}">Edit</a></td>
+						<td><a href="<%=request.getContextPath()%>/web/manufacturerWeb/assignSalesExecEditForm/${manufacturer.manufacturerID}">Edit</a></td>
 						
-						<td><a href="<%=request.getContextPath()%>/web/supplierWeb/deleteAassignedSalesexec/${supplier.supplierID}">Delete</a></td>
+						<td><a href="<%=request.getContextPath()%>/web/manufacturerWeb/deleteAassignedSalesexec/${manufacturer.manufacturerID}">Delete</a></td>
 					</tr>
                     <% 
                 		}

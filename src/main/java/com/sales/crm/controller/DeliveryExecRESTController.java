@@ -27,13 +27,13 @@ public class DeliveryExecRESTController {
 	@Autowired
 	HttpSession httpSession;
 	
-	@GetMapping(value="/{delivExecID}")
-	public List<Beat> getDeliveryExecsBeats(@PathVariable int delivExecID){
-		return delivExecService.getAssignedBeats(delivExecID);
+	@GetMapping(value="/{delivExecID}/{tenantID}")
+	public List<Beat> getDeliveryExecsBeats(@PathVariable int delivExecID, @PathVariable int tenantID){
+		return delivExecService.getAssignedBeats(delivExecID, tenantID);
 	}
 	
-	@GetMapping(value="/scheduledDeliveryBeats/{delivExecID}/{visitDate}")
-	public List<Beat> getDeliveryExecsBeatsScheduledVisit(@PathVariable("delivExecID") int delivExecID, @PathVariable("visitDate") String visitDate){
+	@GetMapping(value="/scheduledDeliveryBeats/{delivExecID}/{visitDate}/{tenantID}")
+	public List<Beat> getDeliveryExecsBeatsScheduledVisit(@PathVariable("delivExecID") int delivExecID, @PathVariable("visitDate") String visitDate, @PathVariable("tenantID") int tenantID){
 		Date date = new Date();
 		try{
 			date = new SimpleDateFormat("dd-MM-yyyy").parse(visitDate);
@@ -41,31 +41,31 @@ public class DeliveryExecRESTController {
 			exception.printStackTrace();
 		}
 		
-		return delivExecService.getScheduledVisitDelivExecBeats(delivExecID, date);
+		return delivExecService.getScheduledVisitDelivExecBeats(delivExecID, date, tenantID);
 	}
 	
 	
-	@GetMapping(value="/list/{visitDate}")
-	public List<DeliveryExecutive> getScheduledVisitDelivExecs(@PathVariable String visitDate){
+	@GetMapping(value="/list/{visitDate}/{tenantID}")
+	public List<DeliveryExecutive> getScheduledVisitDelivExecs(@PathVariable("visitDate") String visitDate, @PathVariable("tenantID") int tenantID){
 		Date date = new Date();
 		try{
 			date = new SimpleDateFormat("dd-MM-yyyy").parse(visitDate);
 		}catch(Exception exception){
 			exception.printStackTrace();
 		}
-		return delivExecService.getScheduledVisitDelivExecs(date, Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		return delivExecService.getScheduledVisitDelivExecs(date, tenantID);
 	}
 
 	
-	@GetMapping(value="/deliveryScheduledCustomers/{delivExecID}/{visitDate}/{beatID}")
-	public List<CustomerOrder> getScheduledCustomersForDelivery(@PathVariable("delivExecID") int delivExecID, @PathVariable("visitDate") String visitDate, @PathVariable("beatID") int beatID){
+	@GetMapping(value="/deliveryScheduledCustomers/{delivExecID}/{visitDate}/{beatID}/{tenantID}")
+	public List<CustomerOrder> getScheduledCustomersForDelivery(@PathVariable("delivExecID") int delivExecID, @PathVariable("visitDate") String visitDate, @PathVariable("beatID") int beatID, @PathVariable("tenantID") int tenantID){
 		Date date = new Date();
 		try{
 			date = new SimpleDateFormat("dd-MM-yyyy").parse(visitDate);
 		}catch(Exception exception){
 			exception.printStackTrace();
 		}
-		return delivExecService.getScheduledCustomersOrdersForDelivery(delivExecID, date, beatID);
+		return delivExecService.getScheduledCustomersOrdersForDelivery(delivExecID, date, beatID, tenantID);
 	}
 
 }

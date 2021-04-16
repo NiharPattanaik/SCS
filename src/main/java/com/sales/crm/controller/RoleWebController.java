@@ -44,7 +44,7 @@ public class RoleWebController {
 	
 	@GetMapping(value="/{roleID}")
 	public ModelAndView get(@PathVariable int roleID){
-		Role role = roleService.getRole(roleID);
+		Role role = roleService.getRole(roleID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		return new ModelAndView("/role_details", "role", role);
 		
 	}
@@ -56,7 +56,7 @@ public class RoleWebController {
 	
 	@RequestMapping(value="/editRoleForm/{userID}", method = RequestMethod.GET)  
 	public ModelAndView editRoleForm(@PathVariable int roleID){
-		Role role = roleService.getRole(roleID);
+		Role role = roleService.getRole(roleID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		return new ModelAndView("/edit_role", "role", role);
 	}
 	
@@ -74,7 +74,7 @@ public class RoleWebController {
 	
 	@DeleteMapping(value="/{roleID}")
 	public void delete(@PathVariable int roleID){
-		roleService.deleteRole(roleID);
+		roleService.deleteRole(roleID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 	}
 	
 	@GetMapping(value="/list")
@@ -90,7 +90,7 @@ public class RoleWebController {
 			List<Integer> roleIDs = new ArrayList<Integer>();
 			roleIDs.add(roleID);
 			List<ResourcePermission> resourcePermissions = roleService.getRolesResourcePermissions(roleIDs,
-					Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+					Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 			for(ResourcePermission resourcePermission : resourcePermissions){
 				Resource resource = resourcePermission.getResource();
 				if(!resPermMap.containsKey(resource)){
@@ -112,13 +112,13 @@ public class RoleWebController {
 	@GetMapping(value="/resource_permission/{roleID}/editform")
 	public ModelAndView getRoleResourcePermissionsEditForm(@PathVariable int roleID){
 		Map<Resource, List<ResourcePermission>> resPermMap = new HashMap<Resource, List<ResourcePermission>>();
-		int resellerID = -1;
+		int tenantID = -1;
 		try{
 			List<Integer> roleIDs = new ArrayList<Integer>();
 			roleIDs.add(roleID);
-			resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
+			tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
 			List<ResourcePermission> resourcePermissions = roleService.getRolesResourcePermissions(roleIDs,
-					resellerID);
+					tenantID);
 			for(ResourcePermission resourcePermission : resourcePermissions){
 				Resource resource = resourcePermission.getResource();
 				if(!resPermMap.containsKey(resource)){
@@ -134,7 +134,7 @@ public class RoleWebController {
 		modelMap.put("resPermMap", resPermMap);
 		modelMap.put("resPermWebModel", new ResPermWebModel());
 		modelMap.put("roleID", roleID);
-		modelMap.put("resellerID", resellerID);
+		modelMap.put("tenantID", tenantID);
 		return new ModelAndView("/edit_resource_permission", modelMap);  
 	}
 	
@@ -145,12 +145,12 @@ public class RoleWebController {
 	    for(Integer resourcePermId : resPermWebModel.getResourcePermIDList()){
 	    	ResourcePermission resourcePermission = new ResourcePermission();
 	    	resourcePermission.setId(resourcePermId);
-	    	resourcePermission.setResellerID(resPermWebModel.getResellerID());
+	    	resourcePermission.setTenantID(resPermWebModel.getTenantID());
 	    	resourcePermission.setRoleID(resPermWebModel.getRoleID());
 	    	resourcePermissions.add(resourcePermission);
 	    }
 	    try{
-	    	roleService.saveRoleResourcePermission(resourcePermissions, resPermWebModel.getRoleID(), resPermWebModel.getResellerID());
+	    	roleService.saveRoleResourcePermission(resourcePermissions, resPermWebModel.getRoleID(), resPermWebModel.getTenantID());
 	    }catch(Exception exception){
 	    	msg = "Previleges could not be updated successfully. Please re-try after sometime and if error persists, contact system administrator. ";
 	    }

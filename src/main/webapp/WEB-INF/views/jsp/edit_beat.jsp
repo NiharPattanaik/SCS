@@ -121,7 +121,7 @@ legend {
 						</div>
 					</fieldset>
 					<form:hidden path="beatID" name="beatID" value="${ beat.beatID }"/>
-					<form:hidden path="resellerID" name="resellerID" value="${ beat.resellerID }"/>
+					<form:hidden path="tenantID" name="tenantID" value="${ beat.tenantID }"/>
 					<div>
 						<fmt:formatDate value="${ beat.dateCreated }" type="date"
 								pattern="dd/MM/yyyy" var="createdDate" />
@@ -133,7 +133,9 @@ legend {
 						<form:hidden path="dateModified" value="${modifiedDate}"/>
 					</div>
 					<div>
-						<form:hidden path="companyID" value="${ beat.companyID }"/>
+						<form:hidden path="tenantID" value="${ beat.tenantID }" />
+						<form:hidden name="code" path="code" value="${ beat.code }" />
+						<form:hidden name="statusID" path="statusID" value="${ beat.statusID }" />
 					</div>
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary">Submit</button>

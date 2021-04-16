@@ -92,6 +92,8 @@ text-align:right;
 								path="description" value = "${reseller.description}"/>
 						</div>
 						<form:hidden name="resellerID" path="resellerID" value="${ reseller.resellerID }"/>
+						<form:hidden name="code" path="code" value="${ reseller.code }" />
+						<form:hidden name="statusID" path="statusID" value="${ reseller.statusID }" />
 					</fieldset>
 
 					<fieldset>
@@ -155,6 +157,20 @@ text-align:right;
 							<form:input name="mobileNumberSecondary" cssClass="form-control"
 								path="address[0].mobileNumberSecondary" value="${ reseller.address[0].mobileNumberSecondary }"/>
 						</div>
+						<form:hidden name="tenantID" path="address[0].tenantID"
+							value="${ reseller.address[0].tenantID }" />
+						<form:hidden name="code" path="address[0].code" value="${ reseller.address[0].code }" />
+						<form:hidden name="statusID" path="address[0].statusID" value="${ reseller.address[0].statusID }" />
+						<div>
+							<fmt:formatDate value="${ reseller.address[0].dateCreated }" type="date"
+								pattern="dd-MM-yyyy" var="createdDate" />
+							<form:hidden path="address[0].dateCreated" value="${createdDate}" />
+						</div>
+						<div>
+							<fmt:formatDate value="${ reseller.address[0].dateModified }" type="date"
+								pattern="dd-MM-yyyy" var="modifiedDate" />
+							<form:hidden path="address[0].dateModified" value="${modifiedDate}" />
+						</div>
 					</fieldset>
 					<fieldset>
 						<legend>Reseller Billing Address</legend>
@@ -217,19 +233,33 @@ text-align:right;
 							<form:input name="mobileNumberSecondary" cssClass="form-control"
 								path="address[1].mobileNumberSecondary" value="${ reseller.address[1].mobileNumberSecondary }"/>
 						</div>
+						<form:hidden name="tenantID" path="address[1].tenantID"
+							value="${ reseller.address[1].tenantID }" />
+						<form:hidden name="code" path="address[1].code" value="${ address[1].code }" />
+						<form:hidden name="statusID" path="address[1].statusID" value="${ reseller.address[1].statusID }" />
+						<div>
+							<fmt:formatDate value="${ reseller.address[1].dateCreated }" type="date"
+								pattern="dd-MM-yyyy" var="createdDate" />
+							<form:hidden path="address[1].dateCreated" value="${createdDate}" />
+						</div>
+						<div>
+							<fmt:formatDate value="${ reseller.address[1].dateModified }" type="date"
+								pattern="dd-MM-yyyy" var="modifiedDate" />
+							<form:hidden path="address[1].dateModified" value="${modifiedDate}" />
+						</div>
 					</fieldset>
 					<div>
 						<fmt:formatDate value="${ reseller.dateCreated }" type="date"
-								pattern="dd/MM/yyyy" var="createdDate" />
+								pattern="dd-MM-yyyy" var="createdDate" />
 						<form:hidden path="dateCreated" value="${createdDate}"/>
 					</div>
 					<div>
 						<fmt:formatDate value="${ reseller.dateModified }" type="date"
-								pattern="dd/MM/yyyy" var="modifiedDate" />
+								pattern="dd-MM-yyyy" var="modifiedDate" />
 						<form:hidden path="dateModified" value="${modifiedDate}"/>
 					</div>
 					<div>
-						<form:hidden path="companyID" value="${ reseller.companyID }"/>
+						<form:hidden path="tenantID" value="${ reseller.tenantID }"/>
 					</div>
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary">Submit</button>

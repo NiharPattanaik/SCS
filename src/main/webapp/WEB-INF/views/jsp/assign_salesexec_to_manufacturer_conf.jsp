@@ -8,7 +8,7 @@
 <html lang="en">
 
 <head>
-<title>Removed Supplier Manufacturer Mapping</title>
+<title>Assigned Sales Executive to Manufacturer</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
@@ -85,13 +85,13 @@
     					</c:when>    
     					<c:otherwise>
         					<div class="alert alert-success">
-	 						 <strong>Success!</strong><br> Supplier and Manufacturer association has been successfully removed.
+	 						 <strong>Success!</strong><br> Sales Executives are successfully mapped to Manufacturer.
 						</div>
     					</c:otherwise>
 					</c:choose>
 					<div class="form_submit">
-						<a href="<%=request.getContextPath()%>/web/supplierWeb/supp-manufacturer/list" class="btn btn-primary">View Supplier to Manufacture Mapping</a>
-						<a href="<%=request.getContextPath()%>/web/supplierWeb/assignManufacturerForm" class="btn btn-primary">New Supplier to Manufacture Mapping</a>
+						<a href="<%=request.getContextPath()%>/web/manufacturerWeb/manufacturer-salesexecs/list" class="btn btn-primary">View Manufacturer to Sales Executive Mapping</a>
+						<a href="<%=request.getContextPath()%>/web/manufacturerWeb/assignSalesExecutiveForm" class="btn btn-primary">New Manufacturer to Sales Executive Mapping</a>
 					</div>
 			</div>
 		</div>

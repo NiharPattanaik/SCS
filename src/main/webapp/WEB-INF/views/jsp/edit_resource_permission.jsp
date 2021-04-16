@@ -128,7 +128,7 @@ legend {
 					</c:forEach>
 				</fieldset>
 			</c:forEach>
-			<form:hidden path="resellerID" value="${ resellerID }" />
+			<form:hidden path="tenantID" value="${ tenantID }" />
 			<form:hidden path="roleID" value="${ roleID }" />
 			<div class="form_submit">
 				<button type="submit" class="btn btn-primary" >Submit</button>

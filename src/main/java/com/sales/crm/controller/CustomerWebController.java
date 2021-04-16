@@ -34,6 +34,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.sales.crm.model.Beat;
 import com.sales.crm.model.Customer;
+import com.sales.crm.model.EntityStatusEnum;
 import com.sales.crm.model.SalesExecutive;
 import com.sales.crm.model.User;
 import com.sales.crm.service.BeatService;
@@ -67,14 +68,14 @@ public class CustomerWebController {
 	
 	@GetMapping(value="/{customerID}")
 	public ModelAndView get(@PathVariable int customerID){
-		Customer customer = customerService.getCustomer(customerID);
+		Customer customer = customerService.getCustomer(customerID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		return new ModelAndView("/customer_details", "customer", customer);
 		
 	}
 	
 	@RequestMapping(value="/createCustomerForm", method = RequestMethod.GET)  
 	public ModelAndView createCustomerForm(Model model){
-		List<Beat> beats = beatService.getResellerBeats(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		List<Beat> beats = beatService.getTenantBeats(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		modelMap.put("customer", new Customer());
 		modelMap.put("beats", beats);
@@ -83,8 +84,9 @@ public class CustomerWebController {
 	
 	@RequestMapping(value="/editCustomerForm/{customerID}", method = RequestMethod.GET)  
 	public ModelAndView editCustomerForm(@PathVariable int customerID){
-		Customer customer = customerService.getCustomer(customerID);
-		List<SalesExecutive> salesExecs = salesExecService.getSalesExecutives(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
+		Customer customer = customerService.getCustomer(customerID, tenantID);
+		List<SalesExecutive> salesExecs = salesExecService.getSalesExecutives(tenantID);
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		modelMap.put("customer", customer);
 		modelMap.put("salesExecs", salesExecs);
@@ -93,7 +95,7 @@ public class CustomerWebController {
 	
 	@RequestMapping(value="/save",method = RequestMethod.POST)  
 	public ModelAndView create(@ModelAttribute("customer") Customer customer){
-		customer.setResellerID(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		customer.setTenantID(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		String msg="";
 		try{
 			customerService.createCustomer(customer);
@@ -122,7 +124,7 @@ public class CustomerWebController {
 	public ModelAndView delete(@PathVariable int customerID){
 		String msg = "";
 		try{
-			customerService.deleteCustomer(customerID);
+			customerService.deleteCustomer(customerID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		}catch(Exception exception){
 			msg = "Customer could not be successfully removed, please contact System Administrator";
 		}
@@ -133,7 +135,7 @@ public class CustomerWebController {
 	public ModelAndView list(){
 		List<Customer> customers = new ArrayList<Customer>();
 		try{
-			customers = customerService.search(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))), null);
+			customers = customerService.search(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))), null);
 		}catch(Exception exception){
 			logger.error("Error while fetching customer list.");
 		}
@@ -145,7 +147,7 @@ public class CustomerWebController {
 		String msg = "";
 		Map<Integer, List<String>> errors = new HashMap<Integer, List<String>>();
 		try {
-			List<Customer> customers = CustomerXLSProcessor.processCustomerXLS(file.getInputStream(), errors, Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+			List<Customer> customers = CustomerXLSProcessor.processCustomerXLS(file.getInputStream(), errors, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 			customerService.createCustomers(customers);
 		} catch (Exception e) {
 			msg = "Customers could not be successfully imported from excel file. Please try again after sometime and if error persists, contact System Administrator";
@@ -194,9 +196,41 @@ public class CustomerWebController {
 	}
 
 	
+	@GetMapping(value="/deactivate/{customerID}")
+	public ModelAndView deactivateCustomer(@PathVariable int customerID){
+		String msg = "";
+		try{
+			customerService.deactivateCustomer(customerID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
+		}catch(Exception exception){
+			logger.error("Error while deactivating customer + customerID", exception);
+			msg = "Customer could not be deactivated successfully, please contact System Administrator. ";
+		}
+		Map<String, String> modelMap = new HashMap<String, String>();
+		modelMap.put("msg", msg);
+		modelMap.put("action", "Deactivated");
+		modelMap.put("customerID", String.valueOf(customerID));
+		return new ModelAndView("/update_customer_status_conf","map", modelMap);  
+	}
+	
+	@GetMapping(value="/activate/{customerID}")
+	public ModelAndView activateCustomer(@PathVariable int customerID){
+		String msg = "";
+		try{
+			customerService.activateCustomer(customerID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
+		}catch(Exception exception){
+			logger.error("Error while activating customer + customerID", exception);
+			msg = "Customer could not be activated successfully, please contact System Administrator. ";
+		}
+		Map<String, String> modelMap = new HashMap<String, String>();
+		modelMap.put("msg", msg);
+		modelMap.put("action", "Activated");
+		modelMap.put("customerID", String.valueOf(customerID));
+		return new ModelAndView("/update_customer_status_conf","map", modelMap);  
+	}
+	
 	@InitBinder
     public void initBinder(WebDataBinder webDataBinder) {
-     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+     SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
      dateFormat.setLenient(false);
      webDataBinder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
      

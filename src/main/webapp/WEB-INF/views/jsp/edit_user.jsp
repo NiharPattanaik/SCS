@@ -121,19 +121,23 @@ legend {
 							</form:select>
 						</div>
 					</fieldset>
-					<form:hidden path="status" name="status" value="1" />
+					<form:hidden path="status" name="status" value="2" />
 					<form:hidden path="userID" name="userID" value="${ user.userID }" />
 					<form:hidden path="userName" name="userName" value="${ user.userName }" />
 					<form:hidden path="password" name="password" value="${ user.password }" />
 					<form:hidden path="emailID" name="emailID" value="${ user.emailID }" />
 					<div>
 						<fmt:formatDate value="${ user.dateCreated }" type="date"
-								pattern="dd/MM/yyyy" var="createdDate" />
+								pattern="dd-MM-yyyy" var="createdDate" />
 						<form:hidden path="dateCreated" value="${createdDate}"/>
 					</div>
 					<div>
-						<form:hidden path="companyID" value="${ user.companyID }"/>
+						<fmt:formatDate value="${ user.dateModified }" type="date"
+								pattern="dd-MM-yyyy" var="dateModified" />
+						<form:hidden path="dateModified" value="${dateModified}"/>
 					</div>
+					<form:hidden path="tenantID" value="${ user.tenantID }"/>
+					<form:hidden path="code" value="${ user.code }"/>
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</div>

@@ -100,6 +100,7 @@ legend {
 								</form:select>
 							</div>
 					</fieldset>
+					<form:hidden name="tenantID" path="tenantID" id="tenantID" value="${ tenantID }" />
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</div>
@@ -118,7 +119,7 @@ legend {
 			if($('#customers').val() != -1){
 				$.ajax({
 						type : "GET",
-						url : "/crm/rest/beatReST/beatsNotMappedToCustomer/"+$('#customers').val(),
+						url : "/crm/rest/beatReST/beatsNotMappedToCustomer/"+$('#customers').val()+"/"+$('#tenantID').val(),
 						dataType : "json",
 						success : function(data) {
 							$('#beats').empty();

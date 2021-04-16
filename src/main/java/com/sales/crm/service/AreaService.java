@@ -14,8 +14,8 @@ public class AreaService {
 	@Autowired
 	private AreaDAO areaDAO;
 	
-	public Area getArea(int areaID){
-		return areaDAO.get(areaID);
+	public Area getArea(int areaID, int tenantID){
+		return areaDAO.get(areaID, tenantID);
 	}
 	
 	public void createArea(Area area) throws Exception{
@@ -26,23 +26,23 @@ public class AreaService {
 		areaDAO.update(area);
 	}
 	
-	public void deleteArea(int areaID) throws Exception{
-		areaDAO.delete(areaID);
+	public void deleteArea(int areaID, int tenantID) throws Exception{
+		areaDAO.delete(areaID, tenantID);
 	}
 	
-	public List<Area> getResellerAreas(int resellerID){
-		return areaDAO.getResellerAreas(resellerID);
+	public List<Area> getTenantAreas(int tenantID){
+		return areaDAO.getTenantAreas(tenantID);
 	}
 	
-	public List<Area> getBeatAreas(int beatID){
-		return areaDAO.getBeatAreas(beatID);
+	public List<Area> getBeatAreas(int beatID, int tenantID){
+		return areaDAO.getBeatAreas(beatID, tenantID);
 	}
 	
-	public List<Area> getResellerAreasNotMappedToBeat(int resellerID){
-		return areaDAO.getResellerAreasNotMappedToBeat(resellerID);
+	public List<Area> getTenantAreasNotMappedToBeat(int tenantID){
+		return areaDAO.getTenantAreasNotMappedToBeat(tenantID);
 	}
 	
-	public List<Area> getResellerAreasNotMappedToBeatForEdit(int resellerID, int beatID){
-		return areaDAO.getResellerAreasNotMappedToBeatForEdit(resellerID, beatID);
+	public List<Area> getTenantAreasNotMappedToBeatForEdit(int tenantID, int beatID){
+		return areaDAO.getTenantAreasNotMappedToBeatForEdit(tenantID, beatID);
 	}
 }

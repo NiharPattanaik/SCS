@@ -8,7 +8,7 @@
 <html lang="en">
 
 <head>
-	<title>Assign Sales Executive To Supplier</title>
+	<title>Assign Sales Executive To Manufacturer</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
@@ -80,16 +80,16 @@ legend {
 		<%@ include file="menus.jsp" %>
 		<div class="row top-height">
 			<div class="col-md-8 ">
-				<form:form modelAttribute="supplier" method="post"
-					action="/crm/web/supplierWeb/assignSalesExecutive">
+				<form:form modelAttribute="manufacturer" method="post"
+					action="/crm/web/manufacturerWeb/assignSalesExecutive">
 					<fieldset>
-						<legend>Assign Sales Executive to Supplier</legend>
+						<legend>Assign Sales Executive to Manufacturer</legend>
 							<div class="form-group required">
-								<label class='control-label'>Supplier</label>
-								<form:select path="supplierID" cssClass="form-control" id="suppliers">
+								<label class='control-label'>Manufacturer</label>
+								<form:select path="manufacturerID" cssClass="form-control" id="manufacturers">
 									<form:option value="-1" label="--- Select ---" required="required"/>
-									<c:forEach var="csupplier" items="${suppliers}">
-										<form:option value="${ csupplier.supplierID }" label="${ csupplier.name }" required="required"/>
+									<c:forEach var="cmanufacturer" items="${manufacturers}">
+										<form:option value="${ cmanufacturer.manufacturerID }" label="${ cmanufacturer.name }" required="required"/>
 									</c:forEach>
 								</form:select>
 							</div>
@@ -111,13 +111,13 @@ legend {
 </body>
 <script type="text/javascript">
 	$(document).ready(function() {
-		$("#suppliers").prop('required',true);
+		$("#manufacturers").prop('required',true);
 		
-		$('#suppliers').change(function() {
-			if($('#suppliers').val() != -1){
+		$('#manufacturers').change(function() {
+			if($('#manufacturers').val() != -1){
 				$.ajax({
 						type : "GET",
-						url : "/crm/rest/salesExecReST/salesExecNotMappedToSupp/"+$('#suppliers').val(),
+						url : "/crm/rest/salesExecReST/salesExecNotMappedToManufacturer/"+$('#manufacturers').val(),
 						dataType : "json",
 						success : function(data) {
 							$('#salesExecs').empty();

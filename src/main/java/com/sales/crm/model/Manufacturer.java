@@ -1,5 +1,7 @@
 package com.sales.crm.model;
 
+import java.util.List;
+
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
@@ -8,74 +10,136 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "MANUFACTURER")
 @AttributeOverrides({
-	@AttributeOverride(name = "companyID", column = @Column(name = "COMPANY_ID")),
+	@AttributeOverride(name = "statusID", column = @Column(name = "STATUS_ID")),
+	@AttributeOverride(name = "tenantID", column = @Column(name = "TENANT_ID")),
 	@AttributeOverride(name = "dateCreated", column = @Column(name = "DATE_CREATED")),
 	@AttributeOverride(name = "dateModified", column = @Column(name = "DATE_MODIFIED"))})
 public class Manufacturer extends BusinessEntity{
 	
+	private static final long serialVersionUID = 0l;
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID", unique = true, nullable = false)
-	private int manufacturerID;
+	int manufacturerID;
 	
-	@Column(name = "SHORT_NAME")
-	private String shortName;
+	@Column(name = "CODE")
+	private String code;
 	
-	@Column(name = "FULL_NAME")
-	private String fullName;
+	@Column(name = "NAME")
+	String name;
 	
-	@Column(name = "DIVISION")
-	private String division;
+	@Column(name = "DESCRIPTION")
+	String description;
 	
-	@Column(name = "RESELLER_ID")
-	private int resellerID;
+	//@OneToMany(orphanRemoval=true, cascade=CascadeType.ALL, fetch=FetchType.EAGER)
+	@Transient
+	List<Address> address;
 	
+	@Transient
+	private ManufacturerSalesOfficer salesOfficer;
+	
+	@Transient
+	private ManufacturerAreaManager areaManager;
+	
+	@Transient
+	private List<Manufacturer> manufacturers;
+	
+	@Transient
+	private List<Integer> manufacturerIDs;
+	
+	@Transient
+	private List<Beat> beats;
+	
+	@Transient
+	private List<SalesExecutive> salesExecs;
+	
+	@Transient
+	private List<Integer> salesExecsIDs;
 	
 	public int getManufacturerID() {
 		return manufacturerID;
 	}
-
 	public void setManufacturerID(int manufacturerID) {
 		this.manufacturerID = manufacturerID;
 	}
-
-	public int getResellerID() {
-		return resellerID;
+	
+	public String getCode() {
+		return code;
 	}
-
-	public void setResellerID(int resellerID) {
-		this.resellerID = resellerID;
+	public void setCode(String code) {
+		this.code = code;
 	}
-
-	public String getShortName() {
-		return shortName;
+	public String getName() {
+		return name;
 	}
-
-	public void setShortName(String shortName) {
-		this.shortName = shortName;
+	public void setName(String name) {
+		this.name = name;
 	}
-
-	public String getFullName() {
-		return fullName;
+	public String getDescription() {
+		return description;
 	}
-
-	public void setFullName(String fullName) {
-		this.fullName = fullName;
+	public void setDescription(String description) {
+		this.description = description;
 	}
-
-	public String getDivision() {
-		return division;
+	public List<Address> getAddress() {
+		return address;
 	}
-
-	public void setDivision(String division) {
-		this.division = division;
+	public void setAddress(List<Address> address) {
+		this.address = address;
 	}
-
+	public ManufacturerSalesOfficer getSalesOfficer() {
+		return salesOfficer;
+	}
+	public void setSalesOfficer(ManufacturerSalesOfficer salesOfficer) {
+		this.salesOfficer = salesOfficer;
+	}
+	public ManufacturerAreaManager getAreaManager() {
+		return areaManager;
+	}
+	public void setAreaManager(ManufacturerAreaManager areaManager) {
+		this.areaManager = areaManager;
+	}
+	
+	public List<Manufacturer> getManufacturers() {
+		return manufacturers;
+	}
+	public void setManufacturers(List<Manufacturer> manufacturers) {
+		this.manufacturers = manufacturers;
+	}
+	
+	public List<Integer> getManufacturerIDs() {
+		return manufacturerIDs;
+	}
+	public void setManufacturerIDs(List<Integer> manufacturerIDs) {
+		this.manufacturerIDs = manufacturerIDs;
+	}
+	
+	public List<Beat> getBeats() {
+		return beats;
+	}
+	public void setBeats(List<Beat> beats) {
+		this.beats = beats;
+	}
+	
+	public List<SalesExecutive> getSalesExecs() {
+		return salesExecs;
+	}
+	public void setSalesExecs(List<SalesExecutive> salesExecs) {
+		this.salesExecs = salesExecs;
+	}
+	public List<Integer> getSalesExecsIDs() {
+		return salesExecsIDs;
+	}
+	public void setSalesExecsIDs(List<Integer> salesExecsIDs) {
+		this.salesExecsIDs = salesExecsIDs;
+	}
 	
 	
-
+	
 }

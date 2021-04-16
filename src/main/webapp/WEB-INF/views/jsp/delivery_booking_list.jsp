@@ -1,63 +1,69 @@
 <!DOCTYPE html>
-<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>    
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>    
-<%@ page import="com.sales.crm.model.Beat" %>
-<%@ page import="com.sales.crm.model.TrimmedCustomer" %>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ page import="com.sales.crm.model.Beat"%>
+<%@ page import="com.sales.crm.model.TrimmedCustomer"%>
 
 <html lang="en">
 
 <head>
-    <title>Delivery Booking</title>
-  	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
-	<script src="<%=request.getContextPath()%>/resources/js/jquery-3.2.0.min.js"></script>
-	<script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
-	<link href="<%=request.getContextPath()%>/resources/css/bootstrap-datepicker.css" rel="stylesheet">
-	<script	src="<%=request.getContextPath()%>/resources/js/bootstrap-datepicker.js"></script>
+<title>Delivery Booking</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link
+	href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css"
+	rel="stylesheet" />
+<script
+	src="<%=request.getContextPath()%>/resources/js/jquery-3.2.0.min.js"></script>
+<script
+	src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
+<link
+	href="<%=request.getContextPath()%>/resources/css/bootstrap-datepicker.css"
+	rel="stylesheet">
+<script
+	src="<%=request.getContextPath()%>/resources/js/bootstrap-datepicker.js"></script>
 
 <style>
-    .dpHeaderWrap {
-        position: relative;
-        width: auto;
-        height: 80px;
-        background: #fff;
-        border-style: solid;
-        border-bottom-style: groove;
-        border-top-style: none;
-        border-left-style: none;
-        border-right-style: none;
-        margin: 10px;
-    }
-    
-    .top-height {
-        margin-top: 2%;
-    }
-    
-    .customer_list{
-    margin-bottom:20px;
-    }
-    .add_customer{
-    text-align:right;
-    margin-top:31px;
-    }
-    
-    .side_nav_btns{
-    
-    margin-top:10px;
-    }
-    
-    .side_nav_btns a{
-    text-decoration: none;
-    background: #337ab7;
-    padding: 11px;
-    border-radius: 12px;
-    color: #ffffff;
-    margin-top: 12px;
-    
-    }
-    
-    fieldset {
+.dpHeaderWrap {
+	position: relative;
+	width: auto;
+	height: 80px;
+	background: #fff;
+	border-style: solid;
+	border-bottom-style: groove;
+	border-top-style: none;
+	border-left-style: none;
+	border-right-style: none;
+	margin: 10px;
+}
+
+.top-height {
+	margin-top: 2%;
+}
+
+.customer_list {
+	margin-bottom: 20px;
+}
+
+.add_customer {
+	text-align: right;
+	margin-top: 31px;
+}
+
+.side_nav_btns {
+	margin-top: 10px;
+}
+
+.side_nav_btns a {
+	text-decoration: none;
+	background: #337ab7;
+	padding: 11px;
+	border-radius: 12px;
+	color: #ffffff;
+	margin-top: 12px;
+}
+
+fieldset {
 	border: 1px solid grey;
 	padding: 10px;
 	border-radius: 5px;
@@ -68,81 +74,104 @@ legend {
 	border-bottom: 0px !important;
 }
 
-.modal-custom-footer {
-    padding: 15px;
-    text-align: center;
-    border-top: 1px solid #e5e5e5;
+table.table.table-striped thead {
+	background: #ddd;
+	padding: 10px 0 10px 0;
 }
 
-    </style>
+.table {
+	width: 100%;
+	max-width: 100%;
+	margin-bottom: 20px;
+	margin-top: 10px;
+	margin-left: 15px
+}
+
+.modal-custom-footer {
+	padding: 15px;
+	text-align: center;
+	border-top: 1px solid #e5e5e5;
+}
+</style>
 </head>
 
 <body>
-    <!-- Header -->
-    <header class="dpHeaderWrap">
-        <div class="text-center">
-            Header part
-        </div>
-    </header>
-    <!-- Header -->
-    <div class="container">
-        <!-- Links -->
-        <%@ include file="menus.jsp" %>
-        	<div class="row customer_list">
-        		<div class="col-md-4">
-            		<h3>Scheduled Delivery Bookings</h3>   
-            	</div>
-	        	<div class="col-md-4 add_customer">
-	        		 <% if(resourcePermIDs.contains(ResourcePermissionEnum.ORDER_SCHEDULE_DELIVERY_BOOKING.getResourcePermissionID())) { %>
-						<button type="submit" class="btn btn-primary" onclick="location.href='<%=request.getContextPath()%>/web/deliveryExecWeb/scheduleDeliveryBookingForm';">Schedule Delivery Booking</button>
-					<% } %>
-				</div>
-			</div>  
-				<div class="row top-height">
-		        	<div class="col-md-8 ">
-						<form:form modelAttribute="deliveryBookingSchedule" method="post"
-							action="/crm/web/deliveryExecWeb/unscheduleDeliveryBooking">
-								<div class="form-group">
-									<label>Visit Date</label>
-									<form:input id="dp" name="visitDate" cssClass="dp form-control"
-										path="visitDate" />
-								</div>
-								<div class="form-group">
-										<label>Delivery Executive</label>
-										<form:select path="delivExecutiveID" cssClass="form-control" id="deliv_exec">
-										</form:select>
-								</div>
-								<div class="form-group">
-									<label>Beats</label>
-									<select class="form-control" id="beats">
-										<option value="-1" label="--- Select Beat---" />
-									</select>
-								</div>
-								
-								<div id="customer-table">
-									<fieldset>
-										<legend>Customers</legend>
-										<div class="form-group">
-											<table class="table" id="myTable">
-									            <thead>
-									                <tr>
-									                    <th>Customer Name</th>
-									                    <th>Order Reference</th>
-									                    <th>Select to Cancel Visit</th>
-									                    <th><button type="submit" class="btn btn-primary" id="cancel">Cancel Visits</button></th>
-									             	</tr>
-									            </thead>
-									            <tbody>
-									            </tbody>
-								        	</table>	
-										</div>
-									</fieldset>	
-								</div>
-						</form:form>
-					</div>
-				</div>
+	<!-- Header -->
+	<header class="dpHeaderWrap">
+		<div class="text-center">Header part</div>
+	</header>
+	<!-- Header -->
+	<div class="container">
+		<!-- Links -->
+		<%@ include file="menus.jsp"%>
+		<div class="row customer_list">
+			<div class="col-md-4">
+				<h3>Search Delivery Bookings</h3>
 			</div>
-		<script type="text/javascript">
+			<div class="col-md-4 add_customer">
+				<% if(resourcePermIDs.contains(ResourcePermissionEnum.ORDER_SCHEDULE_DELIVERY_BOOKING.getResourcePermissionID())) { %>
+				<button type="submit" class="btn btn-primary"
+					onclick="location.href='<%=request.getContextPath()%>/web/deliveryExecWeb/scheduleDeliveryBookingForm';">New
+					Delivery Booking</button>
+				<% } %>
+			</div>
+		</div>
+		<div class="row top-height">
+			<div class="col-md-8 ">
+				<form:form modelAttribute="deliveryBookingSchedule" method="post"
+					action="/crm/web/deliveryExecWeb/unscheduleDeliveryBooking">
+					<div class="form-group">
+						<label class="col-sm-3">Visit Date</label>
+						<div class="col-sm-4">
+							<form:input id="dp" name="visitDate" cssClass="dp form-control"
+								path="visitDate" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3">Delivery Executive</label>
+						<div class="col-sm-4">
+							<form:select path="delivExecutiveID" cssClass="form-control"
+								id="deliv_exec">
+								<option value="-1" label="--- Select Delivery Exec---" />
+							</form:select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3">Beats</label>
+						<div class="col-sm-4">
+							<select class="form-control" id="beats">
+								<option value="-1" label="--- Select Beat---" />
+							</select>
+						</div>
+					</div>
+					<div>
+						<button type="button" class="btn btn-primary" id="search" disabled>Search</button>
+					</div>
+					<form:hidden name="tenantID" path="tenantID" id="tenantID"
+						value="${ tenantID }" />
+					<div id="customer-table">
+						<div class="form-group">
+							<table class="table table-striped" id="myTable">
+								<thead>
+									<tr>
+										<th>Order Reference</th>
+										<th>Customer Name</th>
+										<th>Beat</th>
+										<th>Delivery Executive</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+
+							</table>
+						</div>
+					</div>
+
+
+				</form:form>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
 		//Sales Execs
 		$(document).ready(function() {
 			$('#customer-table').hide();
@@ -150,7 +179,7 @@ legend {
 				if( $('#dp').val() ) {
 					$.ajax({ 
 						type : "GET",
-						url : "/crm/rest/deliveryExecReST/list/"+$('#dp').val(),
+						url : "/crm/rest/deliveryExecReST/list/"+$('#dp').val() + "/" + $('#tenantID').val(),
 						dataType : "json",
 						success : function(data) {
 							$('#deliv_exec').empty();
@@ -171,7 +200,7 @@ legend {
 			$('#deliv_exec').change(function() {
 				$.ajax({ 
 					type : "GET",
-					url : "/crm/rest/deliveryExecReST/scheduledDeliveryBeats/"+$('#deliv_exec').val()+"/"+$('#dp').val(),
+					url : "/crm/rest/deliveryExecReST/scheduledDeliveryBeats/"+$('#deliv_exec').val()+"/"+$('#dp').val() + "/" + $('#tenantID').val(),
 					dataType : "json",
 					success : function(data) {
 						$('#beats').empty();
@@ -192,13 +221,13 @@ legend {
 					var isCusromerPresent = false;
 					$.ajax({
 							type : "GET",
-							url : "/crm/rest/deliveryExecReST/deliveryScheduledCustomers/"+$('#deliv_exec').val()+"/"+$('#dp').val()+"/"+$('#beats').val(),
+							url : "/crm/rest/deliveryExecReST/deliveryScheduledCustomers/"+$('#deliv_exec').val()+"/"+$('#dp').val()+"/"+$('#beats').val() + "/" + $('#tenantID').val(),
 							dataType : "json",
 							success : function(data) {
 								$("#myTable > tbody").empty();
 								$.each(data,function(i,obj) {
 									isCusromerPresent = true;
-									var row_data = "<tr><td>"+ obj.customer.customerName +"</td><td><a href=# id=order-link data-toggle=modal data-target=#orders data-rows=" + JSON.stringify(obj.orders) + "><i>View Linked Order</i></a></><td><input name=customerIDs id=customerIDs type=checkbox value="+obj.customer.customerID+"></td></tr>";
+									var row_data = "<tr><td>"+ obj.customer.customerName +"</td><td><a href=# id=order-link data-toggle=modal data-target=#orders data-rows='" + JSON.stringify(obj.orders) + "'><i>View Linked Order</i></a></><td><input name=customerIDs id=customerIDs type=checkbox value="+obj.customer.customerID+"></td></tr>";
 									$("#myTable > tbody").append(row_data);
 								});
 								//Show/Hide customer table
@@ -226,32 +255,34 @@ legend {
 			});
 			
 		</script>
-		
-		<!-- Order List Modal -->
+
+	<!-- Order List Modal -->
 	<div class="modal fade" id="orders" tabindex="-1" role="dialog"
 		aria-labelledby="myModalLabel" aria-hidden="true">
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
-				<div class="modal-header"><b>Order included for the delivery</b></div>
+				<div class="modal-header">
+					<b>Order included for the delivery</b>
+				</div>
 				<div class="modal-body">
-					   <table class="table" id="modalTable">
-				            <thead>
-				                <tr>
-				                	<th>Order ID</th>
-				                    <th>Order Booking ID</th>
-				                    <th>Order Date</th>
-				                    <th>No Of Line Items</th>
-				                    <th>Booking Value</th>
-				                    <th>Remark</th>
-				             	</tr>
-				            </thead>
-				            <tbody>
-				            </tbody>
-			        	</table>	
+					<table class="table" id="modalTable">
+						<thead>
+							<tr>
+								<th>Order ID</th>
+								<th>Order Booking ID</th>
+								<th>Order Date</th>
+								<th>No Of Line Items</th>
+								<th>Booking Value</th>
+								<th>Remark</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
 				</div>
 				<div class="modal-custom-footer">
 					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-				</div>	
+				</div>
 				<script type="text/javascript">
 					var customerID;
 					$('#orders').on('show.bs.modal', function (e) {
@@ -264,9 +295,9 @@ legend {
 						});
 					});
 				</script>
-				
+
 			</div>
 		</div>
 	</div>
-	</body>
+</body>
 </html>

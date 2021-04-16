@@ -30,7 +30,7 @@ public class OTPService {
 	private static Logger logger = Logger.getLogger(OTPService.class);
 	
 	
-	public void generateOTP(CustomerOTP customerOTP) throws Exception{
+	public void generateOTP(CustomerOTP customerOTP, int tenantID) throws Exception{
 		
 		int customerID = customerOTP.getCustomerID();
 		String date = new SimpleDateFormat("dd").format(new Date());
@@ -40,26 +40,28 @@ public class OTPService {
 		String otp = String.valueOf(customerID)+date+String.valueOf(otpType);
 		customerOTP.setGenaratedOTP(otp);
 		boolean sendSMSStatus = true;
-		try{
-			//String mobileNo = customerService.getCustomerPrimaryMobileNo(customerID);
-			//if(mobileNo.trim().isEmpty() || mobileNo.trim().equals("+91")){
-			//	throw new CRMException(ErrorCodes.OTP_NO_MOBILE_NO, "OTP could not be generated successfully as customer has not registered primary mobile number");
+		try {
+			//String mobileNo = customerService.getCustomerPrimaryMobileNo(customerID, tenantID);
+			//if (mobileNo.trim().isEmpty() || mobileNo.trim().equals("+91")) {
+			//	throw new CRMException(ErrorCodes.OTP_NO_MOBILE_NO,
+			//			"OTP could not be generated successfully as customer has not registered primary mobile number");
 			//}
 			int otpID = otpDAO.generateOTP(customerOTP);
-			//Call SMS Gateway
-			//retry 3 times
-			//for(int i=0; i<3; i++){
-			//	if(sendSms(mobileNo, otp, otpType)){
+			// Call SMS Gateway
+			// retry 3 times
+			//for (int i = 0; i < 3; i++) {
+			//	if (sendSms(mobileNo, otp, otpType)) {
 			//		sendSMSStatus = true;
 			//		logger.info("OTP is successfully sent to customer");
 			//		break;
 			//	}
 			//}
-			
-			if(!sendSMSStatus){
+
+			if (!sendSMSStatus) {
 				logger.error("OTP SMS failed to send, removing OTP entry from DB");
-				otpDAO.removeGeneratedOTP(otpID);
-				throw new CRMException(ErrorCodes.OTP_DISPATCH_FAILED, "SMS could not be sent to the customer through gateway.");
+				otpDAO.removeGeneratedOTP(otpID, tenantID);
+				throw new CRMException(ErrorCodes.OTP_DISPATCH_FAILED,
+						"SMS could not be sent to the customer through gateway.");
 			}
 		}catch(Exception exception){
 			throw exception;
@@ -87,15 +89,14 @@ public class OTPService {
 			}
 			
 			// Construct data
-			String user = "username=" + "nihar.pattanaik@gmail.com";
-			String hash = "&hash=" + "Welcome123";
+			String apiKey = "apikey=" + "OTg5M2ZmMDEwODI0YzMzOWY3YTY0NDVlMjYzYzQ4MGY=";
 			String message = "&message=" + msg;
 			String sender = "&sender=" + "TXTLCL";
 			String numbers = "&numbers=" + mobileNo;
 			
 			// Send data
-			HttpURLConnection conn = (HttpURLConnection) new URL("http://api.textlocal.in/send/?").openConnection();
-			String data = user + hash + numbers + message + sender;
+			HttpURLConnection conn = (HttpURLConnection) new URL("https://api.textlocal.in/send/?").openConnection();
+			String data = apiKey + numbers + message + sender;
 			conn.setDoOutput(true);
 			conn.setRequestMethod("POST");
 			conn.setRequestProperty("Content-Length", Integer.toString(data.length()));
@@ -120,15 +121,15 @@ public class OTPService {
 		return false;
 	}
 	
-	public void verifyOTP(int customerID, int otpType, String otp) throws Exception{
-		otpDAO.verifyOTP(customerID, otpType, otp);
+	public void verifyOTP(int customerID, int otpType, String otp, int tenantID) throws Exception{
+		otpDAO.verifyOTP(customerID, otpType, otp, tenantID);
 	}
 	
-	public List<CustomerOTP> getOTPReport(int resellerID){
-		return otpDAO.getOTPReport(resellerID);
+	public List<CustomerOTP> getOTPReport(int tenantID){
+		return otpDAO.getOTPReport(tenantID);
 	}
 	
-	public void deleteOTP(int otpID) throws Exception{
-		otpDAO.removeGeneratedOTP(otpID);
+	public void deleteOTP(int otpID, int tenantID) throws Exception{
+		otpDAO.removeGeneratedOTP(otpID, tenantID);
 	}
 }

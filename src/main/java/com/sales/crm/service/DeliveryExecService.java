@@ -18,48 +18,48 @@ public class DeliveryExecService {
 	@Autowired
 	DeliveryExecDAO deliveryDAO;
 	
-	public List<DeliveryExecutive> getDelivExecutivesHavingBeatsAssigned(int resellerID){
-		return deliveryDAO.getDelivExecutivesHavingBeatsAssigned(resellerID);
+	public List<DeliveryExecutive> getDelivExecutivesHavingBeatsAssigned(int tenantID){
+		return deliveryDAO.getDelivExecutivesHavingBeatsAssigned(tenantID);
 	}
 
-	public List<DeliveryExecutive> getDeliveryExecutives(int resellerID){
-		return deliveryDAO.getDeliveryExecutives(resellerID);
+	public List<DeliveryExecutive> getDeliveryExecutives(int tenantID){
+		return deliveryDAO.getDeliveryExecutives(tenantID);
 	}
 	
-	public void assignBeats(final int salesExecID, final List<Integer> beatIDs) throws Exception{
-		deliveryDAO.assignBeats(salesExecID, beatIDs);
+	public void assignBeats(int tenantID, final int salesExecID, final List<Integer> beatIDs) throws Exception{
+		deliveryDAO.assignBeats(tenantID, salesExecID, beatIDs);
 	}
 	
-	public DeliveryExecutive getDelivExecutive(int delivExecID){
-		return deliveryDAO.getDelivExecutive(delivExecID);
+	public DeliveryExecutive getDelivExecutive(int delivExecID, int tenantID){
+		return deliveryDAO.getDelivExecutive(delivExecID, tenantID);
 	}
 	
-	public void updateAssignedBeats(int delivExecID, List<Integer> beatIDs) throws Exception{
-		deliveryDAO.updateAssignedBeats(delivExecID, beatIDs);
+	public void updateAssignedBeats(int tenantID, int delivExecID, List<Integer> beatIDs) throws Exception{
+		deliveryDAO.updateAssignedBeats(tenantID, delivExecID, beatIDs);
 	}
 	
-	public void deleteBeatAssignment(int delivExecID) throws Exception{
-		deliveryDAO.deleteBeatAssignment(delivExecID);
+	public void deleteBeatAssignment(int delivExecID, int tenantID) throws Exception{
+		deliveryDAO.deleteBeatAssignment(delivExecID, tenantID);
 	}
 	
-	public List<DeliveryExecutive> getDeliveryExecutivesScheduled(int resellerID){
-		return deliveryDAO.getDeliveryExecutivesScheduled(resellerID);
+	public List<DeliveryExecutive> getDeliveryExecutivesScheduled(int tenantID){
+		return deliveryDAO.getDeliveryExecutivesScheduled(tenantID);
 	}
 	
-	public List<Beat> getAssignedBeats(int delivExecID){
-		return deliveryDAO.getAssignedBeats(delivExecID);
+	public List<Beat> getAssignedBeats(int delivExecID, int tenantID){
+		return deliveryDAO.getAssignedBeats(delivExecID, tenantID);
 	}
 	
-	public List<Beat> getScheduledVisitDelivExecBeats(int delivExecID, Date visitDate){
-		return deliveryDAO.getScheduledVisitDelivExecBeats(delivExecID, visitDate);
+	public List<Beat> getScheduledVisitDelivExecBeats(int delivExecID, Date visitDate, int tenantID){
+		return deliveryDAO.getScheduledVisitDelivExecBeats(delivExecID, visitDate, tenantID);
 	}
 	
-	public List<DeliveryExecutive> getScheduledVisitDelivExecs(Date visitDate, int resellerID){
-		return deliveryDAO.getScheduledVisitDelivExecs(visitDate, resellerID);
+	public List<DeliveryExecutive> getScheduledVisitDelivExecs(Date visitDate, int tenantID){
+		return deliveryDAO.getScheduledVisitDelivExecs(visitDate, tenantID);
 	}
 	
-	public List<CustomerOrder> getScheduledCustomersOrdersForDelivery(int delivExecID, Date visitDate, int beatID){
-		return deliveryDAO.getScheduledCustomersOrdersForDelivery(delivExecID, visitDate, beatID);
+	public List<CustomerOrder> getScheduledCustomersOrdersForDelivery(int delivExecID, Date visitDate, int beatID, int tenantID){
+		return deliveryDAO.getScheduledCustomersOrdersForDelivery(delivExecID, visitDate, beatID, tenantID);
 	}
 	
 	public List<String> alreadyDeliveryBookingScheduledCustomer(DeliveryBookingSchedule deliveryBookingSchedule) throws Exception{
@@ -70,11 +70,15 @@ public class DeliveryExecService {
 		deliveryDAO.scheduleDeliveryBooking(deliveryBookingSchedule);
 	}
 	
-	public void unscheduleDeliveryBooking(List<Integer> customerIDs, Date visitDate) throws Exception{
-		deliveryDAO.unscheduleDeliveryBooking(customerIDs, visitDate);
+	public void unscheduleDeliveryBooking(List<Integer> customerIDs, Date visitDate, int tenantID) throws Exception{
+		deliveryDAO.unscheduleDeliveryBooking(customerIDs, visitDate, tenantID);
 	}
 	
-	public int getDeliveryExecutiveCount(int resellerID){
-		return deliveryDAO.getDeliveryExecutiveCount(resellerID);
+	public int getDeliveryExecutiveCount(int tenantID){
+		return deliveryDAO.getDeliveryExecutiveCount(tenantID);
+	}
+	
+	public List<DeliveryBookingSchedule> getAllDeliveryBookedForToday(int tenantID){
+		return deliveryDAO.getAllDeliveryBookedForDate(tenantID, new Date());
 	}
 }

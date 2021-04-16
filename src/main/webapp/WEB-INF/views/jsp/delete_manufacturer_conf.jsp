@@ -85,13 +85,13 @@
     					</c:when>    
     					<c:otherwise>
         					<div class="alert alert-success">
-	 						 <strong>Success!</strong><br> Manufacturer has been successfully removed.
+	 						 <strong>Success!</strong><br> Manufacturer has been successfully deleted.
 						</div>
     					</c:otherwise>
 					</c:choose>
 					<div class="form_submit">
-						<a href="<%=request.getContextPath()%>/web/manufacturerWeb/list" class="btn btn-primary">View List Of Manufactures</a>
-						<a href="<%=request.getContextPath()%>/web/manufacturerWeb/createManufacturerForm" class="btn btn-primary">Create Another Manufacturer</a>
+						<a href="<%=request.getContextPath()%>/web/manufacturerWeb/list" class="btn btn-primary">View List Of Manufacturers</a>
+						<a href="<%=request.getContextPath()%>/web/manufacturerWeb/createManufacturerForm" class="btn btn-primary">Add a New Manufacturer</a>
 					</div>
 			</div>
 		</div>

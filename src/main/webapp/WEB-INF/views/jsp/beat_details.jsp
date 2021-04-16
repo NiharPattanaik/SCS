@@ -160,13 +160,13 @@ legend {
 					
 				</fieldset>
 				<fieldset>
-					<legend>Suppliers</legend>
+					<legend>Manufacturer</legend>
 					<div
 						style="width: 200px; min-height: 2px; max-height: 100px; overflow-y: auto;"
 						id="checks">
 						<ul>
-							<c:forEach var="supplier" items="${beat.suppliers}">
-								<li><a href="<%=request.getContextPath()%>/web/supplierWeb/${supplier.supplierID}">${supplier.name}</a></li>
+							<c:forEach var="manufacturer" items="${beat.manufacturers}">
+								<li><a href="<%=request.getContextPath()%>/web/manufacturerWeb/${manufacturer.manufacturerID}">${manufacturer.name}</a></li>
 							</c:forEach>
 						</ul>
 

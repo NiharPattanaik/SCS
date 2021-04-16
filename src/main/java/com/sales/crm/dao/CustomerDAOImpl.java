@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
@@ -25,6 +26,7 @@ import com.sales.crm.model.Address;
 import com.sales.crm.model.Beat;
 import com.sales.crm.model.Customer;
 import com.sales.crm.model.CustomerOrder;
+import com.sales.crm.model.EntityStatusEnum;
 import com.sales.crm.model.Order;
 import com.sales.crm.model.TrimmedCustomer;
 import com.sales.crm.model.User;
@@ -39,6 +41,13 @@ public class CustomerDAOImpl implements CustomerDAO{
 	private static Logger logger = Logger.getLogger(CustomerDAOImpl.class);
 	
 	private static SimpleDateFormat dbFormat = new SimpleDateFormat("yyyy-MM-dd");
+	
+	private static Map<Integer, String> statusMap = new HashMap<Integer, String>();
+	
+	static {
+		statusMap.put(EntityStatusEnum.ACTIVE.getEntityStatus(), EntityStatusEnum.ACTIVE.getStatusText());
+		statusMap.put(EntityStatusEnum.INACTIVE.getEntityStatus(), EntityStatusEnum.INACTIVE.getStatusText());
+	}
 
 	
 	@Override
@@ -49,31 +58,48 @@ public class CustomerDAOImpl implements CustomerDAO{
 			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
 			customer.setDateCreated(new Date());
+			customer.setCode(UUID.randomUUID().toString());
+			customer.setStatusID(EntityStatusEnum.ACTIVE.getEntityStatus());
+			session.save(customer);
+			//Save Address
 			for(Address address : customer.getAddress()){
 				address.setDateCreated(new Date());
+				address.setTenantID(customer.getTenantID());
+				address.setCode(UUID.randomUUID().toString());
+				address.setStatusID(EntityStatusEnum.ACTIVE.getEntityStatus());
+				//Save Adddress
+				session.save(address);
+				//Insert into Tenant Address
+				SQLQuery query = session.createSQLQuery("INSERT INTO CUSTOMER_ADDRESS (CUSTOMER_ID, ADDRESS_ID, TENANT_ID, DATE_CREATED) VALUES (?, ? , ?, CURDATE())");
+				query.setInteger(0, customer.getCustomerID());
+				query.setInteger(1, address.getId());
+				query.setInteger(2, customer.getTenantID());
+				query.executeUpdate();
 			}
-			session.save(customer);
 			//Customer-Beat Assignment
 			final List<Integer> beatIDs = customer.getBeatIDs();
 			final int customerID = customer.getCustomerID();
-			session.doWork(new Work() {
-				@Override
-				public void execute(Connection connection) throws SQLException {
-					PreparedStatement pstmt = null;
-					try {
-						String sqlInsert = "INSERT INTO BEAT_CUSTOMER VALUES (?, ?)";
-						pstmt = connection.prepareStatement(sqlInsert);
-						for (int beatID : beatIDs) {
-							pstmt.setInt(1, beatID);
-							pstmt.setInt(2, customerID);
-							pstmt.addBatch();
+			if(beatIDs.size() > 0) {
+				session.doWork(new Work() {
+					@Override
+					public void execute(Connection connection) throws SQLException {
+						PreparedStatement pstmt = null;
+						try {
+							String sqlInsert = "INSERT INTO BEAT_CUSTOMER (BEAT_ID, CUSTOMER_ID, TENANT_ID, DATE_CREATED) VALUES (?, ?, ?, CURDATE())";
+							pstmt = connection.prepareStatement(sqlInsert);
+							for (int beatID : beatIDs) {
+								pstmt.setInt(0, beatID);
+								pstmt.setInt(1, customerID);
+								pstmt.setInt(2, customer.getTenantID());
+								pstmt.addBatch();
+							}
+							pstmt.executeBatch();
+						} finally {
+							pstmt.close();
 						}
-						pstmt.executeBatch();
-					} finally {
-						pstmt.close();
 					}
-				}
-			});
+				});
+			}
 			transaction.commit();
 		}catch(Exception e){
 			logger.error("Error while creating customer", e);
@@ -89,45 +115,101 @@ public class CustomerDAOImpl implements CustomerDAO{
 	}
 
 	@Override
-	public Customer get(int customerID) {
+	public Customer get(int customerID, int tenantID) {
 		Session session = null;
 		Customer customer = null;
-		try{
+		try {
 			session = sessionFactory.openSession();
-			customer = (Customer)session.get(Customer.class, customerID);
-			//Get Sales exec details
-			SQLQuery salesExecQuery = session.createSQLQuery("SELECT a.ID, a.FIRST_NAME, a.LAST_NAME FROM USER a, CUSTOMER_SALES_EXEC b WHERE b.SALES_EXEC_ID=a.ID AND b.CUSTOMER_ID= ?");
-			salesExecQuery.setParameter(0, customer.getCustomerID());
-			List salesExecs = salesExecQuery.list();
-			if(salesExecs != null && salesExecs.size() == 1){
-				Object[] objs = (Object[])salesExecs.get(0);
-				customer.setSalesExecID(Integer.valueOf(String.valueOf(objs[0])));
-				customer.setSalesExecName(String.valueOf(objs[1]) + " " + String.valueOf(objs[2]) );
+			// customer = (Customer)session.get(Customer.class, customerID);
+			Query query = session.createQuery("from Customer where customerID = :customerID AND tenantID = :tenantID");
+			query.setParameter("customerID", customerID);
+			query.setParameter("tenantID", tenantID);
+			if (query.list() != null && query.list().size() == 1) {
+				customer = (Customer) query.list().get(0);
+
+				// Get Address
+				SQLQuery addressQuery = session.createSQLQuery(
+						"SELECT a.* FROM Address a, CUSTOMER_ADDRESS b WHERE a.ID = b.ADDRESS_ID AND b.CUSTOMER_ID = ? AND b.TENANT_ID=?");
+				addressQuery.setParameter(0, customer.getCustomerID());
+				addressQuery.setParameter(1, customer.getTenantID());
+				List addresses = addressQuery.list();
+				List<Address> addressList = new ArrayList<Address>(2);
+				for (Object obj : addresses) {
+					Object[] objs = (Object[]) obj;
+					Address address = new Address();
+					address.setId(Integer.valueOf(String.valueOf(objs[0])));
+					address.setCode(String.valueOf(objs[1]));
+					address.setAddressLine1(String.valueOf(objs[2]));
+					address.setAddressLine2(String.valueOf(objs[3]));
+					address.setStreet(String.valueOf(objs[4]));
+					address.setCity(String.valueOf(objs[5]));
+					address.setState(String.valueOf(objs[6]));
+					address.setCountry(String.valueOf(objs[7]));
+					address.setPostalCode(String.valueOf(objs[8]));
+					address.setContactPerson(String.valueOf(objs[9]));
+					address.setPhoneNumber(String.valueOf(objs[10]));
+					address.setMobileNumberPrimary(String.valueOf(objs[11]));
+					address.setMobileNumberSecondary(String.valueOf(objs[12]));
+					address.setEmailID(String.valueOf(objs[13]));
+					address.setAddrressType(Integer.valueOf(String.valueOf(objs[14])));
+					address.setStatusID(Integer.valueOf(String.valueOf(objs[15])));
+					address.setTenantID(Integer.valueOf(String.valueOf(objs[16])));
+					address.setDateCreated(new Date(dbFormat.parse(String.valueOf(objs[17])).getTime()));
+					if (objs[18] != null) {
+						address.setDateModified(new Date(dbFormat.parse(String.valueOf(objs[18])).getTime()));
+					}
+					addressList.add(address);
+				}
+				// Add address to customer
+				customer.setAddress(addressList);
+
+				// Get Sales exec details
+				SQLQuery salesExecQuery = session.createSQLQuery(
+						"SELECT a.ID, a.FIRST_NAME, a.LAST_NAME FROM USER a, CUSTOMER_SALES_EXEC b WHERE b.SALES_EXEC_ID=a.ID AND a.TENANT_ID=b.TENANT_ID AND b.CUSTOMER_ID= ? AND a.TENANT_ID = ?");
+				salesExecQuery.setParameter(0, customerID);
+				salesExecQuery.setParameter(1, tenantID);
+				List salesExecs = salesExecQuery.list();
+				if (salesExecs != null && salesExecs.size() == 1) {
+					Object[] objs = (Object[]) salesExecs.get(0);
+					customer.setSalesExecID(Integer.valueOf(String.valueOf(objs[0])));
+					customer.setSalesExecName(String.valueOf(objs[1]) + " " + String.valueOf(objs[2]));
+				}
+				// GET Beats
+				List<Beat> beatList = new ArrayList<Beat>();
+				List<Integer> beatIDs = new ArrayList<Integer>();
+				SQLQuery beatsQry = session.createSQLQuery(
+						"SELECT * FROM BEAT WHERE ID IN (SELECT BEAT_ID FROM BEAT_CUSTOMER WHERE CUSTOMER_ID= ? AND TENANT_ID = ?) AND TENANT_ID = ?");
+				beatsQry.setParameter(0, customerID);
+				beatsQry.setParameter(1, tenantID);
+				beatsQry.setParameter(2, tenantID);
+				List beats = beatsQry.list();
+				for (Object obj : beats) {
+					Object[] objs = (Object[]) obj;
+					Beat beat = new Beat();
+					beat.setBeatID(Integer.valueOf(String.valueOf(objs[0])));
+					beat.setCode(String.valueOf(objs[1]));
+					beat.setName(String.valueOf(objs[2]));
+					beat.setDescription(String.valueOf(objs[3]));
+					beat.setCoverageSchedule(String.valueOf(objs[4]));
+					beat.setDistance(Integer.valueOf(String.valueOf(objs[5])));
+					beat.setStatusID(Integer.valueOf(String.valueOf(objs[6])));
+					beat.setTenantID(Integer.valueOf(String.valueOf(objs[7])));
+					if(objs[8] != null){
+						beat.setDateCreated(new Date(dbFormat.parse(String.valueOf(objs[8])).getTime()));
+					}
+					if(objs[9] != null){
+						beat.setDateModified(new Date(dbFormat.parse(String.valueOf(objs[9])).getTime()));
+					}
+					beatIDs.add(beat.getBeatID());
+					beatList.add(beat);
+				}
+				customer.setBeatIDs(beatIDs);
+				customer.setBeats(beatList);
 			}
-			//GET Beats
-			List<Beat> beatList = new ArrayList<Beat>();
-			List<Integer> beatIDs = new ArrayList<Integer>();
-			SQLQuery beatsQry = session.createSQLQuery("SELECT * FROM BEAT WHERE ID IN (SELECT BEAT_ID FROM BEAT_CUSTOMER WHERE CUSTOMER_ID= ?)");
-			beatsQry.setParameter(0, customerID);
-			List beats = beatsQry.list();
-			for(Object obj : beats){
-				Object[] objs = (Object[])obj;
-				Beat beat = new Beat();
-				beat.setBeatID(Integer.valueOf(String.valueOf(objs[0])));
-				beat.setResellerID(Integer.valueOf(String.valueOf(objs[1])));
-				beat.setName(String.valueOf(objs[2]));
-				beat.setDescription(String.valueOf(objs[3]));
-				beat.setCoverageSchedule(String.valueOf(objs[4]));
-				beat.setDistance(Integer.valueOf(String.valueOf(objs[5])));
-				beatIDs.add(beat.getBeatID());
-				beatList.add(beat);
-			}
-			customer.setBeatIDs(beatIDs);
-			customer.setBeats(beatList);
-		}catch(Exception exception){
+		} catch (Exception exception) {
 			logger.error("Error while fetching customer details", exception);
-		}finally{
-			if(session != null){
+		} finally {
+			if (session != null) {
 				session.close();
 			}
 		}
@@ -145,6 +227,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 			customer.setDateModified(new Date());
 			for(Address address : customer.getAddress()){
 				address.setDateModified(new Date());
+				session.update(address);
 			}
 			session.update(customer);
 			transaction.commit();
@@ -162,50 +245,46 @@ public class CustomerDAOImpl implements CustomerDAO{
 	}
 
 	@Override
-	public void delete(int customerID) throws Exception{
+	public void delete(int customerID, int tenantID) throws Exception {
 		Session session = null;
 		Transaction transaction = null;
-		try{
+		try {
 			session = sessionFactory.openSession();
-			Customer customer = (Customer)session.get(Customer.class, customerID);
 			transaction = session.beginTransaction();
-			//Remove Customer_Sales_Executive Link
-			/**
-			SQLQuery removeCustSalesExecLink = session.createSQLQuery(" DELETE FROM CUSTOMER_SALES_EXEC WHERE CUSTOMER_ID=?");
-			removeCustSalesExecLink.setParameter(0, customer.getCustomerID());
-			removeCustSalesExecLink.executeUpdate();
-			**/
-			//Remove Customer
-			session.delete(customer);
+			Query query = session
+					.createQuery("delete from Customer where customerID = :customerID AND tenantID = :tenantID");
+			query.setParameter("customerID", customerID);
+			query.setParameter("tenantID", tenantID);
+			query.executeUpdate();
 			transaction.commit();
-		}catch(Exception exception){
+		} catch (Exception exception) {
 			logger.error("Error while deleting customer.", exception);
-			if(transaction != null){
+			if (transaction != null) {
 				transaction.rollback();
 			}
 			throw exception;
-		}finally{
-			if(session != null){
+		} finally {
+			if (session != null) {
 				session.close();
 			}
 		}
-		
+
 	}
 
 	@Override
-	public List<Customer> getResellerCustomers(int resellerID) {
+	public List<Customer> getTenantCustomers(int tenantID) {
 		Session session = null;
 		List<Customer> customers = null; 
 		try{
 			session = sessionFactory.openSession();
-			Query query = session.createQuery("from Customer where resellerID = :resellerID order by DATE_CREATED DESC");
-			query.setParameter("resellerID", resellerID);
+			Query query = session.createQuery("from Customer where tenantID = :tenantID order by DATE_CREATED DESC");
+			query.setParameter("tenantID", tenantID);
 			customers = query.list();
 			
 			//Fetch Sales Execs
 			Map<Integer, User> salesExecMap = new HashMap<Integer, User>();
-			SQLQuery salesExecQry = session.createSQLQuery("SELECT d.CUSTOMER_ID, a.ID, a.USER_NAME, a.FIRST_NAME, a.LAST_NAME FROM USER a, USER_ROLE b, RESELLER_USER c, CUSTOMER_SALES_EXEC d  WHERE a.ID=b.USER_ID AND a.ID=c.USER_ID AND d.SALES_EXEC_ID=a.ID AND b.ROLE_ID= 2 AND c.RESELLER_ID= ?");
-			salesExecQry.setParameter(0, resellerID);
+			SQLQuery salesExecQry = session.createSQLQuery("SELECT d.CUSTOMER_ID, a.ID, a.USER_NAME, a.FIRST_NAME, a.LAST_NAME FROM USER a, USER_ROLE b, TENANT_USER c, CUSTOMER_SALES_EXEC d  WHERE a.ID=b.USER_ID AND a.ID=c.USER_ID AND d.SALES_EXEC_ID=a.ID AND b.ROLE_ID= 2 AND c.TENANT_ID= ?");
+			salesExecQry.setParameter(0, tenantID);
 			List results = salesExecQry.list();
 			for(Object obj : results){
 				Object[] objs = (Object[])obj;
@@ -220,19 +299,27 @@ public class CustomerDAOImpl implements CustomerDAO{
 			
 			//Fetch Beats
 			Map<Integer, List<Beat>> customerBeatMap = new HashMap<Integer, List<Beat>>();
-			SQLQuery customerBeatQry = session.createSQLQuery("SELECT  a.CUSTOMER_ID, b.* FROM BEAT_CUSTOMER a, BEAT b WHERE a.BEAT_ID = b.ID AND RESELLER_ID= ?");
-			customerBeatQry.setParameter(0, resellerID);
+			SQLQuery customerBeatQry = session.createSQLQuery("SELECT  a.CUSTOMER_ID, b.* FROM BEAT_CUSTOMER a, BEAT b WHERE a.BEAT_ID = b.ID AND a.TENANT_ID=b.TENANT_ID AND a.TENANT_ID= ?");
+			customerBeatQry.setParameter(0, tenantID);
 			List custBeatsresults = customerBeatQry.list();
 			for(Object obj : custBeatsresults){
 				Object[] objs = (Object[])obj;
 				int customerId = Integer.valueOf(String.valueOf(objs[0]));
 				Beat beat = new Beat();
 				beat.setBeatID(Integer.valueOf(String.valueOf(objs[1])));
-				beat.setResellerID(Integer.valueOf(String.valueOf(objs[2])));
+				beat.setCode(String.valueOf(objs[2]));
 				beat.setName(String.valueOf(objs[3]));
 				beat.setDescription(String.valueOf(objs[4]));
 				beat.setCoverageSchedule(String.valueOf(objs[5]));
 				beat.setDistance(Integer.valueOf(String.valueOf(objs[6])));
+				beat.setStatusID(Integer.valueOf(String.valueOf(objs[7])));
+				beat.setTenantID(Integer.valueOf(String.valueOf(objs[8])));
+				if(objs[9] != null){
+					beat.setDateCreated(new Date(dbFormat.parse(String.valueOf(objs[9])).getTime()));
+				}
+				if(objs[10] != null){
+					beat.setDateModified(new Date(dbFormat.parse(String.valueOf(objs[10])).getTime()));
+				}
 				if(!customerBeatMap.containsKey(customerId)){
 					customerBeatMap.put(customerId, new ArrayList<Beat>());
 				}
@@ -248,6 +335,9 @@ public class CustomerDAOImpl implements CustomerDAO{
 				if(customerBeatMap.containsKey(customer.getCustomerID())){
 					customer.setBeats(customerBeatMap.get(customer.getCustomerID()));
 				}
+				
+				//Set Customer Status String
+				customer.setStatusAsString(statusMap.get(customer.getStatusID()));
 			}
 		}catch(Exception exception){
 			logger.error("Error while fetching customer List.", exception);
@@ -260,14 +350,16 @@ public class CustomerDAOImpl implements CustomerDAO{
 	}
 
 	@Override
-	public List<TrimmedCustomer> scheduledTrimmedCustomerslist(int salesExecID, Date visitDate) throws Exception{
+	public List<TrimmedCustomer> scheduledTrimmedCustomerslist(int salesExecID, Date visitDate, int tenantID) throws Exception{
 		Session session = null;
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME, b.ID order_booking_id FROM CUSTOMER a, ORDER_BOOKING_SCHEDULE b, ORDER_BOOKING_SCHEDULE_CUSTOMERS c  WHERE a.ID = c.CUSTOMER_ID AND b.ID = c.ORDER_BOOKING_SCHEDULE_ID AND  c.STATUS = 1 AND b.SALES_EXEC_ID= ? AND b.VISIT_DATE = ?");
-			query.setParameter( 0, salesExecID);
-			query.setParameter(1, new java.sql.Date(visitDate.getTime()));
+			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME, b.ID order_booking_id FROM CUSTOMER a, ORDER_BOOKING_SCHEDULE b, ORDER_BOOKING_SCHEDULE_CUSTOMERS c  WHERE a.ID = c.CUSTOMER_ID AND b.ID = c.ORDER_BOOKING_SCHEDULE_ID AND a.TENANT_ID=b.TENANT_ID AND  c.STATUS_ID = ? AND b.SALES_EXEC_ID= ? AND b.VISIT_DATE = ? AND a.TENANT_ID = ?");
+			query.setParameter( 0, EntityStatusEnum.ORDER_BOOKING_SCHEDULED.getEntityStatus());
+			query.setParameter( 1, salesExecID);
+			query.setParameter(2, new java.sql.Date(visitDate.getTime()));
+			query.setParameter( 3, tenantID);
 			List results = query.list();
 			for(Object obj : results){
 				Object[] objs = (Object[])obj;
@@ -289,13 +381,13 @@ public class CustomerDAOImpl implements CustomerDAO{
 	}
 	
 	@Override
-	public List<TrimmedCustomer> getResellerTrimmedCustomers(int resellerID){
+	public List<TrimmedCustomer> getTenantTrimmedCustomers(int tenantID){
 		Session session = null;
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT ID, NAME FROM CUSTOMER WHERE RESELLER_ID=?");
-			query.setParameter( 0, resellerID);
+			SQLQuery query = session.createSQLQuery("SELECT ID, NAME FROM CUSTOMER WHERE TENANT_ID=?");
+			query.setParameter( 0, tenantID);
 			List results = query.list();
 			for(Object obj : results){
 				Object[] objs = (Object[])obj;
@@ -315,14 +407,15 @@ public class CustomerDAOImpl implements CustomerDAO{
 	}
 	
 	@Override
-	public String getCustomerPrimaryMobileNo(int customerID) throws Exception{
+	public String getCustomerPrimaryMobileNo(int customerID, int tenantID) throws Exception{
 
 		Session session = null;
 		String mobileNo = "";
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery mobileNoQuery = session.createSQLQuery("SELECT a.MOBILE_NUMBER_PRIMARY FROM ADDRESS a, CUSTOMER_ADDRESS b WHERE a.ID=b.ADDRESS_ID AND b.CUSTOMER_ID=? AND a.ADDRESS_TYPE=1");
+			SQLQuery mobileNoQuery = session.createSQLQuery("SELECT a.MOBILE_NUMBER_PRIMARY FROM ADDRESS a, CUSTOMER_ADDRESS b WHERE a.ID=b.ADDRESS_ID AND a.TENANT_ID=b.TENANT_ID AND b.CUSTOMER_ID=? AND a.TENANT_ID= ? AND a.ADDRESS_TYPE=1");
 			mobileNoQuery.setParameter(0, customerID);
+			mobileNoQuery.setParameter(1, tenantID);
 			List numbers = mobileNoQuery.list();
 			if(numbers != null && numbers.size() == 1){
 				mobileNo =  "+91"+String.valueOf(numbers.get(0));
@@ -340,14 +433,15 @@ public class CustomerDAOImpl implements CustomerDAO{
 	}
 	
 	@Override
-	public List<TrimmedCustomer> getCustomersToSchedule(int beatID, Date visitDate) {
+	public List<TrimmedCustomer> getCustomersToSchedule(int beatID, Date visitDate, int tenantID) {
 		Session session = null;
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT ID, NAME FROM CUSTOMER  WHERE ID IN (SELECT CUSTOMER_ID FROM BEAT_CUSTOMER WHERE BEAT_ID = ? AND CUSTOMER_ID NOT IN (SELECT a.CUSTOMER_ID FROM ORDER_BOOKING_SCHEDULE_CUSTOMERS a, ORDER_BOOKING_SCHEDULE b where a.ORDER_BOOKING_SCHEDULE_ID = b.ID AND b.VISIT_DATE= ?))");
+			SQLQuery query = session.createSQLQuery("SELECT ID, NAME FROM CUSTOMER  WHERE ID IN (SELECT CUSTOMER_ID FROM BEAT_CUSTOMER WHERE BEAT_ID = ? AND CUSTOMER_ID NOT IN (SELECT a.CUSTOMER_ID FROM ORDER_BOOKING_SCHEDULE_CUSTOMERS a, ORDER_BOOKING_SCHEDULE b where a.ORDER_BOOKING_SCHEDULE_ID = b.ID AND b.VISIT_DATE= ?)) AND TENANT_ID = ?");
 			query.setParameter( 0, beatID);
 			query.setParameter(1, visitDate);
+			query.setParameter( 2, tenantID);
 			List results = query.list();
 			for(Object obj : results){
 				Object[] objs = (Object[])obj;
@@ -367,16 +461,32 @@ public class CustomerDAOImpl implements CustomerDAO{
 	}
 	
 	@Override
-	public List<CustomerOrder> getCustomersToScheduleDelivery(int beatID, Date visitDate, int resellerID) {
+	public List<CustomerOrder> getCustomersToScheduleDelivery(int beatID, Date visitDate, int tenantID) {
 		Session session = null;
 		List<CustomerOrder> customerOrders = new ArrayList<CustomerOrder>(); 
 		Map<TrimmedCustomer, List<Order>> custOrdersMap = new HashMap<TrimmedCustomer, List<Order>>();
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT c.ID CUST_ID, c.NAME CUST_NAME, b.* FROM ORDER_BOOKING_SCHEDULE a, ORDER_DETAILS b, CUSTOMER c, ORDER_BOOKING_SCHEDULE_CUSTOMERS d  WHERE a.ID=b.ORDER_BOOKING_ID AND d.CUSTOMER_ID=c.ID AND a.ID=d.ORDER_BOOKING_SCHEDULE_ID  AND a.VISIT_DATE < ? AND a.BEAT_ID= ? AND b.STATUS IN (2, 5) AND b.RESELLER_ID = ?");
+			SQLQuery query = session.createSQLQuery("SELECT c.ID   CUST_ID, " + 
+					"       c.NAME CUST_NAME, " + 
+					"       b.* " + 
+					"FROM   ORDER_BOOKING_SCHEDULE a, " + 
+					"       ORDER_DETAILS b, " + 
+					"       CUSTOMER c, " + 
+					"       ORDER_BOOKING_SCHEDULE_CUSTOMERS d " + 
+					"WHERE  a.ID = b.ORDER_BOOKING_ID " + 
+					"       AND a.ID = d.ORDER_BOOKING_SCHEDULE_ID  " + 
+					"       AND d.CUSTOMER_ID = c.ID " + 
+					"       AND b.CUSTOMER_ID = c.ID " + 
+					"       AND a.VISIT_DATE < ? " + 
+					"       AND a.BEAT_ID = ? " + 
+					"       AND b.STATUS_ID IN ( ?, ? ) " + 
+					"       AND b.TENANT_ID = ? ");
 			query.setParameter( 0, visitDate);
 			query.setParameter(1, beatID);
-			query.setParameter(2, resellerID);
+			query.setParameter(2, EntityStatusEnum.ORDER_CREATED.getEntityStatus());
+			query.setParameter(3, EntityStatusEnum.PARTIALLY_DELIVERED.getEntityStatus());
+			query.setParameter(4, tenantID);
 			List results = query.list();
 			for(Object obj : results){
 				Object[] objs = (Object[])obj;
@@ -387,14 +497,15 @@ public class CustomerDAOImpl implements CustomerDAO{
 				Order order = new Order();
 				order.setCustomerID(trimmedCustomer.getCustomerID());
 				order.setOrderID(Integer.valueOf(String.valueOf(objs[2])));
-				order.setOrderBookingID(Integer.valueOf(String.valueOf(objs[3])));
-				order.setNoOfLineItems(Integer.valueOf(String.valueOf(objs[4])));
-				order.setBookValue(Double.valueOf(String.valueOf(objs[5])));
-				order.setRemark(String.valueOf(objs[6]));
-				order.setStatus(Integer.valueOf(String.valueOf(objs[7])));
-				order.setResellerID(Integer.valueOf(String.valueOf(objs[8])));
-				if(objs[10] != null){
-					order.setDateCreated(new Date(dbFormat.parse(String.valueOf(objs[10])).getTime()));
+				order.setCode(String.valueOf(objs[3]));
+				order.setOrderBookingID(Integer.valueOf(String.valueOf(objs[4])));
+				order.setNoOfLineItems(Integer.valueOf(String.valueOf(objs[5])));
+				order.setBookValue(Double.valueOf(String.valueOf(objs[6])));
+				order.setRemark(String.valueOf(objs[7]));
+				order.setStatusID(Integer.valueOf(String.valueOf(objs[8])));
+				order.setTenantID(Integer.valueOf(String.valueOf(objs[10])));
+				if(objs[11] != null){
+					order.setDateCreated(new Date(dbFormat.parse(String.valueOf(objs[11])).getTime()));
 				}
 				
 				if(!custOrdersMap.containsKey(trimmedCustomer)){
@@ -420,14 +531,16 @@ public class CustomerDAOImpl implements CustomerDAO{
 	}
 
 	@Override
-	public List<TrimmedCustomer> scheduledTrimmedCustomerslistForDeliveryToday(int delivExecID, Date visitDate) {
+	public List<TrimmedCustomer> scheduledTrimmedCustomerslistForDeliveryToday(int delivExecID, Date visitDate, int tenantID) {
 		Session session = null;
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME FROM CUSTOMER a, DELIVERY_SCHEDULE b, ORDER_DETAILS c WHERE a.ID=b.CUSTOMER_ID AND b.ORDER_ID = c.ID AND b.DELIVERY_EXEC_ID= ? AND b.VISIT_DATE= ? AND c.STATUS = 3 GROUP BY a.ID");
+			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME FROM CUSTOMER a, DELIVERY_SCHEDULE b, ORDER_DETAILS c WHERE a.ID=b.CUSTOMER_ID AND a.TENANT_ID=b.TENANT_ID AND b.ORDER_ID = c.ID AND b.DELIVERY_EXEC_ID= ? AND b.VISIT_DATE= ? AND c.STATUS_ID = ? AND a.TENANT_ID = ? GROUP BY a.ID");
 			query.setParameter( 0, delivExecID);
 			query.setDate(1, visitDate);
+			query.setParameter(2, EntityStatusEnum.DELIVERY_SCHEDULED.getEntityStatus());
+			query.setParameter(3, tenantID);
 			List results = query.list();
 			for(Object obj : results){
 				Object[] objs = (Object[])obj;
@@ -447,14 +560,15 @@ public class CustomerDAOImpl implements CustomerDAO{
 	}
 
 	@Override
-	public List<TrimmedCustomer> getCustomerForOTPVerification(int userID, int otpType){
+	public List<TrimmedCustomer> getCustomerForOTPVerification(int userID, int otpType, int tenantID){
 		Session session = null;
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME, c.ID order_booking_id FROM CUSTOMER a, CUSTOMER_OTP b, ORDER_BOOKING_SCHEDULE c, ORDER_BOOKING_SCHEDULE_CUSTOMERS d WHERE a.ID=b.CUSTOMER_ID AND a.ID=d.CUSTOMER_ID AND c.ID=d.ORDER_BOOKING_SCHEDULE_ID AND b.FIELD_EXEC_ID = ? AND b.OTP_TYPE= ? AND b.SUBMITTED_OTP IS NULL AND DATE(b.GENERATED_DATE_TIME) = CURDATE() AND c.VISIT_DATE = CURDATE()");
+			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME, c.ID order_booking_id FROM CUSTOMER a, CUSTOMER_OTP b, ORDER_BOOKING_SCHEDULE c, ORDER_BOOKING_SCHEDULE_CUSTOMERS d WHERE a.ID=b.CUSTOMER_ID AND a.ID=d.CUSTOMER_ID AND c.ID=d.ORDER_BOOKING_SCHEDULE_ID AND a.TENANT_ID=b.TENANT_ID AND b.FIELD_EXEC_ID = ? AND b.OTP_TYPE= ? AND a.TENANT_ID= ? AND b.SUBMITTED_OTP IS NULL AND DATE(b.GENERATED_DATE_TIME) = CURDATE() AND c.VISIT_DATE = CURDATE()");
 			query.setParameter( 0, userID);
 			query.setParameter(1, otpType);
+			query.setParameter(2, tenantID);
 			List results = query.list();
 			for(Object obj : results){
 				Object[] objs = (Object[])obj;
@@ -483,19 +597,40 @@ public class CustomerDAOImpl implements CustomerDAO{
 			transaction = session.beginTransaction();
 			int beatID = -1;
 			for(Customer customer : customers){
+				customer.setDateCreated(new Date());
+				customer.setCode(UUID.randomUUID().toString());
+				customer.setStatusID(EntityStatusEnum.ACTIVE.getEntityStatus());
+				session.save(customer);
+				//Save Address
+				for(Address address : customer.getAddress()){
+					address.setDateCreated(new Date());
+					address.setTenantID(customer.getTenantID());
+					address.setCode(UUID.randomUUID().toString());
+					address.setStatusID(EntityStatusEnum.ACTIVE.getEntityStatus());
+					//Save Adddress
+					session.save(address);
+					//Insert into Tenant Address
+					SQLQuery query = session.createSQLQuery("INSERT INTO CUSTOMER_ADDRESS (CUSTOMER_ID, ADDRESS_ID, TENANT_ID, DATE_CREATED) VALUES (?, ? , ?, CURDATE())");
+					query.setInteger(0, customer.getCustomerID());
+					query.setInteger(1, address.getId());
+					query.setInteger(2, customer.getTenantID());
+					query.executeUpdate();
+				}
 				//check for beat
 				if(customer.getBeatName() != null && !customer.getBeatName().isEmpty()){
-					SQLQuery getBeatQry = session.createSQLQuery(" SELECT ID FROM BEAT WHERE LOWER(NAME) = ? AND RESELLER_ID = ?");
+					SQLQuery getBeatQry = session.createSQLQuery(" SELECT ID FROM BEAT WHERE LOWER(NAME) = ? AND TENANT_ID = ?");
 					getBeatQry.setParameter( 0, customer.getBeatName().toLowerCase() );
-					getBeatQry.setParameter(1, customer.getResellerID());
+					getBeatQry.setParameter(1, customer.getTenantID());
 					List results = getBeatQry.list();
 					if(results.isEmpty()){
 						//create beat
 						Beat beat = new Beat();
-						beat.setResellerID(customer.getResellerID());
+						beat.setCode(UUID.randomUUID().toString());
+						beat.setTenantID(customer.getTenantID());
 						beat.setName(customer.getBeatName());
 						beat.setDescription(customer.getBeatName());
 						beat.setDateCreated(new Date());
+						beat.setStatusID(EntityStatusEnum.ACTIVE.getEntityStatus());
 						session.save(beat);
 						beatID = beat.getBeatID();
 					}else{
@@ -505,11 +640,12 @@ public class CustomerDAOImpl implements CustomerDAO{
 					}
 				}
 				//Save Customer
-				session.save(customer);
+				//session.save(customer);
 				//Create customer-Beat link
-				SQLQuery beatCustInsert = session.createSQLQuery("INSERT INTO BEAT_CUSTOMER VALUES (?, ?)");
+				SQLQuery beatCustInsert = session.createSQLQuery("INSERT INTO BEAT_CUSTOMER (BEAT_ID, CUSTOMER_ID, TENANT_ID, DATE_CREATED) VALUES (?, ?, ?, CURDATE())");
 				beatCustInsert.setParameter(0, beatID);
 				beatCustInsert.setParameter(1, customer.getCustomerID());
+				beatCustInsert.setParameter(2, customer.getTenantID());
 				beatCustInsert.executeUpdate();
 			}
 			transaction.commit();
@@ -525,13 +661,13 @@ public class CustomerDAOImpl implements CustomerDAO{
 	}
 	
 	@Override
-	public List<Customer> search(int resellerID, Map<String, Object> filterCriteria)throws Exception{
+	public List<Customer> search(int tenantID, Map<String, Object> filterCriteria)throws Exception{
 		Session session = null;
 		List<Customer> customers = new ArrayList<Customer>();
 		try{
 			session = sessionFactory.openSession();
 			StringBuilder queryBuilder = new StringBuilder(
-					"SELECT * FROM (SELECT a.ID, a.NAME, a.DESCRIPTION, X.NAME BEAT_NAME, b.CITY, b.CONTACT_PERSON, b.PHONE_NO FROM ADDRESS b, CUSTOMER_ADDRESS c, CUSTOMER a LEFT JOIN (SELECT e.BEAT_ID, e.CUSTOMER_ID, d.NAME FROM BEAT_CUSTOMER e, BEAT d where d.ID=e.BEAT_ID) X on a.ID=X.CUSTOMER_ID WHERE c.ADDRESS_ID=b.ID AND b.ADDRESS_TYPE=1 AND a.ID=c.CUSTOMER_ID AND a.RESELLER_ID ="+ resellerID +") XYZ");
+					"SELECT * FROM (SELECT a.ID, a.NAME, a.DESCRIPTION, a.STATUS_ID, X.NAME BEAT_NAME, b.CITY, b.CONTACT_PERSON, b.PHONE_NO FROM ADDRESS b, CUSTOMER_ADDRESS c, CUSTOMER a LEFT JOIN (SELECT e.BEAT_ID, e.CUSTOMER_ID, d.NAME FROM BEAT_CUSTOMER e, BEAT d where d.ID=e.BEAT_ID) X on a.ID=X.CUSTOMER_ID WHERE c.ADDRESS_ID=b.ID AND b.ADDRESS_TYPE=1 AND a.ID=c.CUSTOMER_ID AND a.TENANT_ID ="+ tenantID +") XYZ");
 			if(filterCriteria != null && filterCriteria.size() > 0){
 				queryBuilder.append(" WHERE ");
 				int index = 0;
@@ -557,11 +693,14 @@ public class CustomerDAOImpl implements CustomerDAO{
 				customer.setCustomerID(Integer.parseInt(String.valueOf(objs[0])));
 				customer.setName(String.valueOf(objs[1]) != null ? String.valueOf(objs[1]) : "");
 				customer.setDescription(String.valueOf(objs[2]) != null ? String.valueOf(objs[2]) : "");
-				customer.setBeatName((String.valueOf(objs[3]) == null || String.valueOf(objs[3]).equals("null")) ? "" : String.valueOf(objs[3]) );
+				customer.setStatusAsString(statusMap.get(Integer.parseInt(String.valueOf(objs[3]))));
+				customer.setBeatName((String.valueOf(objs[4]) == null || String.valueOf(objs[4]).equals("null")) ? "" : String.valueOf(objs[4]) );
+				customer.setTenantID(tenantID);
 				Address mainAdd = new Address();
-				mainAdd.setCity(String.valueOf(objs[4]) != null ? String.valueOf(objs[4]) : "");
-				mainAdd.setContactPerson(String.valueOf(objs[5]) != null ? String.valueOf(objs[5]) : "");
-				mainAdd.setPhoneNumber(String.valueOf(objs[6]) != null ? String.valueOf(objs[6]) : "");
+				mainAdd.setCity(String.valueOf(objs[5]) != null ? String.valueOf(objs[5]) : "");
+				mainAdd.setContactPerson(String.valueOf(objs[6]) != null ? String.valueOf(objs[6]) : "");
+				mainAdd.setPhoneNumber(String.valueOf(objs[7]) != null ? String.valueOf(objs[7]) : "");
+				mainAdd.setTenantID(tenantID);
 				List<Address> addressList = new ArrayList<Address>();
 				addressList.add(mainAdd);
 				customer.setAddress(addressList);
@@ -579,13 +718,13 @@ public class CustomerDAOImpl implements CustomerDAO{
 	}
 	
 	@Override
-	public int getCustomersCount(int resellerID){
+	public int getCustomersCount(int tenantID){
 		Session session = null;
 		int counts = 0;
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery count = session.createSQLQuery("SELECT COUNT(*) FROM CUSTOMER WHERE RESELLER_ID= ?");
-			count.setParameter(0, resellerID);
+			SQLQuery count = session.createSQLQuery("SELECT COUNT(*) FROM CUSTOMER WHERE TENANT_ID= ?");
+			count.setParameter(0, tenantID);
 			List results = count.list();
 			if(results != null && results.size() == 1 ){
 				counts = ((BigInteger)results.get(0)).intValue();
@@ -598,6 +737,32 @@ public class CustomerDAOImpl implements CustomerDAO{
 			}
 		}
 		return counts;
+	}
+
+	@Override
+	public void updateCustomerStatus(int statusID, int customerID, int tenantID) throws Exception{
+		Session session = null;
+		Transaction transaction = null;
+		try{
+			session = sessionFactory.openSession();
+			transaction = session.beginTransaction();
+			SQLQuery updateCustomer = session.createSQLQuery("UPDATE CUSTOMER SET STATUS_ID = ? WHERE ID = ? AND TENANT_ID= ?");
+			updateCustomer.setInteger(0, statusID);
+			updateCustomer.setInteger(1, customerID);
+			updateCustomer.setInteger(2, tenantID);
+			updateCustomer.executeUpdate();
+			transaction.commit();
+		}catch(Exception exception){
+			logger.error("Error while deactivating customer "+customerID+".", exception);
+			if(transaction != null){
+				transaction.rollback();
+			}
+			throw exception;
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
 	}
 	
 }

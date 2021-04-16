@@ -28,19 +28,18 @@ public class OTPReSTController {
 	@Autowired
 	HttpSession session;
 
-	@PutMapping(value = "/generate/{customerID}/{otpType}", produces = { MediaType.APPLICATION_JSON_VALUE })
+	@PutMapping(value = "/generate/{customerID}/{otpType}/{tenantID}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<ReSTResponse> generateOTP(@PathVariable("customerID") int customerID,
-			@PathVariable("otpType") int otpType) {
+			@PathVariable("otpType") int otpType, @PathVariable("tenantID") int tenantID) {
 		ReSTResponse response = new ReSTResponse();
 		User user = (User) session.getAttribute("user");
-		int resellerID = (Integer) session.getAttribute("resellerID");
 		CustomerOTP customerOTP = new CustomerOTP();
 		customerOTP.setCustomerID(customerID);
-		customerOTP.setResellerID(resellerID);
+		customerOTP.setTenantID(tenantID);
 		customerOTP.setSalesExecID(user.getUserID());
 		customerOTP.setOtpType(otpType);
 		try {
-			otpService.generateOTP(customerOTP); 
+			otpService.generateOTP(customerOTP, tenantID); 
 			response.setStatus(ReSTResponse.STATUS_SUCCESS);
 		} catch (Exception exception) {
 			if(exception instanceof CRMException){
@@ -56,12 +55,12 @@ public class OTPReSTController {
 		return new ResponseEntity<ReSTResponse>(response, HttpStatus.OK);
 	}
 
-	@PutMapping(value = "/verify/{customerID}/{otpType}/{otp}")
+	@PutMapping(value = "/verify/{customerID}/{otpType}/{otp}/{tenantID}")
 	public ResponseEntity<ReSTResponse> verifyOTP(@PathVariable("customerID") int customerID,
-			@PathVariable("otpType") int otpType, @PathVariable("otp") String otp) throws Exception {
+			@PathVariable("otpType") int otpType, @PathVariable("otp") String otp, @PathVariable("tenantID") int tenantID) throws Exception {
 		ReSTResponse response = new ReSTResponse();
 		try {
-			otpService.verifyOTP(customerID, otpType, otp);
+			otpService.verifyOTP(customerID, otpType, otp, tenantID);
 			response.setStatus(ReSTResponse.STATUS_SUCCESS);
 		} catch (Exception exception) {
 			if(exception instanceof CRMException){

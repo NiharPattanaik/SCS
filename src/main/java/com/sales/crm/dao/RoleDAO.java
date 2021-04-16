@@ -9,19 +9,19 @@ public interface RoleDAO {
 	
 	void create(Role role);
 	
-	Role get(int roleID);
+	Role get(int roleID, int tenantID);
 	
 	void update(Role role);
 	
-	void delete(int roleID);
+	void delete(int roleID, int tenantID);
 	
-	List<Role> getRoles(List<Integer> roleIDs);
+	List<Role> getRoles(List<Integer> roleIDs, int tenantID);
 	
-	List<ResourcePermission> getResourcePermissions() throws Exception;
+	List<ResourcePermission> getResourcePermissions(int tenantID) throws Exception;
 	
-	List<ResourcePermission> getRoleResourcePermissions(List<Integer> roleIDs, int resellerID) throws Exception;
+	List<ResourcePermission> getRoleResourcePermissions(List<Integer> roleIDs, int tenantID) throws Exception;
 	
-	void saveRoleResourcePermission(List<ResourcePermission> resourcePermissions, int roleID, int resellerID) throws Exception;
+	void saveRoleResourcePermission(List<ResourcePermission> resourcePermissions, int roleID, int tenantID) throws Exception;
 
-	public List<Integer> getRoleResourcePermissionIDs(List<Integer> roleIDs, int resellerID) throws Exception;
+	public List<Integer> getRoleResourcePermissionIDs(List<Integer> roleIDs, int tenantID) throws Exception;
 }

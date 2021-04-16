@@ -12,31 +12,33 @@ public interface CustomerDAO {
 	
 	void create(Customer customer) throws Exception;
 	
-	Customer get(int customerID);
+	Customer get(int customerID, int tenantID);
 	
 	void update(Customer customer) throws Exception;
 	
-	void delete(int customerID) throws Exception;
+	void delete(int customerID, int tenantID) throws Exception;
 	
-	List<Customer> getResellerCustomers(int resellerID);
+	List<Customer> getTenantCustomers(int tenantID);
 	
-	List<TrimmedCustomer> scheduledTrimmedCustomerslist(int salesExecID, Date visitDate) throws Exception;
+	List<TrimmedCustomer> scheduledTrimmedCustomerslist(int salesExecID, Date visitDate, int tenantID) throws Exception;
 	
-	List<TrimmedCustomer> getResellerTrimmedCustomers(int resellerID);
+	List<TrimmedCustomer> getTenantTrimmedCustomers(int tenantID);
 	
-	String getCustomerPrimaryMobileNo(int customerID) throws Exception;
+	String getCustomerPrimaryMobileNo(int customerID, int tenantID) throws Exception;
 	
-	List<TrimmedCustomer> getCustomersToSchedule(int beatID, Date visitDate);
+	List<TrimmedCustomer> getCustomersToSchedule(int beatID, Date visitDate, int tenantID);
 	
-	List<CustomerOrder> getCustomersToScheduleDelivery(int beatID, Date visitDate, int resellerID);
+	List<CustomerOrder> getCustomersToScheduleDelivery(int beatID, Date visitDate, int tenantID);
 	
-	List<TrimmedCustomer> scheduledTrimmedCustomerslistForDeliveryToday(int delivExecID, Date visitDate);
+	List<TrimmedCustomer> scheduledTrimmedCustomerslistForDeliveryToday(int delivExecID, Date visitDate, int tenantID);
 	
-	List<TrimmedCustomer> getCustomerForOTPVerification(int userID, int otpType);
+	List<TrimmedCustomer> getCustomerForOTPVerification(int userID, int otpType, int tenantID);
 	
 	void createCustomers(List<Customer> customers) throws Exception;
 	
-	List<Customer> search(int resellerID, Map<String, Object> filterCriteria)throws Exception;
+	List<Customer> search(int tenantID, Map<String, Object> filterCriteria)throws Exception;
 	
-	int getCustomersCount(int resellerID);
+	int getCustomersCount(int tenantID);
+	
+	void updateCustomerStatus(int statusID, int customerID, int tenantID) throws Exception;
 }

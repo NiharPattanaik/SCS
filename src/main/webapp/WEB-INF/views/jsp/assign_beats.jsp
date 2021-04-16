@@ -81,16 +81,16 @@ legend {
 		<%@ include file="menus.jsp" %>
 		<div class="row top-height">
 			<div class="col-md-8 ">
-				<form:form modelAttribute="suppSalesExecBeats" method="post"
+				<form:form modelAttribute="manufSalesExecBeats" method="post"
 					action="/crm/web/salesExecWeb/assignBeat">
 					<fieldset>
 						<legend>Assign Beats to Sales Executive</legend>
 						<div class="form-group required">
-								<label class='control-label'>Supplier</label>
-								<form:select path="supplier.supplierID" cssClass="form-control" id="suppliers">
+								<label class='control-label'>Manufacturer</label>
+								<form:select path="manufacturer.manufacturerID" cssClass="form-control" id="manufacturers">
 									<form:option value="-1" label="--- Select ---" required="required"/>
-									<c:forEach var="csupplier" items="${suppliers}">
-										<form:option value="${ csupplier.supplierID }" label="${ csupplier.name }" required="required"/>
+									<c:forEach var="cmanufacturer" items="${manufacturers}">
+										<form:option value="${ cmanufacturer.manufacturerID }" label="${ cmanufacturer.name }" required="required"/>
 									</c:forEach>
 								</form:select>
 						</div>
@@ -108,6 +108,7 @@ legend {
 							</form:select>
 						</div>
 					</fieldset>
+					<form:hidden name="tenantID" path="tenantID" id="tenantID" value="${ tenantID }" />
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</div>
@@ -121,11 +122,11 @@ legend {
 		$("#salesExecs").prop('required',true);
 		$("#beats").prop('required',true);
 		
-		$('#suppliers').change(function() {
-			if($('#suppliers').val() != -1){
+		$('#manufacturers').change(function() {
+			if($('#manufacturers').val() != -1){
 				$.ajax({
 						type : "GET",
-						url : "/crm/rest/supplierReST/salesExecs/"+$('#suppliers').val(),
+						url : "/crm/rest/manufacturerReST/salesExecs/"+$('#manufacturers').val()+"/"+$('#tenantID').val(),
 						dataType : "json",
 						success : function(data) {
 							$('#salesExecs').empty();
@@ -145,7 +146,7 @@ legend {
 			if($('#salesExecs').val() != -1){
 				$.ajax({
 						type : "GET",
-						url : "/crm/rest/beatReST/beatsNotMappedToSalesExec/"+$('#suppliers').val() +"/"+$('#salesExecs').val(),
+						url : "/crm/rest/beatReST/beatsNotMappedToSalesExec/"+$('#manufacturers').val() +"/"+$('#salesExecs').val()+"/"+$('#tenantID').val(),
 						dataType : "json",
 						success : function(data) {
 							$('#beats').empty();

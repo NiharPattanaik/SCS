@@ -9,29 +9,29 @@ import com.sales.crm.model.TrimmedCustomer;
 
 public interface SalesExecDAO {
 	
-	SalesExecutive get(int salesExecID);
+	SalesExecutive get(int salesExecID, int tenantID);
 	
-	List<SalesExecutive> getSalesExecutives(int resellerID);
+	List<SalesExecutive> getSalesExecutives(int tenantID);
 	
-	void assignBeats(int resellerID, int supplierID, int salesExecID, List<Integer> beatIDs) throws Exception;
+	void assignBeats(int tenantID, int manufacturerID, int salesExecID, List<Integer> beatIDs) throws Exception;
 	
-	void updateAssignedBeats(int resellerID, int supplierID, int salesExecID, List<Integer> beatIDs) throws Exception;
+	void updateAssignedBeats(int tenantID, int manufacturerID, int salesExecID, List<Integer> beatIDs) throws Exception;
 	
-	List<SalesExecutive> getSalesExecMapsBeatsCustomers(int resellerID);
+	List<SalesExecutive> getSalesExecMapsBeatsCustomers(int tenantID);
 	
-	List<Beat> getAssignedBeats(int salesExecID);
+	List<Beat> getAssignedBeats(int salesExecID, int tenantID);
 	
-	List<Beat> getScheduledVisitSalesExecBeats(int salesExecID, Date visitDate);
+	List<Beat> getScheduledVisitSalesExecBeats(int salesExecID, Date visitDate, int tenantID);
 	
-	List<SalesExecutive> getScheduledVisitSalesExecs(Date visitDate, int resellerID);
+	List<SalesExecutive> getScheduledVisitSalesExecs(Date visitDate, int tenantID);
 	
-	List<TrimmedCustomer> getScheduledVisitBeatCustomers(int salesExecID, Date visitDate, int beatID);
+	List<TrimmedCustomer> getScheduledVisitBeatCustomers(int salesExecID, Date visitDate, int beatID, int tenantID);
 	
-	void deleteBeatAssignment(int supplierID, int salesExecID) throws Exception;
+	void deleteBeatAssignment(int manufacturerID, int salesExecID, int tenantID) throws Exception;
 	
-	List<SalesExecutive> getSalesExecutivesHavingBeatsAssigned(int resellerID);
+	List<SalesExecutive> getSalesExecutivesHavingBeatsAssigned(int tenantID);
 	
-	int getSalesExecutiveCount(int resellerID);
+	int getSalesExecutiveCount(int tenantID);
 	
-	List<SalesExecutive> getSalesExecsNotMappedToSupplier(int resellerID, int supplierID);
+	List<SalesExecutive> getSalesExecsNotMappedToManufacturer(int tenantID, int manufacturerID);
 }

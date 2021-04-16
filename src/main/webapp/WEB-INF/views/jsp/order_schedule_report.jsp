@@ -174,18 +174,18 @@
 					<div class="form-group">
 						<form:select path="status" cssClass="form-control" id="status">
 							<form:option value="-1" label="-- Select --" />
-							<option value="1">Order Scheduled</option>
-							<option value="2">Order Created</option>
-							<option value="3">Delivery Scheduled</option>
-							<option value="4">Delivery Completed</option>
-							<option value="5">Delivery Partial</option>
-							<option value="6">Payment Scheduled</option>
-							<option value="7">Payment Completed</option>
-							<option value="8">Payment Partial</option>
+							<option value="50">Order Scheduled</option>
+							<option value="51">Order Created</option>
+							<option value="52">Delivery Scheduled</option>
+							<option value="53">Delivery Completed</option>
+							<option value="54">Delivery Partial</option>
+							<option value="55">Payment Scheduled</option>
+							<option value="56">Payment Completed</option>
+							<option value="57">Payment Partial</option>
 						</form:select>
 					</div>
 				</div>
-
+				<form:hidden name="tenantID" path="tenantID" id="tenantID" value="${ tenantID }" />
 			</form:form>
 		</div>
 		<table class="table table-striped" id="reportTbl">
@@ -216,7 +216,7 @@
 		                    <td>${orderBookingSchedule.salesExecName}</td>
 		                    <td>${orderBookingSchedule.visitDateAsString}</td>
 		                    <td>${orderBookingSchedule.statusAsString}</td>
-		                    <% if(pageContext.getAttribute("orderBookingSchedule") != null &&  ((OrderBookingSchedule)pageContext.getAttribute("orderBookingSchedule")).getStatus() == 9 ){%>
+		                    <% if(pageContext.getAttribute("orderBookingSchedule") != null &&  ((OrderBookingSchedule)pageContext.getAttribute("orderBookingSchedule")).getStatus() == 60 ){%>
 		                		<td>Create Order</td>
 		                	<%}else{ %>
 		                		<td>-</td>
@@ -245,7 +245,7 @@
 			}
 			$.ajax({
 				type : "GET",
-				url : "/crm/rest/orderReST/orderScheduleReport/"+$('#sales_exec').val()+"/"+$('#beat_id').val()+"/"+date+"/"+$('#cust_id').val()+"/"+$('#status').val(),
+				url : "/crm/rest/orderReST/orderScheduleReport/"+$('#sales_exec').val()+"/"+$('#beat_id').val()+"/"+date+"/"+$('#cust_id').val()+"/"+$('#status').val()+"/"+$('#tenantID').val(),
 				dataType : "json",
 				success : function(data) {
 					$("#reportTbl > tbody").empty();
@@ -259,7 +259,7 @@
 						}
 						
 						var actionTD="<td>-</td>";
-						if(schedule.status == 9){
+						if(schedule.status == 60){
 							actionTD="<td><a href=/crm/web/orderWeb/createOrderForm/"+schedule.bookingScheduleID+"/"+ schedule.customerID +"/"+ schedule.customerName +">Create Order</a></td>";
 						}
 						row_data = row_data + orderTD +"<td>"+schedule.beatName+"</td><td>"+schedule.customerName+"</td><td>"+schedule.salesExecName+"</td><td>"+schedule.visitDateAsString+"</td><td>"+schedule.statusAsString+"</td>"+ actionTD + "</tr>";

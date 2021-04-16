@@ -38,13 +38,14 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 	private static SimpleDateFormat dbFormat = new SimpleDateFormat("yyyy-MM-dd");
 
 	@Override
-	public SalesExecutive get(int salesExecID) {
+	public SalesExecutive get(int salesExecID, int tenantID) {
 		Session session = null;
 		SalesExecutive salesExec = null;
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT ID, USER_NAME, DESCRIPTION, EMAIL_ID, MOBILE_NO, FIRST_NAME, LAST_NAME, STATUS, DATE_CREATED, DATE_MODIFIED, COMPANY_ID FROM USER WHERE ID=?");
+			SQLQuery query = session.createSQLQuery("SELECT ID, USER_NAME, DESCRIPTION, EMAIL_ID, MOBILE_NO, FIRST_NAME, LAST_NAME, STATUS_ID, DATE_CREATED, DATE_MODIFIED FROM USER WHERE ID=? AND TENANT_ID = ?");
 			query.setParameter(0, salesExecID);
+			query.setParameter(1, tenantID);
 			List results = query.list();
 			for(Object obj : results){
 				salesExec = new SalesExecutive();
@@ -56,7 +57,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 				salesExec.setMobileNo(String.valueOf(objs[4]));
 				salesExec.setFirstName(String.valueOf(objs[5]));
 				salesExec.setLastName(String.valueOf(objs[6]));
-				salesExec.setStatus(Integer.valueOf(String.valueOf(objs[7])));
+				salesExec.setStatusID(Integer.valueOf(String.valueOf(objs[7])));
 				if(objs[8] != null){
 					salesExec.setDateCreated(new Date(dbFormat.parse(String.valueOf(objs[8])).getTime()));
 				}
@@ -64,11 +65,11 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 				if(objs[9] != null){
 					salesExec.setDateModified(new Date(dbFormat.parse(String.valueOf(objs[9])).getTime()));
 				}
-				salesExec.setCompanyID(Integer.valueOf(String.valueOf(objs[10])));
+				salesExec.setTenantID(tenantID);
 			}
 			
 			//Get Beats
-			SQLQuery getBeats = session.createSQLQuery("SELECT b.SALES_EXEC_ID, a.* FROM BEAT a, SUPPLIER_SALES_EXEC_BEATS b where a.ID=b.BEAT_ID AND b.SALES_EXEC_ID=? ");
+			SQLQuery getBeats = session.createSQLQuery("SELECT a.* FROM BEAT a, MANUFACTURER_SALES_EXEC_BEATS b where a.ID=b.BEAT_ID AND b.SALES_EXEC_ID=? ");
 			getBeats.setParameter(0, salesExecID);
 			List beats = getBeats.list();
 			List<Beat> beatList = new ArrayList<Beat>();
@@ -76,17 +77,19 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 			for(Object obj : beats){
 				Object[] objs = (Object[])obj;
 				Beat beat = new Beat();
-				beat.setBeatID(Integer.valueOf(String.valueOf(objs[1])));
-				beat.setResellerID(Integer.valueOf(String.valueOf(objs[2])));
-				beat.setName(String.valueOf(objs[3]));
-				beat.setDescription(String.valueOf(objs[4]));
-				beat.setCoverageSchedule(String.valueOf(objs[5]));
-				beat.setDistance(Integer.valueOf(String.valueOf(objs[6])));
-				if(objs[7] != null){
-					beat.setDateCreated(new Date(dbFormat.parse(String.valueOf(objs[7])).getTime()));
-				}
+				beat.setBeatID(Integer.valueOf(String.valueOf(objs[0])));
+				beat.setCode(String.valueOf(objs[1]));
+				beat.setName(String.valueOf(objs[2]));
+				beat.setDescription(String.valueOf(objs[3]));
+				beat.setCoverageSchedule(String.valueOf(objs[4]));
+				beat.setDistance(Integer.valueOf(String.valueOf(objs[5])));
+				beat.setStatusID(Integer.valueOf(String.valueOf(objs[6])));
+				beat.setTenantID(Integer.valueOf(String.valueOf(objs[7])));
 				if(objs[8] != null){
-					beat.setDateModified(new Date(dbFormat.parse(String.valueOf(objs[8])).getTime()));
+					beat.setDateCreated(new Date(dbFormat.parse(String.valueOf(objs[8])).getTime()));
+				}
+				if(objs[9] != null){
+					beat.setDateModified(new Date(dbFormat.parse(String.valueOf(objs[9])).getTime()));
 				}
 				beatList.add(beat);
 				beatIDsList.add(beat.getBeatID());
@@ -112,15 +115,15 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 	}
 
 	@Override
-	public List<SalesExecutive> getSalesExecutives(int resellerID){
+	public List<SalesExecutive> getSalesExecutives(int tenantID){
 		Session session = null;
 		Map<Integer, SalesExecutive> salesExecs = new HashMap<Integer, SalesExecutive>(); 
 		try{
 			Set<Integer> userIDs = new HashSet<Integer>();
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.USER_NAME, a.DESCRIPTION, a.EMAIL_ID, a.MOBILE_NO, a.FIRST_NAME, a.LAST_NAME, a.STATUS, a.DATE_CREATED, a.DATE_MODIFIED, a.COMPANY_ID FROM USER a, USER_ROLE b, RESELLER_USER c WHERE a.ID=b.USER_ID AND a.ID=c.USER_ID AND b.ROLE_ID= ? AND c.RESELLER_ID=?");
+			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.USER_NAME, a.DESCRIPTION, a.EMAIL_ID, a.MOBILE_NO, a.FIRST_NAME, a.LAST_NAME, a.STATUS_ID, a.DATE_CREATED, a.DATE_MODIFIED, a.TENANT_ID FROM USER a, USER_ROLE b, TENANT_USER c WHERE a.ID=b.USER_ID AND a.ID=c.USER_ID AND b.ROLE_ID= ? AND c.TENANT_ID=?");
 			query.setParameter(0, 2);
-			query.setParameter(1, resellerID);
+			query.setParameter(1, tenantID);
 			List results = query.list();
 			for(Object obj : results){
 				Object[] objs = (Object[])obj;
@@ -132,7 +135,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 				salesExec.setMobileNo(String.valueOf(objs[4]));
 				salesExec.setFirstName(String.valueOf(objs[5]));
 				salesExec.setLastName(String.valueOf(objs[6]));
-				salesExec.setStatus(Integer.valueOf(String.valueOf(objs[7])));
+				salesExec.setStatusID(Integer.valueOf(String.valueOf(objs[7])));
 				if(objs[8] != null){
 					salesExec.setDateCreated(new Date(dbFormat.parse(String.valueOf(objs[8])).getTime()));
 				}
@@ -140,8 +143,8 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 				if(objs[9] != null){
 					salesExec.setDateModified(new Date(dbFormat.parse(String.valueOf(objs[9])).getTime()));
 				}
-				salesExec.setCompanyID(Integer.valueOf(String.valueOf(objs[10])));
-				salesExec.setResellerID(resellerID);
+				salesExec.setTenantID(Integer.valueOf(String.valueOf(objs[10])));
+				salesExec.setTenantID(tenantID);
 				salesExecs.put(salesExec.getUserID(), salesExec);
 				//add user id to set
 				userIDs.add(salesExec.getUserID());
@@ -149,7 +152,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 			
 			//Get Beats
 			if(userIDs.size() > 0){
-				SQLQuery getBeats = session.createSQLQuery("SELECT b.SALES_EXEC_ID, a.* FROM BEAT a, SUPPLIER_SALES_EXEC_BEATS b where a.ID=b.BEAT_ID AND b.SALES_EXEC_ID in (" +StringUtils.join(userIDs, ",") +")");
+				SQLQuery getBeats = session.createSQLQuery("SELECT b.SALES_EXEC_ID, a.* FROM BEAT a, MANUFACTURER_SALES_EXEC_BEATS b where a.ID=b.BEAT_ID AND b.SALES_EXEC_ID in (" +StringUtils.join(userIDs, ",") +")");
 				//getRoles.setParameter(0, userIDs);
 				List beats = getBeats.list();
 				for(Object obj : beats){
@@ -157,16 +160,18 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 					int salesExeID = Integer.valueOf(String.valueOf(objs[0]));
 					Beat beat = new Beat();
 					beat.setBeatID(Integer.valueOf(String.valueOf(objs[1])));
-					beat.setResellerID(Integer.valueOf(String.valueOf(objs[2])));
+					beat.setCode(String.valueOf(objs[2]));
 					beat.setName(String.valueOf(objs[3]));
 					beat.setDescription(String.valueOf(objs[4]));
 					beat.setCoverageSchedule(String.valueOf(objs[5]));
 					beat.setDistance(Integer.valueOf(String.valueOf(objs[6])));
-					if(objs[7] != null){
-						beat.setDateCreated(new Date(dbFormat.parse(String.valueOf(objs[7])).getTime()));
+					beat.setStatusID(Integer.valueOf(String.valueOf(objs[7])));
+					beat.setTenantID(Integer.valueOf(String.valueOf(objs[8])));
+					if(objs[9] != null){
+						beat.setDateCreated(new Date(dbFormat.parse(String.valueOf(objs[9])).getTime()));
 					}
-					if(objs[8] != null){
-						beat.setDateModified(new Date(dbFormat.parse(String.valueOf(objs[8])).getTime()));
+					if(objs[10] != null){
+						beat.setDateModified(new Date(dbFormat.parse(String.valueOf(objs[10])).getTime()));
 					}
 					//Sets Beats list
 					if(salesExecs.get(salesExeID).getBeats() == null){
@@ -194,34 +199,36 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 	
 	
 	@Override
-	public List<SalesExecutive> getSalesExecutivesHavingBeatsAssigned(int resellerID){
+	public List<SalesExecutive> getSalesExecutivesHavingBeatsAssigned(int tenantID){
 		Session session = null;
 		Map<Integer, SalesExecutive> salesExecsMap = new HashMap<Integer, SalesExecutive>(); 
 		try{
 			Set<Integer> userIDs = new HashSet<Integer>();
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT a.*, b.ID BEAT_ID, b.NAME BEAT_NAME FROM USER a, BEAT b, SUPPLIER_SALES_EXEC_BEATS c WHERE a.ID=c.SALES_EXEC_ID AND b.ID=c.BEAT_ID;");
+			SQLQuery query = session.createSQLQuery("SELECT a.*, b.ID BEAT_ID, b.NAME BEAT_NAME FROM USER a, BEAT b, MANUFACTURER_SALES_EXEC_BEATS c, TENANT_USER d WHERE a.ID=c.SALES_EXEC_ID AND b.ID=c.BEAT_ID AND a.ID=D.USER_ID AND d.TENANT_ID= ?;");
+			query.setParameter(0, tenantID);
 			List results = query.list();
 			for(Object obj : results){
 				Object[] objs = (Object[])obj;
 				SalesExecutive salesExec = new SalesExecutive();
 				salesExec.setUserID(Integer.valueOf(String.valueOf(objs[0])));
-				salesExec.setUserName(String.valueOf(objs[1]));
-				salesExec.setDescription(String.valueOf(objs[3]));
-				salesExec.setEmailID(String.valueOf(objs[4]));
-				salesExec.setMobileNo(String.valueOf(objs[5]));
-				salesExec.setFirstName(String.valueOf(objs[6]));
-				salesExec.setLastName(String.valueOf(objs[7]));
-				salesExec.setStatus(Integer.valueOf(String.valueOf(objs[8])));
-				if(objs[9] != null){
-					salesExec.setDateCreated(new Date(dbFormat.parse(String.valueOf(objs[9])).getTime()));
+				salesExec.setCode(String.valueOf(objs[1]));
+				salesExec.setUserName(String.valueOf(objs[2]));
+				salesExec.setDescription(String.valueOf(objs[4]));
+				salesExec.setEmailID(String.valueOf(objs[5]));
+				salesExec.setMobileNo(String.valueOf(objs[6]));
+				salesExec.setFirstName(String.valueOf(objs[7]));
+				salesExec.setLastName(String.valueOf(objs[8]));
+				salesExec.setStatusID(Integer.valueOf(String.valueOf(objs[9])));
+				salesExec.setLoggedIn(Integer.valueOf(String.valueOf(objs[10])));
+				salesExec.setTenantID(Integer.valueOf(String.valueOf(objs[11])));
+				if(objs[12] != null){
+					salesExec.setDateCreated(new Date(dbFormat.parse(String.valueOf(objs[12])).getTime()));
 				}
 				
-				if(objs[10] != null){
-					salesExec.setDateModified(new Date(dbFormat.parse(String.valueOf(objs[10])).getTime()));
+				if(objs[13] != null){
+					salesExec.setDateModified(new Date(dbFormat.parse(String.valueOf(objs[13])).getTime()));
 				}
-				salesExec.setCompanyID(Integer.valueOf(String.valueOf(objs[11])));
-				salesExec.setResellerID(resellerID);
 				
 				if(!salesExecsMap.containsKey(salesExec.getUserID())){
 					salesExecsMap.put(salesExec.getUserID(), salesExec);
@@ -229,8 +236,8 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 				
 				//Add Beats
 				Beat beat = new Beat();
-				beat.setBeatID(Integer.valueOf(String.valueOf(objs[13])));
-				beat.setName(String.valueOf(objs[14]));
+				beat.setBeatID(Integer.valueOf(String.valueOf(objs[14])));
+				beat.setName(String.valueOf(objs[15]));
 				if(salesExecsMap.get(salesExec.getUserID()).getBeats() == null){
 					salesExecsMap.get(salesExec.getUserID()).setBeats(new ArrayList<Beat>());
 				}
@@ -247,7 +254,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 	}
 
 	@Override
-	public void assignBeats(final int resellerID, final int supplierID, final int salesExecID, final List<Integer> beatIDs) throws Exception{
+	public void assignBeats(final int tenantID, final int manufacturerID, final int salesExecID, final List<Integer> beatIDs) throws Exception{
 		Session session = null;
 		Transaction transaction = null;
 		try {
@@ -259,13 +266,13 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 				public void execute(Connection connection) throws SQLException {
 					PreparedStatement pstmt = null;
 					try {
-						String sqlInsert = "INSERT INTO SUPPLIER_SALES_EXEC_BEATS (RESELLER_ID, SUPPLIER_ID, SALES_EXEC_ID, BEAT_ID, DATE_CREATED) VALUES (?, ?, ?, ?, ?)";
+						String sqlInsert = "INSERT INTO MANUFACTURER_SALES_EXEC_BEATS (MANUFACTURER_ID, SALES_EXEC_ID, BEAT_ID, TENANT_ID, DATE_CREATED) VALUES (?, ?, ?, ?, ?)";
 						pstmt = connection.prepareStatement(sqlInsert);
 						for (int i = 0; i < beatIDs.size(); i++) {
-							pstmt.setInt(1, resellerID);
-							pstmt.setInt(2, supplierID);
-							pstmt.setInt(3, salesExecID);
-							pstmt.setInt(4, beatIDs.get(i));
+							pstmt.setInt(1, manufacturerID);
+							pstmt.setInt(2, salesExecID);
+							pstmt.setInt(3, beatIDs.get(i));
+							pstmt.setInt(4, tenantID);
 							pstmt.setDate(5, new java.sql.Date(new Date().getTime()));
 							pstmt.addBatch();
 						}
@@ -290,16 +297,17 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 	}
 	
 	@Override
-	public void updateAssignedBeats(final int resellerID, final int supplierID, final int salesExecID, final List<Integer> beatIDs) throws Exception{
+	public void updateAssignedBeats(final int tenantID, final int manufacturerID, final int salesExecID, final List<Integer> beatIDs) throws Exception{
 		Session session = null;
 		Transaction transaction = null;
 		try {
 			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
 			//Delete existing sales Exec Beats
-			SQLQuery deleteSalesExecBeats = session.createSQLQuery("DELETE FROM SUPPLIER_SALES_EXEC_BEATS WHERE SALES_EXEC_ID =? AND SUPPLIER_ID = ?");
+			SQLQuery deleteSalesExecBeats = session.createSQLQuery("DELETE FROM MANUFACTURER_SALES_EXEC_BEATS WHERE SALES_EXEC_ID =? AND MANUFACTURER_ID = ? AND TENANT_ID = ?");
 			deleteSalesExecBeats.setParameter(0, salesExecID);
-			deleteSalesExecBeats.setParameter(1, supplierID);
+			deleteSalesExecBeats.setParameter(1, manufacturerID);
+			deleteSalesExecBeats.setParameter(2, tenantID);
 			deleteSalesExecBeats.executeUpdate();
 			// get Connction from Session
 			session.doWork(new Work() {
@@ -307,13 +315,13 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 				public void execute(Connection connection) throws SQLException {
 					PreparedStatement pstmt = null;
 					try {
-						String sqlInsert = "INSERT INTO SUPPLIER_SALES_EXEC_BEATS (RESELLER_ID, SUPPLIER_ID, SALES_EXEC_ID, BEAT_ID, DATE_CREATED) VALUES (?, ?, ?, ?, ?)";
+						String sqlInsert = "INSERT INTO MANUFACTURER_SALES_EXEC_BEATS (MANUFACTURER_ID, SALES_EXEC_ID, BEAT_ID, TENANT_ID, DATE_CREATED) VALUES (?, ?, ?, ?, ?)";
 						pstmt = connection.prepareStatement(sqlInsert);
 						for (int i = 0; i < beatIDs.size(); i++) {
-							pstmt.setInt(1, resellerID);
-							pstmt.setInt(2, supplierID);
-							pstmt.setInt(3, salesExecID);
-							pstmt.setInt(4, beatIDs.get(i));
+							pstmt.setInt(1, manufacturerID);
+							pstmt.setInt(2, salesExecID);
+							pstmt.setInt(3, beatIDs.get(i));
+							pstmt.setInt(4, tenantID);
 							pstmt.setDate(5, new java.sql.Date(new Date().getTime()));
 							pstmt.addBatch();
 						}
@@ -339,14 +347,14 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 
 	
 	@Override
-	public List<SalesExecutive> getSalesExecMapsBeatsCustomers(int resellerID) {
+	public List<SalesExecutive> getSalesExecMapsBeatsCustomers(int tenantID) {
 		Session session = null;
 		List<SalesExecutive> salesExecList = new ArrayList<SalesExecutive>();
 		try {
 			session = sessionFactory.openSession();
 			SQLQuery query = session.createSQLQuery(
-					"SELECT a.ID, a.FIRST_NAME, a.LAST_NAME FROM USER a, BEAT b, CUSTOMER c, ORDER_BOOKING_SCHEDULE d, RESELLER_USER e, ORDER_BOOKING_SCHEDULE_CUSTOMERS f  WHERE a.ID=d.SALES_EXEC_ID AND b.ID=d.BEAT_ID AND c.ID=f.CUSTOMER_ID AND d.ID=f.ORDER_BOOKING_SCHEDULE_ID AND e.USER_ID=a.ID AND e.RESELLER_ID=? group by a.ID");
-			query.setParameter(0, resellerID);
+					"SELECT a.ID, a.FIRST_NAME, a.LAST_NAME FROM USER a, BEAT b, CUSTOMER c, ORDER_BOOKING_SCHEDULE d, TENANT_USER e, ORDER_BOOKING_SCHEDULE_CUSTOMERS f  WHERE a.ID=d.SALES_EXEC_ID AND b.ID=d.BEAT_ID AND c.ID=f.CUSTOMER_ID AND d.ID=f.ORDER_BOOKING_SCHEDULE_ID AND e.USER_ID=a.ID AND e.TENANT_ID=? group by a.ID");
+			query.setParameter(0, tenantID);
 			List salesExecs = query.list();
 			for(Object obj : salesExecs){
 				Object[] objs = (Object[])obj;
@@ -368,13 +376,14 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 	}
 
 	@Override
-	public List<Beat> getAssignedBeats(int salesExecID) {
+	public List<Beat> getAssignedBeats(int salesExecID, int tenantID) {
 		Session session = null;
 		List<Beat> beats = new ArrayList<Beat>();
 		try {
 			session = sessionFactory.openSession();
-			SQLQuery beatsQuery = session.createSQLQuery("SELECT a.ID, a.NAME, a.DESCRIPTION, a.COVERAGE_SCHEDULE, a.DISTANCE, a.DATE_CREATED, a.DATE_MODIFIED FROM BEAT a, SUPPLIER_SALES_EXEC_BEATS b WHERE a.ID=b.BEAT_ID AND SALES_EXEC_ID=?");
+			SQLQuery beatsQuery = session.createSQLQuery("SELECT a.ID, a.NAME, a.DESCRIPTION, a.COVERAGE_SCHEDULE, a.DISTANCE, a.DATE_CREATED, a.DATE_MODIFIED FROM BEAT a, MANUFACTURER_SALES_EXEC_BEATS b WHERE a.ID=b.BEAT_ID AND a.TENANT_ID=b.TENANT_ID AND SALES_EXEC_ID=? AND a.TENANT_ID = ?");
 			beatsQuery.setParameter(0, salesExecID);
+			beatsQuery.setParameter(1, tenantID);
 			List beatsList = beatsQuery.list();
 			for(Object obj : beatsList){
 				Object[] objs = (Object[])obj;
@@ -406,15 +415,16 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 	
 
 	@Override
-	public List<Beat> getScheduledVisitSalesExecBeats(int salesExecID, Date visitDate) {
+	public List<Beat> getScheduledVisitSalesExecBeats(int salesExecID, Date visitDate, int tenantID) {
 		Session session = null;
 		List<Beat> beats = new ArrayList<Beat>();
 		try {
 			session = sessionFactory.openSession();
 			SQLQuery query = session.createSQLQuery(
-					"SELECT b.ID, b.NAME FROM USER a, BEAT b, ORDER_BOOKING_SCHEDULE c  WHERE a.ID=c.SALES_EXEC_ID AND b.ID=c.BEAT_ID AND a.ID=? AND c.VISIT_DATE = ? group by b.ID");
+					"SELECT b.ID, b.NAME FROM USER a, BEAT b, ORDER_BOOKING_SCHEDULE c  WHERE a.ID=c.SALES_EXEC_ID AND b.ID=c.BEAT_ID AND a.TENANT_ID=b.TENANT_ID AND b.TENANT_ID=c.TENANT_ID AND a.ID=? AND c.VISIT_DATE = ? AND a.TENANT_ID= ? group by b.ID");
 			query.setParameter(0, salesExecID);
 			query.setParameter(1, visitDate);
+			query.setParameter(2, tenantID);
 			List lists = query.list();
 			for(Object obj : lists){
 				Object[] objs = (Object[])obj;
@@ -435,15 +445,15 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 	}
 
 	@Override
-	public List<SalesExecutive> getScheduledVisitSalesExecs(Date visitDate, int resellerID) {
+	public List<SalesExecutive> getScheduledVisitSalesExecs(Date visitDate, int tenantID) {
 		Session session = null;
 		List<SalesExecutive> salesExecs = new ArrayList<SalesExecutive>();
 		try {
 			session = sessionFactory.openSession();
 			SQLQuery query = session.createSQLQuery(
-					"SELECT a.ID, a.FIRST_NAME, a.LAST_NAME FROM USER a, ORDER_BOOKING_SCHEDULE b  WHERE a.ID=b.SALES_EXEC_ID AND b.VISIT_DATE = ? AND b.RESELLER_ID = ? group by a.ID");
+					"SELECT a.ID, a.FIRST_NAME, a.LAST_NAME FROM USER a, ORDER_BOOKING_SCHEDULE b  WHERE a.ID=b.SALES_EXEC_ID AND b.VISIT_DATE = ? AND b.TENANT_ID = ? group by a.ID");
 			query.setParameter(0, visitDate);
-			query.setParameter(1, resellerID);
+			query.setParameter(1, tenantID);
 			List lists = query.list();
 			for(Object obj : lists){
 				Object[] objs = (Object[])obj;
@@ -466,16 +476,17 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 	}
 	
 	@Override
-	public List<TrimmedCustomer> getScheduledVisitBeatCustomers(int salesExecID, Date visitDate, int beatID){
+	public List<TrimmedCustomer> getScheduledVisitBeatCustomers(int salesExecID, Date visitDate, int beatID, int tenantID){
 		Session session = null;
 		List<TrimmedCustomer> trimmedCustomers = new ArrayList<TrimmedCustomer>();
 		try {
 			session = sessionFactory.openSession();
 			SQLQuery query = session.createSQLQuery(
-					"SELECT a.ID, a.NAME FROM CUSTOMER a, ORDER_BOOKING_SCHEDULE b, ORDER_BOOKING_SCHEDULE_CUSTOMERS c WHERE a.ID=c.CUSTOMER_ID AND c.ORDER_BOOKING_SCHEDULE_ID=b.ID AND b.SALES_EXEC_ID= ? AND b.VISIT_DATE= ? AND b.BEAT_ID= ? group by a.ID");
+					"SELECT a.ID, a.NAME FROM CUSTOMER a, ORDER_BOOKING_SCHEDULE b, ORDER_BOOKING_SCHEDULE_CUSTOMERS c WHERE a.ID=c.CUSTOMER_ID AND c.ORDER_BOOKING_SCHEDULE_ID=b.ID AND a.TENANT_ID=b.TENANT_ID AND b.TENANT_ID=c.TENANT_ID AND b.SALES_EXEC_ID= ? AND b.VISIT_DATE= ? AND b.BEAT_ID= ? AND a.TENANT_ID = ? group by a.ID");
 			query.setParameter(0, salesExecID);
 			query.setParameter(1, visitDate);
 			query.setParameter(2, beatID);
+			query.setParameter(3, tenantID);
 			List lists = query.list();
 			for(Object obj : lists){
 				Object[] objs = (Object[])obj;
@@ -496,15 +507,16 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 	}
 	
 	@Override
-	public void deleteBeatAssignment(int supplierID, int salesExecID) throws Exception {
+	public void deleteBeatAssignment(int manufacturerID, int salesExecID, int tenantID) throws Exception {
 		Session session = null;
 		Transaction transaction = null;
 		try {
 			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
-			SQLQuery query = session.createSQLQuery("DELETE FROM SUPPLIER_SALES_EXEC_BEATS WHERE SALES_EXEC_ID= ? AND SUPPLIER_ID = ?");
+			SQLQuery query = session.createSQLQuery("DELETE FROM MANUFACTURER_SALES_EXEC_BEATS WHERE SALES_EXEC_ID= ? AND MANUFACTURER_ID = ? AND TENANT_ID = ?" );
 			query.setParameter(0, salesExecID);
-			query.setParameter(1, supplierID);
+			query.setParameter(1, manufacturerID);
+			query.setParameter(2, tenantID);
 			query.executeUpdate();
 			transaction.commit();
 		} catch (Exception exception) {
@@ -521,13 +533,13 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 	}
 	
 	@Override
-	public int getSalesExecutiveCount(int resellerID){
+	public int getSalesExecutiveCount(int tenantID){
 		Session session = null;
 		int counts = 0;
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery count = session.createSQLQuery("SELECT COUNT(*) FROM USER a, USER_ROLE b, RESELLER_USER c WHERE a.ID=b.USER_ID AND a.ID=c.USER_ID AND b.ROLE_ID= 2 AND c.RESELLER_ID=?");
-			count.setParameter(0, resellerID);
+			SQLQuery count = session.createSQLQuery("SELECT COUNT(*) FROM USER a, USER_ROLE b, TENANT_USER c WHERE a.ID=b.USER_ID AND a.ID=c.USER_ID AND b.ROLE_ID= 2 AND c.TENANT_ID=?");
+			count.setParameter(0, tenantID);
 			List results = count.list();
 			if(results != null && results.size() == 1 ){
 				counts = ((BigInteger)results.get(0)).intValue();
@@ -543,15 +555,15 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 	}
 
 	@Override
-	public List<SalesExecutive> getSalesExecsNotMappedToSupplier(int resellerID, int supplierID) {
+	public List<SalesExecutive> getSalesExecsNotMappedToManufacturer(int tenantID, int manufacturerID) {
 		Session session = null;
 		List<SalesExecutive> salesExecs = new ArrayList<SalesExecutive>();
 		try {
 			session = sessionFactory.openSession();
 			SQLQuery query = session.createSQLQuery(
-					"SELECT a.ID, a.FIRST_NAME, a.LAST_NAME FROM USER a, USER_ROLE b WHERE a.ID = b.USER_ID AND b.ROLE_ID = 2 AND a.ID NOT IN (SELECT SALES_EXEC_ID FROM SUPPLIER_SALES_EXECUTIVES WHERE RESELLER_ID= ? AND SUPPLIER_ID = ?)");
-			query.setParameter(0, resellerID);
-			query.setParameter(1, supplierID);
+					"SELECT a.ID, a.FIRST_NAME, a.LAST_NAME FROM USER a, USER_ROLE b WHERE a.ID = b.USER_ID AND b.ROLE_ID = 2 AND a.ID NOT IN (SELECT SALES_EXEC_ID FROM MANUFACTURER_SALES_EXECUTIVES WHERE TENANT_ID= ? AND MANUFACTURER_ID = ?)");
+			query.setParameter(0, tenantID);
+			query.setParameter(1, manufacturerID);
 			List lists = query.list();
 			for(Object obj : lists){
 				Object[] objs = (Object[])obj;
@@ -563,7 +575,7 @@ public class SalesExecDAOImpl implements SalesExecDAO{
 			}
 			return salesExecs;
 		} catch (Exception exception) {
-			logger.error("Error fetching sales executives not mapped to supplier.", exception);
+			logger.error("Error fetching sales executives not mapped to manufacturer.", exception);
 		} finally {
 			if (session != null) {
 				session.close();

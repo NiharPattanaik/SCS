@@ -68,8 +68,14 @@
     float: right;
     display: block
   }
-	
-    </style>
+  
+  .modal-custom-footer {
+    padding: 15px;
+    text-align: center;
+    border-top: 1px solid #e5e5e5;
+}
+
+</style>
 </head>
 
 <body>
@@ -101,20 +107,30 @@
                         <th>Description</th>
                         <th>Word No.</th>
                         <th>Pin Code</th>
+                        <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                 	<c:forEach var="area" items="${areas}">  
                     <tr>
-                    	<% if(resourcePermIDs.contains(ResourcePermissionEnum.AREA_READ.getResourcePermissionID())) { %>
-                    		<td><a href="<%=request.getContextPath()%>/web/areaWeb/${area.areaID}">${area.areaID}</a></td>
-                    	<% } else { %>
-                    		<td>${area.areaID}</td>
-                    	<% } %>		
-                        <td>${area.name}</td>
+                    	<td>${area.areaID}</td>
+                    	<td>${area.name}</td>
                         <td>${area.description}</td>
                         <td>${area.wordNo}</td>
                         <td>${area.pinCode}</td>
+                        <% if(resourcePermIDs.contains(ResourcePermissionEnum.AREA_UPDATE.getResourcePermissionID())) { %>
+                        	<td><a href="<%=request.getContextPath()%>/web/areaWeb/editAreaForm/${area.areaID}">Edit</a>
+                        <% } %>		
+                        <% if(resourcePermIDs.contains(ResourcePermissionEnum.AREA_DELETE.getResourcePermissionID())) { %>
+                        	| 	 
+	                        <c:if test="${not empty area.beat}">
+	                        	<a href=# id=link data-toggle=modal data-target=#confirm-submit>Delete</a>
+	                        </c:if>	
+	                        <c:if test="${empty area.beat}">
+	                        	<a href=# id=link data-toggle=modal data-target=#confirm data-id=${area.areaID} data-name=${area.name}>Delete</a>
+	                        </c:if>	
+	                    <% } %>	    
+                        </td>
                     </tr>
                     </c:forEach>
                 </tbody>
@@ -127,4 +143,54 @@
 	    $('#areaTable').DataTable({searching: false, aaSorting: [], bLengthChange: false, pageLength: 10});
 	} );
 </script>
+
+
+
+<div class="modal fade" id="confirm-submit" tabindex="-1" role="dialog"
+	aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<b>Warning !</b>
+			</div>
+			<div class="modal-body">The area can't be removed as this is
+				mapped to a beat. Please edit the beat to remove the area
+				association, before deleting the area.</div>
+			<div class="modal-custom-footer">
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="confirm" tabindex="-1" role="dialog"
+	aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<b>Confirm removal of area.</b>
+			</div>
+			<div class="modal-body">Are you sure you want to remove the
+				area, <span style="font-weight:bold;" id="areaName"></span> ?</div>
+			<div class="modal-custom-footer">
+				<button type="submit" id="modalSubmit" class="btn btn-primary">Confirm</button>
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+				<script type="text/javascript">
+					var name = ""
+					var id = ""
+					$('#confirm').on('show.bs.modal', function (e) {
+						$('#areaName').empty();
+						id = $(e.relatedTarget).data('id')
+						name = $(e.relatedTarget).data('name')
+						$('#areaName').append(name);
+					});
+				
+					$('#modalSubmit').click(function(){
+						window.location.href = "/crm/web/areaWeb/delete/"+id
+					});
+				</script>
+			</div>
+		</div>
+	</div>
+</div>
 </html>

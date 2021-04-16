@@ -1,7 +1,7 @@
 package com.sales.crm.controller;
 
-import java.util.Date;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -19,7 +19,7 @@ import com.sales.crm.service.SalesExecService;
 
 @RestController
 @RequestMapping("/rest/salesExecReST")
-public class SalesExecRESTController {
+public class SalesExecReSTController {
 	
 	@Autowired
 	SalesExecService salesExecService;
@@ -28,13 +28,13 @@ public class SalesExecRESTController {
 	HttpSession httpSession;
 	
 	
-	@GetMapping(value="/{salesExecID}")
-	public List<Beat> getSalesExecsBeats(@PathVariable int salesExecID){
-		return salesExecService.getAssignedBeats(salesExecID);
+	@GetMapping(value="/{salesExecID}/{tenantID}")
+	public List<Beat> getSalesExecsBeats(@PathVariable("salesExecID") int salesExecID, @PathVariable("tenantID") int tenantID){
+		return salesExecService.getAssignedBeats(salesExecID, tenantID);
 	}
 	
-	@GetMapping(value="/scheduledVisit/{salesExecID}/{visitDate}")
-	public List<Beat> getSalesExecsBeatsScheduledVisit(@PathVariable("salesExecID") int salesExecID, @PathVariable("visitDate") String visitDate){
+	@GetMapping(value="/scheduledVisit/{salesExecID}/{visitDate}/{tenantID}")
+	public List<Beat> getSalesExecsBeatsScheduledVisit(@PathVariable("salesExecID") int salesExecID, @PathVariable("visitDate") String visitDate, @PathVariable("tenantID") int tenantID){
 		Date date = new Date();
 		try{
 			date = new SimpleDateFormat("dd-MM-yyyy").parse(visitDate);
@@ -42,36 +42,38 @@ public class SalesExecRESTController {
 			exception.printStackTrace();
 		}
 		
-		return salesExecService.getScheduledVisitSalesExecBeats(salesExecID, date);
+		return salesExecService.getScheduledVisitSalesExecBeats(salesExecID, date, tenantID);
 	}
 	
 	
-	@GetMapping(value="/list/{visitDate}")
-	public List<SalesExecutive> getScheduledVisitSalesExecs(@PathVariable String visitDate){
+	@GetMapping(value="/list/{visitDate}/{tenantID}")
+	public List<SalesExecutive> getScheduledVisitSalesExecs(@PathVariable("visitDate") String visitDate, @PathVariable("tenantID") int tenantID){
 		Date date = new Date();
 		try{
 			date = new SimpleDateFormat("dd-MM-yyyy").parse(visitDate);
 		}catch(Exception exception){
 			exception.printStackTrace();
 		}
-		return salesExecService.getScheduledVisitSalesExecs(date, Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		return salesExecService.getScheduledVisitSalesExecs(date, tenantID);
 	}
 
 	
-	@GetMapping(value="/scheduledVisit/{salesExecID}/{visitDate}/{beatID}")
-	public List<TrimmedCustomer> getScheduledVisitBeatCustomers(@PathVariable("salesExecID") int salesExecID, @PathVariable("visitDate") String visitDate, @PathVariable("beatID") int beatID){
+	@GetMapping(value="/scheduledVisit/{salesExecID}/{visitDate}/{beatID}/{tenantID}")
+	public List<TrimmedCustomer> getScheduledVisitBeatCustomers(@PathVariable("salesExecID") int salesExecID,
+			@PathVariable("visitDate") String visitDate, @PathVariable("beatID") int beatID,
+			@PathVariable("tenantID") int tenantID) {
 		Date date = new Date();
-		try{
+		try {
 			date = new SimpleDateFormat("dd-MM-yyyy").parse(visitDate);
-		}catch(Exception exception){
+		} catch (Exception exception) {
 			exception.printStackTrace();
 		}
-		return salesExecService.getScheduledVisitBeatCustomers(salesExecID, date, beatID);
+		return salesExecService.getScheduledVisitBeatCustomers(salesExecID, date, beatID, tenantID);
 	}
 	
-	@GetMapping(value="/salesExecNotMappedToSupp/{supplierID}")
-	public List<SalesExecutive> getSalesExecNotMappedToSupp(@PathVariable("supplierID") int supplierID){
-		return salesExecService.getSalesExecsNotMappedToSupplier(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))), supplierID);
+	@GetMapping(value="/salesExecsNotMappedToManufacturer/{manufacturerID}")
+	public List<SalesExecutive> getSalesExecsNotMappedToManufacturer(@PathVariable("manufacturerID") int manufacturerID){
+		return salesExecService.getSalesExecsNotMappedToManufacturer(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))), manufacturerID);
 	}
 
 }

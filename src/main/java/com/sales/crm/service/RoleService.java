@@ -17,8 +17,8 @@ public class RoleService {
 	@Autowired
 	private RoleDAO roleDAO;
 	
-	public Role getRole(int roleID){
-		return roleDAO.get(roleID);
+	public Role getRole(int roleID, int tenantID){
+		return roleDAO.get(roleID, tenantID);
 	}
 	
 	public void createRole(Role role){
@@ -29,8 +29,8 @@ public class RoleService {
 		roleDAO.update(role);
 	}
 	
-	public void deleteRole(int roleID){
-		roleDAO.delete(roleID);
+	public void deleteRole(int roleID, int tenantID){
+		roleDAO.delete(roleID, tenantID);
 	}
 	
 	public List<Role> getRoles(User user){
@@ -39,27 +39,27 @@ public class RoleService {
 		for(Role role : roles){
 			roleIDs.add(role.getRoleID());
 		}
-		return roleDAO.getRoles(roleIDs);
+		return roleDAO.getRoles(roleIDs, user.getTenantID());
 	}
 	
-	public List<Role> getRoles(){
-		return roleDAO.getRoles(null);
+	public List<Role> getRoles(int tenantID){
+		return roleDAO.getRoles(null, tenantID);
 	}
 	
-	public List<ResourcePermission> getResourcePermissions() throws Exception {
-		return roleDAO.getResourcePermissions();
+	public List<ResourcePermission> getResourcePermissions(int tenantID) throws Exception {
+		return roleDAO.getResourcePermissions(tenantID);
 	}
 
-	public List<ResourcePermission> getRolesResourcePermissions(List<Integer> roleIDs, int resellerID) throws Exception {
-		return roleDAO.getRoleResourcePermissions(roleIDs, resellerID);
+	public List<ResourcePermission> getRolesResourcePermissions(List<Integer> roleIDs, int tenantID) throws Exception {
+		return roleDAO.getRoleResourcePermissions(roleIDs, tenantID);
 	}
 	
-	public void saveRoleResourcePermission(List<ResourcePermission> resourcePermissions, int roleID, int resellerID) throws Exception{
-		roleDAO.saveRoleResourcePermission(resourcePermissions, roleID, resellerID);
+	public void saveRoleResourcePermission(List<ResourcePermission> resourcePermissions, int roleID, int tenantID) throws Exception{
+		roleDAO.saveRoleResourcePermission(resourcePermissions, roleID, tenantID);
 	}
 	
-	public List<Integer> getRoleResourcePermissionIDs(List<Integer> roleIDs, int resellerID) throws Exception {
-		return roleDAO.getRoleResourcePermissionIDs(roleIDs, resellerID);
+	public List<Integer> getRoleResourcePermissionIDs(List<Integer> roleIDs, int tenantID) throws Exception {
+		return roleDAO.getRoleResourcePermissionIDs(roleIDs, tenantID);
 	}
 	
 	public List<Integer> getRoleResourcePermissionIDs(User user) throws Exception {
@@ -68,6 +68,6 @@ public class RoleService {
 		for(Role role : roles){
 			roleIDs.add(role.getRoleID());
 		}
-		return roleDAO.getRoleResourcePermissionIDs(roleIDs, user.getResellerID());
+		return roleDAO.getRoleResourcePermissionIDs(roleIDs, user.getTenantID());
 	}
 }

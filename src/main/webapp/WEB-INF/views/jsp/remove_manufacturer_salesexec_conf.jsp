@@ -8,7 +8,7 @@
 <html lang="en">
 
 <head>
-<title>Manufacturer</title>
+<title>Removed Manufacturer Sales Executive Mapping</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
@@ -75,14 +75,24 @@
 		<%@ include file="menus.jsp" %>
 		<div class="row top-height">
 			<div class="col-md-8 ">
-				<br> <br>
-				<div class="alert alert-danger">
-					<strong>Error!</strong><br> ${msg}
-				</div>
-				<div class="form_submit">
-					<a href="<%=request.getContextPath()%>/web/manufacturerWeb/list"
-						class="btn btn-primary">View List Of Manufacturers</a>
-				</div>
+					<br>
+					<br>
+					<c:choose>
+    					<c:when test="${fn:length(msg) gt 0}">
+       						<div class="alert alert-danger">
+	 						 <strong>Error!</strong><br> ${msg}
+						</div>
+    					</c:when>    
+    					<c:otherwise>
+        					<div class="alert alert-success">
+	 						 <strong>Success!</strong><br> Manufacturer and Sales Executives association has been successfully removed.
+						</div>
+    					</c:otherwise>
+					</c:choose>
+					<div class="form_submit">
+						<a href="<%=request.getContextPath()%>/web/manufacturerWeb/manufacturer-salesexecs/list" class="btn btn-primary">View Manufacturer to Sales Executive Mapping</a>
+						<a href="<%=request.getContextPath()%>/web/manufacturerWeb/assignSalesExecutive" class="btn btn-primary">New Manufacturer to Sales Executive Mapping</a>
+					</div>
 			</div>
 		</div>
 	</div>

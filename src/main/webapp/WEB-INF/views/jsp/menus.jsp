@@ -23,10 +23,6 @@
 							<% if(resourcePermIDs.contains(ResourcePermissionEnum.RESELLER_LIST.getResourcePermissionID())) { %>
 								<li><a href="<%=request.getContextPath()%>/web/resellerWeb/list">Resellers</a></li>
 							<% } %>	
-							
-							<% if(resourcePermIDs.contains(ResourcePermissionEnum.SUPPLIER_LIST.getResourcePermissionID())) { %>
-								<li><a href="<%=request.getContextPath()%>/web/supplierWeb/list">Suppliers</a></li>
-							<% } %>	
 							<li><a href="<%=request.getContextPath()%>/web/manufacturerWeb/list">Manufacturers</a></li>
 							<% if(resourcePermIDs.contains(ResourcePermissionEnum.AREA_LIST.getResourcePermissionID())) { %>
 								<li><a href="<%=request.getContextPath()%>/web/areaWeb/list">Areas</a></li>
@@ -35,6 +31,23 @@
 							<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_LIST.getResourcePermissionID())) { %>
 								<li><a href="<%=request.getContextPath()%>/web/beatWeb/list">Beats</a></li>
 							<% } %>
+						</ul>
+        			</li>	
+        			<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="reportmenu">Mapping<span class="caret"></span></a>
+        				<ul class="dropdown-menu" id="reportmenus">
+        					<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_VIEW_ASSIGNED_BEATS.getResourcePermissionID())) { %>
+									<li><a href="<%=request.getContextPath()%>/web/salesExecWeb/beatlist">Sales Executive-Beats</a></li>
+					          	<% } %>	
+					          	
+					          	<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_VIEW_ASSIGNED_BEATS.getResourcePermissionID())) { %>
+					          		<li><a href="<%=request.getContextPath()%>/web/deliveryExecWeb/beatlist">Delivery Executive-Beats</a></li>
+				          		<% } %>	
+				          		
+					          	<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_VIEW_ASSOCIATED_CUSTOMERS.getResourcePermissionID())) { %>
+					          		<li><a href="<%=request.getContextPath()%>/web/beatWeb/beat-customers/list">Customer-Beats</a></li>
+					          	<% } %>	
+					          	<li><a href="<%=request.getContextPath()%>/web/manufacturerWeb/manufacturer-salesexecs/list">Manufacturer-Sales Executives</a></li>
 						</ul>
         			</li>	
 					<li class="dropdown">
@@ -75,21 +88,7 @@
 								<% if(resourcePermIDs.contains(ResourcePermissionEnum.ROLE_LIST.getResourcePermissionID())) { %>
 									<li><a href="<%=request.getContextPath()%>/web/role/list">Roles</a></li>
 								<% } %>	
-							
-								<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_VIEW_ASSIGNED_BEATS.getResourcePermissionID())) { %>
-									<li><a href="<%=request.getContextPath()%>/web/salesExecWeb/beatlist">Sales Executive-Beats</a></li>
-					          	<% } %>	
-					          	
-					          	<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_VIEW_ASSIGNED_BEATS.getResourcePermissionID())) { %>
-					          		<li><a href="<%=request.getContextPath()%>/web/deliveryExecWeb/beatlist">Delivery Executive-Beats</a></li>
-				          		<% } %>	
-				          		
-					          	<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_VIEW_ASSOCIATED_CUSTOMERS.getResourcePermissionID())) { %>
-					          		<li><a href="<%=request.getContextPath()%>/web/beatWeb/beat-customers/list">Customer - Beats</a></li>
-					          	<% } %>	
-					          	<li><a href="<%=request.getContextPath()%>/web/supplierWeb/supp-manufacturer/list">Supplier - Manufacturer</a></li>
-					          	<li><a href="<%=request.getContextPath()%>/web/supplierWeb/supp-salesexecs/list">Supplier - Sales Executives</a></li>
-				        </ul>
+					    </ul>
       				</li>
 				</ul>		
 				<ul class="nav navbar-nav navbar-right ">

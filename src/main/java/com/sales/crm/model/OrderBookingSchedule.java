@@ -16,7 +16,7 @@ import javax.persistence.Transient;
 @Entity
 @Table(name = "ORDER_BOOKING_SCHEDULE")
 @AttributeOverrides({
-	@AttributeOverride(name = "companyID", column = @Column(name = "COMPANY_ID")),
+	@AttributeOverride(name = "tenantID", column = @Column(name = "TENANT_ID")),
 	@AttributeOverride(name = "dateCreated", column = @Column(name = "DATE_CREATED")),
 	@AttributeOverride(name = "dateModified", column = @Column(name = "DATE_MODIFIED"))})
 public class OrderBookingSchedule extends BusinessEntity{
@@ -34,9 +34,6 @@ public class OrderBookingSchedule extends BusinessEntity{
 	
 	@Column(name = "VISIT_DATE")
 	private Date visitDate;
-	
-	@Column(name = "RESELLER_ID")
-	private int resellerID;
 	
 	@Transient
 	private String salesExecName;
@@ -65,6 +62,9 @@ public class OrderBookingSchedule extends BusinessEntity{
 	
 	@Transient
 	private int status;
+	
+	@Transient
+	private int statusID;
 
 	public int getSalesExecutiveID() {
 		return salesExecutiveID;
@@ -96,14 +96,6 @@ public class OrderBookingSchedule extends BusinessEntity{
 
 	public void setVisitDate(Date visitDate) {
 		this.visitDate = visitDate;
-	}
-
-	public int getResellerID() {
-		return resellerID;
-	}
-
-	public void setResellerID(int resellerID) {
-		this.resellerID = resellerID;
 	}
 
 	public String getSalesExecName() {
@@ -176,6 +168,98 @@ public class OrderBookingSchedule extends BusinessEntity{
 
 	public void setStatus(int status) {
 		this.status = status;
+	}
+
+	
+	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + beatID;
+		result = prime * result + ((beatName == null) ? 0 : beatName.hashCode());
+		result = prime * result + bookingScheduleID;
+		result = prime * result + customerID;
+		result = prime * result + ((customerIDs == null) ? 0 : customerIDs.hashCode());
+		result = prime * result + ((customerName == null) ? 0 : customerName.hashCode());
+		result = prime * result + orderID;
+		result = prime * result + ((salesExecName == null) ? 0 : salesExecName.hashCode());
+		result = prime * result + salesExecutiveID;
+		result = prime * result + status;
+		result = prime * result + ((statusAsString == null) ? 0 : statusAsString.hashCode());
+		result = prime * result + ((visitDate == null) ? 0 : visitDate.hashCode());
+		result = prime * result + ((visitDateAsString == null) ? 0 : visitDateAsString.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		OrderBookingSchedule other = (OrderBookingSchedule) obj;
+		if (beatID != other.beatID)
+			return false;
+		if (beatName == null) {
+			if (other.beatName != null)
+				return false;
+		} else if (!beatName.equals(other.beatName))
+			return false;
+		if (bookingScheduleID != other.bookingScheduleID)
+			return false;
+		if (customerID != other.customerID)
+			return false;
+		if (customerIDs == null) {
+			if (other.customerIDs != null)
+				return false;
+		} else if (!customerIDs.equals(other.customerIDs))
+			return false;
+		if (customerName == null) {
+			if (other.customerName != null)
+				return false;
+		} else if (!customerName.equals(other.customerName))
+			return false;
+		if (orderID != other.orderID)
+			return false;
+		if (salesExecName == null) {
+			if (other.salesExecName != null)
+				return false;
+		} else if (!salesExecName.equals(other.salesExecName))
+			return false;
+		if (salesExecutiveID != other.salesExecutiveID)
+			return false;
+		if (status != other.status)
+			return false;
+		if (statusAsString == null) {
+			if (other.statusAsString != null)
+				return false;
+		} else if (!statusAsString.equals(other.statusAsString))
+			return false;
+		if (visitDate == null) {
+			if (other.visitDate != null)
+				return false;
+		} else if (!visitDate.equals(other.visitDate))
+			return false;
+		if (visitDateAsString == null) {
+			if (other.visitDateAsString != null)
+				return false;
+		} else if (!visitDateAsString.equals(other.visitDateAsString))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "OrderBookingSchedule [bookingScheduleID=" + bookingScheduleID + ", salesExecutiveID=" + salesExecutiveID
+				+ ", beatID=" + beatID + ", visitDate=" + visitDate + ", salesExecName=" + salesExecName + ", beatName="
+				+ beatName + ", customerName=" + customerName + ", customerIDs=" + customerIDs + ", customerID="
+				+ customerID + ", orderID=" + orderID + ", statusAsString=" + statusAsString + ", visitDateAsString="
+				+ visitDateAsString + ", status=" + status + ", tenantID=" + tenantID + ", dateCreated=" + dateCreated
+				+ ", dateModified=" + dateModified + "]";
 	}
 	
 	

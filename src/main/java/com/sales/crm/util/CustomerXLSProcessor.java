@@ -21,7 +21,7 @@ public class CustomerXLSProcessor {
 	private static Logger logger = Logger.getLogger(CustomerXLSProcessor.class);
 
 
-	public static List<Customer> processCustomerXLS(InputStream is, Map<Integer, List<String>> errors, int resellerID) throws Exception{
+	public static List<Customer> processCustomerXLS(InputStream is, Map<Integer, List<String>> errors, int tenantID) throws Exception{
 		List<Customer> customers = new ArrayList<Customer>();
 		try {
 			// Finds the workbook instance for XLSX file
@@ -213,7 +213,7 @@ public class CustomerXLSProcessor {
 					addresses.add(billingAddress);
 					customer.setAddress(addresses);
 					customer.setDateCreated(new Date());
-					customer.setResellerID(resellerID);
+					customer.setTenantID(tenantID);
 					customers.add(customer);
 				} else {
 					errors.put(row.getRowNum()+1, errorMsgs);

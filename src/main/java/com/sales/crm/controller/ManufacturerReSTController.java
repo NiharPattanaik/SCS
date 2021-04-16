@@ -11,22 +11,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sales.crm.model.SalesExecutive;
-import com.sales.crm.service.SupplierService;
+import com.sales.crm.service.ManufacturerService;
 
 @RestController
-@RequestMapping("/rest/supplierReST")
-public class SupplierReSTController {
+@RequestMapping("/rest/manufacturerReST")
+public class ManufacturerReSTController {
 	
 	@Autowired
-	SupplierService supplierService;
+	ManufacturerService manufacturerService;
 	
 	
 	@Autowired
 	HttpSession httpSession;
 	
-	@GetMapping(value="/salesExecs/{supplierID}")
-	public List<SalesExecutive> getSupplierSalesExecs(@PathVariable int supplierID){
-		return supplierService.getSupplier(supplierID).getSalesExecs();
+	@GetMapping(value="/salesExecs/{manufacturerID}/{tenantID}")
+	public List<SalesExecutive> getManufacturerSalesExecs(@PathVariable("manufacturerID") int manufacturerID, @PathVariable("tenantID") int tenantID){
+		return manufacturerService.getManufacturer(manufacturerID, tenantID).getSalesExecs();
 	}
 	
 

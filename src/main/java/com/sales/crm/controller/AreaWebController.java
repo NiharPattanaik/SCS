@@ -36,7 +36,7 @@ public class AreaWebController {
 	
 	@GetMapping(value="/{areaID}")
 	public ModelAndView get(@PathVariable int areaID){
-		Area area = areaService.getArea(areaID);
+		Area area = areaService.getArea(areaID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		return new ModelAndView("/area_details", "area", area);
 		
 	}
@@ -48,13 +48,13 @@ public class AreaWebController {
 	
 	@RequestMapping(value="/editAreaForm/{areaID}", method = RequestMethod.GET)  
 	public ModelAndView editAreaForm(@PathVariable int areaID){
-		Area area = areaService.getArea(areaID);
+		Area area = areaService.getArea(areaID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		return new ModelAndView("/edit_area", "area", area);
 	}
 	
 	@RequestMapping(value="/save",method = RequestMethod.POST)  
 	public ModelAndView create(@ModelAttribute("area") Area area){
-		area.setResellerID(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		area.setTenantID(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		String msg = "";
 		try{
 			areaService.createArea(area);
@@ -82,7 +82,7 @@ public class AreaWebController {
 	public ModelAndView delete(@PathVariable int areaID){
 		String msg = "";
 		try{
-			areaService.deleteArea(areaID);
+			areaService.deleteArea(areaID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		}catch(Exception exception){
 			msg = "Area could not be successfully removed, please contact System Administrator";
 		}
@@ -91,7 +91,7 @@ public class AreaWebController {
 	
 	@GetMapping(value="/list")
 	public ModelAndView list(){
-		List<Area> areas = areaService.getResellerAreas(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		List<Area> areas = areaService.getTenantAreas(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		return new ModelAndView("/area_list","areas", areas);  
 	}
 	

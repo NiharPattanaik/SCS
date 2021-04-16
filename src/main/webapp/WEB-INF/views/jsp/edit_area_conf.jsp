@@ -91,7 +91,6 @@
 					</c:choose>
 					<div class="form_submit">
 						<a href="<%=request.getContextPath()%>/web/areaWeb/list" class="btn btn-primary">View List Of Areas</a>
-						<a href="<%=request.getContextPath()%>/web/areaWeb/${map['areaID']}" class="btn btn-primary">View Detail</a>
 					</div>
 			</div>
 		</div>

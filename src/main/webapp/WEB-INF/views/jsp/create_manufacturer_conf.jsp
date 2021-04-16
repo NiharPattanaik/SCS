@@ -91,7 +91,7 @@
 					</c:choose>
 					<div class="form_submit">
 						<a href="<%=request.getContextPath()%>/web/manufacturerWeb/list" class="btn btn-primary">View List Of Manufacturers</a>
-						<a href="<%=request.getContextPath()%>/web/manufacturerWeb/createManufacturerForm" class="btn btn-primary">Create Another Manufacturer</a>
+						<a href="<%=request.getContextPath()%>/web/manufacturerWeb/createManufacturerForm" class="btn btn-primary">Add a New Manufacturer</a>
 					</div>
 			</div>
 		</div>

@@ -16,18 +16,20 @@ public class BusinessEntity implements Serializable{
 	public static final int STATUS_ACTIVE = 2;
 	public static final int STATUS_CANCELLED = 3;
 	
-	protected int companyID;
+	protected int tenantID;
 	
 	protected Date dateCreated;
 	
 	protected Date dateModified;
 	
-	public int getCompanyID() {
-		return companyID;
+	protected int statusID;
+	
+	public int getTenantID() {
+		return tenantID;
 	}
 
-	public void setCompanyID(int companyID) {
-		this.companyID = companyID;
+	public void setTenantID(int tenantID) {
+		this.tenantID = tenantID;
 	}
 
 	public Date getDateCreated() {
@@ -45,10 +47,18 @@ public class BusinessEntity implements Serializable{
 	public void setDateModified(Date dateModified) {
 		this.dateModified = dateModified;
 	}
+	
+	public int getStatusID() {
+		return statusID;
+	}
+
+	public void setStatusID(int statusID) {
+		this.statusID = statusID;
+	}
 
 	@Override
 	public String toString() {
-		return "BusinessEntity [companyID=" + companyID + ", dateCreated=" + dateCreated + ", dateModified="
+		return "BusinessEntity [tenantID=" + tenantID + ", dateCreated=" + dateCreated + ", dateModified="
 				+ dateModified + "]";
 	}
 

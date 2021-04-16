@@ -105,11 +105,11 @@ table.table.table-striped thead {
         <%@ include file="menus.jsp" %>
         	<div class="row customer_list">
         		<div class="col-md-4">
-            		<h3>Scheduled Order Bookings</h3>   
+            		<h3>Search Order Bookings</h3>   
             	</div>
 	        	<div class="col-md-4 add_customer">
 	        		 <% if(resourcePermIDs.contains(ResourcePermissionEnum.ORDER_SCHEDULE_ORDER_BOOKING.getResourcePermissionID())) { %>
-						<button type="submit" class="btn btn-primary" onclick="location.href='<%=request.getContextPath()%>/web/orderWeb/scheduleOrderBookingForm';">Schedule Order Booking</button>
+						<button type="submit" class="btn btn-primary" onclick="location.href='<%=request.getContextPath()%>/web/orderWeb/scheduleOrderBookingForm';">New Order Booking</button>
 					<% } %>
 				</div>
 			</div>  
@@ -127,7 +127,7 @@ table.table.table-striped thead {
 										<label class="col-sm-3">Sales Executive</label>
 										<div class="col-sm-4">
 											<form:select path="salesExecutiveID" cssClass="form-control" id="sales_exec">
-												<option value="-1" label="--- Select Beat---" />
+												<option value="-1" label="--- Select Sales Exec ---" />
 											</form:select>
 										</div>
 								</div>
@@ -135,7 +135,7 @@ table.table.table-striped thead {
 									<label class="col-sm-3">Beats</label>
 									<div class="col-sm-4">
 										<select class="form-control" id="beats">
-											<option value="-1" label="--- Select Beat---" />
+											<option value="-1" label="--- Select Beat ---" />
 										</select>
 									</div>	
 								</div>
@@ -173,6 +173,7 @@ table.table.table-striped thead {
 								        	</table>	
 										</div>
 								</div>
+								<form:hidden name="tenantID" path="tenantID" id="tenantID" value="${ tenantID }" />
 						</form:form>
 					</div>
 				</div>
@@ -188,7 +189,7 @@ table.table.table-striped thead {
 					$('#search').prop('disabled', false);
 					$.ajax({ 
 						type : "GET",
-						url : "/crm/rest/salesExecReST/list/"+$('#dp').val(),
+						url : "/crm/rest/salesExecReST/list/"+$('#dp').val()+"/"+$('#tenantID').val(),
 						dataType : "json",
 						success : function(data) {
 							$('#sales_exec').empty();
@@ -209,7 +210,7 @@ table.table.table-striped thead {
 			$('#sales_exec').change(function() {
 				$.ajax({ 
 					type : "GET",
-					url : "/crm/rest/salesExecReST/scheduledVisit/"+$('#sales_exec').val()+"/"+$('#dp').val(),
+					url : "/crm/rest/salesExecReST/scheduledVisit/"+$('#sales_exec').val()+"/"+$('#dp').val()+"/"+$('#tenantID').val(),
 					dataType : "json",
 					success : function(data) {
 						$('#beats').empty();
@@ -232,13 +233,13 @@ table.table.table-striped thead {
 				}
 				 $.ajax({
 						type : "GET",
-						url : "/crm/rest/orderReST/unscheduleOrderBooking/"+$(this).data('params')+"/"+$(this).data('params1'),
+						url : "/crm/rest/orderReST/unscheduleOrderBooking/"+$(this).data('params')+"/"+$(this).data('params1')+"/"+$('#tenantID').val(),
 						dataType : "json",
 						success : function(data) {
 							$("#successModal").modal('show');
 							$.ajax({
 								type : "GET",
-								url : "/crm/rest/orderReST/scheduledVisit/"+$('#sales_exec').val()+"/"+date+"/"+$('#beats').val(),
+								url : "/crm/rest/orderReST/scheduledVisit/"+$('#sales_exec').val()+"/"+date+"/"+$('#beats').val()+"/"+$('#tenantID').val(),
 								dataType : "json",
 								success : function(data) {
 									$("#myTable > tbody").empty();
@@ -275,7 +276,7 @@ table.table.table-striped thead {
 				}
 				$.ajax({
 						type : "GET",
-						url : "/crm/rest/orderReST/scheduledVisit/"+$('#sales_exec').val()+"/"+date+"/"+$('#beats').val(),
+						url : "/crm/rest/orderReST/scheduledVisit/"+$('#sales_exec').val()+"/"+date+"/"+$('#beats').val()+"/"+$('#tenantID').val(),
 						dataType : "json",
 						success : function(data) {
 							$("#myTable > tbody").empty();

@@ -19,17 +19,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.sales.crm.model.Address;
+import com.sales.crm.model.EntityStatusEnum;
 import com.sales.crm.model.Reseller;
+import com.sales.crm.model.Tenant;
 
 @Repository("resellerDAO")
 public class ResellerDAOImpl implements ResellerDAO{
 	
 	private static Map<Integer, String> statusMap = new HashMap<Integer, String>();
 	static{
-		statusMap.put(0, "Inactive");
-		statusMap.put(1, "Self Registered");
 		statusMap.put(2, "Active");
-		statusMap.put(3, "Cancelled");
+		statusMap.put(3, "Inactive");
+		statusMap.put(4, "Cancelled");
+		statusMap.put(10, "Self Registered");
 	}
 
 	@Autowired
@@ -38,38 +40,12 @@ public class ResellerDAOImpl implements ResellerDAO{
 	private static Logger logger = Logger.getLogger(ResellerDAOImpl.class);
 
 	@Override
-	public void create(Reseller reseller) throws Exception{
+	public Reseller get(int tenantID) {
 		Session session = null;
-		Transaction transaction = null;
+		Tenant tenant = null;
 		try{
 			session = sessionFactory.openSession();
-			transaction = session.beginTransaction();
-			reseller.setDateCreated(new Date());
-			for(Address address : reseller.getAddress()){
-				address.setDateCreated(new Date());
-			}
-			session.save(reseller);
-			transaction.commit();
-		}catch(Exception e){
-			logger.error("Error while creating reseller.", e);
-			if(transaction != null){
-				transaction.rollback();
-			}
-			throw e;
-		}finally{
-			if(session != null){
-				session.close();
-			}
-		}
-	}
-	
-	@Override
-	public Reseller get(int resellerID) {
-		Session session = null;
-		Reseller reseller = null;
-		try{
-			session = sessionFactory.openSession();
-			reseller = (Reseller)session.get(Reseller.class, resellerID);
+			tenant = (Tenant)session.get(Tenant.class, tenantID);
 		}catch(Exception exception){
 			logger.error("Error while fetching reseller details", exception);
 		}finally{
@@ -77,23 +53,23 @@ public class ResellerDAOImpl implements ResellerDAO{
 				session.close();
 			}
 		}
-		return reseller;
+		return (Reseller)tenant;
 	}
 
 
 
 	@Override
-	public void update(Reseller reseller) {
+	public void update(Tenant tenant) {
 		Session session = null;
 		Transaction transaction = null;
 		try{
 			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
-			reseller.setDateModified(new Date());
-			for(Address address : reseller.getAddress()){
+			tenant.setDateModified(new Date());
+			for(Address address : tenant.getAddress()){
 				address.setDateModified(new Date());
 			}
-			session.update(reseller);
+			session.update(tenant);
 			transaction.commit();
 		}catch(Exception e){
 			logger.error("Error while updating reseller", e);
@@ -109,7 +85,8 @@ public class ResellerDAOImpl implements ResellerDAO{
 	}
 
 
-
+	
+	/**
 	@Override
 	public void delete(int resellerID) {
 		Session session = null;
@@ -132,6 +109,7 @@ public class ResellerDAOImpl implements ResellerDAO{
 		}
 		
 	}
+	
 
 	@Override
 	public boolean isEmailIDAlreadyUsed(String emailID) throws Exception{
@@ -157,23 +135,26 @@ public class ResellerDAOImpl implements ResellerDAO{
 		return false;
 	}
 
+	*/
 	@Override
 	public List<Reseller> getResellers() throws Exception{
 		Session session = null;
+		List<Tenant> tenants = new ArrayList<Tenant>();
 		List<Reseller> resellers = new ArrayList<Reseller>();
 		try{
 			session = sessionFactory.openSession();
-			Query resellersQuery = session.createQuery("FROM Reseller");
-			resellers = resellersQuery.list();
-			if(resellers != null){
-				for(Iterator<Reseller> itr= resellers.iterator(); itr.hasNext(); ){
+			Query resellersQuery = session.createQuery("FROM Tenant");
+			tenants = resellersQuery.list();
+			if(tenants != null){
+				for(Iterator<Tenant> itr= tenants.iterator(); itr.hasNext(); ){
 					//Skip appowner
-					Reseller reseller = itr.next();
-					if(reseller.getResellerID() == -1){
+					Tenant tenant = itr.next();
+					if(tenant.getTenantID() == -1){
 						itr.remove();
 						continue;
 					}
-					reseller.setStatusText(statusMap.get(reseller.getStatus()));
+					tenant.setStatusText(statusMap.get(tenant.getStatusID()));
+					resellers.add((Reseller)tenant);
 				}
 			}
 		}catch(Exception exception){

@@ -123,6 +123,7 @@
 							<div style="width: 500px; min-height: 2px; max-height: 100px; overflow-y: auto;" id="checks">
 							</div>
 						</div>
+						<form:hidden name="tenantID" path="tenantID" id="tenantID" value="${ tenantID }" />
 					</fieldset>
 					<div class="form_submit">
 						<input type="button" name="btn" value="Schedule" id="submitBtn" data-toggle="modal" data-target="#confirm-submit" class="btn btn-primary" />
@@ -138,7 +139,7 @@
 				$('#deliv_exec').change(function() {
 					$.ajax({
 							type : "GET",
-							url : "/crm/rest/deliveryExecReST/"+$('#deliv_exec').val(),
+							url : "/crm/rest/deliveryExecReST/"+$('#deliv_exec').val() + "/" + $('#tenantID').val(),
 							dataType : "json",
 							success : function(data) {
 								$('#beats').empty();
@@ -159,13 +160,13 @@
 					var isCusromerPresent = false;
 					$.ajax({
 							type : "GET",
-							url : "/crm/rest/customer/customersToScheduleDelivery/"+$('#beats').val() + "/"+$('#dp').val(),
+							url : "/crm/rest/customer/customersToScheduleDelivery/"+$('#beats').val() + "/"+$('#dp').val() + "/" + $('#tenantID').val(),
 							dataType : "json",
 							success : function(data) {
 								$('#checks').empty();
 								$.each(data,function(i,obj) {
 									isCusromerPresent = true;
-									var div_data = "<input name=customerIDs id=customerIDs type=checkbox value="+obj.customer.customerID+" checked>"+obj.customer.customerName+"<input type=hidden name=customerIDmodal id="+obj.customer.customerID+"modal value="+ obj.customer.customerName +">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=# id=order-link data-toggle=modal data-target=#orders data-rows=" + JSON.stringify(obj.orders) + "><i>View Linked Order</i></a><br>";
+									var div_data = "<input name=customerIDs id=customerIDs type=checkbox value="+obj.customer.customerID+" checked>"+obj.customer.customerName+"<input type=hidden name=customerIDmodal id="+obj.customer.customerID+"modal value="+ obj.customer.customerName +">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=# id=order-link data-toggle=modal data-target=#orders data-rows='" + JSON.stringify(obj.orders) + "'><i>View Linked Order</i></a><br>";
 									//Create hidden field with Order IDs
 									var orderIDs ="";
 									$.each(obj.orders,function(i,order) {

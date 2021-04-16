@@ -3,10 +3,8 @@ package com.sales.crm.controller;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -61,6 +59,7 @@ public class UserWebController {
 	public ModelAndView get(@PathVariable int userID){
 		boolean isSalesExec = false;
 		Map<String, Object> modelMap = new HashMap<String, Object>();
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
 		User user = userService.getUser(userID);
 		modelMap.put("user", user);
 		List<Role> roles = user.getRoles();
@@ -73,7 +72,7 @@ public class UserWebController {
 			}
 		}
 		if(isSalesExec){
-			SalesExecutive salesExecutive; salesExecutive = salesExecutiveService.getSalesExecutive(userID);
+			SalesExecutive salesExecutive; salesExecutive = salesExecutiveService.getSalesExecutive(userID, tenantID);
 			if(salesExecutive.getBeats() != null && salesExecutive.getBeats().size() > 0){
 				modelMap.put("beats", true);
 			}
@@ -115,7 +114,7 @@ public class UserWebController {
 	
 	@RequestMapping(value="/save",method = RequestMethod.POST)  
 	public ModelAndView create(@ModelAttribute("user") User user){
-		user.setResellerID(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
+		user.setTenantID(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		String failMsg = "";
 		String succMsg = "User has been successfully created.";
 		int[] values = userService.isUserNameEmailIDPresent(user.getUserName(), user.getEmailID());
@@ -185,7 +184,7 @@ public class UserWebController {
 	public ModelAndView delete(@PathVariable int userID){
 		String msg = "";
 		try{
-			userService.deleteUser(userID);
+			userService.deleteUser(userID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		}catch(Exception exception){
 			msg = "User could not be successfully removed, please contact System Administrator";
 		}
@@ -194,17 +193,17 @@ public class UserWebController {
 	
 	@GetMapping(value="/list")
 	public ModelAndView list(){
-		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
 		int loggedInUserId = ((User)httpSession.getAttribute("user")).getUserID();
-		List<User> users = userService.getResellerUsers(resellerID, loggedInUserId);
+		List<User> users = userService.getTenantUsers(tenantID, loggedInUserId);
 		return new ModelAndView("/users_list","users", users);  
 	}
 	
 	
 	@GetMapping(value="/list/{roleID}")
 	public ModelAndView getUsersByRole(@PathVariable("roleID") int roleID){
-		int resellerID = Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID")));
-		List<User> users = userService.getUsersByRole(resellerID, roleID);
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
+		List<User> users = userService.getUsersByRole(tenantID, roleID);
 		return new ModelAndView("/users_list","users", users);  
 	}
 	
@@ -216,7 +215,11 @@ public class UserWebController {
 		List<Integer> resourcePermIDs;
 		try{
 			user = userService.getUser(userName);
-			if(user.getLoggedIn() == 0){
+			if(user == null) {
+				Map<String, Object> modelMap = new HashMap<String, Object>();
+				modelMap.put("msg", "User name entered is invalid, please use a valid user name");
+				return new ModelAndView("/login", modelMap); 
+			}else if(user.getLoggedIn() == 0){
 				List<SecurityQuestion> secQues = userService.getAllSecurityQuestions();
 				Map<String, Object> modelMap = new HashMap<String, Object>();
 				modelMap.put("user", user);
@@ -238,7 +241,7 @@ public class UserWebController {
 			return new ModelAndView("/login", modelMap); 
 		}else{
 			httpSession.setAttribute("user", user);
-			httpSession.setAttribute("resellerID", user.getResellerID());
+			httpSession.setAttribute("tenantID", user.getTenantID());
 			httpSession.setAttribute("userFullName", user.getFirstName() + " " + (user.getLastName() != null ? user.getLastName() : ""));
 			httpSession.setAttribute("resourcePermIDs", resourcePermIDs);
 			//return new ModelAndView(getHomePage(resourcePermIDs)); 
@@ -275,8 +278,8 @@ public class UserWebController {
 			return "redirect:/web/customerWeb/list";
 		}else if(resourcePermIDs.contains(ResourcePermissionEnum.RESELLER_LIST.getResourcePermissionID())){
 			return "redirect:/web/resellerWeb/list";
-		}else if(resourcePermIDs.contains(ResourcePermissionEnum.SUPPLIER_LIST.getResourcePermissionID())){
-			return "redirect:/web/supplierWeb/list";
+		}else if(resourcePermIDs.contains(ResourcePermissionEnum.MANUFACTURER_LIST.getResourcePermissionID())){
+			return "redirect:/web/manufacturerWeb/list";
 		}else if(resourcePermIDs.contains(ResourcePermissionEnum.AREA_LIST.getResourcePermissionID())){
 			return "redirect:/web/areaWeb/list";	
 		}else if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_LIST.getResourcePermissionID())){
@@ -301,7 +304,7 @@ public class UserWebController {
 	
 	@InitBinder
 	public void initBinder(WebDataBinder webDataBinder) {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 		dateFormat.setLenient(false);
 		webDataBinder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
 		

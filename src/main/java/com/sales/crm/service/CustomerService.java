@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.sales.crm.dao.CustomerDAO;
 import com.sales.crm.model.Customer;
 import com.sales.crm.model.CustomerOrder;
+import com.sales.crm.model.EntityStatusEnum;
 import com.sales.crm.model.TrimmedCustomer;
 
 @Service("customerService")
@@ -18,8 +19,13 @@ public class CustomerService {
 	@Autowired
 	private CustomerDAO customerDAO;
 	
-	public Customer getCustomer(int customerID){
-		return customerDAO.get(customerID);
+	@Autowired
+	private OrderService orderService;
+	
+	public Customer getCustomer(int customerID, int tenantID){
+		Customer customer = customerDAO.get(customerID, tenantID);
+		customer.setOrderingProcessInProgress(orderService.isOrderingProcessInProgressForCustomer(customerID, tenantID));
+		return customer;
 	}
 	
 	public void createCustomer(Customer customer) throws Exception{
@@ -30,51 +36,59 @@ public class CustomerService {
 		customerDAO.update(customer);
 	}
 	
-	public void deleteCustomer(int customerID) throws Exception{
-		customerDAO.delete(customerID);
+	public void deleteCustomer(int customerID, int tenantID) throws Exception{
+		customerDAO.delete(customerID, tenantID);
 	}
 	
-	public List<Customer> getResellerCustomers(int resellerID){
-		return customerDAO.getResellerCustomers(resellerID);
+	public List<Customer> getTenantCustomers(int tenantID){
+		return customerDAO.getTenantCustomers(tenantID);
 	}
 	
-	public List<TrimmedCustomer> scheduledTrimmedCustomerslist(int salesExecID, Date visitDate) throws Exception{
-		return customerDAO.scheduledTrimmedCustomerslist(salesExecID, visitDate);
+	public List<TrimmedCustomer> scheduledTrimmedCustomerslist(int salesExecID, Date visitDate, int tenantID) throws Exception{
+		return customerDAO.scheduledTrimmedCustomerslist(salesExecID, visitDate, tenantID);
 	}
 	
-	public List<TrimmedCustomer> getResellerTrimmedCustomers(int resellerID) {
-		return customerDAO.getResellerTrimmedCustomers(resellerID);
+	public List<TrimmedCustomer> getTenantTrimmedCustomers(int tenantID) {
+		return customerDAO.getTenantTrimmedCustomers(tenantID);
 	}
 	
-	public String getCustomerPrimaryMobileNo(int customerID) throws Exception{
-		return customerDAO.getCustomerPrimaryMobileNo(customerID);
+	public String getCustomerPrimaryMobileNo(int customerID, int tenantID) throws Exception{
+		return customerDAO.getCustomerPrimaryMobileNo(customerID, tenantID);
 	}
 	
-	public List<TrimmedCustomer> getCustomersToSchedule(int beatID, Date visitDate){
-		return customerDAO.getCustomersToSchedule(beatID, visitDate);
+	public List<TrimmedCustomer> getCustomersToSchedule(int beatID, Date visitDate, int tenantID){
+		return customerDAO.getCustomersToSchedule(beatID, visitDate, tenantID);
 	}
 	
-	public List<CustomerOrder> getCustomersToScheduleDelivery(int beatID, Date visitDate, int resellerID){
-		return customerDAO.getCustomersToScheduleDelivery(beatID, visitDate, resellerID);
+	public List<CustomerOrder> getCustomersToScheduleDelivery(int beatID, Date visitDate, int tenantID){
+		return customerDAO.getCustomersToScheduleDelivery(beatID, visitDate, tenantID);
 	}
 	
-	public List<TrimmedCustomer> scheduledTrimmedCustomerslistForDeliveryToday(int delivExecID, Date visitDate){
-		return customerDAO.scheduledTrimmedCustomerslistForDeliveryToday(delivExecID, visitDate);
+	public List<TrimmedCustomer> scheduledTrimmedCustomerslistForDeliveryToday(int delivExecID, Date visitDate, int tenantID){
+		return customerDAO.scheduledTrimmedCustomerslistForDeliveryToday(delivExecID, visitDate, tenantID);
 	}
 	
-	public List<TrimmedCustomer> getCustomerForOTPVerification(int userID, int otpType){
-		return customerDAO.getCustomerForOTPVerification(userID, otpType);
+	public List<TrimmedCustomer> getCustomerForOTPVerification(int userID, int otpType, int tenantID){
+		return customerDAO.getCustomerForOTPVerification(userID, otpType, tenantID);
 	}
 	
 	public void createCustomers(List<Customer> customers) throws Exception{
 		customerDAO.createCustomers(customers);
 	}
 	
-	public List<Customer> search(int resellerID, Map<String, Object> filterCriteria)throws Exception{
-		return customerDAO.search(resellerID, filterCriteria);
+	public List<Customer> search(int tenantID, Map<String, Object> filterCriteria)throws Exception{
+		return customerDAO.search(tenantID, filterCriteria);
 	}
 	
-	public int getCustomersCount(int resellerID){
-		return customerDAO.getCustomersCount(resellerID);
+	public int getCustomersCount(int tenantID){
+		return customerDAO.getCustomersCount(tenantID);
+	}
+	
+	public void deactivateCustomer(int customerID, int tenantID) throws Exception{
+		customerDAO.updateCustomerStatus(EntityStatusEnum.INACTIVE.getEntityStatus(), customerID, tenantID);
+	}
+	
+	public void activateCustomer(int customerID, int tenantID) throws Exception{
+		customerDAO.updateCustomerStatus(EntityStatusEnum.ACTIVE.getEntityStatus(), customerID, tenantID);
 	}
 }
