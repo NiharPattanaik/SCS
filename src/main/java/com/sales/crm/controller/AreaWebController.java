@@ -34,9 +34,9 @@ public class AreaWebController {
 	@Autowired
 	HttpSession httpSession;
 	
-	@GetMapping(value="/{areaID}")
-	public ModelAndView get(@PathVariable int areaID){
-		Area area = areaService.getArea(areaID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
+	@GetMapping(value="/{areaCode}")
+	public ModelAndView get(@PathVariable String areaCode){
+		Area area = areaService.getArea(areaCode, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		return new ModelAndView("/area_details", "area", area);
 		
 	}
@@ -46,9 +46,9 @@ public class AreaWebController {
 		return new ModelAndView("/create_area", "area", new Area());
 	}
 	
-	@RequestMapping(value="/editAreaForm/{areaID}", method = RequestMethod.GET)  
-	public ModelAndView editAreaForm(@PathVariable int areaID){
-		Area area = areaService.getArea(areaID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
+	@RequestMapping(value="/editAreaForm/{areaCode}", method = RequestMethod.GET)  
+	public ModelAndView editAreaForm(@PathVariable String areaCode){
+		Area area = areaService.getArea(areaCode, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		return new ModelAndView("/edit_area", "area", area);
 	}
 	
@@ -78,11 +78,11 @@ public class AreaWebController {
 		return new ModelAndView("/edit_area_conf", "map", modelMap);
 	}
 	
-	@GetMapping(value="/delete/{areaID}")
-	public ModelAndView delete(@PathVariable int areaID){
+	@GetMapping(value="/delete/{areaCode}")
+	public ModelAndView delete(@PathVariable String areaCode){
 		String msg = "";
 		try{
-			areaService.deleteArea(areaID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
+			areaService.deleteArea(areaCode, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		}catch(Exception exception){
 			msg = "Area could not be successfully removed, please contact System Administrator";
 		}

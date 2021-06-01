@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
@@ -52,6 +53,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 	
 	@Override
 	public void create(Customer customer) throws Exception{
+		logger.debug("create Enters");
 		Session session = null;
 		Transaction transaction = null;
 		try{
@@ -79,7 +81,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 			//Customer-Beat Assignment
 			final List<Integer> beatIDs = customer.getBeatIDs();
 			final int customerID = customer.getCustomerID();
-			if(beatIDs.size() > 0) {
+			if(beatIDs != null && beatIDs.size() > 0) {
 				session.doWork(new Work() {
 					@Override
 					public void execute(Connection connection) throws SQLException {
@@ -112,17 +114,19 @@ public class CustomerDAOImpl implements CustomerDAO{
 				session.close();
 			}
 		}
+		logger.debug("create Exits");
 	}
 
 	@Override
-	public Customer get(int customerID, int tenantID) {
+	public Customer get(String customerCode, int tenantID) {
+		logger.debug("get Enters");
 		Session session = null;
 		Customer customer = null;
 		try {
 			session = sessionFactory.openSession();
 			// customer = (Customer)session.get(Customer.class, customerID);
-			Query query = session.createQuery("from Customer where customerID = :customerID AND tenantID = :tenantID");
-			query.setParameter("customerID", customerID);
+			Query query = session.createQuery("from Customer where code = :customerCode AND tenantID = :tenantID");
+			query.setParameter("customerCode", customerCode);
 			query.setParameter("tenantID", tenantID);
 			if (query.list() != null && query.list().size() == 1) {
 				customer = (Customer) query.list().get(0);
@@ -165,8 +169,8 @@ public class CustomerDAOImpl implements CustomerDAO{
 
 				// Get Sales exec details
 				SQLQuery salesExecQuery = session.createSQLQuery(
-						"SELECT a.ID, a.FIRST_NAME, a.LAST_NAME FROM USER a, CUSTOMER_SALES_EXEC b WHERE b.SALES_EXEC_ID=a.ID AND a.TENANT_ID=b.TENANT_ID AND b.CUSTOMER_ID= ? AND a.TENANT_ID = ?");
-				salesExecQuery.setParameter(0, customerID);
+						"SELECT a.ID, a.FIRST_NAME, a.LAST_NAME FROM USERS a, CUSTOMER_SALES_EXEC b WHERE b.SALES_EXEC_ID=a.ID AND a.TENANT_ID=b.TENANT_ID AND b.CUSTOMER_ID= ? AND a.TENANT_ID = ?");
+				salesExecQuery.setParameter(0, customer.getCustomerID());
 				salesExecQuery.setParameter(1, tenantID);
 				List salesExecs = salesExecQuery.list();
 				if (salesExecs != null && salesExecs.size() == 1) {
@@ -178,8 +182,8 @@ public class CustomerDAOImpl implements CustomerDAO{
 				List<Beat> beatList = new ArrayList<Beat>();
 				List<Integer> beatIDs = new ArrayList<Integer>();
 				SQLQuery beatsQry = session.createSQLQuery(
-						"SELECT * FROM BEAT WHERE ID IN (SELECT BEAT_ID FROM BEAT_CUSTOMER WHERE CUSTOMER_ID= ? AND TENANT_ID = ?) AND TENANT_ID = ?");
-				beatsQry.setParameter(0, customerID);
+						"SELECT * FROM BEATS WHERE ID IN (SELECT BEAT_ID FROM BEAT_CUSTOMER WHERE CUSTOMER_ID= ? AND TENANT_ID = ?) AND TENANT_ID = ?");
+				beatsQry.setParameter(0, customer.getCustomerID());
 				beatsQry.setParameter(1, tenantID);
 				beatsQry.setParameter(2, tenantID);
 				List beats = beatsQry.list();
@@ -205,6 +209,20 @@ public class CustomerDAOImpl implements CustomerDAO{
 				}
 				customer.setBeatIDs(beatIDs);
 				customer.setBeats(beatList);
+				
+				//Get Deactivation Details for deactivated customer
+				if(customer.getStatusID() == EntityStatusEnum.INACTIVE.getEntityStatus()) {
+					SQLQuery deactQry = session.createSQLQuery("SELECT DEACT_REASON, DEACT_DATE FROM CUSTOMER_DEACTIVATION_DETAILS WHERE CUSTOMER_ID= ? ORDER BY ID DESC LIMIT 1");
+					deactQry.setInteger(0, customer.getCustomerID());
+					List list = deactQry.list();
+					for (Object obj : list) {
+						Object[] objs = (Object[]) obj;
+						customer.setDeactivationReason((String.valueOf(objs[0]) == null || String.valueOf(objs[0]).equals("")) ? "": String.valueOf(objs[0]));
+						if (objs[1] != null) {
+							customer.setDeactivationDateStr(new SimpleDateFormat("dd-MM-yyyy").format((Date)objs[1]));
+						}
+					}
+				}
 			}
 		} catch (Exception exception) {
 			logger.error("Error while fetching customer details", exception);
@@ -213,12 +231,13 @@ public class CustomerDAOImpl implements CustomerDAO{
 				session.close();
 			}
 		}
+		logger.debug("get Exits");
 		return customer;
 	}
 
 	@Override
 	public void update(Customer customer) throws Exception{
-
+		logger.debug("update Enters");
 		Session session = null;
 		Transaction transaction = null;
 		try{
@@ -242,20 +261,44 @@ public class CustomerDAOImpl implements CustomerDAO{
 				session.close();
 			}
 		}
+		logger.debug("update Exits");
 	}
 
 	@Override
 	public void delete(int customerID, int tenantID) throws Exception {
+		logger.debug("delete Enters");
 		Session session = null;
 		Transaction transaction = null;
 		try {
 			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
+			
+			//Remove customer Address
+			Query delAddressQry = session.createSQLQuery(
+					"DELETE " + 
+					"  d.* " + 
+					"FROM address d " + 
+					"WHERE  d.id IN (SELECT ID FROM (SELECT a.id " + 
+					"                FROM   address a, " + 
+					"                       customers b, " + 
+					"                       customer_address c " + 
+					"                WHERE  a.id = c.address_id " + 
+					"                       AND b.id = c.customer_id " + 
+					"                       AND b.id = ? " + 
+					"                       AND a.tenant_id = ? " + 
+					"                       AND a.tenant_id = b.tenant_id " + 
+					"                       AND b.tenant_id = c.tenant_id) X)");
+			delAddressQry.setInteger(0, customerID);
+			delAddressQry.setInteger(1, tenantID);
+			delAddressQry.executeUpdate();
+			
+			//Remove Customer
 			Query query = session
 					.createQuery("delete from Customer where customerID = :customerID AND tenantID = :tenantID");
 			query.setParameter("customerID", customerID);
 			query.setParameter("tenantID", tenantID);
 			query.executeUpdate();
+			
 			transaction.commit();
 		} catch (Exception exception) {
 			logger.error("Error while deleting customer.", exception);
@@ -268,11 +311,12 @@ public class CustomerDAOImpl implements CustomerDAO{
 				session.close();
 			}
 		}
-
+		logger.debug("delete Exits");
 	}
 
 	@Override
 	public List<Customer> getTenantCustomers(int tenantID) {
+		logger.debug("getTenantCustomers Enters");
 		Session session = null;
 		List<Customer> customers = null; 
 		try{
@@ -283,7 +327,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 			
 			//Fetch Sales Execs
 			Map<Integer, User> salesExecMap = new HashMap<Integer, User>();
-			SQLQuery salesExecQry = session.createSQLQuery("SELECT d.CUSTOMER_ID, a.ID, a.USER_NAME, a.FIRST_NAME, a.LAST_NAME FROM USER a, USER_ROLE b, TENANT_USER c, CUSTOMER_SALES_EXEC d  WHERE a.ID=b.USER_ID AND a.ID=c.USER_ID AND d.SALES_EXEC_ID=a.ID AND b.ROLE_ID= 2 AND c.TENANT_ID= ?");
+			SQLQuery salesExecQry = session.createSQLQuery("SELECT d.CUSTOMER_ID, a.ID, a.USER_NAME, a.FIRST_NAME, a.LAST_NAME FROM USERS a, USER_ROLE b, TENANT_USER c, CUSTOMER_SALES_EXEC d  WHERE a.ID=b.USER_ID AND a.ID=c.USER_ID AND d.SALES_EXEC_ID=a.ID AND b.ROLE_ID= 2 AND c.TENANT_ID= ?");
 			salesExecQry.setParameter(0, tenantID);
 			List results = salesExecQry.list();
 			for(Object obj : results){
@@ -299,7 +343,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 			
 			//Fetch Beats
 			Map<Integer, List<Beat>> customerBeatMap = new HashMap<Integer, List<Beat>>();
-			SQLQuery customerBeatQry = session.createSQLQuery("SELECT  a.CUSTOMER_ID, b.* FROM BEAT_CUSTOMER a, BEAT b WHERE a.BEAT_ID = b.ID AND a.TENANT_ID=b.TENANT_ID AND a.TENANT_ID= ?");
+			SQLQuery customerBeatQry = session.createSQLQuery("SELECT  a.CUSTOMER_ID, b.* FROM BEAT_CUSTOMER a, BEATS b WHERE a.BEAT_ID = b.ID AND a.TENANT_ID=b.TENANT_ID AND a.TENANT_ID= ?");
 			customerBeatQry.setParameter(0, tenantID);
 			List custBeatsresults = customerBeatQry.list();
 			for(Object obj : custBeatsresults){
@@ -346,19 +390,21 @@ public class CustomerDAOImpl implements CustomerDAO{
 				session.close();
 			}
 		}
+		logger.debug("getTenantCustomers Exits");
 		return customers;
 	}
 
 	@Override
 	public List<TrimmedCustomer> scheduledTrimmedCustomerslist(int salesExecID, Date visitDate, int tenantID) throws Exception{
+		logger.debug("scheduledTrimmedCustomerslist Enters");
 		Session session = null;
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME, b.ID order_booking_id FROM CUSTOMER a, ORDER_BOOKING_SCHEDULE b, ORDER_BOOKING_SCHEDULE_CUSTOMERS c  WHERE a.ID = c.CUSTOMER_ID AND b.ID = c.ORDER_BOOKING_SCHEDULE_ID AND a.TENANT_ID=b.TENANT_ID AND  c.STATUS_ID = ? AND b.SALES_EXEC_ID= ? AND b.VISIT_DATE = ? AND a.TENANT_ID = ?");
+			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME, b.ID order_booking_id FROM CUSTOMERS a, ORDER_BOOKING_SCHEDULE b, ORDER_BOOKING_SCHEDULE_CUSTOMERS c  WHERE a.ID = c.CUSTOMER_ID AND b.ID = c.ORDER_BOOKING_SCHEDULE_ID AND a.TENANT_ID=b.TENANT_ID AND  c.STATUS_ID = ? AND b.SALES_EXEC_ID= ? AND b.VISIT_DATE = ? AND a.TENANT_ID = ?");
 			query.setParameter( 0, EntityStatusEnum.ORDER_BOOKING_SCHEDULED.getEntityStatus());
 			query.setParameter( 1, salesExecID);
-			query.setParameter(2, new java.sql.Date(visitDate.getTime()));
+			query.setDate(2, new java.sql.Date(visitDate.getTime()));
 			query.setParameter( 3, tenantID);
 			List results = query.list();
 			for(Object obj : results){
@@ -366,7 +412,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 				TrimmedCustomer trimmedCustomer = new TrimmedCustomer();
 				trimmedCustomer.setCustomerID(Integer.valueOf(String.valueOf(objs[0])));
 				trimmedCustomer.setCustomerName(String.valueOf(objs[1]));
-				trimmedCustomer.setOrderBookingID(Integer.valueOf(String.valueOf(objs[2])));
+				trimmedCustomer.setOrderRefID(Integer.valueOf(String.valueOf(objs[2])));
 				customers.add(trimmedCustomer);
 			}
 		}catch(Exception exception){
@@ -377,16 +423,18 @@ public class CustomerDAOImpl implements CustomerDAO{
 				session.close();
 			}
 		}
+		logger.debug("scheduledTrimmedCustomerslist Exits");
 		return customers;
 	}
 	
 	@Override
 	public List<TrimmedCustomer> getTenantTrimmedCustomers(int tenantID){
+		logger.debug("getTenantTrimmedCustomers Enters");
 		Session session = null;
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT ID, NAME FROM CUSTOMER WHERE TENANT_ID=?");
+			SQLQuery query = session.createSQLQuery("SELECT ID, NAME FROM CUSTOMERS WHERE TENANT_ID=?");
 			query.setParameter( 0, tenantID);
 			List results = query.list();
 			for(Object obj : results){
@@ -403,12 +451,13 @@ public class CustomerDAOImpl implements CustomerDAO{
 				session.close();
 			}
 		}
+		logger.debug("getTenantTrimmedCustomers Exits");
 		return customers;
 	}
 	
 	@Override
 	public String getCustomerPrimaryMobileNo(int customerID, int tenantID) throws Exception{
-
+		logger.debug("getCustomerPrimaryMobileNo Enters");
 		Session session = null;
 		String mobileNo = "";
 		try{
@@ -428,20 +477,46 @@ public class CustomerDAOImpl implements CustomerDAO{
 				session.close();
 			}
 		}
+		logger.debug("getCustomerPrimaryMobileNo Exits");
 		return mobileNo;
-	
 	}
 	
 	@Override
-	public List<TrimmedCustomer> getCustomersToSchedule(int beatID, Date visitDate, int tenantID) {
+	public List<TrimmedCustomer> getCustomersToSchedule(int salesExecID, int beatID, Date visitDate, List<Integer> manufacturerIDs, int tenantID) {
+		logger.debug("getCustomersToSchedule Enters");
 		Session session = null;
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT ID, NAME FROM CUSTOMER  WHERE ID IN (SELECT CUSTOMER_ID FROM BEAT_CUSTOMER WHERE BEAT_ID = ? AND CUSTOMER_ID NOT IN (SELECT a.CUSTOMER_ID FROM ORDER_BOOKING_SCHEDULE_CUSTOMERS a, ORDER_BOOKING_SCHEDULE b where a.ORDER_BOOKING_SCHEDULE_ID = b.ID AND b.VISIT_DATE= ?)) AND TENANT_ID = ?");
+			SQLQuery query = session.createSQLQuery("SELECT ID, NAME FROM CUSTOMERS WHERE ID IN    " + 
+					"(SELECT     " + 
+					"CUSTOMER_ID     " + 
+					"FROM     " + 
+					"BEAT_CUSTOMER     " + 
+					"WHERE     " + 
+					"BEAT_ID= ? AND    " + 
+					"CUSTOMER_ID NOT IN    " + 
+					"(SELECT b.CUSTOMER_ID     " + 
+					"FROM     " + 
+					"ORDER_BOOKING_SCHEDULE a,    " + 
+					"ORDER_BOOKING_SCHEDULE_CUSTOMERS b,    " + 
+					"ORDER_BOOKING_SCHEDULE_MANUFACTURERS c    " + 
+					"WHERE     " + 
+					"a.ID = b.ORDER_BOOKING_SCHEDULE_ID AND    " + 
+					"a.ID = c.ORDER_BOOKING_SCHEDULE_ID AND    " + 
+					"a.TENANT_ID = b.TENANT_ID AND    " + 
+					"a.VISIT_DATE = ? AND    " + 
+					"b.STATUS_ID = ? AND " + 
+					"a.SALES_EXEC_ID = ? AND " + 
+					"a.BEAT_ID = ? AND    " + 
+					"c.MANUFACTURER_ID in (" + StringUtils.join(manufacturerIDs, ",") + ") AND    " + 
+					"a.TENANT_ID = ?))");
 			query.setParameter( 0, beatID);
-			query.setParameter(1, visitDate);
-			query.setParameter( 2, tenantID);
+			query.setDate(1, visitDate);
+			query.setInteger(2, EntityStatusEnum.ORDER_BOOKING_SCHEDULED.getEntityStatus());
+			query.setInteger( 3, salesExecID);
+			query.setInteger( 4, beatID);
+			query.setInteger( 5, tenantID);
 			List results = query.list();
 			for(Object obj : results){
 				Object[] objs = (Object[])obj;
@@ -457,32 +532,37 @@ public class CustomerDAOImpl implements CustomerDAO{
 				session.close();
 			}
 		}
+		logger.debug("getCustomersToSchedule Exits");
 		return customers;
 	}
 	
 	@Override
-	public List<CustomerOrder> getCustomersToScheduleDelivery(int beatID, Date visitDate, int tenantID) {
+	public List<CustomerOrder> getCustomersToScheduleDelivery(int beatID, Date visitDate, List<Integer> manufacturerIDs, int tenantID) {
+		logger.debug("getCustomersToScheduleDelivery Enters");
 		Session session = null;
 		List<CustomerOrder> customerOrders = new ArrayList<CustomerOrder>(); 
 		Map<TrimmedCustomer, List<Order>> custOrdersMap = new HashMap<TrimmedCustomer, List<Order>>();
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT c.ID   CUST_ID, " + 
+			SQLQuery query = session.createSQLQuery("SELECT c.id   CUST_ID, " + 
 					"       c.NAME CUST_NAME, " + 
 					"       b.* " + 
-					"FROM   ORDER_BOOKING_SCHEDULE a, " + 
-					"       ORDER_DETAILS b, " + 
-					"       CUSTOMER c, " + 
-					"       ORDER_BOOKING_SCHEDULE_CUSTOMERS d " + 
-					"WHERE  a.ID = b.ORDER_BOOKING_ID " + 
-					"       AND a.ID = d.ORDER_BOOKING_SCHEDULE_ID  " + 
-					"       AND d.CUSTOMER_ID = c.ID " + 
-					"       AND b.CUSTOMER_ID = c.ID " + 
-					"       AND a.VISIT_DATE < ? " + 
-					"       AND a.BEAT_ID = ? " + 
-					"       AND b.STATUS_ID IN ( ?, ? ) " + 
-					"       AND b.TENANT_ID = ? ");
-			query.setParameter( 0, visitDate);
+					"FROM   order_booking_schedule a, " + 
+					"       order_details b, " + 
+					"       customers c, " + 
+					"       order_booking_schedule_customers d, " + 
+					"       order_booking_schedule_manufacturers e " + 
+					"WHERE  a.id = b.order_booking_id " + 
+					"       AND a.id = d.order_booking_schedule_id " + 
+					"       AND d.customer_id = c.id " + 
+					"       AND b.customer_id = c.id " + 
+					"       AND a.id = e.order_booking_schedule_id " + 
+					"       AND a.visit_date <= ? " + 
+					"       AND a.beat_id = ? " + 
+					"       AND b.status_id IN ( ?, ? ) " + 
+					"       AND b.tenant_id = ? " + 
+					"       AND e.manufacturer_id IN ("+ StringUtils.join(manufacturerIDs, ",") +") ");
+			query.setDate( 0, visitDate);
 			query.setParameter(1, beatID);
 			query.setParameter(2, EntityStatusEnum.ORDER_CREATED.getEntityStatus());
 			query.setParameter(3, EntityStatusEnum.PARTIALLY_DELIVERED.getEntityStatus());
@@ -527,16 +607,18 @@ public class CustomerDAOImpl implements CustomerDAO{
 				session.close();
 			}
 		}
+		logger.debug("getCustomersToScheduleDelivery Exits");
 		return customerOrders;
 	}
 
 	@Override
 	public List<TrimmedCustomer> scheduledTrimmedCustomerslistForDeliveryToday(int delivExecID, Date visitDate, int tenantID) {
+		logger.debug("getCustomersToScheduleDelivery Enters");
 		Session session = null;
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME FROM CUSTOMER a, DELIVERY_SCHEDULE b, ORDER_DETAILS c WHERE a.ID=b.CUSTOMER_ID AND a.TENANT_ID=b.TENANT_ID AND b.ORDER_ID = c.ID AND b.DELIVERY_EXEC_ID= ? AND b.VISIT_DATE= ? AND c.STATUS_ID = ? AND a.TENANT_ID = ? GROUP BY a.ID");
+			SQLQuery query = session.createSQLQuery("SELECT a.ID cust_id, a.NAME, c.ID order_id FROM CUSTOMERS a, DELIVERY_SCHEDULE b, ORDER_DETAILS c WHERE a.ID=b.CUSTOMER_ID AND a.TENANT_ID=b.TENANT_ID AND b.ORDER_ID = c.ID AND b.DELIVERY_EXEC_ID= ? AND b.VISIT_DATE= ? AND c.STATUS_ID = ? AND a.TENANT_ID = ?");
 			query.setParameter( 0, delivExecID);
 			query.setDate(1, visitDate);
 			query.setParameter(2, EntityStatusEnum.DELIVERY_SCHEDULED.getEntityStatus());
@@ -547,6 +629,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 				TrimmedCustomer trimmedCustomer = new TrimmedCustomer();
 				trimmedCustomer.setCustomerID(Integer.valueOf(String.valueOf(objs[0])));
 				trimmedCustomer.setCustomerName(String.valueOf(objs[1]));
+				trimmedCustomer.setOrderRefID(Integer.valueOf(String.valueOf(objs[2])));
 				customers.add(trimmedCustomer);
 			}
 		}catch(Exception exception){
@@ -556,26 +639,50 @@ public class CustomerDAOImpl implements CustomerDAO{
 				session.close();
 			}
 		}
+		logger.debug("getCustomersToScheduleDelivery Exits");
 		return customers;
 	}
 
 	@Override
 	public List<TrimmedCustomer> getCustomerForOTPVerification(int userID, int otpType, int tenantID){
+		logger.debug("getCustomerForOTPVerification Enters");
 		Session session = null;
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>(); 
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.NAME, c.ID order_booking_id FROM CUSTOMER a, CUSTOMER_OTP b, ORDER_BOOKING_SCHEDULE c, ORDER_BOOKING_SCHEDULE_CUSTOMERS d WHERE a.ID=b.CUSTOMER_ID AND a.ID=d.CUSTOMER_ID AND c.ID=d.ORDER_BOOKING_SCHEDULE_ID AND a.TENANT_ID=b.TENANT_ID AND b.FIELD_EXEC_ID = ? AND b.OTP_TYPE= ? AND a.TENANT_ID= ? AND b.SUBMITTED_OTP IS NULL AND DATE(b.GENERATED_DATE_TIME) = CURDATE() AND c.VISIT_DATE = CURDATE()");
-			query.setParameter( 0, userID);
-			query.setParameter(1, otpType);
-			query.setParameter(2, tenantID);
+			SQLQuery query = session.createSQLQuery("SELECT c.id, " + 
+					"       c.NAME, " + 
+					"       a.id order_booking_id " + 
+					"FROM   order_booking_schedule a, " + 
+					"       order_booking_schedule_customers b, " + 
+					"       customers c " + 
+					"WHERE  a.id = b.order_booking_schedule_id " + 
+					"       AND b.customer_id = c.id " + 
+					"       AND a.visit_date = Curdate() " + 
+					"       AND c.id IN (SELECT customer_id " + 
+					"                    FROM   customer_otp " + 
+					"                    WHERE  field_exec_id = ? " + 
+					"                           AND otp_type = ? " + 
+					"                           AND tenant_id = ? " + 
+					"                           AND status_id = ? " +
+					"                           AND submitted_otp IS NULL " + 
+					"                           AND Date(generated_date_time) = Curdate()) " + 
+					"       AND b.status_id = ? " +
+					"       AND a.SALES_EXEC_ID = ? " +
+					"       AND Date(a.VISIT_DATE) = Curdate()");
+			query.setInteger(0, userID);
+			query.setInteger(1, otpType);
+			query.setInteger(2, tenantID);
+			query.setInteger(3, EntityStatusEnum.OTP_GENERATED.getEntityStatus());
+			query.setInteger(4, EntityStatusEnum.ORDER_BOOKING_SCHEDULED.getEntityStatus());
+			query.setInteger(5, userID);
 			List results = query.list();
 			for(Object obj : results){
 				Object[] objs = (Object[])obj;
 				TrimmedCustomer trimmedCustomer = new TrimmedCustomer();
 				trimmedCustomer.setCustomerID(Integer.valueOf(String.valueOf(objs[0])));
 				trimmedCustomer.setCustomerName(String.valueOf(objs[1]));
-				trimmedCustomer.setOrderBookingID(Integer.valueOf(String.valueOf(objs[2])));
+				trimmedCustomer.setOrderRefID(Integer.valueOf(String.valueOf(objs[2])));
 				customers.add(trimmedCustomer);
 			}
 		}catch(Exception exception){
@@ -585,11 +692,13 @@ public class CustomerDAOImpl implements CustomerDAO{
 				session.close();
 			}
 		}
+		logger.debug("getCustomerForOTPVerification Exits");
 		return customers;
 	}
 
 	@Override
 	public void createCustomers(List<Customer> customers) throws Exception {
+		logger.debug("createCustomers Enters");
 		Session session = null;
 		Transaction transaction = null;
 		try{
@@ -618,7 +727,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 				}
 				//check for beat
 				if(customer.getBeatName() != null && !customer.getBeatName().isEmpty()){
-					SQLQuery getBeatQry = session.createSQLQuery(" SELECT ID FROM BEAT WHERE LOWER(NAME) = ? AND TENANT_ID = ?");
+					SQLQuery getBeatQry = session.createSQLQuery(" SELECT ID FROM BEATS WHERE LOWER(NAME) = ? AND TENANT_ID = ?");
 					getBeatQry.setParameter( 0, customer.getBeatName().toLowerCase() );
 					getBeatQry.setParameter(1, customer.getTenantID());
 					List results = getBeatQry.list();
@@ -642,7 +751,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 				//Save Customer
 				//session.save(customer);
 				//Create customer-Beat link
-				SQLQuery beatCustInsert = session.createSQLQuery("INSERT INTO BEAT_CUSTOMER (BEAT_ID, CUSTOMER_ID, TENANT_ID, DATE_CREATED) VALUES (?, ?, ?, CURDATE())");
+				SQLQuery beatCustInsert = session.createSQLQuery("INSERT INTO BEAT_CUSTOMER (BEAT_ID, CUSTOMER_ID, TRANX_COUNTER, TENANT_ID, DATE_CREATED) VALUES (?, ?, 0, ?, CURDATE())");
 				beatCustInsert.setParameter(0, beatID);
 				beatCustInsert.setParameter(1, customer.getCustomerID());
 				beatCustInsert.setParameter(2, customer.getTenantID());
@@ -658,16 +767,42 @@ public class CustomerDAOImpl implements CustomerDAO{
 				session.close();
 			}
 		}
+		logger.debug("createCustomers Exits");
 	}
 	
 	@Override
 	public List<Customer> search(int tenantID, Map<String, Object> filterCriteria)throws Exception{
+		logger.debug("search Enters");
 		Session session = null;
 		List<Customer> customers = new ArrayList<Customer>();
 		try{
 			session = sessionFactory.openSession();
-			StringBuilder queryBuilder = new StringBuilder(
-					"SELECT * FROM (SELECT a.ID, a.NAME, a.DESCRIPTION, a.STATUS_ID, X.NAME BEAT_NAME, b.CITY, b.CONTACT_PERSON, b.PHONE_NO FROM ADDRESS b, CUSTOMER_ADDRESS c, CUSTOMER a LEFT JOIN (SELECT e.BEAT_ID, e.CUSTOMER_ID, d.NAME FROM BEAT_CUSTOMER e, BEAT d where d.ID=e.BEAT_ID) X on a.ID=X.CUSTOMER_ID WHERE c.ADDRESS_ID=b.ID AND b.ADDRESS_TYPE=1 AND a.ID=c.CUSTOMER_ID AND a.TENANT_ID ="+ tenantID +") XYZ");
+			StringBuilder queryBuilder = new StringBuilder("SELECT * " + 
+					"FROM   (SELECT a.id, " + 
+					"               a.code, " + 
+					"               a.NAME, " + 
+					"               a.description, " + 
+					"               a.status_id, " + 
+					"               X.NAME BEAT_NAME, " + 
+					"               b.city, " + 
+					"               b.contact_person, " + 
+					"               b.phone_no " + 
+					"        FROM   address b, " + 
+					"               customer_address c, " + 
+					"               customers a " + 
+					"               LEFT JOIN (SELECT e.beat_id, " + 
+					"                                 e.customer_id, " + 
+					"                                 d.NAME " + 
+					"                          FROM   beat_customer e, " + 
+					"                                 beats d " + 
+					"                          WHERE  d.id = e.beat_id "+ 
+					"                                 AND d.tenant_id = e.tenant_id " + 
+					"                                 AND d.tenant_id = " + tenantID +" ) X " + 
+					"                      ON a.id = X.customer_id " + 
+					"        WHERE  c.address_id = b.id " + 
+					"               AND b.address_type = 1 " + 
+					"               AND a.id = c.customer_id " + 
+					"               AND a.tenant_id =  " + tenantID + ") XYZ");
 			if(filterCriteria != null && filterCriteria.size() > 0){
 				queryBuilder.append(" WHERE ");
 				int index = 0;
@@ -682,6 +817,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 					}else {
 						queryBuilder.append(searchParam+" = "+searchVal);
 					}
+					++index;
 				}
 			}
 			logger.debug(" search sql "+ queryBuilder.toString());
@@ -691,15 +827,16 @@ public class CustomerDAOImpl implements CustomerDAO{
 				Object[] objs = (Object[])obj;
 				Customer customer = new Customer();
 				customer.setCustomerID(Integer.parseInt(String.valueOf(objs[0])));
-				customer.setName(String.valueOf(objs[1]) != null ? String.valueOf(objs[1]) : "");
-				customer.setDescription(String.valueOf(objs[2]) != null ? String.valueOf(objs[2]) : "");
-				customer.setStatusAsString(statusMap.get(Integer.parseInt(String.valueOf(objs[3]))));
-				customer.setBeatName((String.valueOf(objs[4]) == null || String.valueOf(objs[4]).equals("null")) ? "" : String.valueOf(objs[4]) );
+				customer.setCode(String.valueOf(objs[1]));
+				customer.setName(String.valueOf(objs[2]) != null ? String.valueOf(objs[2]) : "");
+				customer.setDescription(String.valueOf(objs[3]) != null ? String.valueOf(objs[3]) : "");
+				customer.setStatusAsString(statusMap.get(Integer.parseInt(String.valueOf(objs[4]))));
+				customer.setBeatName((String.valueOf(objs[5]) == null || String.valueOf(objs[5]).equals("null")) ? "" : String.valueOf(objs[5]) );
 				customer.setTenantID(tenantID);
 				Address mainAdd = new Address();
-				mainAdd.setCity(String.valueOf(objs[5]) != null ? String.valueOf(objs[5]) : "");
-				mainAdd.setContactPerson(String.valueOf(objs[6]) != null ? String.valueOf(objs[6]) : "");
-				mainAdd.setPhoneNumber(String.valueOf(objs[7]) != null ? String.valueOf(objs[7]) : "");
+				mainAdd.setCity(String.valueOf(objs[6]) != null ? String.valueOf(objs[6]) : "");
+				mainAdd.setContactPerson(String.valueOf(objs[7]) != null ? String.valueOf(objs[7]) : "");
+				mainAdd.setPhoneNumber(String.valueOf(objs[8]) != null ? String.valueOf(objs[8]) : "");
 				mainAdd.setTenantID(tenantID);
 				List<Address> addressList = new ArrayList<Address>();
 				addressList.add(mainAdd);
@@ -714,16 +851,18 @@ public class CustomerDAOImpl implements CustomerDAO{
 				session.close();
 			}
 		}
+		logger.debug("search Exits");
 		return customers;
 	}
 	
 	@Override
 	public int getCustomersCount(int tenantID){
+		logger.debug("getCustomersCount Enters");
 		Session session = null;
 		int counts = 0;
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery count = session.createSQLQuery("SELECT COUNT(*) FROM CUSTOMER WHERE TENANT_ID= ?");
+			SQLQuery count = session.createSQLQuery("SELECT COUNT(*) FROM CUSTOMERS WHERE TENANT_ID= ?");
 			count.setParameter(0, tenantID);
 			List results = count.list();
 			if(results != null && results.size() == 1 ){
@@ -736,21 +875,30 @@ public class CustomerDAOImpl implements CustomerDAO{
 				session.close();
 			}
 		}
+		logger.debug("getCustomersCount Exits");
 		return counts;
 	}
 
 	@Override
-	public void updateCustomerStatus(int statusID, int customerID, int tenantID) throws Exception{
+	public void deactivateCustomer(int customerID, String remark, int tenantID) throws Exception{
+		logger.debug("deactivateCustomer Enters");
 		Session session = null;
 		Transaction transaction = null;
 		try{
 			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
-			SQLQuery updateCustomer = session.createSQLQuery("UPDATE CUSTOMER SET STATUS_ID = ? WHERE ID = ? AND TENANT_ID= ?");
-			updateCustomer.setInteger(0, statusID);
+			//Status
+			SQLQuery updateCustomer = session.createSQLQuery("UPDATE CUSTOMERS SET STATUS_ID = ? WHERE ID = ? AND TENANT_ID= ?");
+			updateCustomer.setInteger(0, EntityStatusEnum.INACTIVE.getEntityStatus());
 			updateCustomer.setInteger(1, customerID);
 			updateCustomer.setInteger(2, tenantID);
 			updateCustomer.executeUpdate();
+			//Deactivate Reason
+			SQLQuery deactivateQry = session.createSQLQuery("INSERT INTO CUSTOMER_DEACTIVATION_DETAILS (CUSTOMER_ID, DEACT_REASON,DEACT_DATE,TENANT_ID,DATE_CREATED) VALUES (?, ?, CURDATE(), ?, CURDATE())");
+			deactivateQry.setInteger(0, customerID);
+			deactivateQry.setString(1, remark);
+			deactivateQry.setInteger(2, tenantID);
+			deactivateQry.executeUpdate();
 			transaction.commit();
 		}catch(Exception exception){
 			logger.error("Error while deactivating customer "+customerID+".", exception);
@@ -763,6 +911,78 @@ public class CustomerDAOImpl implements CustomerDAO{
 				session.close();
 			}
 		}
+		logger.debug("deactivateCustomer Exits");
 	}
 	
+	@Override
+	public void activateCustomer(int customerID, String remark, int tenantID) throws Exception{
+		logger.debug("activateCustomer Enters");
+		Session session = null;
+		Transaction transaction = null;
+		try{
+			session = sessionFactory.openSession();
+			transaction = session.beginTransaction();
+			//Status
+			SQLQuery updateCustomer = session.createSQLQuery("UPDATE CUSTOMERS SET STATUS_ID = ? WHERE ID = ? AND TENANT_ID= ?");
+			updateCustomer.setInteger(0, EntityStatusEnum.ACTIVE.getEntityStatus());
+			updateCustomer.setInteger(1, customerID);
+			updateCustomer.setInteger(2, tenantID);
+			updateCustomer.executeUpdate();
+			//activate Reason
+			SQLQuery deactivateQry = session.createSQLQuery("UPDATE CUSTOMER_DEACTIVATION_DETAILS SET ACTIVATION_REASON = ?, ACTIVATION_DATE =CURDATE(), DATE_MODIFIED=CURDATE() WHERE CUSTOMER_ID = ? AND TENANT_ID = ? AND ACTIVATION_DATE IS NULL");
+			deactivateQry.setString(0, remark);
+			deactivateQry.setInteger(1, customerID);
+			deactivateQry.setInteger(2, tenantID);
+			deactivateQry.executeUpdate();
+			transaction.commit();
+		}catch(Exception exception){
+			logger.error("Error while activating customer "+customerID+".", exception);
+			if(transaction != null){
+				transaction.rollback();
+			}
+			throw exception;
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+		logger.debug("activateCustomer Exits");
+	}
+	
+	@Override
+	public List<TrimmedCustomer> getCustomersNotMappedToBeat(int tenantID){
+		logger.debug("getCustomersNotMappedToBeat Enters");
+		Session session = null;
+		List<TrimmedCustomer> trimmedCustomers = new ArrayList<TrimmedCustomer>();
+		try {
+			session = sessionFactory.openSession();
+			SQLQuery query = session.createSQLQuery("SELECT id, " + 
+					"       code, " + 
+					"       NAME " + 
+					"FROM   customers " + 
+					"WHERE  id NOT IN (SELECT customer_id " + 
+					"                  FROM   beat_customer " + 
+					"                  WHERE  tenant_id = ?) " + 
+					"       AND tenant_id = ?; ");
+			query.setInteger(0, tenantID);
+			query.setInteger(1, tenantID);
+			List customerList = query.list();
+			for (Object obj : customerList) {
+				Object[] objs = (Object[]) obj;
+				TrimmedCustomer trimmedCustomer = new TrimmedCustomer();
+				trimmedCustomer.setCustomerID(Integer.valueOf(String.valueOf(objs[0])));
+				trimmedCustomer.setCustomerCode(String.valueOf(objs[1]));
+				trimmedCustomer.setCustomerName(String.valueOf(objs[2]));
+				trimmedCustomers.add(trimmedCustomer);
+			}
+		}catch(Exception exception) {
+			logger.error("Error wghile fetching customer not mapped to beat.");
+		}finally {
+			if(session != null){
+				session.close();
+			}
+		}
+		logger.debug("getCustomersNotMappedToBeat Exits");
+		return trimmedCustomers;
+	}
 }

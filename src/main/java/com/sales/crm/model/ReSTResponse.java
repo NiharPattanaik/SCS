@@ -2,6 +2,8 @@ package com.sales.crm.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 public class ReSTResponse {
 	
 	private int status;
@@ -13,6 +15,8 @@ public class ReSTResponse {
 	private int businessEntityID;
 	
 	List<? extends BusinessEntity> businessEntities;
+	
+	List<ObjectNode> jsonObjects;
 	
 	public static final int STATUS_SUCCESS = 1;
 	
@@ -47,6 +51,12 @@ public class ReSTResponse {
 	}
 	public void setBusinessEntityID(int businessEntityID) {
 		this.businessEntityID = businessEntityID;
+	}
+	public List<ObjectNode> getJsonObjects() {
+		return jsonObjects;
+	}
+	public void setJsonObjects(List<ObjectNode> jsonObjects) {
+		this.jsonObjects = jsonObjects;
 	}
 	
 	

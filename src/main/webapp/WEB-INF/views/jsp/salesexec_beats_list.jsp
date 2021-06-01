@@ -6,7 +6,7 @@
 <html lang="en">
 
 <head>
-    <title>Roles</title>
+    <title>Sales Executive and Beats</title>
     <!-- Bootstrap Core CSS -->
   	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -60,6 +60,11 @@
     padding: 10px 0 10px 0;
 	}
 	
+	.modal-custom-footer {
+    padding: 15px;
+    text-align: center;
+    border-top: 1px solid #e5e5e5;
+	
     </style>
 </head>
 
@@ -92,17 +97,11 @@
                     	<th>Manufacturer</th>
                         <th>Sales Executive Name</th>
                         <th>Assigned Beats</th>
-                        <% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_EDIT_ASSIGNED_BEATS.getResourcePermissionID())) { %>
-                        	<th></th>
-                        <% } %>	
-                        
-                        <% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_DELETE_ASSIGNED_BEATS.getResourcePermissionID())) { %>
-                        	<th></th>
-                        <% } %>	
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                	<c:forEach var="manufSalesExecBeats" items="${manufSalesExecBeatss}">  
+                	<c:forEach var="manufSalesExecBeats" items="${manufSalesExecBeats}">  
                     <tr>
                     	<td>${manufSalesExecBeats.manufacturer.name}</td>
                    		<td>${manufSalesExecBeats.salesExecutive.firstName} ${manufSalesExecBeats.salesExecutive.lastName}</td>
@@ -114,7 +113,7 @@
   											values = values+ ((Beat)pageContext.getAttribute("beat")).getName();
   										}
   									}else{
-  										values = values + " ,";
+  										values = values + ", ";
   										if((Beat)pageContext.getAttribute("beat") != null  && ((Beat)pageContext.getAttribute("beat")).getName() != null){
   											values = values+ ((Beat)pageContext.getAttribute("beat")).getName();
   										}
@@ -123,16 +122,71 @@
 						</c:forEach>
 						<td><%= values %></td>
 						<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_EDIT_ASSIGNED_BEATS.getResourcePermissionID())) { %>
-							<td><a href="<%=request.getContextPath()%>/web/salesExecWeb/assignBeatEditForm/${manufSalesExecBeats.manufacturer.manufacturerID}/${manufSalesExecBeats.salesExecutive.userID}">Edit</a></td>
+							<td><a href="<%=request.getContextPath()%>/web/salesExecWeb/assignBeatEditForm/${manufSalesExecBeats.manufacturer.code}/${manufSalesExecBeats.salesExecutive.code}">Edit</a>
 						<% } %>	
+						|
 						<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_DELETE_ASSIGNED_BEATS.getResourcePermissionID())) { %>
-							<td><a href="<%=request.getContextPath()%>/web/salesExecWeb/deleteBeatsAssignment/${manufSalesExecBeats.manufacturer.manufacturerID}/${manufSalesExecBeats.salesExecutive.userID}">Delete</a></td>
+							<c:choose>
+								<c:when test = "${manufSalesExecBeats.hasTransactions}">
+									<a href=# id=link data-toggle=modal data-target=#confirm-submit>Delete</a>	
+								</c:when>
+								<c:otherwise>
+									<a href=# id=link data-param='{"manufID":"${manufSalesExecBeats.manufacturer.manufacturerID}", "salesEXecID":${manufSalesExecBeats.salesExecutive.userID}}' data-toggle="modal" data-target="#confirm">Delete</a></td>
+								</c:otherwise>				
+							</c:choose>	
+						
 						<% } %>
                     </tr>
                     </c:forEach>
                 </tbody>
             </table>
         </div>
+        
+        <div class="modal fade" id="confirm-submit" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<b>Warning !</b>
+					</div>
+					<div class="modal-body">The Sales Executive Beat mapping can not be removed as there are active/completed transactions. 
+					                        May be you can try to Edit to remove beats from sales executives where there is no active/completed transactions </div>
+					<div class="modal-custom-footer">
+						<button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	<div class="modal fade" id="confirm" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<b>Confirm removal !</b>
+				</div>
+				<div class="modal-body">
+					Are you sure you want to remove the Sales Executive beat mapping ? Please confirm.
+				</div>
+				<div class="modal-custom-footer">
+					<button type="submit" id="delete" class="btn btn-primary">Confirm</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+					<script type="text/javascript">
+						var manufID = "";
+						var salesEXecID = "";
+						$('#confirm').on('show.bs.modal', function (e) {
+							manufID = $(e.relatedTarget).data('param').manufID;
+							salesEXecID = $(e.relatedTarget).data('param').salesEXecID;
+						});
+						//Click on confirm button
+						$('#delete').click(function(e){
+							window.location.href = "/crm/web/salesExecWeb/deleteBeatsAssignment/" + manufID + "/" + salesEXecID
+						});
+					</script>
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
 
 </html>

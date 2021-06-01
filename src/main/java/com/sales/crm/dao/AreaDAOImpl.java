@@ -54,7 +54,7 @@ public class AreaDAOImpl implements AreaDAO {
 
 	
 	private Beat getBeatForArea(Session session, int areaID, int tenantID) {
-		SQLQuery  beatQuery = session.createSQLQuery("SELECT a.* FROM BEAT a, BEAT_AREA b WHERE a.ID = b.BEAT_ID and a.TENANT_ID = b.TENANT_ID and b.AREA_ID= ? and a.TENANT_ID = ?");
+		SQLQuery  beatQuery = session.createSQLQuery("SELECT a.* FROM BEATS a, BEAT_AREA b WHERE a.ID = b.BEAT_ID and a.TENANT_ID = b.TENANT_ID and b.AREA_ID= ? and a.TENANT_ID = ?");
 		beatQuery.setParameter(0, areaID);
 		beatQuery.setParameter(1, tenantID);
 		List beatList = beatQuery.list();
@@ -75,18 +75,26 @@ public class AreaDAOImpl implements AreaDAO {
 		return beat;
 	}
 	@Override
-	public Area get(int areaID, int tenantID) {
+	public Area get(String areaCode, int tenantID) {
 		Session session = null;
 		Area area = null;
 		Beat beat = null;
 		try{
 			session = sessionFactory.openSession();
-			area = (Area)session.get(Area.class, areaID);
-			beat = getBeatForArea(session, areaID, tenantID);
-			
-			if(area != null && beat != null){
-				area.setBeat(beat);
+			Query query = session.createQuery("from Area where code = :areaCode AND tenantID = :tenantID");
+			query.setParameter("areaCode", areaCode);
+			query.setParameter("tenantID", tenantID);
+			if (query.list() != null) {
+				area = (Area)query.list().get(0);
 			}
+			
+			if(area != null) {
+				beat = getBeatForArea(session, area.getAreaID(), tenantID);
+				if(beat != null) {
+					area.setBeat(beat);
+				}
+			}
+			
 		}catch(Exception exception){
 			logger.error("Error while fetching area details.", exception);
 		}finally{
@@ -126,17 +134,17 @@ public class AreaDAOImpl implements AreaDAO {
 	}
 
 	@Override
-	public void delete(int areaID, int tenantID) throws Exception{
+	public void delete(String areaCode, int tenantID) throws Exception{
 		Session session = null;
 		Transaction transaction = null;
 		try{
 			session = sessionFactory.openSession();
-			Area area = (Area)session.get(Area.class, areaID);
+			Area area = get(areaCode, tenantID);
 			transaction = session.beginTransaction();
 			//Remove from BEAT_AREA
 			SQLQuery beatAreaQuery = session.createSQLQuery("DELETE FROM BEAT_AREA WHERE AREA_ID= ? and TENANT_ID = ?");
-			beatAreaQuery.setParameter(0, areaID);
-			beatAreaQuery.setParameter(1, areaID);
+			beatAreaQuery.setParameter(0, area.getAreaID());
+			beatAreaQuery.setParameter(1, tenantID);
 			beatAreaQuery.executeUpdate();
 			//Delete Area
 			session.delete(area);
@@ -161,7 +169,7 @@ public class AreaDAOImpl implements AreaDAO {
 		List<Area> areas = null; 
 		try{
 			session = sessionFactory.openSession();
-			Query query = session.createQuery("from Area where tenantID = :tenantID order by DATE_CREATED DESC");
+			Query query = session.createQuery("from Area where tenantID = :tenantID order by DATE_CREATED ASC");
 			query.setParameter("tenantID", tenantID);
 			areas = query.list();
 			for(Area area : areas) {
@@ -185,7 +193,7 @@ public class AreaDAOImpl implements AreaDAO {
 		try {
 			session = sessionFactory.openSession();
 			//Get Areas
-			SQLQuery areasQuery = session.createSQLQuery("SELECT b.BEAT_ID, a.* FROM AREA a, BEAT_AREA b WHERE a.ID = b.AREA_ID AND a.TENANT_ID = b.TENANT_ID AND b.BEAT_ID= ? AND a.TENANT_ID = ?");
+			SQLQuery areasQuery = session.createSQLQuery("SELECT b.BEAT_ID, a.* FROM AREAS a, BEAT_AREA b WHERE a.ID = b.AREA_ID AND a.TENANT_ID = b.TENANT_ID AND b.BEAT_ID= ? AND a.TENANT_ID = ?");
 			areasQuery.setParameter(0, beatID);
 			areasQuery.setParameter(1, tenantID);
 			List areas = areasQuery.list();
@@ -220,7 +228,7 @@ public class AreaDAOImpl implements AreaDAO {
 		try {
 			session = sessionFactory.openSession();
 			//Get Areas
-			SQLQuery areasQuery = session.createSQLQuery("SELECT * FROM AREA WHERE ID NOT IN (SELECT AREA_ID FROM BEAT_AREA) AND TENANT_ID= ? ");
+			SQLQuery areasQuery = session.createSQLQuery("SELECT * FROM AREAS WHERE ID NOT IN (SELECT AREA_ID FROM BEAT_AREA) AND TENANT_ID= ? ");
 			areasQuery.setParameter(0, tenantID);
 			List areas = areasQuery.list();
 			for (Object obj : areas) {
@@ -254,7 +262,7 @@ public class AreaDAOImpl implements AreaDAO {
 		try {
 			session = sessionFactory.openSession();
 			//Get Areas
-			SQLQuery areasQuery = session.createSQLQuery("SELECT * FROM AREA WHERE ID NOT IN (SELECT AREA_ID FROM BEAT_AREA) AND TENANT_ID= ? UNION SELECT * FROM AREA WHERE ID IN (SELECT AREA_ID FROM BEAT_AREA WHERE BEAT_ID= ?)");
+			SQLQuery areasQuery = session.createSQLQuery("SELECT * FROM AREAS WHERE ID NOT IN (SELECT AREA_ID FROM BEAT_AREA) AND TENANT_ID= ? UNION SELECT * FROM AREAS WHERE ID IN (SELECT AREA_ID FROM BEAT_AREA WHERE BEAT_ID= ?)");
 			areasQuery.setParameter(0, tenantID);
 			areasQuery.setParameter(1, beatID);
 			List areas = areasQuery.list();

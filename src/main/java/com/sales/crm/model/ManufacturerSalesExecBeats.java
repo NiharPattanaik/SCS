@@ -13,6 +13,8 @@ public class ManufacturerSalesExecBeats {
 	private List<Integer> beatIDLists;
 	
 	private int tenantID;
+	
+	private boolean hasTransactions;
 
 	public Manufacturer getManufacturer() {
 		return manufacturer;
@@ -53,6 +55,16 @@ public class ManufacturerSalesExecBeats {
 
 	public void setTenantID(int tenantID) {
 		this.tenantID = tenantID;
+	}
+	
+	
+
+	public boolean getHasTransactions() {
+		return hasTransactions;
+	}
+
+	public void setHasTransactions(boolean hasTransactions) {
+		this.hasTransactions = hasTransactions;
 	}
 
 	@Override

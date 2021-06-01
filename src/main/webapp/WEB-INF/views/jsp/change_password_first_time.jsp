@@ -158,6 +158,12 @@ legend {
 					<form:hidden path="userID" name="userID" value="${ user.userID }" />
 					<input type="hidden" id="pass" value="${ user.password }">
 					<form:hidden path="loggedIn" name="loggedIn" value="${ user.loggedIn }"/>
+					<form:hidden name="tenantID" path="tenantID" value="${ user.tenantID }" />
+					<div>
+						<fmt:formatDate value="${ user.dateCreated }" type="date"
+								pattern="dd-MM-yyyy" var="createdDate" />
+							<form:hidden path="dateCreated" value="${createdDate}" />
+					</div>
 					<div class="form_submit">
 						<button type="submit" class="btn btn-primary" id="submitBtn">Submit</button>
 					</div>

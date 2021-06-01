@@ -62,6 +62,11 @@
     padding: 10px 0 10px 0;
 	}
 	
+	.modal-custom-footer {
+    padding: 15px;
+    text-align: center;
+    border-top: 1px solid #e5e5e5;
+}
     </style>
 </head>
 
@@ -78,7 +83,7 @@
         <%@ include file="menus.jsp" %>
         	<div class="row customer_list">
         		<div class="col-md-8">
-            		<h2>Customer and Beats</h2>   
+            		<h2>Beats and Customers</h2>   
             	</div>
             	<div class="col-md-4 add_customer">
             		<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_ASSOCIATE_CUSTOMERS.getResourcePermissionID())) { %>
@@ -91,48 +96,50 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Customer Name</th>
-                        <th>Assigned Beats</th>
-                        <% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_EDIT_ASSOCIATED_CUSTOMERS.getResourcePermissionID())) { %>
-                       		<th></th>
-                       	<% } %>	
-                       	
-                       	<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_DELETE_ASSOCIATED_CUSTOMERS.getResourcePermissionID())) { %>
-                        	<th></th>
-                        <% } %>	
+                        <th>Beat Name</th>
+                        <th>Customers</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                	<c:forEach var="customer" items="${customers}">
+                	<c:forEach var="beat" items="${beats}">
                 	<%
-                		if(((Customer)pageContext.getAttribute("customer")).getBeats() !=  null &&
-                				((Customer)pageContext.getAttribute("customer")).getBeats().size() > 0){
+                		if(((Beat)pageContext.getAttribute("beat")).getCustomers() !=  null &&
+                				((Beat)pageContext.getAttribute("beat")).getCustomers().size() > 0){
                 			
                 	%>  
                     <tr>
-                   		<td>${customer.name}</td>
+                   		<td>${beat.name}</td>
                         <% String values=""; %>
-						<c:forEach var="beat" items="${customer.beats}">
+						<c:forEach var="customer" items="${beat.customers}">
   								<%
   									if(values.isEmpty()){
-  										if((Beat)pageContext.getAttribute("beat") != null  && ((Beat)pageContext.getAttribute("beat")).getName() != null){
-  											values = values+ ((Beat)pageContext.getAttribute("beat")).getName();
+  										if((TrimmedCustomer)pageContext.getAttribute("customer") != null  && ((TrimmedCustomer)pageContext.getAttribute("customer")).getCustomerName() != null){
+  											values = values+ ((TrimmedCustomer)pageContext.getAttribute("customer")).getCustomerName();
   										}
   									}else{
-  										values = values + " ,";
-  										if((Beat)pageContext.getAttribute("beat") != null  && ((Beat)pageContext.getAttribute("beat")).getName() != null){
-  											values = values+ ((Beat)pageContext.getAttribute("beat")).getName();
+  										values = values + ", ";
+  										if((TrimmedCustomer)pageContext.getAttribute("customer") != null  && ((TrimmedCustomer)pageContext.getAttribute("customer")).getCustomerName() != null){
+  											values = values+ ((TrimmedCustomer)pageContext.getAttribute("customer")).getCustomerName();
   										}
   									}
   								%>
 						</c:forEach>
 						<td><%= values %></td>
 						<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_EDIT_ASSOCIATED_CUSTOMERS.getResourcePermissionID())) { %>
-							<td><a href="<%=request.getContextPath()%>/web/beatWeb/assignedBeatCustomerEditForm/${customer.customerID}">Edit</a></td>
+							<td><a href="<%=request.getContextPath()%>/web/beatWeb/assignedBeatCustomerEditForm/${beat.code}">Edit</a>
 						<% } %>	
 						
 						<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_DELETE_ASSOCIATED_CUSTOMERS.getResourcePermissionID())) { %>
-							<td><a href="<%=request.getContextPath()%>/web/beatWeb/deleteAssignedBeatCustomerLink/${customer.customerID}">Delete</a></td>
+							|
+							<c:choose>
+								<c:when test = "${beat.hasBeatCustomersTransaction}">
+									<a href=# id=link data-toggle=modal data-target=#confirm-submit>Delete</a>	
+								</c:when>
+								<c:otherwise>
+									<a href=# id=link id="deleteBtn" data-code=${beat.code} data-toggle="modal" data-target="#confirm">Delete</a></td>
+								</c:otherwise>				
+							</c:choose>	
 						<% } %>	
                     </tr>
                     <% 
@@ -142,6 +149,50 @@
                 </tbody>
             </table>
         </div>
+        
+        <div class="modal fade" id="confirm-submit" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<b>Warning !</b>
+					</div>
+					<div class="modal-body">The Manufacturer Beat mapping can not be removed as there are active/completed transactions. 
+					                        May be you can try to Edit to remove beats from manufacturer where there is no active/completed transactions </div>
+					<div class="modal-custom-footer">
+						<button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+					</div>
+				</div>
+			</div>
+		</div>
+        
+        <div class="modal fade" id="confirm" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<b>Confirm removal !</b>
+				</div>
+				<div class="modal-body">
+					Are you sure you want to remove the customer beat mapping ? Please confirm.
+				</div>
+				<div class="modal-custom-footer">
+					<button type="submit" id="delete" class="btn btn-primary">Confirm</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+					<script type="text/javascript">
+						var code = "";
+						$('#confirm').on('show.bs.modal', function (e) {
+							code = $(e.relatedTarget).data('code')
+						});
+						//Click on confirm button
+						$('#delete').click(function(e){
+							window.location.href = "/crm/web/beatWeb/deleteAssignedCustomersBeatLink/" + code
+						});
+					</script>
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
 
 </html>

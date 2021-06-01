@@ -53,7 +53,6 @@ legend {
 
 .add_customer {
 	text-align: right;
-	margin-top: 31px;
 }
 
 .side_nav_btns {
@@ -75,6 +74,12 @@ legend {
     border-top: 1px solid #e5e5e5;
 }
 
+.add_customer_buttom {
+	text-align: right;
+	margin-top: 10px;
+	margin-bottom: 20px;
+}
+
 </style>
 </head>
 
@@ -90,18 +95,19 @@ legend {
 			<div class="col-md-4">
 				<h2>Beat Details</h2>
 			</div>
-			<div class="col-md-4 add_customer">
-				<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_UPDATE.getResourcePermissionID())) { %>
-					<button type="submit" class="btn btn-primary"
-						onclick="location.href='<%=request.getContextPath()%>/web/beatWeb/editBeatForm/${beat.beatID}';">
-						Modify Beat</button>
-				<% } %>		
-				
-				<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_DELETE.getResourcePermissionID())) { %>		
-					<button type="submit" class="btn btn-primary" id="deleteButton">
-						Delete Beat</button>	
-				<% } %>	
-			</div>
+		</div>	
+		<div class="col-md-8 add_customer">
+			<button type="button" class="btn btn-primary" id="cancelbtn" onclick="window.history.back(); return false;"">Cancel</button>
+			<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_UPDATE.getResourcePermissionID())) { %>
+				<button type="submit" class="btn btn-primary"
+					onclick="location.href='<%=request.getContextPath()%>/web/beatWeb/editBeatForm/${beat.code}';">
+					Modify</button>
+			<% } %>		
+			
+			<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_DELETE.getResourcePermissionID())) { %>		
+				<button type="submit" class="btn btn-primary" id="deleteButton">
+					Delete</button>	
+			<% } %>	
 		</div>
 		<div class="row top-height">
 			<div class="col-md-8 ">
@@ -159,21 +165,21 @@ legend {
 					<% } %>
 					
 				</fieldset>
-				<fieldset>
-					<legend>Manufacturer</legend>
-					<div
-						style="width: 200px; min-height: 2px; max-height: 100px; overflow-y: auto;"
-						id="checks">
-						<ul>
-							<c:forEach var="manufacturer" items="${beat.manufacturers}">
-								<li><a href="<%=request.getContextPath()%>/web/manufacturerWeb/${manufacturer.manufacturerID}">${manufacturer.name}</a></li>
-							</c:forEach>
-						</ul>
-
-					</div>
-				</fieldset>
 			</div>
 		</div>
+		<div class="col-md-8 add_customer_buttom">
+				<button type="button" class="btn btn-primary" id="cancelbtn" onclick="window.history.back(); return false;"">Cancel</button>
+				<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_UPDATE.getResourcePermissionID())) { %>
+					<button type="submit" class="btn btn-primary"
+						onclick="location.href='<%=request.getContextPath()%>/web/beatWeb/editBeatForm/${beat.code}';">
+						Modify</button>
+				<% } %>		
+				
+				<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_DELETE.getResourcePermissionID())) { %>		
+					<button type="submit" class="btn btn-primary" id="deleteButton">
+						Delete</button>	
+				<% } %>	
+			</div>
 	</div>
 </body>
 <script type="text/javascript">

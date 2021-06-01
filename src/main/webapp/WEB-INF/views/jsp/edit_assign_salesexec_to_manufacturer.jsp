@@ -62,6 +62,12 @@ legend {
 	margin-top: 14px;
 	text-align: right;
 }
+
+.row {
+    margin-right: -15px;
+    margin-left: -15px;
+    margin-top: 50px
+}
 </style>
 </head>
 
@@ -81,20 +87,20 @@ legend {
 						<legend>Manufacturer to Sales Executive Mapping</legend>
 						<div class="form-group">
 								<label>Manufacturer</label>
-								<form:select path="manufacturerID" cssClass="form-control">
-									<form:option value="${ manufacturer.manufacturerID }" label="${manufacturer.name}" />
-								</form:select>
+								<form:input name="name" cssClass="form-control" path="name"
+								value="${manufacturer.name}" readonly="true" />
 							</div>
 							<div class="form-group">
 								<label>Sales Executives</label>
 								<form:select path="salesExecsIDs" cssClass="form-control" multiple="true">
-									<form:option value="-1" label="--- Select ---" />
 									<form:options items="${salesExecs}" itemValue="userID"
 										itemLabel="name" />
 								</form:select>
 							</div>
 					</fieldset>
+					<form:hidden path="manufacturerID" value="${manufacturer.manufacturerID}" name="manufacturerID"/>
 					<div class="form_submit">
+						<button type="button" class="btn btn-primary" id="cancelbtn" onclick="window.history.back(); return false;"">Cancel</button>
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</div>
 				</form:form>

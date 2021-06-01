@@ -28,16 +28,17 @@ public class OTPReSTController {
 	@Autowired
 	HttpSession session;
 
-	@PutMapping(value = "/generate/{customerID}/{otpType}/{tenantID}", produces = { MediaType.APPLICATION_JSON_VALUE })
+	@PutMapping(value = "/generate/{customerID}/{otpType}/{orderRefID}/{tenantID}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<ReSTResponse> generateOTP(@PathVariable("customerID") int customerID,
-			@PathVariable("otpType") int otpType, @PathVariable("tenantID") int tenantID) {
+			@PathVariable("otpType") int otpType, @PathVariable("orderRefID") int orderRefID, @PathVariable("tenantID") int tenantID) {
 		ReSTResponse response = new ReSTResponse();
 		User user = (User) session.getAttribute("user");
 		CustomerOTP customerOTP = new CustomerOTP();
 		customerOTP.setCustomerID(customerID);
 		customerOTP.setTenantID(tenantID);
-		customerOTP.setSalesExecID(user.getUserID());
+		customerOTP.setFieldExecID(user.getUserID());
 		customerOTP.setOtpType(otpType);
+		customerOTP.setEntityID(orderRefID);
 		try {
 			otpService.generateOTP(customerOTP, tenantID); 
 			response.setStatus(ReSTResponse.STATUS_SUCCESS);

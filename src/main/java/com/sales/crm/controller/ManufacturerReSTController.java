@@ -26,7 +26,7 @@ public class ManufacturerReSTController {
 	
 	@GetMapping(value="/salesExecs/{manufacturerID}/{tenantID}")
 	public List<SalesExecutive> getManufacturerSalesExecs(@PathVariable("manufacturerID") int manufacturerID, @PathVariable("tenantID") int tenantID){
-		return manufacturerService.getManufacturer(manufacturerID, tenantID).getSalesExecs();
+		return manufacturerService.getManufacturerById(manufacturerID, tenantID).getSalesExecs();
 	}
 	
 

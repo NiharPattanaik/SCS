@@ -8,11 +8,11 @@ public interface AreaDAO {
 	
 	void create(Area area) throws Exception;
 	
-	Area get(int areaID, int tenantID);
+	Area get(String areaCode, int tenantID);
 	
 	void update(Area area) throws Exception;
 	
-	void delete(int areaID, int tenantID) throws Exception;
+	void delete(String areaCode, int tenantID) throws Exception;
 	
 	List<Area> getTenantAreas(int tenantID);
 	

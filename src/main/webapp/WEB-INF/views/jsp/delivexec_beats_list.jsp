@@ -59,6 +59,11 @@
     background: #ddd;
     padding: 10px 0 10px 0;
 	}
+	
+	.modal-custom-footer {
+    padding: 15px;
+    text-align: center;
+    border-top: 1px solid #e5e5e5;
     </style>
 </head>
 
@@ -90,13 +95,7 @@
                     <tr>
                         <th>Delivery Executive Name</th>
                         <th>Assigned Beats</th>
-                        <% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_EDIT_ASSIGNED_BEATS.getResourcePermissionID())) { %>
-                        	<th></th>
-                        <% } %>	
-                        
-                        <% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_DELETE_ASSIGNED_BEATS.getResourcePermissionID())) { %>
-                        	<th></th>
-                        <% } %>	
+                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -111,7 +110,7 @@
   											values = values+ ((Beat)pageContext.getAttribute("beat")).getName();
   										}
   									}else{
-  										values = values + " ,";
+  										values = values + ", ";
   										if((Beat)pageContext.getAttribute("beat") != null  && ((Beat)pageContext.getAttribute("beat")).getName() != null){
   											values = values+ ((Beat)pageContext.getAttribute("beat")).getName();
   										}
@@ -120,16 +119,68 @@
 						</c:forEach>
 						<td><%= values %></td>
 						<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_EDIT_ASSIGNED_BEATS.getResourcePermissionID())) { %>
-							<td><a href="<%=request.getContextPath()%>/web/deliveryExecWeb/assignBeatEditForm/${delivExec.userID}">Edit</a></td>
+							<td><a href="<%=request.getContextPath()%>/web/deliveryExecWeb/assignBeatEditForm/${delivExec.code}">Edit</a>
 						<% } %>	
+						|
 						<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_DELETE_ASSIGNED_BEATS.getResourcePermissionID())) { %>
-							<td><a href="<%=request.getContextPath()%>/web/deliveryExecWeb/deleteBeatsAssignment/${delivExec.userID}">Delete</a></td>
+							<c:choose>
+								<c:when test = "${delivExec.hasTransaction}">
+									<a href=# id=link data-toggle=modal data-target=#confirm-submit>Delete</a>	
+								</c:when>
+								<c:otherwise>
+									<a href=# id=link data-param=${delivExec.userID} data-toggle="modal" data-target="#confirm">Delete</a></td>
+								</c:otherwise>				
+							</c:choose>	
 						<% } %>
                     </tr>
                     </c:forEach>
                 </tbody>
             </table>
         </div>
+        
+        <div class="modal fade" id="confirm-submit" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<b>Warning !</b>
+					</div>
+					<div class="modal-body">The Delivery Executive Beat mapping can not be removed as there are active/completed transactions. 
+					                        May be you can try to Edit to remove beats from delivery executives where there is no active/completed transactions </div>
+					<div class="modal-custom-footer">
+						<button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	<div class="modal fade" id="confirm" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<b>Confirm removal !</b>
+				</div>
+				<div class="modal-body">
+					Are you sure you want to remove the Sales Executive beat mapping ? Please confirm.
+				</div>
+				<div class="modal-custom-footer">
+					<button type="submit" id="delete" class="btn btn-primary">Confirm</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+					<script type="text/javascript">
+						var delivExecId = "";
+						$('#confirm').on('show.bs.modal', function (e) {
+							delivExecId = $(e.relatedTarget).data('param');
+						});
+						//Click on confirm button
+						$('#delete').click(function(e){
+							window.location.href = "/crm/web/deliveryExecWeb/deleteBeatsAssignment/" + delivExecId 
+						});
+					</script>
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
 
 </html>

@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
@@ -22,16 +23,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.sales.crm.exception.CRMException;
+import com.sales.crm.model.Beat;
+import com.sales.crm.model.DeliveryExecutive;
 import com.sales.crm.model.Manufacturer;
+import com.sales.crm.model.ManufacturerBeats;
+import com.sales.crm.model.ManufacturerDelivExecs;
+import com.sales.crm.model.ManufacturerSalesExecs;
 import com.sales.crm.model.SalesExecutive;
-import com.sales.crm.model.Manufacturer;
+import com.sales.crm.service.BeatService;
+import com.sales.crm.service.DeliveryExecService;
 import com.sales.crm.service.ManufacturerService;
 import com.sales.crm.service.SalesExecService;
-import com.sales.crm.service.ManufacturerService;
 
 @Controller
 @RequestMapping("/web/manufacturerWeb")
 public class ManufacturerWebController {
+	
+	private static Logger logger = Logger.getLogger(ManufacturerWebController.class);
+	
 
 	@Autowired
 	ManufacturerService manufacturerService;
@@ -43,9 +53,15 @@ public class ManufacturerWebController {
 	@Autowired
 	SalesExecService salesExecService;
 	
-	@GetMapping(value="/{manufacturerID}")
-	public ModelAndView get(@PathVariable int manufacturerID){
-		Manufacturer manufacturer = manufacturerService.getManufacturer(manufacturerID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
+	@Autowired
+	DeliveryExecService delivExecService;
+	
+	@Autowired
+	BeatService beatService;
+	
+	@GetMapping(value="/{manufacturerCode}")
+	public ModelAndView get(@PathVariable String manufacturerCode){
+		Manufacturer manufacturer = manufacturerService.getManufacturer(manufacturerCode, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		return new ModelAndView("/manufacturer_details", "manufacturer", manufacturer);
 		
 	}
@@ -57,9 +73,9 @@ public class ManufacturerWebController {
 		return new ModelAndView("/create_manufacturer", modelMap);
 	}
 	
-	@RequestMapping(value="/editManufacturerForm/{manufacturerID}", method = RequestMethod.GET)  
-	public ModelAndView editManufacturerForm(@PathVariable int manufacturerID){
-		Manufacturer manufacturer = manufacturerService.getManufacturer(manufacturerID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
+	@RequestMapping(value="/editManufacturerForm/{manufacturerCode}", method = RequestMethod.GET)  
+	public ModelAndView editManufacturerForm(@PathVariable String manufacturerCode){
+		Manufacturer manufacturer = manufacturerService.getManufacturer(manufacturerCode, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		modelMap.put("manufacturer", manufacturer);
 		return new ModelAndView("/edit_manufacturer", modelMap);
@@ -119,6 +135,16 @@ public class ManufacturerWebController {
 		return new ModelAndView("/assign_salesexecs_to_manufacturer", modelMap);
 	}
 	
+	@GetMapping(value="/assignDelivExecutiveForm") 
+	public ModelAndView getAssignDelivExecutivesToManufacturerForm(){
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
+		List<Manufacturer> manufacturers = manufacturerService.getTenantManufacturers(tenantID);
+		Map<String, Object> modelMap = new HashMap<String, Object>();
+		modelMap.put("manufacturers", manufacturers);
+		modelMap.put("manufacturer", new Manufacturer());
+		return new ModelAndView("/assign_delivexecs_to_manufacturer", modelMap);
+	}
+	
 	@PostMapping(value="/assignSalesExecutive") 
 	public ModelAndView assignSalesExecutivesToManufacturer(@ModelAttribute("manufacturer") Manufacturer manufacturer){
 		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
@@ -131,6 +157,19 @@ public class ManufacturerWebController {
 		return new ModelAndView("/assign_salesexec_to_manufacturer_conf", "msg", msg);
 	}
 	
+	@PostMapping(value="/assignDelivExecutive") 
+	public ModelAndView assignDelivExecutivesToManufacturer(@ModelAttribute("manufacturer") Manufacturer manufacturer){
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
+		String msg = "";
+		try{
+			manufacturerService.assignDelivExecutivesToManufacturer(tenantID, manufacturer);
+		}catch(Exception exception){
+			msg = "Delivery Executives could not be successfully mapped to manufacturer. Please try after sometime and if error persists contact System Administrator";
+		}
+		return new ModelAndView("/assign_delivexec_to_manufacturer_conf", "msg", msg);
+	}
+	
+	
 	/**
 	@GetMapping(value="/supp-manufacturer/list")
 	public ModelAndView suppManufacturerList(){
@@ -140,30 +179,36 @@ public class ManufacturerWebController {
 **/
 	@GetMapping(value="/manufacturer-salesexecs/list")
 	public ModelAndView manufacturerSalesExecList(){
-		List<Manufacturer> manufacturers = manufacturerService.getManufacturerSalesExecsList(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
-		return new ModelAndView("/manufacturer_sales_execs_list","manufacturers", manufacturers);  
+		List<ManufacturerSalesExecs> manufacturerSalesExecs = manufacturerService.getManufacturerSalesExecs(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
+		return new ModelAndView("/manufacturer_sales_execs_list","manufacturerSalesExecs", manufacturerSalesExecs);  
 	}
 	
-	@GetMapping(value="/assignManufacturerEditForm/{manufacturerID}") 
-	public ModelAndView editAssignManufacturerForm(@PathVariable int manufacturerID){
-		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
-		List<Manufacturer> manufacturers = manufacturerService.getTenantManufacturers(tenantID);
-		Manufacturer manufacturer = manufacturerService.getManufacturer(manufacturerID, tenantID);
-		Map<String, Object> modelMap = new HashMap<String, Object>();
-		modelMap.put("manufacturers", manufacturers);
-		modelMap.put("manufacturer", manufacturer);
-		return new ModelAndView("/edit_assign_manufacturer_to_manufacturer", modelMap);
+	@GetMapping(value="/manufacturer-delivexecs/list")
+	public ModelAndView manufacturerDelivExecList(){
+		List<ManufacturerDelivExecs> manufacturerDelivExecs = manufacturerService.getManufacturerDelivExecsList(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
+		return new ModelAndView("/manufacturer_deliv_execs_list","manufacturerDelivExecs", manufacturerDelivExecs);  
 	}
 	
-	@GetMapping(value="/assignSalesExecEditForm/{manufacturerID}") 
-	public ModelAndView editAssignSalesExecForm(@PathVariable int manufacturerID){
+	@GetMapping(value="/assignSalesExecEditForm/{manufacturerCode}") 
+	public ModelAndView editAssignSalesExecForm(@PathVariable String manufacturerCode){
 		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
-		List<SalesExecutive> salesExecs = salesExecService.getSalesExecutives(tenantID);
-		Manufacturer manufacturer = manufacturerService.getManufacturer(manufacturerID, tenantID);
+		List<SalesExecutive> salesExecs = salesExecService.getActiveSalesExecutives(tenantID);
+		Manufacturer manufacturer = manufacturerService.getManufacturer(manufacturerCode, tenantID);
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		modelMap.put("salesExecs", salesExecs);
 		modelMap.put("manufacturer", manufacturer);
 		return new ModelAndView("/edit_assign_salesexec_to_manufacturer", modelMap);
+	}
+	
+	@GetMapping(value="/assignDelivExecEditForm/{manufacturerCode}") 
+	public ModelAndView editAssignDelivExecForm(@PathVariable String manufacturerCode){
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
+		List<DeliveryExecutive> delivExecs = delivExecService.getActiveDeliveryExecutives(tenantID);
+		Manufacturer manufacturer = manufacturerService.getManufacturer(manufacturerCode, tenantID);
+		Map<String, Object> modelMap = new HashMap<String, Object>();
+		modelMap.put("delivExecs", delivExecs);
+		modelMap.put("manufacturer", manufacturer);
+		return new ModelAndView("/edit_assign_delivexec_to_manufacturer", modelMap);
 	}
 	
 	@PostMapping(value="/updateAassignedSalesexecs")
@@ -174,20 +219,119 @@ public class ManufacturerWebController {
 			manufacturerService.updateAssignedSalesExecs(manufacturer.getManufacturerID(), manufacturer.getSalesExecsIDs(), tenantID);
 		}catch(Exception exception){
 			msg = "Sales Executives mapped to manufacturer could not be successfully updated. Please try after sometime and if error persists contact System Administrator";
+			if(exception instanceof CRMException) {
+				msg = exception.getMessage();
+			}else {
+				logger.error("Error while updating sales executives manufacturer mapping", exception);
+			}
 		}
 		return new ModelAndView("/edit_salesexec_to_manufacturer_conf", "msg", msg);
 	}
 	
-	@GetMapping(value="/deleteAassignedSalesexec/{manufacturerID}")
-	public ModelAndView deleteAassignedSalesexec(@PathVariable int manufacturerID){
+	@PostMapping(value="/updateAassignedDelivexecs")
+	public ModelAndView updateAssignedDelivExecutives(@ModelAttribute("manufacturer") Manufacturer manufacturer){
 		String msg = "";
 		try{
-			manufacturerService.deleteAassignedSalesExec(manufacturerID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
+			int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
+			manufacturerService.updateAssignedDelivExecs(manufacturer.getManufacturerID(), manufacturer.getDelivExecsIDs(), tenantID);
 		}catch(Exception exception){
+			msg = "Delivery Executives mapped to manufacturer could not be successfully updated. Please try after sometime and if error persists contact System Administrator";
+			if(exception instanceof CRMException) {
+				msg = exception.getMessage();
+			}else {
+				logger.error("Error while updating delivery executives manufacturer mapping", exception);
+			}
+		}
+		return new ModelAndView("/edit_delivexec_to_manufacturer_conf", "msg", msg);
+	}
+	
+	@GetMapping(value="/deleteAassignedSalesexec/{manufacturerCode}/{tenantID}")
+	public ModelAndView deleteAassignedSalesexec(@PathVariable("manufacturerCode") String manufacturerCode, @PathVariable("tenantID") int tenantID){
+		String msg = "";
+		try{
+			manufacturerService.deleteAassignedSalesExec(manufacturerCode, tenantID);
+		}catch(Exception exception){
+			logger.error("Error while removing manufacturer sales executive mapping", exception);
 			msg = "Sales Executives mapped to manufacturer could not be removed successfully. Please try after sometime and if error persists contact System Administrator";
 		}
 		return new ModelAndView("/remove_manufacturer_salesexec_conf","msg", msg); 
 	}
+	
+	@GetMapping(value="/deleteAassignedDelivExec/{manufacturerCode}")
+	public ModelAndView deleteAassignedDelivExec(@PathVariable String manufacturerCode){
+		String msg = "";
+		try{
+			manufacturerService.deleteAassignedDelivExec(manufacturerCode, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
+		}catch(Exception exception){
+			msg = "Delivery Executives mapped to manufacturer could not be removed successfully. Please try after sometime and if error persists contact System Administrator";
+		}
+		return new ModelAndView("/remove_manufacturer_delivexec_conf","msg", msg); 
+	}
+	
+	@GetMapping(value="/beats/list")
+	public ModelAndView getManufacturerBeats(){
+		List<ManufacturerBeats> manufacturerBeats = manufacturerService.getManufacturerBeats(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
+		return new ModelAndView("/manufacturer_beats_list","manufacturerBeats", manufacturerBeats);  
+	}
+	
+	@GetMapping(value="/assignBeatsForm") 
+	public ModelAndView getAssignBeatsFormForm(){
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
+		List<Manufacturer> manufacturers = manufacturerService.getTenantTrimmedManufacturers(tenantID);
+		Map<String, Object> modelMap = new HashMap<String, Object>();
+		modelMap.put("manufacturers", manufacturers);
+		modelMap.put("manufacturer", new Manufacturer());
+		modelMap.put("tenantID", tenantID);
+		return new ModelAndView("/assign_beats_to_manufacturer", modelMap);
+	}
+	
+	@PostMapping(value="/assignBeatsToManufacturer")
+	public ModelAndView assignBeatsToCustomer(@ModelAttribute("manufacturer") Manufacturer manufacturer){
+		String msg = "";
+		try{
+			manufacturerService.assignBeatsToManufacturer(manufacturer.getManufacturerID(), manufacturer.getBeatIDs(), manufacturer.getTenantID());
+		}catch(Exception exception){
+			msg = "Manufacturers could not be successfully assigned to beat. Please try after sometine, if error persists contact System Administrator.";
+		}
+		return new ModelAndView("/assign_manufacturer_beats_conf", "msg", msg);
+	}
+	
+	@GetMapping(value="/assignedBeatManufacturerEditForm/{manufacturerCode}") 
+	public ModelAndView editAssignedBeatToCustomerForm(@PathVariable("manufacturerCode") String manufacturerCode){
+		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
+		Manufacturer manufacturer = manufacturerService.getManufacturer(manufacturerCode, tenantID);
+		List<Beat> beats = beatService.getTenantBeats(tenantID);
+		Map<String, Object> modelMap = new HashMap<String, Object>();
+		modelMap.put("manufacturer", manufacturer);
+		modelMap.put("beats", beats);
+		return new ModelAndView("/edit_assigned_beats_to_manufacturer", modelMap);
+	}
+	
+	@PostMapping(value="/updateAssignedBeatToManufacturer")
+	public ModelAndView updateAssignedBeatToManufacturer(@ModelAttribute("manufacturer") Manufacturer manufacturer){
+		String msg = "";
+		try{
+			manufacturerService.updateAssignedBeatToManufacturer(manufacturer.getManufacturerID(), manufacturer.getBeatIDs(), Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
+		}catch(Exception exception){
+			msg = "Assigned beats to manufacturer could not be updated successfully. Please try after sometine, if error persists contact System Administrator.";
+			if(exception instanceof CRMException) {
+				msg = exception.getMessage();
+			}
+		}
+		return new ModelAndView("/update_manufacturer_beat_conf", "msg", msg);
+	}
+	
+	@GetMapping(value="/deleteAssignedBeatManufacturerLink/{manufacturerCode}/{tenantID}")
+	public ModelAndView deleteAssignedBeatManufacturerLink(@PathVariable("manufacturerCode") String manufacturerCode, @PathVariable("tenantID") int tenantID){
+		String msg = "";
+		try{
+			manufacturerService.deleteAssignedBeatManufacturerLink(manufacturerCode, tenantID);
+		}catch(Exception exception){
+			msg = "Beats associated to manufacturer could not be removed successfully. Please try after sometine, if error persists contact System Administrator.";
+		}
+		return new ModelAndView("/remove_manufacturer_beat_conf","msg", msg); 
+	}
+	
 	
 	@InitBinder
 	public void initBinder(WebDataBinder webDataBinder) {

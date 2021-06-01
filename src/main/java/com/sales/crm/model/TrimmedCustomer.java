@@ -3,8 +3,11 @@ package com.sales.crm.model;
 public class TrimmedCustomer extends BusinessEntity{
 
 	private int customerID;
+	private String customerCode;
 	private String customerName;
-	private int orderBookingID;
+	
+	//Order Booking ID or Order ID
+	private int orderRefID;
 	public int getCustomerID() {
 		return customerID;
 	}
@@ -18,35 +21,17 @@ public class TrimmedCustomer extends BusinessEntity{
 		this.customerName = customerName;
 	}
 	
-	public int getOrderBookingID() {
-		return orderBookingID;
+	public int getOrderRefID() {
+		return orderRefID;
 	}
-	public void setOrderBookingID(int orderBookingID) {
-		this.orderBookingID = orderBookingID;
+	public void setOrderRefID(int orderRefID) {
+		this.orderRefID = orderRefID;
 	}
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + customerID;
-		return result;
+	public String getCustomerCode() {
+		return customerCode;
 	}
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		TrimmedCustomer other = (TrimmedCustomer) obj;
-		if (customerID != other.customerID)
-			return false;
-		return true;
-	}
-	@Override
-	public String toString() {
-		return "TrimmedCustomer [customerID=" + customerID + ", customerName=" + customerName + "]";
+	public void setCustomerCode(String customerCode) {
+		this.customerCode = customerCode;
 	}
 	
 	

@@ -55,7 +55,7 @@ public class UserDAOImpl implements UserDAO {
 				user.setEmailID(null);
 			}
 			user.setCode(UUID.randomUUID().toString());
-			user.setStatusID(EntityStatusEnum.ACTIVE.getEntityStatus());
+			user.setStatusID(EntityStatusEnum.NOT_APPLICABLE.getEntityStatus());
 			// save user
 			session.save(user);
 			// create tenant_user
@@ -98,7 +98,7 @@ public class UserDAOImpl implements UserDAO {
 			user = (User)session.get(User.class, userID);
 			Set<Integer> roleIDs = new HashSet<Integer>();
 			//Get Roles
-			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.ROLE_NAME, a.DESCRIPTION FROM ROLE a, USER_ROLE b WHERE a.ID=b.ROLE_ID AND b.USER_ID=? ");
+			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.ROLE_NAME, a.DESCRIPTION FROM ROLES a, USER_ROLE b WHERE a.ID=b.ROLE_ID AND b.USER_ID=? ");
 			query.setParameter(0, user.getUserID());
 			List results = query.list();
 			for(Object obj : results){
@@ -111,7 +111,7 @@ public class UserDAOImpl implements UserDAO {
 				roleIDs.add(role.getRoleID());
 			}
 			//Get Tenant ID
-			SQLQuery tenantIDQuery = session.createSQLQuery("SELECT a.ID FROM TENANT a, TENANT_USER b WHERE a.ID=b.TENANT_ID AND b.USER_ID= ?");
+			SQLQuery tenantIDQuery = session.createSQLQuery("SELECT a.ID FROM TENANTS a, TENANT_USER b WHERE a.ID=b.TENANT_ID AND b.USER_ID= ?");
 			tenantIDQuery.setParameter(0, userID);
 			List ids = tenantIDQuery.list();
 			if(ids != null && ids.size() == 1){
@@ -218,7 +218,7 @@ public class UserDAOImpl implements UserDAO {
 		List<User> users = new ArrayList<User>(); 
 		try{
 			session = sessionFactory.openSession();
-			//Get USER IDS from tenant id
+			//Get USERS IDS from tenant id
 			SQLQuery getUserIds = session.createSQLQuery("SELECT USER_ID FROM TENANT_USER WHERE TENANT_ID = ? AND USER_ID != ?");
 			getUserIds.setParameter(0, tenantID);
 			getUserIds.setParameter(1, loggedInUserID);
@@ -231,7 +231,7 @@ public class UserDAOImpl implements UserDAO {
 			
 			Map<Integer, List<Role>> rolesMap = new HashMap<Integer, List<Role>>();
 			if(userIDs.size() > 0){
-				SQLQuery getRoles = session.createSQLQuery("SELECT b.USER_ID, a.ID, a.ROLE_NAME, a.DESCRIPTION FROM  ROLE a, USER_ROLE b WHERE b.ROLE_ID=a.ID AND b.USER_ID IN (" +StringUtils.join(userIDs, ",") +")");
+				SQLQuery getRoles = session.createSQLQuery("SELECT b.USER_ID, a.ID, a.ROLE_NAME, a.DESCRIPTION FROM  ROLES a, USER_ROLE b WHERE b.ROLE_ID=a.ID AND b.USER_ID IN (" +StringUtils.join(userIDs, ",") +")");
 				//getRoles.setParameter(0, userIDs);
 				List results = getRoles.list();
 				for(Object obj : results){
@@ -271,7 +271,7 @@ public class UserDAOImpl implements UserDAO {
 		List<User> users = new ArrayList<User>(); 
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.USER_NAME, a.DESCRIPTION, a.EMAIL_ID, a.MOBILE_NO, a.FIRST_NAME, a.LAST_NAME, a.STATUS_ID, a.DATE_CREATED, a.DATE_MODIFIED FROM USER a, USER_ROLE b, TENANT_USER c WHERE a.ID=b.USER_ID AND a.ID=c.USER_ID AND b.ROLE_ID= ? AND c.TENANT_ID=?");
+			SQLQuery query = session.createSQLQuery("SELECT a.ID, a.USER_NAME, a.DESCRIPTION, a.EMAIL_ID, a.MOBILE_NO, a.FIRST_NAME, a.LAST_NAME, a.STATUS_ID, a.DATE_CREATED, a.DATE_MODIFIED FROM USERS a, USER_ROLE b, TENANT_USER c WHERE a.ID=b.USER_ID AND a.ID=c.USER_ID AND b.ROLE_ID= ? AND c.TENANT_ID=?");
 			query.setParameter(0, roleID);
 			query.setParameter(1, tenantID);
 			List results = query.list();
@@ -331,7 +331,7 @@ public class UserDAOImpl implements UserDAO {
 		try{
 			session = sessionFactory.openSession();
 			//Get Tenant ID
-			SQLQuery tenantIDQuery = session.createSQLQuery("SELECT a.ID FROM TENANT a, TENANT_USER b WHERE a.ID=b.TENANT_ID AND b.USER_ID= ?");
+			SQLQuery tenantIDQuery = session.createSQLQuery("SELECT a.ID FROM TENANTS a, TENANT_USER b WHERE a.ID=b.TENANT_ID AND b.USER_ID= ?");
 			tenantIDQuery.setParameter(0, userId);
 			List ids = tenantIDQuery.list();
 			if(ids != null && ids.size() == 1){
@@ -361,7 +361,7 @@ public class UserDAOImpl implements UserDAO {
 				user = (User)users.get(0);
 				//Get Roles
 				List<Role> roles = new ArrayList<Role>();
-				SQLQuery rolesQuery = session.createSQLQuery("SELECT a.ID, a.ROLE_NAME, a.DESCRIPTION FROM ROLE a, USER_ROLE b WHERE a.ID=b.ROLE_ID AND b.USER_ID=? ");
+				SQLQuery rolesQuery = session.createSQLQuery("SELECT a.ID, a.ROLE_NAME, a.DESCRIPTION FROM ROLES a, USER_ROLE b WHERE a.ID=b.ROLE_ID AND b.USER_ID=? ");
 				rolesQuery.setParameter(0, user.getUserID());
 				List results = rolesQuery.list();
 				for(Object obj : results){
@@ -373,7 +373,7 @@ public class UserDAOImpl implements UserDAO {
 					roles.add(role);
 				}
 				//Get Tenant ID
-				SQLQuery tenantIDQuery = session.createSQLQuery("SELECT a.ID FROM TENANT a, TENANT_USER b WHERE a.ID=b.TENANT_ID AND b.USER_ID= ?");
+				SQLQuery tenantIDQuery = session.createSQLQuery("SELECT a.ID FROM TENANTS a, TENANT_USER b WHERE a.ID=b.TENANT_ID AND b.USER_ID= ?");
 				tenantIDQuery.setParameter(0, user.getUserID());
 				List ids = tenantIDQuery.list();
 				if(ids != null && ids.size() == 1){
@@ -399,7 +399,7 @@ public class UserDAOImpl implements UserDAO {
 		Session session = null;
 		try{
 			session = sessionFactory.openSession();
-			SQLQuery userQuery = session.createSQLQuery("SELECT PASSWORD FROM USER WHERE USER_NAME=?");
+			SQLQuery userQuery = session.createSQLQuery("SELECT PASSWORD FROM USERS WHERE USER_NAME=?");
 			userQuery.setParameter(0, userName);
 			//userQuery.setParameter(1,  password);
 			
@@ -428,7 +428,7 @@ public class UserDAOImpl implements UserDAO {
 		try{
 			session = sessionFactory.openSession();
 			//user name
-			SQLQuery userQuery = session.createSQLQuery("SELECT COUNT(*) FROM USER WHERE USER_NAME=? ");
+			SQLQuery userQuery = session.createSQLQuery("SELECT COUNT(*) FROM USERS WHERE USER_NAME=? ");
 			userQuery.setParameter(0, userName);
 			List userCounts = userQuery.list();
 			if(userCounts != null && userCounts.size() == 1 && ((BigInteger)userCounts.get(0)).intValue() == 1){
@@ -436,7 +436,7 @@ public class UserDAOImpl implements UserDAO {
 			}
 			//email
 			if(email != null && !email.isEmpty()){
-				SQLQuery emailQuery = session.createSQLQuery("SELECT COUNT(*) FROM USER WHERE EMAIL_ID=? ");
+				SQLQuery emailQuery = session.createSQLQuery("SELECT COUNT(*) FROM USERS WHERE EMAIL_ID=? ");
 				emailQuery.setParameter(0, email);
 				List emailCounts = emailQuery.list();
 				if(emailCounts != null && emailCounts.size() == 1 && ((BigInteger)emailCounts.get(0)).intValue() == 1){
@@ -460,10 +460,11 @@ public class UserDAOImpl implements UserDAO {
 		try{
 			session = sessionFactory.openSession();
 			transaction = session.beginTransaction();
-			SQLQuery userQuery = session.createSQLQuery("UPDATE USER SET PASSWORD=?, LOGGED_IN=? WHERE ID= ?");
+			SQLQuery userQuery = session.createSQLQuery("UPDATE USERS SET PASSWORD=?, LOGGED_IN=?, STATUS_ID = ?, DATE_MODIFIED=CURDATE() WHERE ID= ?");
 			userQuery.setParameter(0, user.getNewPassword());
 			userQuery.setParameter(1,  user.getLoggedIn());
-			userQuery.setParameter(2, user.getUserID());
+			userQuery.setParameter(2, EntityStatusEnum.ACTIVE.getEntityStatus());
+			userQuery.setParameter(3, user.getUserID());
 			if( user.getSecQuestionAnsws() != null &&
 					user.getSecQuestionAnsws().size() > 0){
 				SQLQuery secQuery = session.createSQLQuery("INSERT INTO USER_SECURITY_QUESTIONS (USER_ID, SECURITY_QUESTION_ID, ANSWER, TENANT_ID, DATE_CREATED) VALUES (?, ?, ?, ?, CURDATE())");
@@ -472,7 +473,7 @@ public class UserDAOImpl implements UserDAO {
 					secQuery.setParameter(0, user.getUserID());
 					secQuery.setParameter(1,question.getId());
 					secQuery.setParameter(2, user.getSecQuestionAnsws().get(index));
-					secQuery.setParameter(3, 1);
+					secQuery.setParameter(3, user.getTenantID());
 					secQuery.executeUpdate();
 					++index;
 				}
@@ -513,6 +514,10 @@ public class UserDAOImpl implements UserDAO {
 			return securityQuestions;
 		}catch(Exception exception){
 			exception.printStackTrace();
+		}finally{
+			if(session != null){
+				session.close();
+			}
 		}
 		return new ArrayList<SecurityQuestion>();
 	}

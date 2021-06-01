@@ -2,6 +2,7 @@
 	pageEncoding="UTF-8"%>
 <%@taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <html lang="en">
 
 <head>
@@ -12,6 +13,8 @@
 	<link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
 	<script src="<%=request.getContextPath()%>/resources/js/jquery-3.2.0.min.js"></script>
 	<script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="<%=request.getContextPath()%>/resources/js/bootstrap-multiselect.js"></script>
+	<link rel="stylesheet" href="<%=request.getContextPath()%>/resources/css/bootstrap-multiselect.css" type="text/css"/>
 	
 <style>
 .dpHeaderWrap {
@@ -113,11 +116,20 @@ legend {
 						<legend>Areas Covered</legend>
 						<div class="form-group">
 							<label>Areas</label>
-							<form:select path="areaIDs" cssClass="form-control" multiple="true">
-								<form:option value="-1" label="--- Select ---" />
-								<form:options items="${areas}" itemValue="areaID"
-									itemLabel="name"/>
-							</form:select>
+							<c:choose>
+								<c:when test = "${not empty areas}">
+									<form:select path="areaIDs" cssClass="form-control" multiple="true">
+										<form:option value="-1" label="--- Select ---" />
+										<form:options items="${areas}" itemValue="areaID"
+											itemLabel="name" />
+									</form:select>
+								</c:when>
+								<c:otherwise>
+										<form:select path="areaIDs" cssClass="form-control" multiple="true">
+											<option value=>No Areas found to be mapped</option>
+										</form:select>
+								</c:otherwise>				
+							</c:choose>	
 						</div>
 					</fieldset>
 					<form:hidden path="beatID" name="beatID" value="${ beat.beatID }"/>
@@ -138,6 +150,7 @@ legend {
 						<form:hidden name="statusID" path="statusID" value="${ beat.statusID }" />
 					</div>
 					<div class="form_submit">
+						<button type="button" class="btn btn-primary" id="cancelbtn" onclick="window.history.back(); return false;"">Cancel</button>
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</div>
 				</form:form>

@@ -54,9 +54,15 @@ public class Order extends BusinessEntity{
 	
 	@Transient
 	private String statusAsString;
+	
+	@Transient
+	private String removalReason;
+	
+	@Transient
+	private String salesExecName;
 
 	public String getDateCreatedString() {
-		if(dateCreatedString == null){
+		if(dateCreatedString == null && dateCreated != null ){
 			dateCreatedString = new SimpleDateFormat("dd-MM-yyyy").format(dateCreated);
 		}
 		return dateCreatedString;
@@ -137,6 +143,22 @@ public class Order extends BusinessEntity{
 
 	public void setCode(String code) {
 		this.code = code;
+	}
+	
+	public String getRemovalReason() {
+		return removalReason;
+	}
+
+	public void setRemovalReason(String removalReason) {
+		this.removalReason = removalReason;
+	}
+
+	public String getSalesExecName() {
+		return salesExecName;
+	}
+
+	public void setSalesExecName(String salesExecName) {
+		this.salesExecName = salesExecName;
 	}
 
 	@Override

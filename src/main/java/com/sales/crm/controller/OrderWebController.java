@@ -85,10 +85,14 @@ public class OrderWebController {
 	@GetMapping(value="/scheduledOrderBookings")
 	public ModelAndView getScheduledOrderBookingList() throws Exception{
 		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
-		//List<SalesExecutive> salesExecs = salesExecService.getSalesExecMapsBeatsCustomers(tenantID);
+		List<SalesExecutive> salesExecs = salesExecService.getActiveSalesExecutives(tenantID);
+		List<Beat> beats = beatService.getTenantBeats(tenantID);
+		List<TrimmedCustomer> customers = customerService.getTenantTrimmedCustomers(tenantID);
 		List<OrderBookingSchedule> orderBookingSchedules = orderService.getAllOrderBookedForToday(tenantID);
 		Map<String, Object> modelMap = new HashMap<String, Object>();
-		//modelMap.put("salesExecs", salesExecs);
+		modelMap.put("salesExecs", salesExecs);
+		modelMap.put("beats", beats);
+		modelMap.put("customers", customers);
 		modelMap.put("orderBookingSchedule", new OrderBookingSchedule());
 		modelMap.put("orderBookedSchedules", orderBookingSchedules);
 		modelMap.put("tenantID", tenantID);
@@ -213,7 +217,7 @@ public class OrderWebController {
 		try{
 			orders = orderService.getOrders(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))), -1);
 		}catch(Exception exception){
-			//
+			logger.error("Error while fetching order list.", exception);
 		}
 		return new ModelAndView("/order_list","orders", orders);  
 	}
@@ -258,6 +262,7 @@ public class OrderWebController {
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		modelMap.put("msg", msg);
 		modelMap.put("orderID", order.getOrderID());
+		modelMap.put("action", "Updated");
 		return new ModelAndView("/order_update_conf", modelMap);
 	}
 	
@@ -277,6 +282,20 @@ public class OrderWebController {
 		modelMap.put("msg", msg);
 		modelMap.put("orderID", order.getOrderID());
 		return new ModelAndView("/order_create_conf", modelMap);
+	}
+	
+	
+	@GetMapping(value="/delete/result/{orderID}/{status}")
+	public ModelAndView deleteSuccess(@PathVariable("orderID") int orderID, @PathVariable("status")  int status){
+		String msg = "";
+		Map<String, String> modelMap = new HashMap<String, String>();
+		if(status != 0) {
+			msg = "Order could not be deleted successfully, please contact System Administrator. ";
+		}
+		modelMap.put("msg", msg);
+		modelMap.put("action", "Deleted");
+		modelMap.put("orderID", String.valueOf(orderID));
+		return new ModelAndView("/order_update_conf","map", modelMap);  
 	}
 	
 	

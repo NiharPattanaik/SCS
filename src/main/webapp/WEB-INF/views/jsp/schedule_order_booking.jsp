@@ -79,7 +79,7 @@
 		<!-- Links -->
 		<%@ include file="menus.jsp" %>
 		<div class="row top-height">
-			<div class="col-md-8 ">
+			<div class="col-md-6 ">
 				<form:form modelAttribute="orderBookingSchedule" method="post"
 					action="/crm/web/orderWeb/scheduleOrderBooking" name="myForm" id="myForm">
 					<fieldset>
@@ -102,6 +102,13 @@
 							</form:select>
 							<div id="salesExecName"></div>
 						</div>
+						
+						<div class="form-group required">
+							<label class='control-label'>Manufacturer</label>
+							<form:select path="manufacturerIDs" cssClass="form-control" id="manufs" multiple="false" >
+								<option value="-1" label="--- Select Manuacturer---" />
+							</form:select>
+						</div>
 							
 						<div class="form-group required">
 							<label class='control-label'>Beats</label>
@@ -111,12 +118,14 @@
 						</div>
 						<div class="form-group required">
 							<label class='control-label'>Customers</label>
-							<div style="width: 200px; min-height: 2px; max-height: 100px; overflow-y: auto;" id="checks">
+							<div style="width: 200px; min-height: 2px; max-height: 100px; overflow-y: auto;" id="custs">
 							</div>
 						</div>
 					</fieldset>
 					<form:hidden name="tenantID" path="tenantID" id="tenantID" value="${ tenantID }" />
 					<div class="form_submit">
+						<button type="button" class="btn btn-primary" id="cancelbtn" onclick="window.history.back(); return false;"">Cancel</button>
+						<button type="button" class="btn btn-primary" id="resetBtn" onclick="location.reload();">Reset</button>
 						<input type="button" name="btn" value="Schedule" id="submitBtn" data-toggle="modal" data-target="#confirm-submit" class="btn btn-primary" />
 					</div>
 				</form:form>
@@ -125,11 +134,63 @@
 	</div>
 	<script type="text/javascript">
 			$(document).ready(function() {
+				$('#dp').datepicker({format: 'dd-mm-yyyy'});
+				
+				$("#sales_exec").prop('required',true);
+			
+				$("#beats").prop('required',true);
+			
+				$("#custs").prop('required',true);
+				
 				$('#submitBtn').prop('disabled', true);
+				
+				$('#dp').blur(function() {
+					if( $('#dp').val() == "") {
+						$('#submitBtn').prop('disabled', true);
+						//Make customer list empty if pre-selected
+						$('#custs').empty();
+					}
+				})
+				
 				$('#sales_exec').change(function() {
+					//Popuate Manufacturers
+					var hasData = false;
 					$.ajax({
 							type : "GET",
-							url : "/crm/rest/salesExecReST/"+$('#sales_exec').val() + "/"+$('#tenantID').val(),
+							url : "/crm/rest/salesExecReST/manufacturerParams/"+$('#sales_exec').val() + "/"+$('#tenantID').val(),
+							dataType : "json",
+							success : function(data) {
+								$('#manufs').empty();
+								if (data.length > 1){
+									$('#manufs').attr("multiple", true);
+								}else{
+									$('#manufs').attr("multiple", false);
+								}
+								$.each(data,function(i,obj) {
+									hasData = true;
+									var div_data = "<option value="+obj.id+">"+ obj.name+ "</option>";
+									$(div_data).appendTo('#manufs');
+								})
+								if(!hasData){
+									var div_data = '<option value="-1" label="Sales Executive is not mapped to any Manufacyurer" />';
+									$(div_data).appendTo('#manufs');
+								}
+								
+								if ( $('#dp').val() == "" || $('#beats').val() == -1 || $('#manufs').val() == -1 || $('#sales_exec').val() == -1 ){
+									$('#submitBtn').prop('disabled', true);
+								}else{
+									$('#submitBtn').prop('disabled', false);
+								}
+							}
+					});
+					
+					
+					
+					
+					//Get Beats	
+					$.ajax({
+							type : "GET",
+							url : "/crm/rest/salesExecReST/beats/"+$('#sales_exec').val() + "/"+$('#tenantID').val(),
 							dataType : "json",
 							success : function(data) {
 								$('#beats').empty();
@@ -139,29 +200,39 @@
 									var div_data = "<option value="+obj.beatID+">"+ obj.name+ "</option>";
 									$(div_data).appendTo('#beats');
 								});
+								//Make customer list empty if pre-selected
+								$('#custs').empty();
 							}
-						});
 					});
 				});
 			
 			
-			$(document).ready(function() {
 				$('#beats').change(function() {
 					var isCusromerPresent = false;
+					payload = {}
+					payload ["salesExecID"] = $('#sales_exec').val();
+					payload ["beatID"] = $('#beats').val();
+					payload ["date"] = $('#dp').val();
+					payload ["tenantID"] = $('#tenantID').val();
+					payload ["manufIDs"] = $('#manufs').val();
+					console.log(JSON.stringify(payload));
 					$.ajax({
-							type : "GET",
-							url : "/crm/rest/customer/toSchedule/"+$('#beats').val() + "/"+$('#dp').val() + "/"+$('#tenantID').val(),
+							type : "POST",
+							//url : "/crm/rest/customer/toSchedule/"+$('#sales_exec').val() + "/"+$('#beats').val() + "/"+$('#dp').val() + "/"+$('#tenantID').val(),
+							url : "/crm/rest/customer/toSchedule/",
+							data : JSON.stringify(payload),
+							contentType: "application/json",
 							dataType : "json",
 							success : function(data) {
-								$('#checks').empty();
+								$('#custs').empty();
 								$.each(data,function(i,obj) {
 									isCusromerPresent = true;
 									var div_data = "<input name=customerIDs id=customerIDs type=checkbox value="+obj.customerID+" checked>"+obj.customerName+"<input type=hidden id="+obj.customerID+" value="+ obj.customerName +"><br>";
-									$(div_data).appendTo('#checks');
+									$(div_data).appendTo('#custs');
 								});
 								if(isCusromerPresent == false){
 									var div_data = "<p><i>No Customers Available for order booking.</i></p>"
-									$(div_data).appendTo('#checks');
+									$(div_data).appendTo('#custs');
 									$('#submitBtn').prop('disabled', true);
 								}else{
 									$('#submitBtn').prop('disabled', false);
@@ -169,7 +240,6 @@
 							}
 						});
 					});
-				});
 			
 			$('#submitBtn').click(function() {
 			     /* when the button in the form, display the entered values in the modal */
@@ -185,6 +255,16 @@
 				 var beatName = beatId.options[beatId.selectedIndex].text;
 			     $('#beat').text(beatName);
 			     
+			     //Manufacturer
+			    //  var selectedValues = $('#manufs').text();
+                   
+			     $('#manufacturers').empty();
+                  $("#manufs :selected").each(function() {
+                      var listItem = "<li>"+this.text+"</li>";
+ 			    	 $(listItem).appendTo('#manufacturers');
+                  });
+ 			     
+			     
 			     //Customers
 			     $('#customers').empty();
 			     var checkedValues = $('input:checkbox:checked').map(function() {
@@ -198,26 +278,9 @@
 			  	 //Visit Date
 			  	 $('#visiDate').text($("#dp").val());
 			});
+		});
 			
-			$('#dp').datepicker({format: 'dd-mm-yyyy'});
-			
-			$(document).ready(function() {
-	       		$("#dp").prop('required',true);
-			});
-			
-			$(document).ready(function() {
-	       		$("#sales_exec").prop('required',true);
-			});
-			
-			$(document).ready(function() {
-	       		$("#beats").prop('required',true);
-			});
-			
-			$(document).ready(function() {
-	       		$("#checks").prop('required',true);
-			});
-			
-		</script>
+	</script>
 
 	<div class="modal fade" id="confirm-submit" tabindex="-1" role="dialog"
 		aria-labelledby="myModalLabel" aria-hidden="true">
@@ -233,6 +296,10 @@
 					</div>
 					<div>
 						<label>Beat Name : </label> <span id="beat"></span>
+					</div>
+					<div>
+						<label> Manufacturers : </label>
+						<ul id="manufacturers"></ul>
 					</div>
 					<div>
 						<label> Customers : </label>

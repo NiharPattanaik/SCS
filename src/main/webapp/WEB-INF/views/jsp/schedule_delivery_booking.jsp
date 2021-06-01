@@ -89,7 +89,7 @@
 		<!-- Links -->
 		<%@ include file="menus.jsp" %>
 		<div class="row top-height">
-			<div class="col-md-8 ">
+			<div class="col-md-6 ">
 				<form:form modelAttribute="deliveryBookingSchedule" method="post"
 					action="/crm/web/deliveryExecWeb/scheduleDeliveryBooking" name="myForm" id="myForm">
 					<fieldset>
@@ -109,6 +109,13 @@
 										label="${ delivExec.firstName } ${ delivExec.lastName }"
 										id="id_trial" />
 								</c:forEach>
+							</form:select>
+						</div>
+							
+						<div class="form-group required">
+							<label class='control-label'>Manufacturer</label>
+							<form:select path="manufacturerIDs" cssClass="form-control" id="manufs" multiple="false" >
+								<option value="-1" label="--- Select Manuacturer---" />
 							</form:select>
 						</div>
 							
@@ -137,6 +144,41 @@
 			$(document).ready(function() {
 				$('#submitBtn').prop('disabled', true);
 				$('#deliv_exec').change(function() {
+					//Popuate Manufacturers
+					var hasData = false;
+					$.ajax({
+							type : "GET",
+							url : "/crm/rest/deliveryExecReST/manufacturerParams/"+$('#deliv_exec').val() + "/"+$('#tenantID').val(),
+							dataType : "json",
+							success : function(data) {
+								$('#manufs').empty();
+								if (data.length > 1){
+									$('#manufs').attr("multiple", true);
+								}else{
+									$('#manufs').attr("multiple", false);
+								}
+								$.each(data,function(i,obj) {
+									hasData = true;
+									if(data.length == 1){
+										var div_data = "<option value="+obj.id+" selected>"+ obj.name+ "</option>";
+									}else{
+										var div_data = "<option value="+obj.id+">"+ obj.name+ "</option>";
+									}
+									$(div_data).appendTo('#manufs');
+								})
+								if(!hasData){
+									var div_data = '<option value="-1" label="Delivery Executive is not mapped to any Manufacyurer" />';
+									$(div_data).appendTo('#manufs');
+								}
+								
+								if ( $('#dp').val() == "" || $('#beats').val() == -1 || $('#manufs').val() == -1 || $('#deliv_exec').val() == -1 ){
+									$('#submitBtn').prop('disabled', true);
+								}else{
+									$('#submitBtn').prop('disabled', false);
+								}
+							}
+					});
+					
 					$.ajax({
 							type : "GET",
 							url : "/crm/rest/deliveryExecReST/"+$('#deliv_exec').val() + "/" + $('#tenantID').val(),
@@ -158,9 +200,17 @@
 			$(document).ready(function() {
 				$('#beats').change(function() {
 					var isCusromerPresent = false;
+					payload = {}
+					payload ["beatID"] = $('#beats').val();
+					payload ["date"] = $('#dp').val();
+					payload ["tenantID"] = $('#tenantID').val();
+					payload ["manufIDs"] = $('#manufs').val();
+					console.log(JSON.stringify(payload));
 					$.ajax({
-							type : "GET",
-							url : "/crm/rest/customer/customersToScheduleDelivery/"+$('#beats').val() + "/"+$('#dp').val() + "/" + $('#tenantID').val(),
+							type : "POST",
+							url : "/crm/rest/customer/customersToScheduleDelivery",
+							data : JSON.stringify(payload),
+							contentType: "application/json",
 							dataType : "json",
 							success : function(data) {
 								$('#checks').empty();

@@ -3,13 +3,18 @@ package com.sales.crm.dao;
 import java.util.List;
 
 import com.sales.crm.model.Manufacturer;
+import com.sales.crm.model.ManufacturerBeats;
+import com.sales.crm.model.ManufacturerDelivExecs;
 import com.sales.crm.model.ManufacturerSalesExecBeats;
+import com.sales.crm.model.ManufacturerSalesExecs;
 
 public interface ManufacturerDAO {
 	
 	void create(Manufacturer manufacturer) throws Exception;
 	
-	Manufacturer get(int manufacturerID, int tenantID );
+	Manufacturer get(String manufacturerCode, int tenantID );
+	
+	Manufacturer getById(int manufacturerID, int tenantID );
 	
 	void update(Manufacturer manufacturer) throws Exception;
 	
@@ -27,7 +32,7 @@ public interface ManufacturerDAO {
 	
 	//void deleteAassignedManufacturer(int manufacturerID, int tenantID) throws Exception;
 	
-	public List<Manufacturer> getManufacturerSalesExecsList(int tenantID) ;
+	//public List<Manufacturer> getManufacturerSalesExecsList(int tenantID) ;
 	
 	public void assignSalesExecutivesToManufacturer(int tenantID, Manufacturer manufacturer) throws Exception;
 
@@ -35,7 +40,28 @@ public interface ManufacturerDAO {
 	
 	void deleteAassignedSalesExec(int manufacturerID, int tenantID) throws Exception;
 	
-	List<ManufacturerSalesExecBeats> getManufSalesExecBeats(int tenantID);
+	List<ManufacturerSalesExecBeats> getManufSalesExecBeatsList(int tenantID);
 	
-	ManufacturerSalesExecBeats getManufSalesExecBeat(int tenantID, int manufID, int salesExecID);
+	ManufacturerSalesExecBeats getManufSalesExecBeat(String manufacturerCode, String salesExecCode, int tenantID);
+	
+	void updateAssignedDelivExecs(int manufacturerID, List<Integer> delivExecIDs, int tenantID) throws Exception;
+	
+	void deleteAassignedDelivExec(int manufacturerID, int tenantID) throws Exception;
+	
+	public List<ManufacturerDelivExecs> getManufacturerDelivExecsList(int tenantID) ;
+	
+	public void assignDelivExecutivesToManufacturer(int tenantID, Manufacturer manufacturer) throws Exception;
+	
+	public List<Manufacturer> getTenantTrimmedManufacturers(int tenantID);
+	
+	public void assignBeatsToManufacturer(int manufacturerID, List<Integer> beatIDs, int tenantID) throws Exception;
+	
+	public void updateAssignedBeatToManufacturer(int manufacturerID, List<Integer> beatIDs, int tenantID) throws Exception;
+	
+	public void deleteAssignedBeatManufacturerLink(int manufacturerID, int tenantID) throws Exception;
+	
+	public List<ManufacturerBeats> getManufacturerBeats(int tenantID);
+	
+	public List<ManufacturerSalesExecs> getManufacturerSalesExecs(int tenantID);
+	
 }

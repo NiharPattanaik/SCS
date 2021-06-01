@@ -132,6 +132,9 @@ input[type=file] {
 	width: 98%;
 	position: absolute;
 }
+
+  
+ 
 </style>
 
 </head>

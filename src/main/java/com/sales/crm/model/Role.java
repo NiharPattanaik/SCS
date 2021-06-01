@@ -10,7 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "ROLE")
+@Table(name = "ROLES")
 @AttributeOverrides({
 	@AttributeOverride(name = "statusID", column = @Column(name = "STATUS_ID")),
 	@AttributeOverride(name = "tenantID", column = @Column(name = "TENANT_ID")),

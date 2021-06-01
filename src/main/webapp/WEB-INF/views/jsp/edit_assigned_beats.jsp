@@ -101,6 +101,7 @@ legend {
 							<form:hidden path="salesExecutive.userID" value="${ manufSalesExecBeats.salesExecutive.userID }"/>
 					</fieldset>
 					<div class="form_submit">
+						<button type="button" class="btn btn-primary" id="cancelbtn" onclick="window.history.back(); return false;"">Cancel</button>
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</div>
 				</form:form>

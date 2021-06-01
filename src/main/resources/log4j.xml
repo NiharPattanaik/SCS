@@ -28,6 +28,14 @@
 	</logger>
 	
 	<!-- 3rdparty Loggers -->
+	<logger name="com.zaxxer.hikari">
+     	<level value="trace"/>
+     	<appender-ref ref="console" />
+    </logger>
+	<logger name="org.hibernate">
+     	<level value="INFO"/>
+     	<appender-ref ref="console" />
+    </logger>
 	<logger name="org.springframework.core">
 		<level value="info" />
 	</logger>

@@ -1,10 +1,13 @@
 package com.sales.crm.model;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class DeliveryBookingSchedule {
+
+public class DeliveryBookingSchedule extends BusinessEntity{
 	
 	private int ID;
 	
@@ -18,13 +21,28 @@ public class DeliveryBookingSchedule {
 	
 	private List<Integer> orderBookingIDs;
 	
-	private Map<Integer, List<Integer>> customerOrderMap;
+	//Not the best design :(
+	private Map<Integer, List<String>> customerOrderMap;
 	
 	private int tenantID;
 	
 	private List<Integer> orderIDs;
 	
+	private int customerID;
 	
+	private String visitDateAsString;
+	
+	private String customerName;
+	
+	private String delivExecutiveName;
+	
+	private String beatName;
+	
+	private List<CustomerOrder> customerOrders = new ArrayList<CustomerOrder>();
+	
+	private List<Order> orders = new ArrayList<Order>();
+	
+	private List<Integer> manufacturerIDs;
 	
 	public int getID() {
 		return ID;
@@ -74,11 +92,11 @@ public class DeliveryBookingSchedule {
 		this.orderBookingIDs = orderBookingIDs;
 	}
 
-	public Map<Integer, List<Integer>> getCustomerOrderMap() {
+	public Map<Integer, List<String>> getCustomerOrderMap() {
 		return customerOrderMap;
 	}
 
-	public void setCustomerOrderMap(Map<Integer, List<Integer>> customerOrderMap) {
+	public void setCustomerOrderMap(Map<Integer, List<String>> customerOrderMap) {
 		this.customerOrderMap = customerOrderMap;
 	}
 
@@ -97,64 +115,70 @@ public class DeliveryBookingSchedule {
 	public void setOrderIDs(List<Integer> orderIDs) {
 		this.orderIDs = orderIDs;
 	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + beatID;
-		result = prime * result + ((customerIDs == null) ? 0 : customerIDs.hashCode());
-		result = prime * result + ((customerOrderMap == null) ? 0 : customerOrderMap.hashCode());
-		result = prime * result + delivExecutiveID;
-		result = prime * result + ((orderBookingIDs == null) ? 0 : orderBookingIDs.hashCode());
-		result = prime * result + tenantID;
-		result = prime * result + ((visitDate == null) ? 0 : visitDate.hashCode());
-		return result;
+	
+	public List<CustomerOrder> getCustomerOrders() {
+		return customerOrders;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		DeliveryBookingSchedule other = (DeliveryBookingSchedule) obj;
-		if (beatID != other.beatID)
-			return false;
-		if (customerIDs == null) {
-			if (other.customerIDs != null)
-				return false;
-		} else if (!customerIDs.equals(other.customerIDs))
-			return false;
-		if (customerOrderMap == null) {
-			if (other.customerOrderMap != null)
-				return false;
-		} else if (!customerOrderMap.equals(other.customerOrderMap))
-			return false;
-		if (delivExecutiveID != other.delivExecutiveID)
-			return false;
-		if (orderBookingIDs == null) {
-			if (other.orderBookingIDs != null)
-				return false;
-		} else if (!orderBookingIDs.equals(other.orderBookingIDs))
-			return false;
-		if (tenantID != other.tenantID)
-			return false;
-		if (visitDate == null) {
-			if (other.visitDate != null)
-				return false;
-		} else if (!visitDate.equals(other.visitDate))
-			return false;
-		return true;
+	public void setCustomerOrders(List<CustomerOrder> customerOrders) {
+		this.customerOrders = customerOrders;
+	}
+	
+	public int getCustomerID() {
+		return customerID;
 	}
 
-	@Override
-	public String toString() {
-		return "DeliveryBookingSchedule [delivExecutiveID=" + delivExecutiveID + ", beatID=" + beatID + ", customerIDs="
-				+ customerIDs + ", visitDate=" + visitDate + ", orderBookingIDs=" + orderBookingIDs
-				+ ", customerOrderMap=" + customerOrderMap + ", tenantID=" + tenantID + "]";
+	public void setCustomerID(int customerID) {
+		this.customerID = customerID;
+	}
+	
+
+	public String getVisitDateAsString() {
+		return new SimpleDateFormat("dd-MM-yyyy").format(getVisitDate());
+	}
+
+	public void setVisitDateAsString(String visitDateAsString) {
+		this.visitDateAsString = visitDateAsString;
+	}
+
+	public String getCustomerName() {
+		return customerName;
+	}
+
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
+	}
+
+	public String getDelivExecutiveName() {
+		return delivExecutiveName;
+	}
+
+	public void setDelivExecutiveName(String delivExecutiveName) {
+		this.delivExecutiveName = delivExecutiveName;
+	}
+
+	public String getBeatName() {
+		return beatName;
+	}
+
+	public void setBeatName(String beatName) {
+		this.beatName = beatName;
+	}
+
+	public List<Order> getOrders() {
+		return orders;
+	}
+
+	public void setOrders(List<Order> orders) {
+		this.orders = orders;
+	}
+
+	public List<Integer> getManufacturerIDs() {
+		return manufacturerIDs;
+	}
+
+	public void setManufacturerIDs(List<Integer> manufacturerIDs) {
+		this.manufacturerIDs = manufacturerIDs;
 	}
 
 	

@@ -7,6 +7,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -36,9 +37,7 @@ public class OTPService {
 		String date = new SimpleDateFormat("dd").format(new Date());
 		int otpType = customerOTP.getOtpType();
 		
-		//OTP - <customer id><date><otp type>
-		String otp = String.valueOf(customerID)+date+String.valueOf(otpType);
-		customerOTP.setGenaratedOTP(otp);
+		customerOTP.setGenaratedOTP(generateRandomNumber());
 		boolean sendSMSStatus = true;
 		try {
 			//String mobileNo = customerService.getCustomerPrimaryMobileNo(customerID, tenantID);
@@ -69,7 +68,12 @@ public class OTPService {
 		
 	}
 	
-	
+	private String generateRandomNumber() {
+		 Random rnd = new Random();
+		 int number = rnd.nextInt(999999);
+         return String.format("%06d", number);
+	}
+
 	private boolean sendSms(String mobileNo, String otp, int otpType) {
 		try {
 			

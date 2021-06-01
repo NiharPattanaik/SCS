@@ -107,7 +107,7 @@ table.table.table-striped thead {
 					<c:forEach var="beat" items="${beats}">
 						<tr>
 							<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_READ.getResourcePermissionID())) { %>
-								<td><a href="<%=request.getContextPath()%>/web/beatWeb/${beat.beatID}">${beat.beatID}</a></td>
+								<td><a href="<%=request.getContextPath()%>/web/beatWeb/${beat.code}">${beat.beatID}</a></td>
 							<% } else { %>
 								<td>${beat.beatID}</td>
 							<% } %>	

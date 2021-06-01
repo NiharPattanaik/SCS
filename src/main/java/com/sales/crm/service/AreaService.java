@@ -14,8 +14,8 @@ public class AreaService {
 	@Autowired
 	private AreaDAO areaDAO;
 	
-	public Area getArea(int areaID, int tenantID){
-		return areaDAO.get(areaID, tenantID);
+	public Area getArea(String areaCode, int tenantID){
+		return areaDAO.get(areaCode, tenantID);
 	}
 	
 	public void createArea(Area area) throws Exception{
@@ -26,8 +26,8 @@ public class AreaService {
 		areaDAO.update(area);
 	}
 	
-	public void deleteArea(int areaID, int tenantID) throws Exception{
-		areaDAO.delete(areaID, tenantID);
+	public void deleteArea(String areaCode, int tenantID) throws Exception{
+		areaDAO.delete(areaCode, tenantID);
 	}
 	
 	public List<Area> getTenantAreas(int tenantID){

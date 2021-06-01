@@ -97,7 +97,7 @@ legend {
 						<div class="form-group required">
 							<label class='control-label'>Name</label>
 							<form:input name="name" cssClass="form-control" path="name"
-								value="${customer.name}" />
+								value="${customer.name}" readonly="true"/>
 						</div>
 						<div class="form-group">
 							<label>Description</label>
@@ -118,17 +118,17 @@ legend {
 							path="address[0].addrressType" />
 						<form:hidden name="id" value="${ customer.address[0].id }"
 							path="address[0].id" />
-						<div class="form-group">
-							<label>Contact Person</label>
+						<div class="form-group required">
+							<label class='control-label'>Contact Person</label>
 							<form:input name="contactPerson" cssClass="form-control"
 								path="address[0].contactPerson"
-								value="${customer.address[0].contactPerson}" />
+								value="${customer.address[0].contactPerson}" id="main_cp"/>
 						</div>
-						<div class="form-group">
-							<label>Address Line 1</label>
+						<div class="form-group required">
+							<label class='control-label'>Address Line 1</label>
 							<form:input name="addressLine1" cssClass="form-control"
 								path="address[0].addressLine1"
-								value="${ customer.address[0].addressLine1 }" />
+								value="${ customer.address[0].addressLine1 }" id="main_add1"/>
 						</div>
 						<div class="form-group">
 							<label>Address Line 2</label>
@@ -141,27 +141,27 @@ legend {
 							<form:input name="street" cssClass="form-control"
 								path="address[0].street" value="${ customer.address[0].street }" />
 						</div>
-						<div class="form-group">
-							<label>City</label>
+						<div class="form-group required">
+							<label class='control-label'>City</label>
 							<form:input name="city" cssClass="form-control"
-								path="address[0].city" value="${ customer.address[0].city }" />
+								path="address[0].city" value="${ customer.address[0].city }" id="main_city"/>
 						</div>
-						<div class="form-group">
-							<label>State</label>
+						<div class="form-group required">
+							<label class='control-label'>State</label>
 							<form:input name="state" cssClass="form-control"
-								path="address[0].state" value="${ customer.address[0].state }" />
+								path="address[0].state" value="${ customer.address[0].state }" id="main_state"/>
 						</div>
-						<div class="form-group">
-							<label>Country</label>
+						<div class="form-group required">
+							<label class='control-label'>Country</label>
 							<form:input name="country" cssClass="form-control"
 								path="address[0].country"
-								value="${ customer.address[0].country }" />
+								value="${ customer.address[0].country }" id="main_cntry"/>
 						</div>
-						<div class="form-group">
-							<label>Postal Code</label>
+						<div class="form-group required">
+							<label class='control-label'>Postal Code</label>
 							<form:input name="postalCode" cssClass="form-control"
 								path="address[0].postalCode"
-								value="${ customer.address[0].postalCode }" />
+								value="${ customer.address[0].postalCode }" id="main_postCode"/>
 						</div>
 						<div class="form-group">
 							<label>Phone Number</label>
@@ -174,7 +174,7 @@ legend {
 							<form:input name="mobileNumberPrimary" cssClass="form-control"
 								path="address[0].mobileNumberPrimary"
 								value="${ customer.address[0].mobileNumberPrimary }"
-								maxlength="10" />
+								maxlength="10" id="main_mobPri"/>
 						</div>
 						<div class="form-group">
 							<label>Mobile Number(Secondary)</label>
@@ -292,6 +292,7 @@ legend {
 						<form:hidden path="dateModified" value="${modifiedDate}" />
 					</div>
 					<div class="form_submit">
+						<button type="button" class="btn btn-primary" id="cancelbtn" onclick="window.history.back(); return false;"">Cancel</button>
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</div>
 				</form:form>
@@ -302,6 +303,27 @@ legend {
 <script type="text/javascript">
 	$(document).ready(function() {
 		$("#name").prop('required',true);
+	});
+	$(document).ready(function() {
+		$("#main_cp").prop('required',true);
+	});
+	$(document).ready(function() {
+		$("#main_add1").prop('required',true);
+	});
+	$(document).ready(function() {
+		$("#main_city").prop('required',true);
+	});
+	$(document).ready(function() {
+		$("#main_state").prop('required',true);
+	});
+	$(document).ready(function() {
+		$("#main_cntry").prop('required',true);
+	});
+	$(document).ready(function() {
+		$("#main_postCode").prop('required',true);
+	});
+	$(document).ready(function() {
+		$("#main_mobPri").prop('required',true);
 	});
 </script>
 

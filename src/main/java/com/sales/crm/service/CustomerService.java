@@ -22,9 +22,9 @@ public class CustomerService {
 	@Autowired
 	private OrderService orderService;
 	
-	public Customer getCustomer(int customerID, int tenantID){
-		Customer customer = customerDAO.get(customerID, tenantID);
-		customer.setOrderingProcessInProgress(orderService.isOrderingProcessInProgressForCustomer(customerID, tenantID));
+	public Customer getCustomer(String customerCode, int tenantID){
+		Customer customer = customerDAO.get(customerCode, tenantID);
+		customer.setOrderingProcessInProgress(orderService.isOrderingProcessInProgressForCustomer(customer.getCustomerID(), tenantID));
 		return customer;
 	}
 	
@@ -56,12 +56,12 @@ public class CustomerService {
 		return customerDAO.getCustomerPrimaryMobileNo(customerID, tenantID);
 	}
 	
-	public List<TrimmedCustomer> getCustomersToSchedule(int beatID, Date visitDate, int tenantID){
-		return customerDAO.getCustomersToSchedule(beatID, visitDate, tenantID);
+	public List<TrimmedCustomer> getCustomersToSchedule(int salesExecID, int beatID, Date visitDate, List<Integer> manufacturerIDs,int tenantID){
+		return customerDAO.getCustomersToSchedule(salesExecID, beatID, visitDate, manufacturerIDs, tenantID);
 	}
 	
-	public List<CustomerOrder> getCustomersToScheduleDelivery(int beatID, Date visitDate, int tenantID){
-		return customerDAO.getCustomersToScheduleDelivery(beatID, visitDate, tenantID);
+	public List<CustomerOrder> getCustomersToScheduleDelivery(int beatID, Date visitDate, List<Integer> manufacturerIDs, int tenantID){
+		return customerDAO.getCustomersToScheduleDelivery(beatID, visitDate,manufacturerIDs, tenantID);
 	}
 	
 	public List<TrimmedCustomer> scheduledTrimmedCustomerslistForDeliveryToday(int delivExecID, Date visitDate, int tenantID){
@@ -84,11 +84,16 @@ public class CustomerService {
 		return customerDAO.getCustomersCount(tenantID);
 	}
 	
-	public void deactivateCustomer(int customerID, int tenantID) throws Exception{
-		customerDAO.updateCustomerStatus(EntityStatusEnum.INACTIVE.getEntityStatus(), customerID, tenantID);
+	public void deactivateCustomer(int customerID, String remark, int tenantID) throws Exception{
+		customerDAO.deactivateCustomer(customerID, remark, tenantID);
 	}
 	
-	public void activateCustomer(int customerID, int tenantID) throws Exception{
-		customerDAO.updateCustomerStatus(EntityStatusEnum.ACTIVE.getEntityStatus(), customerID, tenantID);
+	public void activateCustomer(int customerID, String remark, int tenantID) throws Exception{
+		customerDAO.activateCustomer(customerID, remark, tenantID);
 	}
+	
+	public List<TrimmedCustomer> getCustomersNotMappedToBeat(int tenantID){
+		return customerDAO.getCustomersNotMappedToBeat(tenantID);
+	}
+	
 }

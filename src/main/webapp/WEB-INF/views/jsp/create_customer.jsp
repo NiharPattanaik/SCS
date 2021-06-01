@@ -6,7 +6,7 @@
 <html lang="en">
 
 <head>
-	<title>Page one</title>
+	<title>Create Customer</title>
 	<!-- Bootstrap Core CSS -->
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -219,19 +219,22 @@ legend {
 								path="address[1].mobileNumberSecondary" />
 						</div>
 					</fieldset>
-					<fieldset>
-						<legend>Beat Assignment</legend>
-						<div class="form-group">
-								<label>Beat</label>
-								<form:select path="beatIDs" cssClass="form-control" id="beats" multiple="true">
-									<form:option value="-1" label="--- Select ---"/>
-									<c:forEach var="cbeat" items="${beats}">
-										<form:option value="${ cbeat.beatID }" label="${ cbeat.name }"/>
-									</c:forEach>
-								</form:select>
-							</div>
-					</fieldset>
+					<c:if test = "${not empty beats}">
+						<fieldset>
+							<legend>Beat Assignment</legend>
+							<div class="form-group">
+									<label>Beat</label>
+									<form:select path="beatIDs" cssClass="form-control" id="beats" multiple="true">
+										<c:forEach var="cbeat" items="${beats}">
+											<form:option value="${ cbeat.beatID }" label="${ cbeat.name }"/>
+										</c:forEach>
+									</form:select>
+								</div>
+						</fieldset>
+					</c:if>
 					<div class="form_submit">
+						<button type="button" class="btn btn-primary" id="cancelbtn" onclick="window.history.back(); return false;"">Cancel</button>
+						<button type="button" class="btn btn-primary" id="resetBtn" onclick="location.reload();">Reset</button>
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</div>
 				</form:form>

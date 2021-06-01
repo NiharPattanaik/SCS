@@ -15,7 +15,10 @@ PARTIALLY_DELIVERED(EntityTypeEnum.ORDER, 54, "Partially Delivered"),
 PAYMENT_SCHEDULED(EntityTypeEnum.ORDER, 55, "Payment Scheduled"),
 PAYMENT_COMPLETED(EntityTypeEnum.ORDER, 56, "Payment Completed"),
 PARTIALLY_PAID(EntityTypeEnum.ORDER, 57, "Partially Paid"),
-OTP_VERIFIED(EntityTypeEnum.OTP, 60, "OTP Verified");	
+ORDER_DELETED(EntityTypeEnum.ORDER, 58, "Order Deleted"),
+OTP_GENERATED(EntityTypeEnum.OTP, 60, "OTP Generated"),
+OTP_VERIFIED(EntityTypeEnum.OTP, 61, "OTP Verified");	
+	
 	
 private EntityTypeEnum entityType;
 private int entityStatus;

@@ -120,7 +120,7 @@ legend {
 					</div>
 					<div class="form-group">
 						<label>Status : </label>
-						<c:if test="${user.status == 2}">
+						<c:if test="${user.statusID == 2}">
 							<span>Active</span>
 						</c:if>
 					</div>

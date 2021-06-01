@@ -2,6 +2,7 @@ package com.sales.crm.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -78,7 +79,19 @@ public class DeliveryExecService {
 		return deliveryDAO.getDeliveryExecutiveCount(tenantID);
 	}
 	
-	public List<DeliveryBookingSchedule> getAllDeliveryBookedForToday(int tenantID){
-		return deliveryDAO.getAllDeliveryBookedForDate(tenantID, new Date());
+	public List<DeliveryExecutive> getActiveDeliveryExecutives(int tenantID){
+		return deliveryDAO.getActiveDeliveryExecutives(tenantID);
+	}
+	
+	public List<DeliveryExecutive> getDelivExecsNotMappedToManufacturer(int tenantID, int manufacturerID){
+		return deliveryDAO.getDelivExecsNotMappedToManufacturer(tenantID, manufacturerID);
+	}
+	
+	public Map<Integer, String> getManufacturerParams(int delivExecID, int tenantID){
+		return deliveryDAO.getManufacturerParams(delivExecID, tenantID);
+	}
+	
+	public DeliveryExecutive getDelivExecutiveByCode(String delivExecCode, int tenantID) {
+		return deliveryDAO.getDelivExecutiveByCode(delivExecCode, tenantID);
 	}
 }

@@ -13,7 +13,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 @Entity
-@Table(name = "CUSTOMER")
+@Table(name = "CUSTOMERS")
 @AttributeOverrides({
 	@AttributeOverride(name = "statusID", column = @Column(name = "STATUS_ID")),
 	@AttributeOverride(name = "tenantID", column = @Column(name = "TENANT_ID")),
@@ -36,6 +36,9 @@ public class Customer extends BusinessEntity{
 	
 	@Column(name = "DESCRIPTION")
 	private String description;
+	
+	@Column(name = "TRANX_COUNTER")
+	private int transCounter;
 	
 	
 	//@OneToMany(orphanRemoval=true, cascade=CascadeType.ALL, fetch=FetchType.EAGER)
@@ -65,6 +68,21 @@ public class Customer extends BusinessEntity{
 	
 	@Transient
 	private String statusAsString;
+	
+	@Transient
+	private boolean hasTransactions;
+	
+	@Transient
+	private String deactivationReason;
+	
+	@Transient
+	private String activationReason;
+	
+	@Transient
+	private String deactivationDateStr;
+	
+	@Transient
+	private String activationDateStr;
 	
 	public int getCustomerID() {
 		return customerID;
@@ -151,6 +169,44 @@ public class Customer extends BusinessEntity{
 	public void setStatusAsString(String statusAsString) {
 		this.statusAsString = statusAsString;
 	}
+	
+	public boolean getHasTransactions() {
+		return transCounter > 0 ? true : false;
+	}
+	public void setHasTransactions(boolean hasTransactions) {
+		this.hasTransactions = hasTransactions;
+	}
+	public int getTransCounter() {
+		return transCounter;
+	}
+	public void setTransCounter(int transCounter) {
+		this.transCounter = transCounter;
+	}
+	
+	public String getDeactivationReason() {
+		return deactivationReason;
+	}
+	public void setDeactivationReason(String deactivationReason) {
+		this.deactivationReason = deactivationReason;
+	}
+	public String getActivationReason() {
+		return activationReason;
+	}
+	public void setActivationReason(String activationReason) {
+		this.activationReason = activationReason;
+	}
+	public String getDeactivationDateStr() {
+		return deactivationDateStr;
+	}
+	public void setDeactivationDateStr(String deactivationDateStr) {
+		this.deactivationDateStr = deactivationDateStr;
+	}
+	public String getActivationDateStr() {
+		return activationDateStr;
+	}
+	public void setActivationDateStr(String activationDateStr) {
+		this.activationDateStr = activationDateStr;
+	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -163,6 +219,7 @@ public class Customer extends BusinessEntity{
 		result = prime * result + customerID;
 		result = prime * result + ((customerIDStr == null) ? 0 : customerIDStr.hashCode());
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
+		result = prime * result + (hasTransactions ? 1231 : 1237);
 		result = prime * result + (isOrderingProcessInProgress ? 1231 : 1237);
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + salesExecID;
@@ -216,6 +273,8 @@ public class Customer extends BusinessEntity{
 				return false;
 		} else if (!description.equals(other.description))
 			return false;
+		if (hasTransactions != other.hasTransactions)
+			return false;
 		if (isOrderingProcessInProgress != other.isOrderingProcessInProgress)
 			return false;
 		if (name == null) {
@@ -243,9 +302,12 @@ public class Customer extends BusinessEntity{
 				+ description + ", address=" + address + ", salesExecID=" + salesExecID + ", salesExecName="
 				+ salesExecName + ", beatName=" + beatName + ", beatIDs=" + beatIDs + ", beats=" + beats
 				+ ", customerIDStr=" + customerIDStr + ", isOrderingProcessInProgress=" + isOrderingProcessInProgress
-				+ ", statusAsString=" + statusAsString + ", tenantID=" + tenantID + ", dateCreated=" + dateCreated
-				+ ", dateModified=" + dateModified + ", statusID=" + statusID + "]";
+				+ ", statusAsString=" + statusAsString + ", isCustHavingAnyTransaction=" + hasTransactions
+				+ ", tenantID=" + tenantID + ", dateCreated=" + dateCreated + ", dateModified=" + dateModified
+				+ ", statusID=" + statusID + "]";
 	}
+	
+	
 	
 	
 }

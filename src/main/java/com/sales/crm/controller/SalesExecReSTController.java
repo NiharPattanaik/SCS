@@ -3,9 +3,12 @@ package com.sales.crm.controller;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +31,7 @@ public class SalesExecReSTController {
 	HttpSession httpSession;
 	
 	
-	@GetMapping(value="/{salesExecID}/{tenantID}")
+	@GetMapping(value="/beats/{salesExecID}/{tenantID}")
 	public List<Beat> getSalesExecsBeats(@PathVariable("salesExecID") int salesExecID, @PathVariable("tenantID") int tenantID){
 		return salesExecService.getAssignedBeats(salesExecID, tenantID);
 	}
@@ -76,4 +79,17 @@ public class SalesExecReSTController {
 		return salesExecService.getSalesExecsNotMappedToManufacturer(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))), manufacturerID);
 	}
 
+	
+	@GetMapping(value="/manufacturerParams/{salesExecID}/{tenantID}")
+	public String getManufacturerParams(@PathVariable("salesExecID") int salesExecID, @PathVariable("tenantID") int tenantID){
+		Map<Integer, String> attributeMap = salesExecService.getManufacturerParams(salesExecID, tenantID);
+		JSONArray array = new JSONArray();
+		for(Map.Entry<Integer, String> entry: attributeMap.entrySet()) {
+			JSONObject obj = new JSONObject();
+			obj.put("id",entry.getKey());
+			obj.put("name", entry.getValue());
+			array.put(obj);
+		}
+		return array.toString();
+	}
 }

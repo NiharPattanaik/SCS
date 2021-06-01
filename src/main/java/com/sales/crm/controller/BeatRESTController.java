@@ -30,16 +30,30 @@ public class BeatRESTController {
 		return beatService.getBeatCustomers(beatID, tenantID);
 	}
 
+	/**
 	@GetMapping(value = "/beatsNotMappedToCustomer/{customerID}/{tenantID}")
 	public List<Beat> getBeatsNotMappedToCustomer(@PathVariable("customerID") int customerID,
 			@PathVariable("tenantID") int tenantID) {
 		return beatService.getBeatsNotMappedToCustomer(customerID, tenantID);
 	}
+	*/
 
 	@GetMapping(value = "/beatsNotMappedToSalesExec/{manufacturerID}/{salesExecID}/{tenantID}")
 	public List<Beat> getBeatsNotMappedToSalesExec(@PathVariable("manufacturerID") int manufacturerID,
 			@PathVariable("salesExecID") int salesExecID, @PathVariable("tenantID") int tenantID) {
 		return beatService.getBeatsNotMappedToSalesExec(tenantID, manufacturerID, salesExecID);
+	}
+	
+	@GetMapping(value = "/beatsNotMappedToManufacturer/{manufacturerID}/{tenantID}")
+	public List<Beat> getBeatsNotMappedToManufacturer(@PathVariable("manufacturerID") int manufacturerID,
+			@PathVariable("tenantID") int tenantID) {
+		return beatService.getBeatsNotMappedToManufacturer(manufacturerID, tenantID);
+	}
+	
+	@GetMapping(value = "/beatsNotMappedToDelivExec/{delivExecID}/{tenantID}")
+	public List<Beat> getBeatsNotMappedToDelivExec(
+			@PathVariable("delivExecID") int delivExecID, @PathVariable("tenantID") int tenantID) {
+		return beatService.getBeatsNotMappedToDelivExec(delivExecID, tenantID);
 	}
 
 }

@@ -121,7 +121,7 @@ legend {
 							</form:select>
 						</div>
 					</fieldset>
-					<form:hidden path="status" name="status" value="2" />
+					<form:hidden path="statusID" name="statusID" value="${ user.statusID }" />
 					<form:hidden path="userID" name="userID" value="${ user.userID }" />
 					<form:hidden path="userName" name="userName" value="${ user.userName }" />
 					<form:hidden path="password" name="password" value="${ user.password }" />

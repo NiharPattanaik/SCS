@@ -14,7 +14,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 @Entity
-@Table(name = "USER")
+@Table(name = "USERS")
 @AttributeOverrides({
 	@AttributeOverride(name = "statusID", column = @Column(name = "STATUS_ID")),
 	@AttributeOverride(name = "tenantID", column = @Column(name = "TENANT_ID")),

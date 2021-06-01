@@ -3,7 +3,9 @@ package com.sales.crm.controller;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
@@ -18,7 +20,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sales.crm.exception.ErrorCodes;
+import com.sales.crm.model.DeliveryBookingSchedule;
 import com.sales.crm.model.Order;
 import com.sales.crm.model.OrderBookingSchedule;
 import com.sales.crm.model.OrderBookingStats;
@@ -59,10 +63,8 @@ public class OrderReSTController {
 	@PostMapping(value = "/createWithOTP/{otp}")
 	public ResponseEntity<ReSTResponse> createOrderWithOTP(@RequestBody Order order, @PathVariable("otp") String otp) {
 		ReSTResponse response = new ReSTResponse();
-		int tenantID = (Integer) session.getAttribute("tenantID");
 		int orderID = -1;
 		try {
-			order.setTenantID(tenantID);
 			orderID = orderService.createWithOTP(order, otp);
 			response.setBusinessEntityID(orderID);
 			response.setStatus(ReSTResponse.STATUS_SUCCESS);
@@ -117,6 +119,7 @@ public class OrderReSTController {
 			orderService.unScheduleOrderBooking(orderScheduleID, customerID, tenantID);
 			response.setStatus(ReSTResponse.STATUS_SUCCESS);
 		} catch (Exception exception) {
+			logger.error("Error while removed order booked schedule", exception);
 			response.setStatus(ReSTResponse.STATUS_FAILURE);
 			response.setErrorCode(ErrorCodes.SYSTEM_ERROR);
 			response.setErrorMsg(
@@ -154,6 +157,43 @@ public class OrderReSTController {
 		return new ResponseEntity<ReSTResponse>(response, HttpStatus.OK);
 	}
 
+	
+	@PostMapping("/scheduledorders/search")
+	public ResponseEntity<ReSTResponse> searchScheduledOrders(@RequestBody ObjectNode objectNode) {
+		Map<String, Object> filters = new HashMap<String, Object>();
+		ReSTResponse response = new ReSTResponse();
+		try {
+			String date = objectNode.get("date").asText();
+			if (!(date == null || date.equals(""))) {
+				filters.put("date", new SimpleDateFormat("dd-MM-yyyy").parse(date));
+			}
+			int salesExecID = objectNode.get("salesExecID").asInt();
+			if (salesExecID != -1) {
+				filters.put("salesExecID", salesExecID);
+			}
+			int beatID = objectNode.get("beatID").asInt();
+			if (beatID != -1) {
+				filters.put("beatID", beatID);
+			}
+			int customerID = objectNode.get("customerID").asInt();
+			if (customerID != -1) {
+				filters.put("customerID", customerID);
+			}
+			int tenantID = objectNode.get("tenantID").asInt();
+			List<OrderBookingSchedule> orderBookingSchedules = orderService.searchScheduledOrders(filters, tenantID);
+			response.setBusinessEntities(orderBookingSchedules);
+			response.setStatus(ReSTResponse.STATUS_SUCCESS);
+		} catch (Exception exception) {
+			logger.error("Not able to fetch scheduled order booking list.", exception);
+			response.setStatus(ReSTResponse.STATUS_FAILURE);
+			response.setErrorCode(ErrorCodes.SYSTEM_ERROR);
+			response.setErrorMsg(
+					"Scheduled order booking could not be fetched successfully. Please try after sometime and if error persists, contact System Administrator");
+			return new ResponseEntity<ReSTResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<ReSTResponse>(response, HttpStatus.OK);
+	}
+	
 	@GetMapping(value = "/orderScheduleReport/{salesExecID}/{beatID}/{visitDate}/{custID}/{status}/{tenantID}")
 	public ResponseEntity<ReSTResponse> getOrderScheduleReport(@PathVariable("salesExecID") int salesExecID,
 			@PathVariable("beatID") int beatID, @PathVariable("visitDate") String visitDateStr,
@@ -213,6 +253,80 @@ public class OrderReSTController {
 
 		return new ResponseEntity<ReSTResponse>(response, HttpStatus.OK);
 
+	}
+	
+	@PostMapping(value="/delete")
+	public ResponseEntity<ReSTResponse>  deleteOrder(@RequestBody ObjectNode objectNode){
+		ReSTResponse response = new ReSTResponse();
+		int orderID = -1;
+		try{
+			orderID = objectNode.get("orderID").asInt();
+			String remark = objectNode.get("remark").asText();
+			int tenantID = objectNode.get("tenantID").asInt();
+			orderService.deleteOrder(orderID, remark, tenantID);
+			response.setStatus(ReSTResponse.STATUS_SUCCESS);
+		}catch(Exception exception){
+			logger.error("Error while deleting order  "+ orderID, exception);
+			response.setStatus(ReSTResponse.STATUS_FAILURE);
+			response.setErrorCode(ErrorCodes.SYSTEM_ERROR);
+			response.setErrorMsg("Something is not right ! Please contact System Administrator");
+			return new ResponseEntity<ReSTResponse>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<ReSTResponse>(response, HttpStatus.OK);
+	}
+	
+	@GetMapping(value = "/unscheduleOrderDelivery/{deliverySchedID}/{tenantID}")
+	public ResponseEntity<ReSTResponse> unscheduleOrderDelivery(@PathVariable("deliverySchedID") int deliverySchedID,
+			@PathVariable("tenantID") int tenantID) {
+		ReSTResponse response = new ReSTResponse();
+		try {
+			orderService.unScheduleOrderDelivery(deliverySchedID, tenantID);
+			response.setStatus(ReSTResponse.STATUS_SUCCESS);
+		} catch (Exception exception) {
+			logger.error("Error while removed order delivery schedule", exception);
+			response.setStatus(ReSTResponse.STATUS_FAILURE);
+			response.setErrorCode(ErrorCodes.SYSTEM_ERROR);
+			response.setErrorMsg(
+					"Scheduled order delivery could not be cancelled successfully. Please try after sometime and if error persists, contact System Administrator");
+			return new ResponseEntity<ReSTResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<ReSTResponse>(response, HttpStatus.OK);
+	}
+	
+	@PostMapping("/scheduledOrderDeliveries/search")
+	public ResponseEntity<ReSTResponse> searchScheduledOrderDeliveries(@RequestBody ObjectNode objectNode) {
+		Map<String, Object> filters = new HashMap<String, Object>();
+		ReSTResponse response = new ReSTResponse();
+		try {
+			String date = objectNode.get("date").asText();
+			if (!(date == null || date.equals(""))) {
+				filters.put("date", new SimpleDateFormat("dd-MM-yyyy").parse(date));
+			}
+			int delivExecID = objectNode.get("delivExecID").asInt();
+			if (delivExecID != -1) {
+				filters.put("delivExecID", delivExecID);
+			}
+			int beatID = objectNode.get("beatID").asInt();
+			if (beatID != -1) {
+				filters.put("beatID", beatID);
+			}
+			int customerID = objectNode.get("customerID").asInt();
+			if (customerID != -1) {
+				filters.put("customerID", customerID);
+			}
+			int tenantID = objectNode.get("tenantID").asInt();
+			List<DeliveryBookingSchedule> deliveryBookingSchedules = orderService.searchScheduledOrderDeliveries(filters, tenantID);
+			response.setBusinessEntities(deliveryBookingSchedules);
+			response.setStatus(ReSTResponse.STATUS_SUCCESS);
+		} catch (Exception exception) {
+			logger.error("Not able to fetch scheduled delivery booking list.", exception);
+			response.setStatus(ReSTResponse.STATUS_FAILURE);
+			response.setErrorCode(ErrorCodes.SYSTEM_ERROR);
+			response.setErrorMsg(
+					"Scheduled delivery booking could not be fetched successfully. Please try after sometime and if error persists, contact System Administrator");
+			return new ResponseEntity<ReSTResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<ReSTResponse>(response, HttpStatus.OK);
 	}
 
 }

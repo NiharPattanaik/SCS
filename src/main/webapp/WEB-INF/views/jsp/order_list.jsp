@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<%@page import="com.sales.crm.model.Order"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>    
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>    
 <html lang="en">
@@ -98,7 +99,7 @@
             <thead>
                 <tr>
                     <th>Order ID</th>
-                    <th>Order Booking ID</th>
+                    <th>Sales Executive</th>
                     <th>Customer Name</th>
                     <th>Status</th>
                     <th>Creation Date</th>
@@ -108,9 +109,14 @@
             	<c:forEach var="order" items="${orders}">  
                 <tr>
                  	<td><a href="<%=request.getContextPath()%>/web/orderWeb/${order.orderID}">${order.orderID}</a></td>
-                	<td>${order.orderBookingID}</td>
+                	<td>${order.salesExecName}</td>
                 	<td>${order.customerName}</td>
-                    <td>${order.statusAsString}</td>
+                	<% if (((Order)pageContext.getAttribute("order")).getRemovalReason() == null ||
+                			((Order)pageContext.getAttribute("order")).getRemovalReason().trim().equals("")) { %>
+                			 <td>${order.statusAsString}</td>
+                  	<% } else { %>		
+                    	<td>${order.statusAsString}   <a href="#" data-toggle="tooltip" title=${order.removalReason}><span class="glyphicon glyphicon-info-sign"></span></a></td>
+                    <% } %>
                     <td>${order.dateCreatedString}</td>
                 </tr>
                 </c:forEach>

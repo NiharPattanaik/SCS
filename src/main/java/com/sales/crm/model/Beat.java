@@ -13,7 +13,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 @Entity
-@Table(name = "BEAT")
+@Table(name = "BEATS")
 @AttributeOverrides({
 	@AttributeOverride(name = "statusID", column = @Column(name = "STATUS_ID")),
 	@AttributeOverride(name = "tenantID", column = @Column(name = "TENANT_ID")),
@@ -43,6 +43,8 @@ public class Beat extends BusinessEntity {
 	@Column(name = "DISTANCE")
 	private int distance;
 
+	@Column(name = "TRANX_COUNTER")
+	private int transCounter;
 	
 	@Transient
 	private List<Area> areas;
@@ -65,6 +67,12 @@ public class Beat extends BusinessEntity {
 	//HACK FOR UI, PLEASE DON'T USE
 	@Transient
 	private String manufacturerIDStr;
+	
+	@Transient
+	private boolean hasTransaction;
+	
+	@Transient
+	private boolean hasBeatCustomersTransaction;
 	
 	public int getBeatID() {
 		return beatID;
@@ -171,105 +179,30 @@ public class Beat extends BusinessEntity {
 	public void setCode(String code) {
 		this.code = code;
 	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((areaIDs == null) ? 0 : areaIDs.hashCode());
-		result = prime * result + ((areas == null) ? 0 : areas.hashCode());
-		result = prime * result + beatID;
-		result = prime * result + ((code == null) ? 0 : code.hashCode());
-		result = prime * result + ((coverageSchedule == null) ? 0 : coverageSchedule.hashCode());
-		result = prime * result + ((customerIDs == null) ? 0 : customerIDs.hashCode());
-		result = prime * result + ((customers == null) ? 0 : customers.hashCode());
-		result = prime * result + ((description == null) ? 0 : description.hashCode());
-		result = prime * result + distance;
-		result = prime * result + manufacturerID;
-		result = prime * result + ((manufacturerIDStr == null) ? 0 : manufacturerIDStr.hashCode());
-		result = prime * result + ((manufacturers == null) ? 0 : manufacturers.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Beat other = (Beat) obj;
-		if (areaIDs == null) {
-			if (other.areaIDs != null)
-				return false;
-		} else if (!areaIDs.equals(other.areaIDs))
-			return false;
-		if (areas == null) {
-			if (other.areas != null)
-				return false;
-		} else if (!areas.equals(other.areas))
-			return false;
-		if (beatID != other.beatID)
-			return false;
-		if (code == null) {
-			if (other.code != null)
-				return false;
-		} else if (!code.equals(other.code))
-			return false;
-		if (coverageSchedule == null) {
-			if (other.coverageSchedule != null)
-				return false;
-		} else if (!coverageSchedule.equals(other.coverageSchedule))
-			return false;
-		if (customerIDs == null) {
-			if (other.customerIDs != null)
-				return false;
-		} else if (!customerIDs.equals(other.customerIDs))
-			return false;
-		if (customers == null) {
-			if (other.customers != null)
-				return false;
-		} else if (!customers.equals(other.customers))
-			return false;
-		if (description == null) {
-			if (other.description != null)
-				return false;
-		} else if (!description.equals(other.description))
-			return false;
-		if (distance != other.distance)
-			return false;
-		if (manufacturerID != other.manufacturerID)
-			return false;
-		if (manufacturerIDStr == null) {
-			if (other.manufacturerIDStr != null)
-				return false;
-		} else if (!manufacturerIDStr.equals(other.manufacturerIDStr))
-			return false;
-		if (manufacturers == null) {
-			if (other.manufacturers != null)
-				return false;
-		} else if (!manufacturers.equals(other.manufacturers))
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		return "Beat [beatID=" + beatID + ", code=" + code + ", name=" + name + ", description=" + description
-				+ ", coverageSchedule=" + coverageSchedule + ", distance=" + distance + ", areas=" + areas
-				+ ", customers=" + customers + ", customerIDs=" + customerIDs + ", areaIDs=" + areaIDs
-				+ ", manufacturerID=" + manufacturerID + ", manufacturers=" + manufacturers + ", manufacturerIDStr="
-				+ manufacturerIDStr + ", tenantID=" + tenantID + ", dateCreated=" + dateCreated + ", dateModified="
-				+ dateModified + ", statusID=" + statusID + "]";
-	}
-
 	
+	public boolean getHasBeatCustomersTransaction() {
+		return hasBeatCustomersTransaction;
+	}
+
+	public void setHasBeatCustomersTransaction(boolean hasBeatCustomersTransaction) {
+		this.hasBeatCustomersTransaction = hasBeatCustomersTransaction;
+	}
+
+	public int getTransCounter() {
+		return transCounter;
+	}
+
+	public void setTransCounter(int transCounter) {
+		this.transCounter = transCounter;
+	}
+
+	public boolean getHasTransaction() {
+		return transCounter > 0 ? true : false;
+	}
+
+	public void setHasTransaction(boolean hasTransaction) {
+		this.hasTransaction = hasTransaction;
+	}
+
 	
 }

@@ -8,7 +8,7 @@
 <html lang="en">
 
 <head>
-	<title>Edit Assign Beats To Customers</title>
+	<title>Edit Assign Customers To Beat</title>
 	<!-- Bootstrap Core CSS -->
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -75,26 +75,27 @@ legend {
 		<%@ include file="menus.jsp" %>
 		<div class="row top-height">
 			<div class="col-md-8 ">
-				<form:form modelAttribute="customer" method="post"
-					action="/crm/web/beatWeb/updateAssignedBeatToCustomers">
+				<form:form modelAttribute="beat" method="post"
+					action="/crm/web/beatWeb/updateAssignedCustomersToBeat">
 					<fieldset>
 						<legend>Edit Assigned Beats to Customer</legend>
 						<div class="form-group">
-							<label>Customer</label>
+							<label>Beat</label>
 							<form:input name="name" cssClass="form-control" path="name"
-								value="${ccustomer.name}" readonly="true" />
+								value="${beat.name}" readonly="true" />
 						</div>
 						<div class="form-group required" >
-							<label class='control-label'>Beats</label>
-							<form:select path="beatIDs" cssClass="form-control" id="beats"
+							<label class='control-label'>Customers</label>
+							<form:select path="customerIDs" cssClass="form-control" id="customers"
 								multiple="true">
-								<form:options items="${beats}" itemValue="beatID"
-									itemLabel="name" />
+								<form:options items="${customers}" itemValue="customerID"
+									itemLabel="customerName" />
 							</form:select>
 						</div>
-						<form:hidden path="customerID" value="${ccustomer.customerID}" name="customerID"/>
+						<form:hidden path="beatID" value="${beat.beatID}" name="beatID"/>
 					</fieldset>
 					<div class="form_submit">
+						<button type="button" class="btn btn-primary" id="cancelbtn" onclick="window.history.back(); return false;"">Cancel</button>
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</div>
 				</form:form>

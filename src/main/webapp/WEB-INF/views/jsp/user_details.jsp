@@ -131,8 +131,14 @@ legend {
 					</div>
 					<div class="form-group">
 						<label>Status : </label>
-						<c:if test="${user.status == 1}">
-							<span>Active</span>
+						<c:if test="${user.statusID == 1}">
+   							<td>New</td>
+						</c:if>
+						<c:if test="${user.statusID == 2}">
+   							<td>Active</td>
+						</c:if>
+						<c:if test="${user.statusID == 3}">
+   							<td>Suspended</td>
 						</c:if>
 					</div>
 				</fieldset>

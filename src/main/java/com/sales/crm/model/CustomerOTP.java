@@ -74,6 +74,10 @@ public class CustomerOTP extends BusinessEntity{
 	
 	@Transient
 	private String stringDateUsed;
+	
+	//Order Booking ID/Order ID
+	@Transient
+	private int entityID;
 
 	public int getOtpID() {
 		return otpID;
@@ -91,14 +95,6 @@ public class CustomerOTP extends BusinessEntity{
 		this.customerID = customerID;
 	}
 	
-	public int getSalesExecID() {
-		return fieldExecID;
-	}
-
-	public void setSalesExecID(int salesExecID) {
-		this.fieldExecID = salesExecID;
-	}
-
 	public String getGenaratedOTP() {
 		return genaratedOTP;
 	}
@@ -193,6 +189,22 @@ public class CustomerOTP extends BusinessEntity{
 
 	public void setStringDateUsed(String stringDateUsed) {
 		this.stringDateUsed = stringDateUsed;
+	}
+
+	public int getFieldExecID() {
+		return fieldExecID;
+	}
+
+	public void setFieldExecID(int fieldExecID) {
+		this.fieldExecID = fieldExecID;
+	}
+
+	public int getEntityID() {
+		return entityID;
+	}
+
+	public void setEntityID(int entityID) {
+		this.entityID = entityID;
 	}
 
 	@Override

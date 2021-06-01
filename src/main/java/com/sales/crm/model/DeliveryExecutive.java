@@ -18,6 +18,9 @@ public class DeliveryExecutive extends User {
 	
 	@Transient
 	private List<Integer> customerIDs;
+	
+	@Transient
+	private boolean hasTransaction;
 
 	public List<Beat> getBeats() {
 		return beats;
@@ -49,6 +52,15 @@ public class DeliveryExecutive extends User {
 
 	public void setCustomerIDs(List<Integer> customerIDs) {
 		this.customerIDs = customerIDs;
+	}
+
+	
+	public boolean getHasTransaction() {
+		return hasTransaction;
+	}
+
+	public void setHasTransaction(boolean hasTransaction) {
+		this.hasTransaction = hasTransaction;
 	}
 
 	@Override

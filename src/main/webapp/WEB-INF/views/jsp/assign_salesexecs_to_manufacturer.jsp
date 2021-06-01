@@ -62,6 +62,11 @@ legend {
 	text-align: right;
 }
 
+.form-group {
+  margin-bottom: 0px;
+}
+
+
 .form-group.required .control-label:after { 
    content:"*";
    color:red;
@@ -81,27 +86,31 @@ legend {
 		<div class="row top-height">
 			<div class="col-md-8 ">
 				<form:form modelAttribute="manufacturer" method="post"
-					action="/crm/web/manufacturerWeb/assignSalesExecutive">
+					action="/crm/web/manufacturerWeb/assignSalesExecutive" id="myform">
 					<fieldset>
 						<legend>Assign Sales Executive to Manufacturer</legend>
 							<div class="form-group required">
 								<label class='control-label'>Manufacturer</label>
-								<form:select path="manufacturerID" cssClass="form-control" id="manufacturers">
+								<form:select path="manufacturerID" cssClass="form-control" id="manufacturers" class="required">
 									<form:option value="-1" label="--- Select ---" required="required"/>
 									<c:forEach var="cmanufacturer" items="${manufacturers}">
 										<form:option value="${ cmanufacturer.manufacturerID }" label="${ cmanufacturer.name }" required="required"/>
 									</c:forEach>
 								</form:select>
 							</div>
+							<label id="manufMsg" style="color:red; font-style: italic; font-weight: normal;">Please select the manufacturer from the list.</label>
+								
 							<div class="form-group required">
 								<label class='control-label'>Sales Executives</label>
 								<form:select path="salesExecsIDs" cssClass="form-control" id="salesExecs"
 									multiple="true">
-									<form:option value="-1" label="--- Select ---"/>
 								</form:select>
 							</div>
+							<label id="salesExMsg" style="color:red; font-style: italic; font-weight: normal;">Please select the Sales Executive from the list .</label>
 					</fieldset>
 					<div class="form_submit">
+						<button type="button" class="btn btn-primary" id="cancelbtn" onclick="window.history.back(); return false;"">Cancel</button>
+						<button type="button" class="btn btn-primary" id="resetBtn" onclick="location.reload();">Reset</button>
 						<button type="submit" class="btn btn-primary" id="submitbtn">Submit</button>
 					</div>
 				</form:form>
@@ -111,28 +120,52 @@ legend {
 </body>
 <script type="text/javascript">
 	$(document).ready(function() {
-		$("#manufacturers").prop('required',true);
+		 $("#manufMsg").hide();
+		 $("#salesExMsg").hide();
 		
 		$('#manufacturers').change(function() {
+			$("#manufMsg").hide();
+			$("#salesExMsg").hide();
+			var dataFound = false;
 			if($('#manufacturers').val() != -1){
 				$.ajax({
 						type : "GET",
-						url : "/crm/rest/salesExecReST/salesExecNotMappedToManufacturer/"+$('#manufacturers').val(),
+						url : "/crm/rest/salesExecReST/salesExecsNotMappedToManufacturer/"+$('#manufacturers').val(),
 						dataType : "json",
 						success : function(data) {
-							$('#salesExecs').empty();
-							$.each(data,function(i,obj) {
-								var div_data = "<option value="+obj.userID+">"+ obj.name+ "</option>";
-								$(div_data).appendTo('#salesExecs');
-						});
-					}
+							if(data.length !== 0){
+								$('#salesExecs').empty();
+								$.each(data,function(i,obj) {
+									dataFound = true;
+									var div_data = "<option value="+obj.userID+">"+ obj.name+ "</option>";
+									$(div_data).appendTo('#salesExecs');
+								});
+							}
+						}
 				});
 			}
+			
+			//No data found
+			if(!dataFound){
+				$('#salesExecs').empty();
+				var div_data = "<option value=> No Sales Executives found to map </option>";
+				$(div_data).appendTo('#salesExecs');
+			}
 		});
-		$('#submitbtn').click(function(){
+		$('#myform').submit(function(e){
 		     /* when the submit button in the modal is clicked, submit the form */
-		   $('#myForm').submit();
+		     $("#manufMsg").hide();
+		     $("#salesExMsg").hide();
+		     if($('#manufacturers').val() == -1){
+		    	 $("#manufMsg").show();
+		    	 e.preventDefault();
+		     }
+		     if($('#salesExecs').val() == "" || $('#salesExecs').val() == -1){
+		    	 $("#salesExMsg").show();
+		    	 e.preventDefault();
+		     }
 		});
+		
 		
 	});
 	

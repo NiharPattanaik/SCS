@@ -1,6 +1,9 @@
 <!DOCTYPE html>
+<%@page import="com.sales.crm.model.EntityStatusEnum"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>    
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>    
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>   
+<%@page import="com.sales.crm.model.Customer"%> 
+<%@page import="com.sales.crm.util.EncodeDecodeUtil"%>
 <html lang="en">
 
 <head>
@@ -85,11 +88,12 @@
     float: right;
     display: block
   }
+  
     </style>
     
-    
-    
+   
 </head>
+
 
 <body>
     <!-- Header -->
@@ -151,9 +155,15 @@
             </thead>
             <tbody>
             	<c:forEach var="customer" items="${customers}">  
+            	<%
+					String encodedCustID = "";
+				%>
+            	
                 <tr>
-                 	<% if(resourcePermIDs.contains(ResourcePermissionEnum.CUSTOMER_READ.getResourcePermissionID())) { %>
-                		<td><a href="<%=request.getContextPath()%>/web/customerWeb/${customer.customerID}">${customer.customerID}</a></td>
+                 	<% if(resourcePermIDs.contains(ResourcePermissionEnum.CUSTOMER_READ.getResourcePermissionID())) { 
+                 		encodedCustID = EncodeDecodeUtil.encodeNumberToString(((Customer)pageContext.getAttribute("customer")).getCustomerID());
+                 	 %>	
+                		<td><a href="<%=request.getContextPath()%>/web/customerWeb/${customer.code}">${customer.customerID}</a></td>
                 	<% }else{ %>
                 		<td>${customer.customerID}</td>
                 	<% } %>
@@ -164,7 +174,7 @@
                     <td>${customer.address[0].contactPerson}</td>
                     <td>${customer.address[0].phoneNumber}</td>
                     <td>${customer.statusAsString}</td>
-                </tr>
+                 </tr>
                 </c:forEach>
             </tbody>
         </table>

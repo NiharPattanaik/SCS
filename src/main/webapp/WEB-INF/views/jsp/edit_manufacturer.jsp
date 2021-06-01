@@ -88,7 +88,7 @@ legend {
 						<div class="form-group required">
 							<label class='control-label'>Name</label>
 							<form:input name="name" cssClass="form-control" path="name"
-								value="${manufacturer.name}" />
+								value="${manufacturer.name}" readonly="true"/>
 						</div>
 						<div class="form-group">
 							<label>Description</label>
@@ -334,6 +334,7 @@ legend {
 						<form:hidden path="statusID" value="${ manufacturer.statusID }"/>
 					</div>
 					<div class="form_submit">
+						<button type="button" class="btn btn-primary" id="cancelbtn" onclick="window.history.back(); return false;"">Cancel</button>
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</div>
 				</form:form>

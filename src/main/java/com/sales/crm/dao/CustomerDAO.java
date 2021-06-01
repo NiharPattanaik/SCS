@@ -12,7 +12,7 @@ public interface CustomerDAO {
 	
 	void create(Customer customer) throws Exception;
 	
-	Customer get(int customerID, int tenantID);
+	Customer get(String customerCode, int tenantID);
 	
 	void update(Customer customer) throws Exception;
 	
@@ -26,9 +26,9 @@ public interface CustomerDAO {
 	
 	String getCustomerPrimaryMobileNo(int customerID, int tenantID) throws Exception;
 	
-	List<TrimmedCustomer> getCustomersToSchedule(int beatID, Date visitDate, int tenantID);
+	List<TrimmedCustomer> getCustomersToSchedule(int salesExecID, int beatID, Date visitDate, List<Integer> manufacturerIDs, int tenantID);
 	
-	List<CustomerOrder> getCustomersToScheduleDelivery(int beatID, Date visitDate, int tenantID);
+	List<CustomerOrder> getCustomersToScheduleDelivery(int beatID, Date visitDate, List<Integer> manufacturerIDs, int tenantID);
 	
 	List<TrimmedCustomer> scheduledTrimmedCustomerslistForDeliveryToday(int delivExecID, Date visitDate, int tenantID);
 	
@@ -40,5 +40,9 @@ public interface CustomerDAO {
 	
 	int getCustomersCount(int tenantID);
 	
-	void updateCustomerStatus(int statusID, int customerID, int tenantID) throws Exception;
+	void deactivateCustomer(int customerID, String remark, int tenantID) throws Exception;
+	
+	void activateCustomer(int customerID, String remark, int tenantID) throws Exception;
+	
+	public List<TrimmedCustomer> getCustomersNotMappedToBeat(int tenantID);
 }

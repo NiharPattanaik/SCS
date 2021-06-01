@@ -9,7 +9,7 @@ public interface BeatDAO {
 	
 	void create(Beat beat) throws Exception;
 	
-	Beat get(int beatID, int tenantID);
+	Beat get(String beatCode, int tenantID);
 	
 	void update(Beat beat) throws Exception;
 	
@@ -17,18 +17,24 @@ public interface BeatDAO {
 	
 	List<Beat> getTenantBeats(int tenantID);
 	
-	void assignBeatsToCustomer(int customerID, List<Integer> beatIDs, int tenantID) throws Exception;
+	void assignCustomersToBeat(int beatID, List<Integer> customerIDs, int tenantID) throws Exception;
 	
-	void updateAssignedBeatToCustomers(int customerID, List<Integer> beatIDs, int tenantID) throws Exception;
+	void updateAssignedCustomersToBeat(int beatID, List<Integer> customerIDs, int tenantID) throws Exception;
 	
 	List<TrimmedCustomer> getBeatCustomers( int beatID, int tenantID);
 	
-	void deleteAssignedBeatCustomerLink(int customerID, int tenantID) throws Exception;
+	void deleteAssignedBeatCustomerLink(String beatCode, int tenantID) throws Exception;
 	
 	int getBeatsCount(int tenantID);
 	
 	List<Beat> getBeatsNotMappedToCustomer(int customerID, int tenantID);
 	
 	List<Beat> getBeatsNotMappedToSalesExec(int tenantID, int manufacturerID, int salesExecID);
+	
+	public List<String> getTenantBeatNames(int tenantID);
+	
+	public List<Beat> getBeatsNotMappedToManufacturer(int manufacturerID, int tenantID);
+	
+	public List<Beat> getBeatsNotMappedToDelivExec(int delivExecID, int tenantID);
 	
 }

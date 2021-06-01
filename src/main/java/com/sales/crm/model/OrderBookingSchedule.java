@@ -1,7 +1,10 @@
 package com.sales.crm.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
@@ -12,6 +15,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+
+import org.apache.commons.lang3.StringUtils;
 
 @Entity
 @Table(name = "ORDER_BOOKING_SCHEDULE")
@@ -65,6 +70,27 @@ public class OrderBookingSchedule extends BusinessEntity{
 	
 	@Transient
 	private int statusID;
+	
+	@Transient
+	private List<Integer> manufacturerIDs;
+	
+	@Transient
+	private int manufacturerID;
+	
+	@Transient
+	private String manufacturerName;
+	
+	@Transient
+	private Set<String> customerNames = new HashSet<String>();
+	
+	@Transient
+	private Set<String> manufacturerNames = new HashSet<String>();
+	
+	@Transient
+	private String customerNamesString;
+	
+	@Transient
+	private String manufacturerNamesString;
 
 	public int getSalesExecutiveID() {
 		return salesExecutiveID;
@@ -170,98 +196,61 @@ public class OrderBookingSchedule extends BusinessEntity{
 		this.status = status;
 	}
 
-	
-	
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + beatID;
-		result = prime * result + ((beatName == null) ? 0 : beatName.hashCode());
-		result = prime * result + bookingScheduleID;
-		result = prime * result + customerID;
-		result = prime * result + ((customerIDs == null) ? 0 : customerIDs.hashCode());
-		result = prime * result + ((customerName == null) ? 0 : customerName.hashCode());
-		result = prime * result + orderID;
-		result = prime * result + ((salesExecName == null) ? 0 : salesExecName.hashCode());
-		result = prime * result + salesExecutiveID;
-		result = prime * result + status;
-		result = prime * result + ((statusAsString == null) ? 0 : statusAsString.hashCode());
-		result = prime * result + ((visitDate == null) ? 0 : visitDate.hashCode());
-		result = prime * result + ((visitDateAsString == null) ? 0 : visitDateAsString.hashCode());
-		return result;
+	public List<Integer> getManufacturerIDs() {
+		return manufacturerIDs;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		OrderBookingSchedule other = (OrderBookingSchedule) obj;
-		if (beatID != other.beatID)
-			return false;
-		if (beatName == null) {
-			if (other.beatName != null)
-				return false;
-		} else if (!beatName.equals(other.beatName))
-			return false;
-		if (bookingScheduleID != other.bookingScheduleID)
-			return false;
-		if (customerID != other.customerID)
-			return false;
-		if (customerIDs == null) {
-			if (other.customerIDs != null)
-				return false;
-		} else if (!customerIDs.equals(other.customerIDs))
-			return false;
-		if (customerName == null) {
-			if (other.customerName != null)
-				return false;
-		} else if (!customerName.equals(other.customerName))
-			return false;
-		if (orderID != other.orderID)
-			return false;
-		if (salesExecName == null) {
-			if (other.salesExecName != null)
-				return false;
-		} else if (!salesExecName.equals(other.salesExecName))
-			return false;
-		if (salesExecutiveID != other.salesExecutiveID)
-			return false;
-		if (status != other.status)
-			return false;
-		if (statusAsString == null) {
-			if (other.statusAsString != null)
-				return false;
-		} else if (!statusAsString.equals(other.statusAsString))
-			return false;
-		if (visitDate == null) {
-			if (other.visitDate != null)
-				return false;
-		} else if (!visitDate.equals(other.visitDate))
-			return false;
-		if (visitDateAsString == null) {
-			if (other.visitDateAsString != null)
-				return false;
-		} else if (!visitDateAsString.equals(other.visitDateAsString))
-			return false;
-		return true;
+	public void setManufacturerIDs(List<Integer> manufacturerIDs) {
+		this.manufacturerIDs = manufacturerIDs;
 	}
 
-	@Override
-	public String toString() {
-		return "OrderBookingSchedule [bookingScheduleID=" + bookingScheduleID + ", salesExecutiveID=" + salesExecutiveID
-				+ ", beatID=" + beatID + ", visitDate=" + visitDate + ", salesExecName=" + salesExecName + ", beatName="
-				+ beatName + ", customerName=" + customerName + ", customerIDs=" + customerIDs + ", customerID="
-				+ customerID + ", orderID=" + orderID + ", statusAsString=" + statusAsString + ", visitDateAsString="
-				+ visitDateAsString + ", status=" + status + ", tenantID=" + tenantID + ", dateCreated=" + dateCreated
-				+ ", dateModified=" + dateModified + "]";
+	public int getManufacturerID() {
+		return manufacturerID;
 	}
+
+	public void setManufacturerID(int manufacturerID) {
+		this.manufacturerID = manufacturerID;
+	}
+
+	public String getManufacturerName() {
+		return manufacturerName;
+	}
+
+	public void setManufacturerName(String manufacturerName) {
+		this.manufacturerName = manufacturerName;
+	}
+
+	public Set<String> getCustomerNames() {
+		return customerNames;
+	}
+
+	public void setCustomerNames(Set<String> customerNames) {
+		this.customerNames = customerNames;
+	}
+
+	public Set<String> getManufacturerNames() {
+		return manufacturerNames;
+	}
+
+	public void setManufacturerNames(Set<String> manufacturerNames) {
+		this.manufacturerNames = manufacturerNames;
+	}
+
+	public String getCustomerNamesString() {
+		return StringUtils.join(getCustomerNames(), ",");
+	}
+
+	public void setCustomerNamesString(String customerNamesString) {
+		this.customerNamesString = customerNamesString;
+	}
+
+	public String getManufacturerNamesString() {
+		return StringUtils.join(getManufacturerNames(), ",");
+	}
+
+	public void setManufacturerNamesString(String manufacturerNamesString) {
+		this.manufacturerNamesString = manufacturerNamesString;
+	}
+
 	
-	
-		
 }

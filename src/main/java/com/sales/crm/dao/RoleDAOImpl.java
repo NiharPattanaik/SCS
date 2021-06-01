@@ -138,7 +138,7 @@ public class RoleDAOImpl implements RoleDAO {
 		try{
 			session = sessionFactory.openSession();
 			//Get the highest rank
-			SQLQuery rankQuery = session.createSQLQuery("SELECT MAX(RANKS) FROM ROLE WHERE ID IN (" +StringUtils.join(roleIDs, ",") + ") AND TENANT_ID = ?");
+			SQLQuery rankQuery = session.createSQLQuery("SELECT MAX(RANKS) FROM ROLES WHERE ID IN (" +StringUtils.join(roleIDs, ",") + ") AND TENANT_ID = ?");
 			rankQuery.setParameter(0, tenantID);
 			List<Integer> rankList  = rankQuery.list();
 			Query query = session.createQuery("from Role where rank < :rank AND tenantID = :tenantID");

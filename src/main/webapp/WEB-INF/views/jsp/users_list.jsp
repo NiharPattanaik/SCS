@@ -135,8 +135,14 @@
   								%>
 						</c:forEach>
 						<td><%= values %></td>
-                        <c:if test="${user.statusID == 2}">
+                        <c:if test="${user.statusID == 1}">
+   							<td>New</td>
+						</c:if>
+						<c:if test="${user.statusID == 2}">
    							<td>Active</td>
+						</c:if>
+						<c:if test="${user.statusID == 3}">
+   							<td>Suspended</td>
 						</c:if>
                      </tr>
                     </c:forEach>

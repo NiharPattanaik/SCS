@@ -2,6 +2,7 @@ package com.sales.crm.dao;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.sales.crm.model.Beat;
 import com.sales.crm.model.SalesExecutive;
@@ -34,4 +35,8 @@ public interface SalesExecDAO {
 	int getSalesExecutiveCount(int tenantID);
 	
 	List<SalesExecutive> getSalesExecsNotMappedToManufacturer(int tenantID, int manufacturerID);
+	
+	public List<SalesExecutive> getActiveSalesExecutives(int tenantID);
+	
+	public Map<Integer, String> getManufacturerParams(int salesExecID, int tenantID);
 }

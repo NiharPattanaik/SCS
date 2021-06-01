@@ -13,7 +13,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 @Entity
-@Table(name = "MANUFACTURER")
+@Table(name = "MANUFACTURERS")
 @AttributeOverrides({
 	@AttributeOverride(name = "statusID", column = @Column(name = "STATUS_ID")),
 	@AttributeOverride(name = "tenantID", column = @Column(name = "TENANT_ID")),
@@ -36,6 +36,9 @@ public class Manufacturer extends BusinessEntity{
 	
 	@Column(name = "DESCRIPTION")
 	String description;
+	
+	@Column(name = "TRANX_COUNTER")
+	private int transCounter;
 	
 	//@OneToMany(orphanRemoval=true, cascade=CascadeType.ALL, fetch=FetchType.EAGER)
 	@Transient
@@ -61,6 +64,19 @@ public class Manufacturer extends BusinessEntity{
 	
 	@Transient
 	private List<Integer> salesExecsIDs;
+	
+	@Transient
+	private List<DeliveryExecutive> delivExecs;
+	
+	@Transient
+	private List<Integer> delivExecsIDs;
+	
+	@Transient
+	private List<Integer> beatIDs;
+	
+	@Transient
+	private boolean hasTransactions;
+	
 	
 	public int getManufacturerID() {
 		return manufacturerID;
@@ -139,6 +155,39 @@ public class Manufacturer extends BusinessEntity{
 	public void setSalesExecsIDs(List<Integer> salesExecsIDs) {
 		this.salesExecsIDs = salesExecsIDs;
 	}
+	public List<DeliveryExecutive> getDelivExecs() {
+		return delivExecs;
+	}
+	public void setDelivExecs(List<DeliveryExecutive> delivExecs) {
+		this.delivExecs = delivExecs;
+	}
+	
+	public List<Integer> getDelivExecsIDs() {
+		return delivExecsIDs;
+	}
+	public void setDelivExecsIDs(List<Integer> delivExecsIDs) {
+		this.delivExecsIDs = delivExecsIDs;
+	}
+	
+	public List<Integer> getBeatIDs() {
+		return beatIDs;
+	}
+	public void setBeatIDs(List<Integer> beatIDs) {
+		this.beatIDs = beatIDs;
+	}
+	public int getTransCounter() {
+		return transCounter;
+	}
+	public void setTransCounter(int transCounter) {
+		this.transCounter = transCounter;
+	}
+	public boolean getHasTransactions() {
+		return transCounter > 0 ? true : false;
+	}
+	public void setHasTransactions(boolean hasTransactions) {
+		this.hasTransactions = hasTransactions;
+	}
+	
 	
 	
 	

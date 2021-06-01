@@ -91,29 +91,21 @@ legend {
 								<form:select path="userID" cssClass="form-control" id="delivExecs">
 									<form:option value="-1" label="--- Select ---" />
 									<c:forEach var="delivExec" items="${delivExecs}">
-										<% 
-											if(!((DeliveryExecutive)pageContext.getAttribute("delivExec") != null 
-												&& ((DeliveryExecutive)pageContext.getAttribute("delivExec")).getBeats() != null 
-													&& ((DeliveryExecutive)pageContext.getAttribute("delivExec")).getBeats().size() > 0)){
-										%>
 											<form:option value="${ delivExec.userID }" label="${ delivExec.firstName } ${ delivExec.lastName }" />
-										<% 
-											}
-										%>
-											
 									</c:forEach>
 								</form:select>
 							</div>
+							
 							<div class="form-group required">
 								<label class='control-label'>Beats</label>
 								<form:select path="beatIDLists" cssClass="form-control" multiple="true" id="beats">
-									<form:option value="-1" label="--- Select ---" />
-									<form:options items="${beats}" itemValue="beatID"
-										itemLabel="name" />
-								</form:select>
-							</div>
+							</form:select>
+						</div>
 					</fieldset>
+					<form:hidden name="tenantID" path="tenantID" id="tenantID" value="${ tenantID }" />
 					<div class="form_submit">
+						<button type="button" class="btn btn-primary" id="cancelbtn" onclick="window.history.back(); return false;"">Cancel</button>
+						<button type="button" class="btn btn-primary" id="resetBtn" onclick="location.reload();">Reset</button>
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</div>
 				</form:form>
@@ -124,10 +116,33 @@ legend {
 <script type="text/javascript">
 	$(document).ready(function() {
 		$("#delivExecs").prop('required',true);
-	});
-	
-	$(document).ready(function() {
 		$("#beats").prop('required',true);
+		
+		$('#delivExecs').change(function() {
+			var dataFound = false;
+			if($('#delivExecs').val() != -1){
+				$.ajax({
+						type : "GET",
+						url : "/crm/rest/beatReST/beatsNotMappedToDelivExec/"+$('#delivExecs').val()+"/"+$('#tenantID').val(),
+						dataType : "json",
+						success : function(data) {
+							$('#beats').empty();
+							$.each(data,function(i,obj) {
+								dataFound = true;
+								var div_data = "<option value="+obj.beatID+">"+ obj.name+ "</option>";
+								$(div_data).appendTo('#beats');
+						});
+					}
+				});
+			}
+			
+			//No data found
+			if(!dataFound){
+				$('#beats').empty();
+				var div_data = "<option value=> No Beats to map </option>";
+				$(div_data).appendTo('#beats');
+			}
+		});
 	});
 </script>
 </html>

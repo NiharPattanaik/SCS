@@ -8,7 +8,7 @@
 <html lang="en">
 
 <head>
-<title>Order Update</title>
+<title>Confirmation</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
@@ -85,7 +85,7 @@
     					</c:when>    
     					<c:otherwise>
         					<div class="alert alert-success">
-	 						 <strong>Success!</strong><br> Order <b>${orderID}</b> has been successfully updated.
+	 						 <strong>Success!</strong><br> Order <b>${orderID}</b> has been successfully ${map['action']}.
 						</div>
     					</c:otherwise>
 					</c:choose>

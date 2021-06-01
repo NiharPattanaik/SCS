@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<%@page import="com.sales.crm.model.ManufacturerSalesExecs"%>
 <%@page import="com.sales.crm.model.SalesExecutive"%>
 <%@page import="com.sales.crm.service.SalesExecService"%>
 <%@page import="com.sales.crm.model.Manufacturer"%>
@@ -65,6 +66,10 @@
     padding: 10px 0 10px 0;
 	}
 	
+	.modal-custom-footer {
+    padding: 15px;
+    text-align: center;
+    border-top: 1px solid #e5e5e5;
     </style>
 </head>
 
@@ -94,28 +99,28 @@
                     <tr>
                         <th>Manufacturer Name</th>
                         <th>Sales Executives</th>
-                       	<th></th>
-                        <th></th>
+                       	<th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                	<c:forEach var="manufacturer" items="${manufacturers}">
+                	<c:forEach var="manufacturerSalesExec" items="${manufacturerSalesExecs}">
                 	<%
-                		if(((Manufacturer)pageContext.getAttribute("manufacturer")).getSalesExecs() !=  null &&
-                				((Manufacturer)pageContext.getAttribute("manufacturer")).getSalesExecs().size() > 0){
+                		if(((ManufacturerSalesExecs)pageContext.getAttribute("manufacturerSalesExec")).getSalesExecs() !=  null &&
+                				((ManufacturerSalesExecs)pageContext.getAttribute("manufacturerSalesExec")).getSalesExecs().size() > 0){
                 			
                 	%>  
                     <tr>
-                   		<td>${manufacturer.name}</td>
+                   		<td>${manufacturerSalesExec.manufacturer.name}</td>
                         <% String values=""; %>
-						<c:forEach var="salesExec" items="${manufacturer.salesExecs}">
+						<c:forEach var="salesExec" items="${manufacturerSalesExec.salesExecs}">
   								<%
   									if(values.isEmpty()){
   										if((SalesExecutive)pageContext.getAttribute("salesExec") != null  && ((SalesExecutive)pageContext.getAttribute("salesExec")).getName() != null){
   											values = values+ ((SalesExecutive)pageContext.getAttribute("salesExec")).getName();
+  											System.out.println((SalesExecutive)pageContext.getAttribute("salesExec"));
   										}
   									}else{
-  										values = values + " ,";
+  										values = values + ", ";
   										if((SalesExecutive)pageContext.getAttribute("salesExec") != null  && ((SalesExecutive)pageContext.getAttribute("salesExec")).getName() != null){
   											values = values+ ((SalesExecutive)pageContext.getAttribute("salesExec")).getName();
   										}
@@ -123,9 +128,16 @@
   								%>
 						</c:forEach>
 						<td><%= values %></td>
-						<td><a href="<%=request.getContextPath()%>/web/manufacturerWeb/assignSalesExecEditForm/${manufacturer.manufacturerID}">Edit</a></td>
-						
-						<td><a href="<%=request.getContextPath()%>/web/manufacturerWeb/deleteAassignedSalesexec/${manufacturer.manufacturerID}">Delete</a></td>
+						<td><a href="<%=request.getContextPath()%>/web/manufacturerWeb/assignSalesExecEditForm/${manufacturerSalesExec.manufacturer.code}">Edit</a>
+						|
+						<c:choose>
+								<c:when test = "${manufacturerSalesExec.hasActiveTransaction}">
+									<a href=# id=link data-toggle=modal data-target=#confirm-submit>Delete</a>	
+								</c:when>
+								<c:otherwise>
+									<a href=# id=link data-param='{"code":"${manufacturerSalesExec.manufacturer.code}", "tenantID":${manufacturerSalesExec.tenantID}}' data-toggle="modal" data-target="#confirm">Delete</a></td>
+								</c:otherwise>				
+							</c:choose>	
 					</tr>
                     <% 
                 		}
@@ -134,6 +146,54 @@
                 </tbody>
             </table>
         </div>
+        
+        <div class="modal fade" id="confirm-submit" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<b>Warning !</b>
+					</div>
+					<div class="modal-body">The Manufacturer Sales Executive mapping can not be removed as there are active/completed transactions. 
+					                        May be you can try to Edit to remove individual Sales Executives from manufacturer where there is no active/completed transactions </div>
+					<div class="modal-custom-footer">
+						<button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	<div class="modal fade" id="confirm" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<b>Confirm removal !</b>
+				</div>
+				<div class="modal-body">
+					Are you sure you want to remove the manufacturer sales executive mapping ? .
+					Please confirm.
+				</div>
+				<div class="modal-custom-footer">
+					<button type="submit" id="delete" class="btn btn-primary">Confirm</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+					<script type="text/javascript">
+						var code = "";
+						var tenantID = "";
+						$('#confirm').on('show.bs.modal', function (e) {
+							code = $(e.relatedTarget).data('param').code;
+							tenantID = $(e.relatedTarget).data('param').tenantID;
+						});
+						//Click on confirm button
+						$('#delete').click(function(e){
+							window.location.href = "/crm/web/manufacturerWeb/deleteAassignedSalesexec/" + code + "/" + tenantID
+						});
+					</script>
+				</div>
+			</div>
+		</div>
+	</div>
+        
 </body>
 
 </html>

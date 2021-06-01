@@ -2,6 +2,7 @@ package com.sales.crm.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -71,4 +72,11 @@ public class SalesExecService {
 		return salesExecDAO.getSalesExecsNotMappedToManufacturer(tenantID, manufacturerID);
 	}
 	
+	public List<SalesExecutive> getActiveSalesExecutives(int tenantID){
+		return salesExecDAO.getActiveSalesExecutives(tenantID);
+	}
+	
+	public Map<Integer, String> getManufacturerParams(int salesExecID, int tenantID){
+		return salesExecDAO.getManufacturerParams(salesExecID, tenantID);
+	}
 }

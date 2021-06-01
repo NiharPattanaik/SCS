@@ -129,7 +129,7 @@ legend {
 					<div>
 						<form:hidden path="tenantID" name="tenantID" value="${ order.tenantID }"/>
 						<form:hidden path="customerID" name="customerID" value="${ order.customerID }"/>
-						<form:hidden path="status" name="status" value="${ order.statusID }"/>
+						<form:hidden path="statusID" name="status" value="${ order.statusID }"/>
 						<form:hidden path="code" name="code" value="${ order.code }"/>
 					</div>
 					<div class="form_submit">

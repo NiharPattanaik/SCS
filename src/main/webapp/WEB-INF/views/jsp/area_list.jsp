@@ -119,7 +119,7 @@
                         <td>${area.wordNo}</td>
                         <td>${area.pinCode}</td>
                         <% if(resourcePermIDs.contains(ResourcePermissionEnum.AREA_UPDATE.getResourcePermissionID())) { %>
-                        	<td><a href="<%=request.getContextPath()%>/web/areaWeb/editAreaForm/${area.areaID}">Edit</a>
+                        	<td><a href="<%=request.getContextPath()%>/web/areaWeb/editAreaForm/${area.code}">Edit</a>
                         <% } %>		
                         <% if(resourcePermIDs.contains(ResourcePermissionEnum.AREA_DELETE.getResourcePermissionID())) { %>
                         	| 	 
@@ -127,7 +127,7 @@
 	                        	<a href=# id=link data-toggle=modal data-target=#confirm-submit>Delete</a>
 	                        </c:if>	
 	                        <c:if test="${empty area.beat}">
-	                        	<a href=# id=link data-toggle=modal data-target=#confirm data-id=${area.areaID} data-name=${area.name}>Delete</a>
+	                        	<a href=# id=link data-toggle=modal data-target=#confirm data-code=${area.code} data-name=${area.name}>Delete</a>
 	                        </c:if>	
 	                    <% } %>	    
                         </td>
@@ -180,13 +180,13 @@
 					var id = ""
 					$('#confirm').on('show.bs.modal', function (e) {
 						$('#areaName').empty();
-						id = $(e.relatedTarget).data('id')
+						code = $(e.relatedTarget).data('code')
 						name = $(e.relatedTarget).data('name')
 						$('#areaName').append(name);
 					});
 				
 					$('#modalSubmit').click(function(){
-						window.location.href = "/crm/web/areaWeb/delete/"+id
+						window.location.href = "/crm/web/areaWeb/delete/"+code
 					});
 				</script>
 			</div>

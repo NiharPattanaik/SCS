@@ -3,9 +3,12 @@ package com.sales.crm.controller;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -66,6 +69,24 @@ public class DeliveryExecRESTController {
 			exception.printStackTrace();
 		}
 		return delivExecService.getScheduledCustomersOrdersForDelivery(delivExecID, date, beatID, tenantID);
+	}
+	
+	@GetMapping(value="/delivExecsNotMappedToManufacturer/{manufacturerID}")
+	public List<DeliveryExecutive> getDelivExecsNotMappedToManufacturer(@PathVariable("manufacturerID") int manufacturerID){
+		return delivExecService.getDelivExecsNotMappedToManufacturer(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))), manufacturerID);
+	}
+	
+	@GetMapping(value="/manufacturerParams/{delivExecID}/{tenantID}")
+	public String getManufacturerParams(@PathVariable("delivExecID") int delivExecID, @PathVariable("tenantID") int tenantID){
+		Map<Integer, String> attributeMap = delivExecService.getManufacturerParams(delivExecID, tenantID);
+		JSONArray array = new JSONArray();
+		for(Map.Entry<Integer, String> entry: attributeMap.entrySet()) {
+			JSONObject obj = new JSONObject();
+			obj.put("id",entry.getKey());
+			obj.put("name", entry.getValue());
+			array.put(obj);
+		}
+		return array.toString();
 	}
 
 }

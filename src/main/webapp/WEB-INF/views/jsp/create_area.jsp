@@ -104,6 +104,8 @@ legend {
 						</div>
 					</fieldset>
 					<div class="form_submit">
+						<button type="button" class="btn btn-primary" id="cancelbtn" onclick="window.history.back(); return false;"">Cancel</button>
+						<button type="button" class="btn btn-primary" id="resetBtn" onclick="location.reload();">Reset</button>
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</div>
 				</form:form>

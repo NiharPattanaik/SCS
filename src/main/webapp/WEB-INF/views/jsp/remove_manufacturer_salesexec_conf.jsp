@@ -91,7 +91,7 @@
 					</c:choose>
 					<div class="form_submit">
 						<a href="<%=request.getContextPath()%>/web/manufacturerWeb/manufacturer-salesexecs/list" class="btn btn-primary">View Manufacturer to Sales Executive Mapping</a>
-						<a href="<%=request.getContextPath()%>/web/manufacturerWeb/assignSalesExecutive" class="btn btn-primary">New Manufacturer to Sales Executive Mapping</a>
+						<a href="<%=request.getContextPath()%>/web/manufacturerWeb/assignSalesExecutiveForm" class="btn btn-primary">New Manufacturer to Sales Executive Mapping</a>
 					</div>
 			</div>
 		</div>

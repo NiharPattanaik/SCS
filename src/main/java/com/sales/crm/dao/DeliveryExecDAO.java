@@ -2,6 +2,7 @@ package com.sales.crm.dao;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.sales.crm.model.Beat;
 import com.sales.crm.model.CustomerOrder;
@@ -40,5 +41,12 @@ public interface DeliveryExecDAO {
 	
 	int getDeliveryExecutiveCount(int tenantID);
 	
-	List<DeliveryBookingSchedule> getAllDeliveryBookedForDate(int tenantID, Date date);
+	public List<DeliveryExecutive> getActiveDeliveryExecutives(int tenantID);
+	
+	public List<DeliveryExecutive> getDelivExecsNotMappedToManufacturer(int tenantID, int manufacturerID);
+	
+	public Map<Integer, String> getManufacturerParams(int delivExecID, int tenantID);
+	
+	public DeliveryExecutive getDelivExecutiveByCode(String delivExecCode, int tenantID) ;
+	
 }

@@ -43,12 +43,11 @@ legend {
 }
 
 .customer_list {
-	margin-bottom: 20px;
+	margin-bottom: 10px;
 }
 
 .add_customer {
 	text-align: right;
-	margin-top: 31px;
 }
 
 .side_nav_btns {
@@ -70,6 +69,12 @@ legend {
     border-top: 1px solid #e5e5e5;
 }
 
+.add_customer_buttom {
+	text-align: right;
+	margin-top: 10px;
+	margin-bottom: 20px;
+}
+
 </style>
 </head>
 
@@ -85,18 +90,27 @@ legend {
 			<div class="col-md-4">
 				<h2>Manufacturer Details</h2>
 			</div>
-			<div class="col-md-4 add_customer">
-				<% if(resourcePermIDs.contains(ResourcePermissionEnum.MANUFACTURER_UPDATE.getResourcePermissionID())) { %>
-					<button type="submit" class="btn btn-primary"
-						onclick="location.href='<%=request.getContextPath()%>/web/manufacturerWeb/editManufacturerForm/${manufacturer.manufacturerID}';">
-						Modify Manufacturer</button>
-				<% } %>
+		</div>
+		<div class="col-md-8 add_customer">
+			<button type="button" class="btn btn-primary" id="cancelbtn" onclick="window.history.back(); return false;"">Cancel</button>
 				
-				<% if(resourcePermIDs.contains(ResourcePermissionEnum.MANUFACTURER_DELETE.getResourcePermissionID())) { %>
-					<button type="submit" class="btn btn-primary" id="deleteBtn" data-toggle="modal" data-target="#confirm">
-						Delete Manufacturer</button>
-				<% } %>		
-			</div>
+			<% if(resourcePermIDs.contains(ResourcePermissionEnum.MANUFACTURER_UPDATE.getResourcePermissionID())) { %>
+				<button type="submit" class="btn btn-primary"
+					onclick="location.href='<%=request.getContextPath()%>/web/manufacturerWeb/editManufacturerForm/${manufacturer.code}';">
+					Modify</button>
+			<% } %>
+			
+			<% if(resourcePermIDs.contains(ResourcePermissionEnum.MANUFACTURER_DELETE.getResourcePermissionID())) { %>
+				<c:choose>
+					<c:when test = "${manufacturer.hasTransactions}">
+						<a href=# id=link class="btn btn-primary" data-toggle=modal data-target=#confirm-submit>Delete</a>	
+					</c:when>
+					<c:otherwise>
+						<button type="submit" class="btn btn-primary" id="deleteBtn" data-toggle="modal" data-target="#confirm">
+									Delete</button>
+					</c:otherwise>				
+				</c:choose>		
+			<% } %>		
 		</div>
 		<div class="row top-height">
 			<div class="col-md-8 ">
@@ -211,22 +225,48 @@ legend {
 						</div>
 					</fieldset>
 				</c:if>
-				<fieldset>
-					<legend>Beats</legend>
-					<div
-						style="width: 200px; min-height: 2px; max-height: 100px; overflow-y: auto;"
-						id="checks">
-						<ul>
-							<c:forEach var="beat" items="${manufacturer.beats}">
-								<li><a href="<%=request.getContextPath()%>/web/beatWeb/${beat.beatID}">${beat.name}</a></li>
-							</c:forEach>
-						</ul>
-
-					</div>
-				</fieldset>
+			</div>
+		</div>
+		<div class="col-md-8 add_customer_buttom">
+				<button type="button" class="btn btn-primary" id="cancelbtn" onclick="window.history.back(); return false;"">Cancel</button>
+				<% if(resourcePermIDs.contains(ResourcePermissionEnum.MANUFACTURER_UPDATE.getResourcePermissionID())) { %>
+					<button type="submit" class="btn btn-primary"
+						onclick="location.href='<%=request.getContextPath()%>/web/manufacturerWeb/editManufacturerForm/${manufacturer.code}';">
+						Modify</button>
+				<% } %>
+				
+				<% if(resourcePermIDs.contains(ResourcePermissionEnum.MANUFACTURER_DELETE.getResourcePermissionID())) { %>
+					<c:choose>
+						<c:when test = "${manufacturer.hasTransactions}">
+							<a href=# id=link class="btn btn-primary" data-toggle=modal data-target=#confirm-submit>Delete</a>	
+						</c:when>
+						<c:otherwise>
+							<button type="submit" class="btn btn-primary" id="deleteBtn" data-toggle="modal" data-target="#confirm">
+										Delete</button>
+						</c:otherwise>				
+					</c:choose>		
+				<% } %>		
+			</div>
+	</div>
+	
+	<div class="modal fade" id="confirm-submit" tabindex="-1" role="dialog"
+	aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<b>Warning !</b>
+			</div>
+				<div class="modal-body">
+					The removal of manufacturer is not allowed as there are Beats or Sales Executives mapped to this manufacturer. 
+					You need to remove the Sales Executives from the manufacturer before removing the manufacturer from the system.
+				</div>
+				<div class="modal-custom-footer">
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
 			</div>
 		</div>
 	</div>
+	</div>
+	
 	<div class="modal fade" id="confirm" tabindex="-1" role="dialog"
 		aria-labelledby="myModalLabel" aria-hidden="true">
 		<div class="modal-dialog">

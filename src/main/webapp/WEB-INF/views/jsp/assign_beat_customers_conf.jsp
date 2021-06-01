@@ -91,7 +91,7 @@
 					</c:choose>
 					<div class="form_submit">
 						<a href="<%=request.getContextPath()%>/web/beatWeb/beat-customers/list" class="btn btn-primary">View Beat to Customer Assignment</a>
-						<a href="<%=request.getContextPath()%>/web/beatWeb/assignCustomerForm" class="btn btn-primary">New Beat Customer Assignment</a>
+                        <a href="<%=request.getContextPath()%>/web/beatWeb/assignBeatsForm" class="btn btn-primary">New Beat Customer Assignment</a>
 					</div>
 			</div>
 		</div>

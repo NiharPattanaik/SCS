@@ -36,19 +36,20 @@
         			<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="reportmenu">Mapping<span class="caret"></span></a>
         				<ul class="dropdown-menu" id="reportmenus">
-        					<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_VIEW_ASSIGNED_BEATS.getResourcePermissionID())) { %>
+        					<li><a href="<%=request.getContextPath()%>/web/manufacturerWeb/beats/list">Manufacturer-Beats</a></li>
+        					<li><a href="<%=request.getContextPath()%>/web/manufacturerWeb/manufacturer-salesexecs/list">Manufacturer-Sales Executives</a></li>
+        					<li><a href="<%=request.getContextPath()%>/web/manufacturerWeb/manufacturer-delivexecs/list">Manufacturer-Delivery Executives</a></li>  	
+				          	<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_VIEW_ASSIGNED_BEATS.getResourcePermissionID())) { %>
 									<li><a href="<%=request.getContextPath()%>/web/salesExecWeb/beatlist">Sales Executive-Beats</a></li>
-					          	<% } %>	
-					          	
-					          	<% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_VIEW_ASSIGNED_BEATS.getResourcePermissionID())) { %>
-					          		<li><a href="<%=request.getContextPath()%>/web/deliveryExecWeb/beatlist">Delivery Executive-Beats</a></li>
-				          		<% } %>	
-				          		
-					          	<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_VIEW_ASSOCIATED_CUSTOMERS.getResourcePermissionID())) { %>
-					          		<li><a href="<%=request.getContextPath()%>/web/beatWeb/beat-customers/list">Customer-Beats</a></li>
-					          	<% } %>	
-					          	<li><a href="<%=request.getContextPath()%>/web/manufacturerWeb/manufacturer-salesexecs/list">Manufacturer-Sales Executives</a></li>
-						</ul>
+					        <% } %>	
+					        <% if(resourcePermIDs.contains(ResourcePermissionEnum.USER_VIEW_ASSIGNED_BEATS.getResourcePermissionID())) { %>
+				          		<li><a href="<%=request.getContextPath()%>/web/deliveryExecWeb/beatlist">Delivery Executive-Beats</a></li>
+			          		<% } %>	
+			          		
+				          	<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_VIEW_ASSOCIATED_CUSTOMERS.getResourcePermissionID())) { %>
+				          		<li><a href="<%=request.getContextPath()%>/web/beatWeb/beat-customers/list">Customer-Beats</a></li>
+				          	<% } %>	
+					    </ul>
         			</li>	
 					<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="reportmenu">Order Management<span class="caret"></span></a>

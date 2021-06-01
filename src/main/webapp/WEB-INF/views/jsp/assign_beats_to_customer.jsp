@@ -80,29 +80,34 @@ legend {
 		<%@ include file="menus.jsp" %>
 		<div class="row top-height">
 			<div class="col-md-8 ">
-				<form:form modelAttribute="customer" method="post"
-					action="/crm/web/beatWeb/assignBeatsToCustomer">
+				<form:form modelAttribute="beat" method="post"
+					action="/crm/web/beatWeb/assignBeatsToCustomer" id="beatCustform" name="beatCustform">
 					<fieldset>
 						<legend>Assign Beats to Customer</legend>
 							<div class="form-group required">
-								<label class='control-label'>Customer</label>
-								<form:select path="customerID" cssClass="form-control"
-									id="customers" multiple="false">
+								<label class='control-label'>Beats</label>
+								<form:select path="beatID" cssClass="form-control"
+									id="beats" multiple="false">
 									<form:option value="-1" label="--- Select ---" />
-									<form:options items="${customers}" itemValue="customerID"
-										itemLabel="customerName" required="required" />
+									<form:options items="${beats}" itemValue="beatID"
+										itemLabel="name" required="required" />
 								</form:select>
 							</div>
+							<label id="beatMsg" style="color:red; font-style: italic; font-weight: normal;">Please select the beat from the list.</label>
+							
 							<div class="form-group required">
-								<label class='control-label'>Beats</label>
-								<form:select path="beatIDs" cssClass="form-control" id="beats"
+								<label class='control-label'>Customers</label>
+								<form:select path="customerIDs" cssClass="form-control" id="customers"
 									multiple="true">
 								</form:select>
 							</div>
+							<label id="custMsg" style="color:red; font-style: italic; font-weight: normal;">Please select the customer from the list.</label>
 					</fieldset>
 					<form:hidden name="tenantID" path="tenantID" id="tenantID" value="${ tenantID }" />
 					<div class="form_submit">
-						<button type="submit" class="btn btn-primary">Submit</button>
+						<button type="button" class="btn btn-primary" id="cancelbtn" onclick="window.history.back(); return false;"">Cancel</button>
+						<button type="button" class="btn btn-primary" id="resetBtn" onclick="location.reload();">Reset</button>
+						<button type="submit" class="btn btn-primary" id="submitbtn">Submit</button>
 					</div>
 				</form:form>
 			</div>
@@ -114,23 +119,49 @@ legend {
 		$("#beats").prop('required',true);
 		
 		$("#customers").prop('required',true);
+		$("#beatMsg").hide();
+		$("#custMsg").hide();
 		
-		$('#customers').change(function() {
-			if($('#customers').val() != -1){
+		$('#beats').change(function() {
+			$("#beatMsg").hide();
+			$("#custMsg").hide();
+			var dataFound = false;
+			if($('#beats').val() != -1){
 				$.ajax({
 						type : "GET",
-						url : "/crm/rest/beatReST/beatsNotMappedToCustomer/"+$('#customers').val()+"/"+$('#tenantID').val(),
+						url : "/crm/rest/customer/customersNotMappedToBeat/"+$('#tenantID').val(),
 						dataType : "json",
 						success : function(data) {
-							$('#beats').empty();
+							$('#customers').empty();
 							$.each(data,function(i,obj) {
-								var div_data = "<option value="+obj.beatID+">"+ obj.name+ "</option>";
-								$(div_data).appendTo('#beats');
+								dataFound = true;
+								var div_data = "<option value="+obj.customerID+">"+ obj.customerName+ "</option>";
+								$(div_data).appendTo('#customers');
 						});
 					}
 				});
 			}
+			//No data found
+			if(!dataFound){
+				$('#customers').empty();
+				var div_data = "<option value=> No Customers found to map </option>";
+				$(div_data).appendTo('#customers');
+			}
 			});
+		
+		$('#submitbtn').click(function(e){
+		     $("#custMsg").hide();
+			 $("#beatMsg").hide();
+		     if($('#customers').val() == -1){
+		    	 $("#custMsg").show();
+		    	 e.preventDefault();
+		     }
+		     if($('#beats').val() == "" || $('#beats').val() == -1){
+		    	 $("#beatMsg").show();
+		    	 e.preventDefault();
+		     }
+		   $('#myForm').submit();
+		});
 	});
 	
 </script>

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>    
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>    
+<%@page import="com.sales.crm.model.Manufacturer"%> 
+<%@page import="com.sales.crm.util.EncodeDecodeUtil"%>
 <html lang="en">
 
 <head>
@@ -102,9 +104,13 @@
                 </thead>
                 <tbody>
                 	<c:forEach var="manufacturer" items="${manufacturers}">  
+                	<%
+					String encodedManufID = "";
+					%>
+            	
                     <tr>
                     	<% if(resourcePermIDs.contains(ResourcePermissionEnum.MANUFACTURER_READ.getResourcePermissionID())) { %>
-                    		<td><a href="<%=request.getContextPath()%>/web/manufacturerWeb/${manufacturer.manufacturerID}">${manufacturer.manufacturerID}</a></td>
+                    		<td><a href="<%=request.getContextPath()%>/web/manufacturerWeb/${manufacturer.code}">${manufacturer.manufacturerID}</a></td>
                     	<% } else { %>	
                     		<td>${manufacturer.manufacturerID}</td>
                     	<%  } %>

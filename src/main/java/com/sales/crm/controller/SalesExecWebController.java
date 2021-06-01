@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.sales.crm.exception.CRMException;
 import com.sales.crm.model.Beat;
 import com.sales.crm.model.Manufacturer;
 import com.sales.crm.model.ManufacturerSalesExecBeats;
@@ -47,8 +48,7 @@ public class SalesExecWebController {
 	
 	@GetMapping(value="/beatlist")
 	public ModelAndView salesExecBeatsList(){
-		//List<SalesExecutive> salesExecs = salesExecService.getSalesExecutivesHavingBeatsAssigned(Integer.parseInt(String.valueOf(httpSession.getAttribute("resellerID"))));
-		List<ManufacturerSalesExecBeats> manufSalesExecBeats = manufacturerService.getManufSalesExecBeats(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
+		List<ManufacturerSalesExecBeats> manufSalesExecBeats = manufacturerService.getManufSalesExecBeatsList(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		return new ModelAndView("/salesexec_beats_list","manufSalesExecBeats", manufSalesExecBeats);  
 	}
 	
@@ -88,12 +88,12 @@ public class SalesExecWebController {
 	}
 	
 	
-	@GetMapping(value="/assignBeatEditForm/{manufID}/{salesExecID}") 
-	public ModelAndView assignBeatToSalesExecEditForm(@PathVariable("manufID") int manufID, @PathVariable("salesExecID") int salesExecID){
+	@GetMapping(value="/assignBeatEditForm/{manufCode}/{salesExecCode}") 
+	public ModelAndView assignBeatToSalesExecEditForm(@PathVariable("manufCode") String manufCode, @PathVariable("salesExecCode") String salesExecCode){
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		//SalesExecutive salesExec = salesExecService.getSalesExecutive(salesExecID);
 		List<Beat> beats = beatService.getTenantBeats(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
-		ManufacturerSalesExecBeats manufSalesExecBeats = manufacturerService.getManufSalesExecBeat(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))), manufID, salesExecID);
+		ManufacturerSalesExecBeats manufSalesExecBeats = manufacturerService.getManufSalesExecBeat(manufCode, salesExecCode, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		modelMap.put("beats", beats);
 		modelMap.put("manufSalesExecBeats", manufSalesExecBeats);
 		return new ModelAndView("/edit_assigned_beats", modelMap);
@@ -107,6 +107,9 @@ public class SalesExecWebController {
 			salesExecService.updateAssignedBeats(tenantID, manufSalesExecBeats.getManufacturer().getManufacturerID(), manufSalesExecBeats.getSalesExecutive().getUserID(), manufSalesExecBeats.getBeatIDLists());
 		}catch(Exception exception){
 			msg = "Beats assigned to Sales Executive could not be updated successfully. Please contact System Administrator.";
+			if(exception instanceof CRMException) {
+				msg = exception.getMessage();
+			}
 		}
 		return new ModelAndView("/update_assign_beats_conf", "msg", msg);
 	}

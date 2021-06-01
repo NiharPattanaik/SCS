@@ -34,7 +34,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.sales.crm.model.Beat;
 import com.sales.crm.model.Customer;
-import com.sales.crm.model.EntityStatusEnum;
 import com.sales.crm.model.SalesExecutive;
 import com.sales.crm.model.User;
 import com.sales.crm.service.BeatService;
@@ -42,6 +41,7 @@ import com.sales.crm.service.CustomerService;
 import com.sales.crm.service.SalesExecService;
 import com.sales.crm.service.UserService;
 import com.sales.crm.util.CustomerXLSProcessor;
+import com.sales.crm.util.EncodeDecodeUtil;
 
 @Controller
 @RequestMapping("/web/customerWeb")
@@ -66,9 +66,10 @@ public class CustomerWebController {
 	private static Logger logger = Logger.getLogger(CustomerWebController.class);
 	
 	
-	@GetMapping(value="/{customerID}")
-	public ModelAndView get(@PathVariable int customerID){
-		Customer customer = customerService.getCustomer(customerID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
+	@GetMapping(value="/{customerCode}")
+	public ModelAndView get(@PathVariable String customerCode){
+		//int decodedCustomerID = EncodeDecodeUtil.decodeStringToNumber(customerID);
+		Customer customer = customerService.getCustomer(customerCode, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		return new ModelAndView("/customer_details", "customer", customer);
 		
 	}
@@ -78,18 +79,18 @@ public class CustomerWebController {
 		List<Beat> beats = beatService.getTenantBeats(Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		modelMap.put("customer", new Customer());
-		modelMap.put("beats", beats);
+		modelMap.put("beats", new ArrayList<Beat>());
 		return new ModelAndView("/create_customer", modelMap);
 	}
 	
-	@RequestMapping(value="/editCustomerForm/{customerID}", method = RequestMethod.GET)  
-	public ModelAndView editCustomerForm(@PathVariable int customerID){
+	@RequestMapping(value="/editCustomerForm/{customerCode}", method = RequestMethod.GET)  
+	public ModelAndView editCustomerForm(@PathVariable String customerCode){
 		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
-		Customer customer = customerService.getCustomer(customerID, tenantID);
-		List<SalesExecutive> salesExecs = salesExecService.getSalesExecutives(tenantID);
+		Customer customer = customerService.getCustomer(customerCode, tenantID);
+		//List<SalesExecutive> salesExecs = salesExecService.getSalesExecutives(tenantID);
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 		modelMap.put("customer", customer);
-		modelMap.put("salesExecs", salesExecs);
+		//modelMap.put("salesExecs", salesExecs);
 		return new ModelAndView("/edit_customer", modelMap);
 	}
 	
@@ -116,17 +117,15 @@ public class CustomerWebController {
 		}
 		Map<String, String> modelMap = new HashMap<String, String>();
 		modelMap.put("msg", msg);
-		modelMap.put("customerID", String.valueOf(customer.getCustomerID()));
+		modelMap.put("code", String.valueOf(customer.getCode()));
 		return new ModelAndView("/edit_customer_conf", "map", modelMap);
 	}
 	
-	@GetMapping(value="/delete/{customerID}")
-	public ModelAndView delete(@PathVariable int customerID){
+	@GetMapping(value="/delete/result/{status}")
+	public ModelAndView deleteConfirm(@PathVariable("status")  int status){
 		String msg = "";
-		try{
-			customerService.deleteCustomer(customerID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
-		}catch(Exception exception){
-			msg = "Customer could not be successfully removed, please contact System Administrator";
+		if(status != 0) {
+			msg = "Customer could not be deleted successfully, please contact System Administrator. ";
 		}
 		return new ModelAndView("/delete_customer_conf","msg", msg); 
 	}
@@ -195,33 +194,26 @@ public class CustomerWebController {
 		return builder.toString();
 	}
 
-	
-	@GetMapping(value="/deactivate/{customerID}")
-	public ModelAndView deactivateCustomer(@PathVariable int customerID){
+	@GetMapping(value="/deactivate/result/{customerID}/{status}")
+	public ModelAndView deactivateSuccess(@PathVariable("customerID") int customerID, @PathVariable("status")  int status){
 		String msg = "";
-		try{
-			customerService.deactivateCustomer(customerID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
-		}catch(Exception exception){
-			logger.error("Error while deactivating customer + customerID", exception);
+		Map<String, String> modelMap = new HashMap<String, String>();
+		if(status != 0) {
 			msg = "Customer could not be deactivated successfully, please contact System Administrator. ";
 		}
-		Map<String, String> modelMap = new HashMap<String, String>();
 		modelMap.put("msg", msg);
 		modelMap.put("action", "Deactivated");
 		modelMap.put("customerID", String.valueOf(customerID));
 		return new ModelAndView("/update_customer_status_conf","map", modelMap);  
 	}
 	
-	@GetMapping(value="/activate/{customerID}")
-	public ModelAndView activateCustomer(@PathVariable int customerID){
+	@GetMapping(value="/activate/result/{customerID}/{status}")
+	public ModelAndView activateCustomer(@PathVariable("customerID") int customerID, @PathVariable("status")  int status){
 		String msg = "";
-		try{
-			customerService.activateCustomer(customerID, Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID"))));
-		}catch(Exception exception){
-			logger.error("Error while activating customer + customerID", exception);
-			msg = "Customer could not be activated successfully, please contact System Administrator. ";
-		}
 		Map<String, String> modelMap = new HashMap<String, String>();
+		if(status != 0) {
+			msg = "Customer could not be deactivated successfully, please contact System Administrator. ";
+		}
 		modelMap.put("msg", msg);
 		modelMap.put("action", "Activated");
 		modelMap.put("customerID", String.valueOf(customerID));

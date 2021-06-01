@@ -1,7 +1,9 @@
 package com.sales.crm.model;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Transient;
 
@@ -24,12 +26,10 @@ public class SalesExecutive extends User {
 	@Transient
 	private List<Integer> customerIDs;
 	
-	//HACK, used from spring tag (assign_beat.jsp)
-	@Transient
-	private int manufacturerID;
-	
 	@Transient
 	private int tenantID;
+	
+	private Map<Integer, String> manufacturers = new HashMap<Integer, String>();
 
 	public List<Beat> getBeats() {
 		return beats;
@@ -63,18 +63,6 @@ public class SalesExecutive extends User {
 		this.customerIDs = customerIDs;
 	}
 	
-	
-
-	public int getManufacturerID() {
-		return manufacturerID;
-	}
-
-	public void setManufacturerID(int manufacturerID) {
-		this.manufacturerID = manufacturerID;
-	}
-	
-	
-
 	public int getTenantID() {
 		return tenantID;
 	}
@@ -83,62 +71,31 @@ public class SalesExecutive extends User {
 		this.tenantID = tenantID;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((beatIDLists == null) ? 0 : beatIDLists.hashCode());
-		result = prime * result + ((beats == null) ? 0 : beats.hashCode());
-		result = prime * result + ((customerIDs == null) ? 0 : customerIDs.hashCode());
-		result = prime * result + manufacturerID;
-		result = prime * result + tenantID;
-		result = prime * result + ((visitDate == null) ? 0 : visitDate.hashCode());
-		return result;
+	public Map<Integer, String> getManufacturers() {
+		return manufacturers;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		SalesExecutive other = (SalesExecutive) obj;
-		if (beatIDLists == null) {
-			if (other.beatIDLists != null)
-				return false;
-		} else if (!beatIDLists.equals(other.beatIDLists))
-			return false;
-		if (beats == null) {
-			if (other.beats != null)
-				return false;
-		} else if (!beats.equals(other.beats))
-			return false;
-		if (customerIDs == null) {
-			if (other.customerIDs != null)
-				return false;
-		} else if (!customerIDs.equals(other.customerIDs))
-			return false;
-		if (manufacturerID != other.manufacturerID)
-			return false;
-		if (tenantID != other.tenantID)
-			return false;
-		if (visitDate == null) {
-			if (other.visitDate != null)
-				return false;
-		} else if (!visitDate.equals(other.visitDate))
-			return false;
-		return true;
+	public void setManufacturers(Map<Integer, String> manufacturers) {
+		this.manufacturers = manufacturers;
 	}
 
 	@Override
 	public String toString() {
 		return "SalesExecutive [beats=" + beats + ", beatIDLists=" + beatIDLists + ", visitDate=" + visitDate
-				+ ", customerIDs=" + customerIDs + ", manufacturerID=" + manufacturerID + ", tenantID=" + tenantID
-				+ ", dateCreated=" + dateCreated + ", dateModified=" + dateModified + "]";
+				+ ", customerIDs=" + customerIDs + ", tenantID=" + tenantID + ", manufacturers=" + manufacturers
+				+ ", getUserID()=" + getUserID() + ", getUserName()=" + getUserName() + ", getPassword()="
+				+ getPassword() + ", getDescription()=" + getDescription() + ", getFirstName()=" + getFirstName()
+				+ ", getLastName()=" + getLastName() + ", getMobileNo()=" + getMobileNo() + ", getEmailID()="
+				+ getEmailID() + ", getRoles()=" + getRoles() + ", getRoleIDs()=" + getRoleIDs() + ", getName()="
+				+ getName() + ", getNewPassword()=" + getNewPassword() + ", getPasswordMedium()=" + getPasswordMedium()
+				+ ", getSecurityQuestions()=" + getSecurityQuestions() + ", getLoggedIn()=" + getLoggedIn()
+				+ ", getSecQuestionAnsws()=" + getSecQuestionAnsws() + ", getCode()=" + getCode() + ", hashCode()="
+				+ hashCode() + ", toString()=" + super.toString() + ", getDateCreated()=" + getDateCreated()
+				+ ", getDateModified()=" + getDateModified() + ", getStatusID()=" + getStatusID() + ", getClass()="
+				+ getClass() + "]";
 	}
 
+	
 	
 	
 }

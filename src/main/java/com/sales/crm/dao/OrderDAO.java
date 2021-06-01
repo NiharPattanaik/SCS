@@ -2,7 +2,9 @@ package com.sales.crm.dao;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import com.sales.crm.model.DeliveryBookingSchedule;
 import com.sales.crm.model.Order;
 import com.sales.crm.model.OrderBookingSchedule;
 import com.sales.crm.model.OrderBookingStats;
@@ -35,5 +37,14 @@ public interface OrderDAO {
 	int createWithOTP(Order order, String otp) throws Exception;
 	
 	boolean isOrderingProcessInProgressForCustomer(int customerID, int tenantID);
+	
+	public List<OrderBookingSchedule> searchScheduledOrders(Map<String, Object> filterCriteria, int tenantID);
 
+	public void deleteOrder(int orderID, String remark, int tenantID) throws Exception;
+	
+	public List<DeliveryBookingSchedule> getAllOrderDeliveryBookedForDate(int tenantID, Date date);
+	
+	public void unScheduleOrderDelivery(int deliverySchedID, int tenantID) throws Exception;
+	
+	public List<DeliveryBookingSchedule> searchScheduledOrderDeliveries(Map<String, Object> filterCriteria, int tenantID);
 }

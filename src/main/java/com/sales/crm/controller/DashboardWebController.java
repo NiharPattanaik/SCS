@@ -56,6 +56,8 @@ public class DashboardWebController {
 		int tenantID = Integer.parseInt(String.valueOf(httpSession.getAttribute("tenantID")));
 		//Number Of Customers
 		int numberOfCustomers = customerService.getCustomersCount(tenantID);
+		//Number Of Manufacturer
+		int numberOfManufacturers = manufacturerService.getManufacturersCount(tenantID);
 		//Number of Beats
 		int numberOfBeats = beatService.getBeatsCount(tenantID);
 		//Number of SalesExecuties
@@ -65,6 +67,7 @@ public class DashboardWebController {
 		scheduledOrderSummaries = orderService.getScheduledOrderSummary(tenantID, -1, new Date());
 		List<SalesExecutive> salesExecs = salesExecService.getSalesExecutives(tenantID);
 		modelMap.put("numberOfCustomers", numberOfCustomers);
+		modelMap.put("numberOfManufacturers", numberOfManufacturers);
 		modelMap.put("numberOfBeats", numberOfBeats);
 		modelMap.put("numberOfSalesExecs", numberOfSalesExecs);
 		modelMap.put("numberOfDeliveryExecs", numberOfDeliveryExecs);

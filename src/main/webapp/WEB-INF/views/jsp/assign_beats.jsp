@@ -104,12 +104,13 @@ legend {
 						<div class="form-group required">
 							<label class='control-label'>Beats</label>
 							<form:select path="beatIDLists" cssClass="form-control" multiple="true" id="beats">
-								<form:option value="-1" label="--- Select ---" />
 							</form:select>
 						</div>
 					</fieldset>
 					<form:hidden name="tenantID" path="tenantID" id="tenantID" value="${ tenantID }" />
 					<div class="form_submit">
+						<button type="button" class="btn btn-primary" id="cancelbtn" onclick="window.history.back(); return false;"">Cancel</button>
+						<button type="button" class="btn btn-primary" id="resetBtn" onclick="location.reload();">Reset</button>
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</div>
 				</form:form>

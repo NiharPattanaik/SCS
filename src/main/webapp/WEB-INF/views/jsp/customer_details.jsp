@@ -2,6 +2,8 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@page import="com.sales.crm.util.EncodeDecodeUtil"%>
+<%@page import="com.sales.crm.model.Customer"%>
 <html lang="en">
 
 <head>
@@ -44,12 +46,11 @@ legend {
 }
 
 .customer_list {
-	margin-bottom: 20px;
+	margin-bottom: 10px;
 }
 
 .add_customer {
 	text-align: right;
-	margin-top: 31px;
 }
 
 .side_nav_btns {
@@ -71,6 +72,21 @@ legend {
     border-top: 1px solid #e5e5e5;
 }
 
+.form-group {
+    margin-bottom: 0;
+}
+
+.form-group.required .control-label:after { 
+   content:"*";
+   color:red;
+}
+
+.add_customer_buttom {
+	text-align: right;
+	margin-top: 10px;
+	margin-bottom: 20px;
+}
+
 </style>
 </head>
 
@@ -86,45 +102,37 @@ legend {
 			<div class="col-md-4">
 				<h2>Customers Details</h2>
 			</div>
-			<div class="col-md-5 add_customer">
-			
-				<% if(resourcePermIDs.contains(ResourcePermissionEnum.CUSTOMER_UPDATE.getResourcePermissionID())) { %>
-					<button type="submit" class="btn btn-primary"
-						onclick="location.href='<%=request.getContextPath()%>/web/customerWeb/editCustomerForm/${customer.customerID}';">
-						Modify Customer</button>
-				<% } %>
-				
+		</div>
+		<div class="col-md-9 add_customer">
+				<button type="button" class="btn btn-primary" id="cancelbtn" onclick="window.history.back(); return false;"">Cancel</button>
 				<c:if test = "${customer.statusID == 2}">
-					<c:choose>
-						<c:when test = "${customer.isOrderingProcessInProgress}">
-							<a href=# id=link class="btn btn-primary" data-toggle=modal data-target=#confirm-submit>Deactivate Customer</a>	
-						</c:when>
-						<c:otherwise>
-							<button type="submit" class="btn btn-primary" id="deactivateBtn" data-toggle="modal" data-target="#deactivateModal">
-								Deactivate Customer</button>
-						</c:otherwise>	
-					</c:choose>	
+					<% if(resourcePermIDs.contains(ResourcePermissionEnum.CUSTOMER_UPDATE.getResourcePermissionID())) { %>
+					<button type="submit" class="btn btn-primary"
+						onclick="location.href='<%=request.getContextPath()%>/web/customerWeb/editCustomerForm/${customer.code}';">
+						Modify</button>
+					<% } %>
+				
+				
+					<button type="submit" class="btn btn-primary" id="deactivateBtn" data-toggle="modal" data-target="#deactivateModal">
+								Deactivate</button>
 					
 					<% if(resourcePermIDs.contains(ResourcePermissionEnum.CUSTOMER_DELETE.getResourcePermissionID())) { %>
 						<c:choose>
-							<c:when test = "${customer.isOrderingProcessInProgress}">
-								<a href=# id=link class="btn btn-primary" data-toggle=modal data-target=#confirm-submit>Delete Customer</a>	
+							<c:when test = "${customer.hasTransactions}">
+								<a href=# id=link class="btn btn-primary" data-toggle=modal data-target=#confirm-submit>Delete</a>	
 							</c:when>
 							<c:otherwise>
 									<button type="submit" class="btn btn-primary" id="deleteBtn" data-toggle="modal" data-target="#confirm">
-										Delete Customer</button>
+										Delete</button>
 							</c:otherwise>				
 						</c:choose>	
 					<% } %>
 				</c:if>
 				
 				<c:if test = "${customer.statusID == 3}">
-					<button type="submit" class="btn btn-primary" id="deactivateBtn" data-toggle="modal" data-target="#activateModal">
+					<button type="submit" class="btn btn-primary" id="activateBtn" data-toggle="modal" data-target="#activateModal">
 							Activate Customer</button>
 				</c:if>
-				
-				
-			</div>
 		</div>
 		<div class="row top-height">
 			<div class="col-md-9 ">
@@ -137,6 +145,7 @@ legend {
 					<div class="form-group">
 						<label>Description :</label> <span>${customer.description}</span>
 					</div>
+					<input type="hidden" name="tenantID" id="tenantID" value="${ customer.tenantID }" />
 				</fieldset>
 
 				<fieldset>
@@ -213,8 +222,51 @@ legend {
 						</div>
 					</fieldset>
 				</c:if>
+				<c:if test="${not empty customer.deactivationReason}">
+					<fieldset>
+						<legend>Deactivation Details</legend>
+						<div class="form-group">
+							<label>Deactivation Date :</label> <span>${customer.deactivationDateStr}</span>
+						</div>
+						<div class="form-group">
+							<label>Deactivation Reason :</label> <span>${customer.deactivationReason}</span>
+						</div>
+					</fieldset>
+				</c:if>
 			</div>
 		</div>
+		<div class="col-md-9 add_customer_buttom">
+				<button type="button" class="btn btn-primary" id="cancelbtn" onclick="window.history.back(); return false;"">Cancel</button>
+				<c:if test = "${customer.statusID == 2}">
+					<% if(resourcePermIDs.contains(ResourcePermissionEnum.CUSTOMER_UPDATE.getResourcePermissionID())) { %>
+					<button type="submit" class="btn btn-primary"
+						onclick="location.href='<%=request.getContextPath()%>/web/customerWeb/editCustomerForm/${customer.code}';">
+						Modify</button>
+					<% } %>
+				
+					<button type="submit" class="btn btn-primary" id="deactivateBtn" data-toggle="modal" data-target="#deactivateModal">
+								Deactivate</button>
+					
+					<% if(resourcePermIDs.contains(ResourcePermissionEnum.CUSTOMER_DELETE.getResourcePermissionID())) { %>
+						<c:choose>
+							<c:when test = "${customer.hasTransactions}">
+								<a href=# id=link class="btn btn-primary" data-toggle=modal data-target=#confirm-submit>Delete</a>	
+							</c:when>
+							<c:otherwise>
+									<button type="submit" class="btn btn-primary" id="deleteBtn" data-toggle="modal" data-target="#confirm">
+										Delete</button>
+							</c:otherwise>				
+						</c:choose>	
+					<% } %>
+				</c:if>
+				
+				<c:if test = "${customer.statusID == 3}">
+					<button type="submit" class="btn btn-primary" id="activateBtn" data-toggle="modal" data-target="#activateModal">
+							Activate</button>
+				</c:if>
+				
+				
+			</div>
 	</div>
 	<div class="modal fade" id="confirm" tabindex="-1" role="dialog"
 		aria-labelledby="myModalLabel" aria-hidden="true">
@@ -224,15 +276,30 @@ legend {
 					<b>Confirm removal of customer.</b>
 				</div>
 				<div class="modal-body">
-					Are you sure you want to remove the customer, <span><b>${customer.name}</b></span>
-					?
+					Are you sure you want to remove the customer, <span><b>${customer.name} ?</b></span> 
 				</div>
 				<div class="modal-custom-footer">
 					<button type="submit" id="delete" class="btn btn-primary">Confirm</button>
 					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
 					<script type="text/javascript">
-						$('#delete').click(function(){
-						   window.location.href = "/crm/web/customerWeb/delete/${customer.customerID}"
+						//$('#delete').click(function(){
+						//   window.location.href = "/crm/web/customerWeb/delete/${customer.customerID}"
+						//});
+						//Click on confirm button
+						$('#delete').click(function(e){
+						   $.ajax({
+							    type: 'DELETE',
+							    url: '/crm/rest/customer/delete',
+							    data: '{"customerID":${customer.customerID},"tenantID":${customer.tenantID}}', 
+							    success: function(data) { 
+							    	window.location.href = "/crm/web/customerWeb/delete/result/0"
+							    },
+							    error: function() {
+							    	window.location.href = "/crm/web/customerWeb/delete/result/1"
+							     },
+							    contentType: "application/json",
+							    dataType: 'json'
+							});
 						});
 					</script>
 				</div>
@@ -249,12 +316,9 @@ legend {
 				<b>Warning !</b>
 			</div>
 				<div class="modal-body">
-					The Customer can't be Deactivated or Deleted because of the following reasons
-					<ul>
-						<li>A Sales Executive visit is planned for the customer.</li>
-						<li>Order is in progress.</li>
-						<li>Payment is not yet completed for delivered Orders.</li>
-					</ul>
+					This customer has active transactions in the system, so the customer can't be removed. 
+					The customer's information will be used for any future analysis and removing customer from the system will remove all the information
+					related to that customer. You can deactivate this customer instead of removing from the system.
 				</div>
 				<div class="modal-custom-footer">
 				<button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
@@ -272,15 +336,59 @@ legend {
 					<b>Confirm de-activation of customer.</b>
 				</div>
 				<div class="modal-body">
-					Are you sure you want to deactivate the customer, <span><b>${customer.name}</b></span>
-					?
+					<div class="form-group required">
+						<label class='control-label'>Deactivation Reason</label>
+					</div>
+
+					<div class="md-form">
+						<textarea maxlength="1000" type="text" id="reason" class="md-textarea form-control"
+							rows="4"></textarea>
+					</div>
+					<label id="deactMSG" style="color:red; font-style: italic; font-weight: normal;">Please mention deactivation reason above.</label>
+							
 				</div>
 				<div class="modal-custom-footer">
 					<button type="submit" id="deactivate" class="btn btn-primary">Confirm</button>
 					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
 					<script type="text/javascript">
-						$('#deactivate').click(function(){
-						   window.location.href = "/crm/web/customerWeb/deactivate/${customer.customerID}"
+						$(document).ready(function(e) {
+							//If error message is already there will disapear once some text is entered
+							$('#reason').bind('input propertychange', function() {
+							     if(this.value.length){
+							    	  $("#deactMSG").hide();
+							      }else{
+							    	  $("#deactMSG").show();
+							      }
+							});
+							
+							//When the modal is shown, clean up all the data 
+							$('#deactivateModal').on('show.bs.modal', function (e) {
+								$("#deactMSG").hide();
+								$('#reason').val('');
+							});
+							
+							//Click on confirm button
+							$('#deactivate').click(function(e){
+								var reason = $('#reason').val();
+							  	//If deactivation reason is not mentioned, show the error message.
+								if($('#reason').val().trim() == ""){
+						    	 	$("#deactMSG").show();
+						    	}else{
+								   $.ajax({
+									    type: 'POST',
+									    url: '/crm/rest/customer/deactivate',
+									    data: '{"customerID":${customer.customerID},"tenantID":${customer.tenantID}, "remark":"'+reason+'"}', 
+									    success: function(data) { 
+									    	window.location.href = "/crm/web/customerWeb/deactivate/result/${customer.customerID}/0"
+									    },
+									    error: function() {
+									    	window.location.href = "/crm/web/customerWeb/deactivate/result/${customer.customerID}/1"
+									     },
+									    contentType: "application/json",
+									    dataType: 'json'
+									});
+								}
+							});
 						});
 					</script>
 				</div>
@@ -296,15 +404,58 @@ legend {
 					<b>Confirm activation of customer.</b>
 				</div>
 				<div class="modal-body">
-					Are you sure you want to activate the customer, <span><b>${customer.name}</b></span>
-					?
+					<div class="form-group required">
+						<label class='control-label'>Activation Reason</label>
+					</div>
+
+					<div class="md-form">
+						<textarea maxlength="1000" type="text" id="actreason" class="md-textarea form-control"
+							rows="4"></textarea>
+					</div>
+					<label id="actMSG" style="color:red; font-style: italic; font-weight: normal;">Please mention activation reason above.</label>
 				</div>
 				<div class="modal-custom-footer">
 					<button type="submit" id="activate" class="btn btn-primary">Confirm</button>
 					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
 					<script type="text/javascript">
-						$('#activate').click(function(){
-						   window.location.href = "/crm/web/customerWeb/activate/${customer.customerID}"
+						$(document).ready(function(e) {
+							//If error message is already there will disapear once some text is entered
+							$('#actreason').bind('input propertychange', function() {
+							     if(this.value.length){
+							    	  $("#actMSG").hide();
+							      }else{
+							    	  $("#actMSG").show();
+							      }
+							});
+							
+							//When the modal is shown, clean up all the data 
+							$('#activateModal').on('show.bs.modal', function (e) {
+								$("#actMSG").hide();
+								$('#actreason').val('');
+							});
+							
+							//Click on confirm button
+							$('#activate').click(function(e){
+								var actreason = $('#actreason').val();
+							  	//If activation reason is not mentioned, show the error message.
+								if($('#actreason').val().trim() == ""){
+						    	 	$("#actMSG").show();
+						    	}else{
+								   $.ajax({
+									    type: 'POST',
+									    url: '/crm/rest/customer/activate',
+									    data: '{"customerID":${customer.customerID},"tenantID":${customer.tenantID}, "remark":"'+actreason+'"}', 
+									    success: function(data) { 
+									    	window.location.href = "/crm/web/customerWeb/activate/result/${customer.customerID}/0"
+									    },
+									    error: function() {
+									    	window.location.href = "/crm/web/customerWeb/activate/result/${customer.customerID}/1"
+									     },
+									    contentType: "application/json",
+									    dataType: 'json'
+									});
+								}
+							});
 						});
 					</script>
 				</div>

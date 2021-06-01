@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -13,11 +14,17 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sales.crm.exception.ErrorCodes;
 import com.sales.crm.model.Customer;
 import com.sales.crm.model.CustomerOrder;
@@ -47,6 +54,7 @@ public class CustomerReSTController {
 			response.setStatus(ReSTResponse.STATUS_SUCCESS);
 			response.setBusinessEntities(customers);
 		} catch (Exception exception) {
+			logger.error("Fetching sheduled customers failed.", exception);
 			response.setStatus(ReSTResponse.STATUS_FAILURE);
 			response.setErrorCode(ErrorCodes.SYSTEM_ERROR);
 			response.setErrorMsg("Something is not right ! Please contact System Administrator");
@@ -66,6 +74,7 @@ public class CustomerReSTController {
 			response.setStatus(ReSTResponse.STATUS_SUCCESS);
 			response.setBusinessEntities(customers);
 		} catch (Exception exception) {
+			logger.error("Fetching cstomers for delivery has failed.", exception);
 			response.setStatus(ReSTResponse.STATUS_FAILURE);
 			response.setErrorCode(ErrorCodes.SYSTEM_ERROR);
 			response.setErrorMsg("Something is not right ! Please contact System Administrator");
@@ -73,26 +82,51 @@ public class CustomerReSTController {
 		return new ResponseEntity<ReSTResponse>(response, HttpStatus.OK);
 	}
 
-	@GetMapping(value = "/toSchedule/{beatID}/{visitDate}/{tenantID}")
-	public List<TrimmedCustomer> getCustomersToSchedule(@PathVariable("beatID") int beatID,
-			@PathVariable("visitDate") String visitDate, @PathVariable("tenantID") int tenantID) {
+	@PostMapping(value = "/toSchedule")
+	public List<TrimmedCustomer> getCustomersToSchedule(@RequestBody ObjectNode objectNode) {
 		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>();
 		try {
+			List<Integer> manufacturerIDs = new ArrayList<Integer>();
+			int salesExecID = objectNode.get("salesExecID").asInt();
+			int beatID = objectNode.get("beatID").asInt();
+			int tenantID = objectNode.get("tenantID").asInt();
+			String visitDate = objectNode.get("date").asText();
 			Date date = new SimpleDateFormat("dd-MM-yyyy").parse(visitDate);
-			customers = customerService.getCustomersToSchedule(beatID, date, tenantID);
+			if(objectNode.get("manufIDs") instanceof ArrayNode) {
+				Iterator<JsonNode> itr = objectNode.get("manufIDs").elements();
+				while(itr.hasNext()) {
+					manufacturerIDs.add(itr.next().asInt());
+				}
+			}else {
+				manufacturerIDs.add(objectNode.get("manufIDs").asInt());
+			}
+					
+			customers = customerService.getCustomersToSchedule(salesExecID, beatID, date, manufacturerIDs, tenantID);
 		} catch (Exception exception) {
 			logger.error("Error while fetching customers to schedule visit.", exception);
 		}
 		return customers;
 	}
 
-	@GetMapping(value = "/customersToScheduleDelivery/{beatID}/{visitDate}/{tenantID}")
-	public List<CustomerOrder> getCustomersToScheduleDelivery(@PathVariable("beatID") int beatID,
-			@PathVariable("visitDate") String visitDate, @PathVariable("tenantID") int tenantID) {
+	@PostMapping(value = "/customersToScheduleDelivery")
+	public List<CustomerOrder> getCustomersToScheduleDelivery(@RequestBody ObjectNode objectNode) {
 		List<CustomerOrder> customerOrders = new ArrayList<CustomerOrder>();
 		try {
+			List<Integer> manufacturerIDs = new ArrayList<Integer>();
+			int beatID = objectNode.get("beatID").asInt();
+			int tenantID = objectNode.get("tenantID").asInt();
+			String visitDate = objectNode.get("date").asText();
 			Date date = new SimpleDateFormat("dd-MM-yyyy").parse(visitDate);
-			customerOrders = customerService.getCustomersToScheduleDelivery(beatID, date, tenantID);
+			if(objectNode.get("manufIDs") instanceof ArrayNode) {
+				Iterator<JsonNode> itr = objectNode.get("manufIDs").elements();
+				while(itr.hasNext()) {
+					manufacturerIDs.add(itr.next().asInt());
+				}
+			}else {
+				manufacturerIDs.add(objectNode.get("manufIDs").asInt());
+			}
+			
+			customerOrders = customerService.getCustomersToScheduleDelivery(beatID, date, manufacturerIDs, tenantID);
 		} catch (Exception exception) {
 			logger.error("Error while fetching customers to schedule delivery.", exception);
 		}
@@ -109,6 +143,7 @@ public class CustomerReSTController {
 			response.setStatus(ReSTResponse.STATUS_SUCCESS);
 			response.setBusinessEntities(customers);
 		} catch (Exception exception) {
+			logger.error("Fetchingh customers for OTP verification has failed.", exception);
 			response.setStatus(ReSTResponse.STATUS_FAILURE);
 			response.setErrorCode(ErrorCodes.SYSTEM_ERROR);
 			response.setErrorMsg("Something is not right ! Please contact System Administrator");
@@ -129,6 +164,27 @@ public class CustomerReSTController {
 			response.setStatus(ReSTResponse.STATUS_SUCCESS);
 			response.setBusinessEntities(customers);
 		} catch (Exception exception) {
+			logger.error("Customer search failed with error.", exception);
+			response.setStatus(ReSTResponse.STATUS_FAILURE);
+			response.setErrorCode(ErrorCodes.SYSTEM_ERROR);
+			response.setErrorMsg("Something is not right ! Please contact System Administrator");
+			return new ResponseEntity<ReSTResponse>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<ReSTResponse>(response, HttpStatus.OK);
+	}
+	
+	@PostMapping(value="/activate")
+	public ResponseEntity<ReSTResponse> activateCustomer(@RequestBody ObjectNode objectNode){
+		ReSTResponse response = new ReSTResponse();
+		int customerID = -1;
+		try{
+			customerID = objectNode.get("customerID").asInt();
+			String remark = objectNode.get("remark").asText();
+			int tenantID = objectNode.get("tenantID").asInt();
+			customerService.activateCustomer(customerID, remark, tenantID);
+			response.setStatus(ReSTResponse.STATUS_SUCCESS);
+		}catch(Exception exception){
+			logger.error("Error while activating customer "+ customerID, exception);
 			response.setStatus(ReSTResponse.STATUS_FAILURE);
 			response.setErrorCode(ErrorCodes.SYSTEM_ERROR);
 			response.setErrorMsg("Something is not right ! Please contact System Administrator");
@@ -137,4 +193,55 @@ public class CustomerReSTController {
 		return new ResponseEntity<ReSTResponse>(response, HttpStatus.OK);
 	}
 
+	@PostMapping(value="/deactivate")
+	public ResponseEntity<ReSTResponse>  deactivateCustomer(@RequestBody ObjectNode objectNode){
+		ReSTResponse response = new ReSTResponse();
+		int customerID = -1;
+		try{
+			customerID = objectNode.get("customerID").asInt();
+			String remark = objectNode.get("remark").asText();
+			int tenantID = objectNode.get("tenantID").asInt();
+			customerService.deactivateCustomer(customerID, remark, tenantID);
+			response.setStatus(ReSTResponse.STATUS_SUCCESS);
+		}catch(Exception exception){
+			logger.error("Error while deactivating customer "+ customerID, exception);
+			response.setStatus(ReSTResponse.STATUS_FAILURE);
+			response.setErrorCode(ErrorCodes.SYSTEM_ERROR);
+			response.setErrorMsg("Something is not right ! Please contact System Administrator");
+			return new ResponseEntity<ReSTResponse>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<ReSTResponse>(response, HttpStatus.OK);
+	}
+	
+	@DeleteMapping(value="/delete")
+	public ResponseEntity<ReSTResponse> delete(@RequestBody ObjectNode objectNode){
+		ReSTResponse response = new ReSTResponse();
+		int customerID = -1;
+		int tenantID = -1;
+		try{
+			customerID = objectNode.get("customerID").asInt();
+			tenantID = objectNode.get("tenantID").asInt();
+			customerService.deleteCustomer(customerID, tenantID);
+		}catch(Exception exception){
+			logger.error("Error while deleting customer " +customerID, exception);
+			response.setStatus(ReSTResponse.STATUS_FAILURE);
+			response.setErrorCode(ErrorCodes.SYSTEM_ERROR);
+			response.setErrorMsg("Something is not right ! Please contact System Administrator");
+			return new ResponseEntity<ReSTResponse>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<ReSTResponse>(response, HttpStatus.OK);
+	}
+
+	
+	@GetMapping(value = "/customersNotMappedToBeat/{tenantID}")
+	public List<TrimmedCustomer> getCustomersNotMappedToBeat(
+			@PathVariable("tenantID") int tenantID) {
+		List<TrimmedCustomer> customers = new ArrayList<TrimmedCustomer>();
+		try {
+			customers = customerService.getCustomersNotMappedToBeat(tenantID);
+		} catch (Exception exception) {
+			logger.error("Fetching sheduled customers failed.", exception);
+		}
+		return customers;
+	}
 }
