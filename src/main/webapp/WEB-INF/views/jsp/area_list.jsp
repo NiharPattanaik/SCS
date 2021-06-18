@@ -186,7 +186,7 @@
 					});
 				
 					$('#modalSubmit').click(function(){
-						window.location.href = "/crm/web/areaWeb/delete/"+code
+						window.location.href = "${contextPath}/web/areaWeb/delete/"+code
 					});
 				</script>
 			</div>

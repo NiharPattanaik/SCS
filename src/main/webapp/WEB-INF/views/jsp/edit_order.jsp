@@ -82,7 +82,7 @@ legend {
 			<div class="col-md-8 ">
 				<h2>Edit Order</h2>
 				<form:form modelAttribute="order" method="post"
-					action="/crm/web/orderWeb/update">
+					action="${contextPath}/web/orderWeb/update">
 					<fieldset>
 						<legend>Order Details</legend>
 						<div class="form-group">

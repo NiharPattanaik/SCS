@@ -82,7 +82,7 @@ legend {
 			<div class="col-md-8 ">
 				<h2>Add New Area</h2>
 				<form:form modelAttribute="area" method="post"
-					action="/crm/web/areaWeb/save">
+					action="${contextPath}/web/areaWeb/save">
 					<fieldset>
 						<legend>Area Details</legend>
 						<div class="form-group required">

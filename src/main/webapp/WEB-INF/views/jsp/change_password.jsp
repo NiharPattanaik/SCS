@@ -80,7 +80,7 @@ legend {
 			<div class="col-md-8 ">
 				<h2>Edit User</h2>
 				<form:form modelAttribute="user" method="post"
-					action="/crm/web/userWeb/updatePassword" id="passForm">
+					action="${contextPath}/web/userWeb/updatePassword" id="passForm">
 					<fieldset>
 						<legend>Change Password</legend>
 						<div class="form-group" >

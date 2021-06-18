@@ -201,13 +201,13 @@ legend {
 						    	}else{
 								   $.ajax({
 									    type: 'POST',
-									    url: '/crm/rest/orderReST/delete',
+									    url: '${contextPath}/rest/orderReST/delete',
 									    data: '{"orderID":${order.orderID},"tenantID":${order.tenantID}, "remark":"'+reason+'"}', 
 									    success: function(data) { 
-									    	window.location.href = "/crm/web/orderWeb/delete/result/${order.orderID}/0"
+									    	window.location.href = "${contextPath}/web/orderWeb/delete/result/${order.orderID}/0"
 									    },
 									    error: function() {
-									    	window.location.href = "/crm/web/orderWeb/delete/result/${order.orderID}/1"
+									    	window.location.href = "${contextPath}/web/orderWeb/delete/result/${order.orderID}/1"
 									     },
 									    contentType: "application/json",
 									    dataType: 'json'

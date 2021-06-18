@@ -283,19 +283,19 @@ legend {
 					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
 					<script type="text/javascript">
 						//$('#delete').click(function(){
-						//   window.location.href = "/crm/web/customerWeb/delete/${customer.customerID}"
+						//   window.location.href = "${contextPath}/web/customerWeb/delete/${customer.customerID}"
 						//});
 						//Click on confirm button
 						$('#delete').click(function(e){
 						   $.ajax({
 							    type: 'DELETE',
-							    url: '/crm/rest/customer/delete',
+							    url: '${contextPath}/rest/customer/delete',
 							    data: '{"customerID":${customer.customerID},"tenantID":${customer.tenantID}}', 
 							    success: function(data) { 
-							    	window.location.href = "/crm/web/customerWeb/delete/result/0"
+							    	window.location.href = "${contextPath}/web/customerWeb/delete/result/0"
 							    },
 							    error: function() {
-							    	window.location.href = "/crm/web/customerWeb/delete/result/1"
+							    	window.location.href = "${contextPath}/web/customerWeb/delete/result/1"
 							     },
 							    contentType: "application/json",
 							    dataType: 'json'
@@ -376,13 +376,13 @@ legend {
 						    	}else{
 								   $.ajax({
 									    type: 'POST',
-									    url: '/crm/rest/customer/deactivate',
+									    url: '${contextPath}/rest/customer/deactivate',
 									    data: '{"customerID":${customer.customerID},"tenantID":${customer.tenantID}, "remark":"'+reason+'"}', 
 									    success: function(data) { 
-									    	window.location.href = "/crm/web/customerWeb/deactivate/result/${customer.customerID}/0"
+									    	window.location.href = "${contextPath}/web/customerWeb/deactivate/result/${customer.code}/0"
 									    },
 									    error: function() {
-									    	window.location.href = "/crm/web/customerWeb/deactivate/result/${customer.customerID}/1"
+									    	window.location.href = "${contextPath}/web/customerWeb/deactivate/result/${customer.code}/1"
 									     },
 									    contentType: "application/json",
 									    dataType: 'json'
@@ -443,13 +443,13 @@ legend {
 						    	}else{
 								   $.ajax({
 									    type: 'POST',
-									    url: '/crm/rest/customer/activate',
+									    url: '${contextPath}/rest/customer/activate',
 									    data: '{"customerID":${customer.customerID},"tenantID":${customer.tenantID}, "remark":"'+actreason+'"}', 
 									    success: function(data) { 
-									    	window.location.href = "/crm/web/customerWeb/activate/result/${customer.customerID}/0"
+									    	window.location.href = "${contextPath}/web/customerWeb/activate/result/${customer.code}/0"
 									    },
 									    error: function() {
-									    	window.location.href = "/crm/web/customerWeb/activate/result/${customer.customerID}/1"
+									    	window.location.href = "${contextPath}/web/customerWeb/activate/result/${customer.code}/1"
 									     },
 									    contentType: "application/json",
 									    dataType: 'json'

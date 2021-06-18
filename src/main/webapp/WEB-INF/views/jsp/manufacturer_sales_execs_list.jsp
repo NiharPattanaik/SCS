@@ -186,7 +186,7 @@
 						});
 						//Click on confirm button
 						$('#delete').click(function(e){
-							window.location.href = "/crm/web/manufacturerWeb/deleteAassignedSalesexec/" + code + "/" + tenantID
+							window.location.href = "${contextPath}/web/manufacturerWeb/deleteAassignedSalesexec/" + code + "/" + tenantID
 						});
 					</script>
 				</div>

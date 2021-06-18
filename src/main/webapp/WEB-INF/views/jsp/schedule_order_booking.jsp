@@ -81,7 +81,7 @@
 		<div class="row top-height">
 			<div class="col-md-6 ">
 				<form:form modelAttribute="orderBookingSchedule" method="post"
-					action="/crm/web/orderWeb/scheduleOrderBooking" name="myForm" id="myForm">
+					action="${contextPath}/web/orderWeb/scheduleOrderBooking" name="myForm" id="myForm">
 					<fieldset>
 						<legend>Schedule Order Booking</legend>
 						<div class="form-group required">
@@ -157,7 +157,7 @@
 					var hasData = false;
 					$.ajax({
 							type : "GET",
-							url : "/crm/rest/salesExecReST/manufacturerParams/"+$('#sales_exec').val() + "/"+$('#tenantID').val(),
+							url : "${contextPath}/rest/salesExecReST/manufacturerParams/"+$('#sales_exec').val() + "/"+$('#tenantID').val(),
 							dataType : "json",
 							success : function(data) {
 								$('#manufs').empty();
@@ -190,7 +190,7 @@
 					//Get Beats	
 					$.ajax({
 							type : "GET",
-							url : "/crm/rest/salesExecReST/beats/"+$('#sales_exec').val() + "/"+$('#tenantID').val(),
+							url : "${contextPath}/rest/salesExecReST/beats/"+$('#sales_exec').val() + "/"+$('#tenantID').val(),
 							dataType : "json",
 							success : function(data) {
 								$('#beats').empty();
@@ -219,7 +219,7 @@
 					$.ajax({
 							type : "POST",
 							//url : "/crm/rest/customer/toSchedule/"+$('#sales_exec').val() + "/"+$('#beats').val() + "/"+$('#dp').val() + "/"+$('#tenantID').val(),
-							url : "/crm/rest/customer/toSchedule/",
+							url : "${contextPath}/rest/customer/toSchedule/",
 							data : JSON.stringify(payload),
 							contentType: "application/json",
 							dataType : "json",

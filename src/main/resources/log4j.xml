@@ -24,17 +24,17 @@
 	<!-- Application Loggers -->
 	<logger name="com.sales.crm">
 		<level value="debug" />
-		<appender-ref ref="console" />
+		<appender-ref ref="file" />
 	</logger>
 	
 	<!-- 3rdparty Loggers -->
 	<logger name="com.zaxxer.hikari">
      	<level value="trace"/>
-     	<appender-ref ref="console" />
+     	<appender-ref ref="file" />
     </logger>
 	<logger name="org.hibernate">
      	<level value="INFO"/>
-     	<appender-ref ref="console" />
+     	<appender-ref ref="file" />
     </logger>
 	<logger name="org.springframework.core">
 		<level value="info" />

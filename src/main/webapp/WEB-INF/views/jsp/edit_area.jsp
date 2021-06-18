@@ -84,7 +84,7 @@ legend {
 			<div class="col-md-8 ">
 				<h2>Edit Area</h2>
 				<form:form modelAttribute="area" method="post"
-					action="/crm/web/areaWeb/update">
+					action="${contextPath}/web/areaWeb/update">
 					<fieldset>
 						<legend>Area Details</legend>
 						<div class="form-group required">

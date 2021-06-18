@@ -88,7 +88,7 @@
             	<div class="col-md-4 add_customer">
             		<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_ASSOCIATE_CUSTOMERS.getResourcePermissionID())) { %>
 						<button type="submit" class="btn btn-primary"
-							onclick="location.href='<%=request.getContextPath()%>/web/beatWeb/assignBeatsForm';">
+							onclick="location.href='${contextPath}/web/beatWeb/assignBeatsForm';">
 							Assign Beat To Customer</button>
 					<% } %>	
 				</div>
@@ -127,7 +127,7 @@
 						</c:forEach>
 						<td><%= values %></td>
 						<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_EDIT_ASSOCIATED_CUSTOMERS.getResourcePermissionID())) { %>
-							<td><a href="<%=request.getContextPath()%>/web/beatWeb/assignedBeatCustomerEditForm/${beat.code}">Edit</a>
+							<td><a href="${contextPath}/web/beatWeb/assignedBeatCustomerEditForm/${beat.code}">Edit</a>
 						<% } %>	
 						
 						<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_DELETE_ASSOCIATED_CUSTOMERS.getResourcePermissionID())) { %>
@@ -186,7 +186,7 @@
 						});
 						//Click on confirm button
 						$('#delete').click(function(e){
-							window.location.href = "/crm/web/beatWeb/deleteAssignedCustomersBeatLink/" + code
+							window.location.href = "${contextPath}/web/beatWeb/deleteAssignedCustomersBeatLink/" + code
 						});
 					</script>
 				</div>

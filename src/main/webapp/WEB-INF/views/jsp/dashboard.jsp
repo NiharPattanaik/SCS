@@ -273,14 +273,14 @@ input[type=file] {
 			}
 			$.ajax({
 				type : "GET",
-				url : "/crm/rest/orderReST/dashboardOrderScheduleSummary/"+ date +"/"+ $('#sales_exec').val(),
+				url : "${contextPath}/rest/orderReST/dashboardOrderScheduleSummary/"+ date +"/"+ $('#sales_exec').val(),
 				dataType : "json",
 				success : function(data) {
 					$("#schSummTbl > tbody").empty();
 					var result = data.businessEntities;
 					$.each(result,function(i,schedule) {
 						dataFound = 1;
-						row_data = "<tr><td><a href=/crm/web/orderWeb/orderScheduleReport/"+schedule.scheduleID+">"+schedule.scheduleID+"</a></td><td>"+schedule.visitDateStr+"</td><td>"+schedule.salesExecName+"</td><td>"+schedule.numberOfSchedules+"</td><td>"+schedule.numberOfOrders+"</td><td>"+schedule.numberOfOrdersPending+"</td><td>"+schedule.numberOfLines+"</td><td>"+schedule.totalBookValue+"</td></tr>";
+						row_data = "<tr><td><a href=${contextPath}/web/orderWeb/orderScheduleReport/"+schedule.scheduleID+">"+schedule.scheduleID+"</a></td><td>"+schedule.visitDateStr+"</td><td>"+schedule.salesExecName+"</td><td>"+schedule.numberOfSchedules+"</td><td>"+schedule.numberOfOrders+"</td><td>"+schedule.numberOfOrdersPending+"</td><td>"+schedule.numberOfLines+"</td><td>"+schedule.totalBookValue+"</td></tr>";
 		                $("#schSummTbl > tbody").append(row_data);
 					});
 					if(dataFound == 0){

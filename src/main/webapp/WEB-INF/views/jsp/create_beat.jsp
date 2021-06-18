@@ -82,7 +82,7 @@ legend {
 			<div class="col-md-8 ">
 				<h2>Add New Beat</h2>
 				<form:form modelAttribute="beat" method="post"
-					action="/crm/web/beatWeb/save">
+					action="${contextPath}/web/beatWeb/save">
 					<fieldset>
 						<legend>Beat Details</legend>
 						<div class="form-group required">

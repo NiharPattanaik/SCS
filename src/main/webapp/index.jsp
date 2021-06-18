@@ -1,5 +1,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>    
 <html>
+
+<c:set var="contextPath" value="${pageContext.request.contextPath}"/>
+
 <style>
 form {
     border: 3px solid #f1f1f1;
@@ -83,7 +86,7 @@ scroll{
 
 <h2 class="form_header">Login Form</h2>
 
-<form method="post" action="/crm/web/userWeb/login">
+<form method="post" action="${contextPath}/web/userWeb/login">
   <!-- div style="width: 200px; height: 100px; overflow-y: scroll; border: solid;">
     test<br />
     test<br />

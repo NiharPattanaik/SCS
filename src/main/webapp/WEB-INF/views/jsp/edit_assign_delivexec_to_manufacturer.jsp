@@ -81,7 +81,7 @@ legend {
 		<div class="row top-height">
 			<div class="col-md-8 ">
 				<form:form modelAttribute="manufacturer" method="post"
-					action="/crm/web/manufacturerWeb/updateAassignedDelivexecs">
+					action="${contextPath}/web/manufacturerWeb/updateAassignedDelivexecs">
 					<fieldset>
 						<legend>Manufacturer to Delivery Executive Mapping</legend>
 						<div class="form-group">

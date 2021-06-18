@@ -82,7 +82,7 @@ legend {
 		<div class="row top-height">
 			<div class="col-md-8 ">
 				<form:form modelAttribute="manufSalesExecBeats" method="post"
-					action="/crm/web/salesExecWeb/assignBeat">
+					action="${contextPath}/web/salesExecWeb/assignBeat">
 					<fieldset>
 						<legend>Assign Beats to Sales Executive</legend>
 						<div class="form-group required">
@@ -127,7 +127,7 @@ legend {
 			if($('#manufacturers').val() != -1){
 				$.ajax({
 						type : "GET",
-						url : "/crm/rest/manufacturerReST/salesExecs/"+$('#manufacturers').val()+"/"+$('#tenantID').val(),
+						url : "${contextPath}/rest/manufacturerReST/salesExecs/"+$('#manufacturers').val()+"/"+$('#tenantID').val(),
 						dataType : "json",
 						success : function(data) {
 							$('#salesExecs').empty();
@@ -147,7 +147,7 @@ legend {
 			if($('#salesExecs').val() != -1){
 				$.ajax({
 						type : "GET",
-						url : "/crm/rest/beatReST/beatsNotMappedToSalesExec/"+$('#manufacturers').val() +"/"+$('#salesExecs').val()+"/"+$('#tenantID').val(),
+						url : "${contextPath}/rest/beatReST/beatsNotMappedToSalesExec/"+$('#manufacturers').val() +"/"+$('#salesExecs').val()+"/"+$('#tenantID').val(),
 						dataType : "json",
 						success : function(data) {
 							$('#beats').empty();

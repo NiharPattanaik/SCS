@@ -91,7 +91,7 @@
 		<div class="row top-height">
 			<div class="col-md-6 ">
 				<form:form modelAttribute="deliveryBookingSchedule" method="post"
-					action="/crm/web/deliveryExecWeb/scheduleDeliveryBooking" name="myForm" id="myForm">
+					action="${contextPath}/web/deliveryExecWeb/scheduleDeliveryBooking" name="myForm" id="myForm">
 					<fieldset>
 						<legend>Schedule Delivery Booking</legend>
 						<div class="form-group required">
@@ -148,7 +148,7 @@
 					var hasData = false;
 					$.ajax({
 							type : "GET",
-							url : "/crm/rest/deliveryExecReST/manufacturerParams/"+$('#deliv_exec').val() + "/"+$('#tenantID').val(),
+							url : "${contextPath}/rest/deliveryExecReST/manufacturerParams/"+$('#deliv_exec').val() + "/"+$('#tenantID').val(),
 							dataType : "json",
 							success : function(data) {
 								$('#manufs').empty();
@@ -181,7 +181,7 @@
 					
 					$.ajax({
 							type : "GET",
-							url : "/crm/rest/deliveryExecReST/"+$('#deliv_exec').val() + "/" + $('#tenantID').val(),
+							url : "${contextPath}/rest/deliveryExecReST/"+$('#deliv_exec').val() + "/" + $('#tenantID').val(),
 							dataType : "json",
 							success : function(data) {
 								$('#beats').empty();
@@ -208,7 +208,7 @@
 					console.log(JSON.stringify(payload));
 					$.ajax({
 							type : "POST",
-							url : "/crm/rest/customer/customersToScheduleDelivery",
+							url : "${contextPath}/rest/customer/customersToScheduleDelivery",
 							data : JSON.stringify(payload),
 							contentType: "application/json",
 							dataType : "json",

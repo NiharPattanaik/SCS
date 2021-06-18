@@ -93,7 +93,7 @@ legend {
 			<div class="col-md-4 add_customer">
 				<% if(resourcePermIDs.contains(ResourcePermissionEnum.AREA_UPDATE.getResourcePermissionID())) { %>
 					<button type="submit" class="btn btn-primary"
-						onclick="location.href='<%=request.getContextPath()%>/web/areaWeb/editAreaForm/${area.areaID}';">
+						onclick="location.href='${contextPath}/web/areaWeb/editAreaForm/${area.areaID}';">
 						Modify Area</button>
 				<% } %>	
 				
@@ -171,7 +171,7 @@ legend {
 				<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
 				<script type="text/javascript">
 						$('#modalSubmit').click(function(){
-							window.location.href = "/crm/web/areaWeb/delete/${area.areaID}"
+							window.location.href = "${contextPath}/web/areaWeb/delete/${area.areaID}"
 						});
 					</script>
 			</div>

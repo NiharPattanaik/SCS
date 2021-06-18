@@ -76,7 +76,7 @@ legend {
 		<div class="row top-height">
 			<div class="col-md-8 ">
 				<form:form modelAttribute="delivExec" method="post"
-					action="/crm/web/deliveryExecWeb/updateAssignedBeats">
+					action="${contextPath}/web/deliveryExecWeb/updateAssignedBeats">
 					<fieldset>
 						<legend>Edit Assigned Beats to Delivery Executive</legend>
 						<div class="form-group">

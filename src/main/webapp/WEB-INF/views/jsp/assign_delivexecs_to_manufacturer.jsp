@@ -86,7 +86,7 @@ legend {
 		<div class="row top-height">
 			<div class="col-md-8 ">
 				<form:form modelAttribute="manufacturer" method="post"
-					action="/crm/web/manufacturerWeb/assignDelivExecutive" id="myform">
+					action="${contextPath}/web/manufacturerWeb/assignDelivExecutive" id="myform">
 					<fieldset>
 						<legend>Assign Delivery Executive to Manufacturer</legend>
 							<div class="form-group required">
@@ -130,7 +130,7 @@ legend {
 			if($('#manufacturers').val() != -1){
 				$.ajax({
 						type : "GET",
-						url : "/crm/rest/deliveryExecReST/delivExecsNotMappedToManufacturer/"+$('#manufacturers').val(),
+						url : "${contextPath}/rest/deliveryExecReST/delivExecsNotMappedToManufacturer/"+$('#manufacturers').val(),
 						dataType : "json",
 						success : function(data) {
 							if(data.length !== 0){

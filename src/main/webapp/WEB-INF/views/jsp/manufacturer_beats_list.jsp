@@ -88,7 +88,7 @@
             	</div>
             	<div class="col-md-4 add_customer">
             			<button type="submit" class="btn btn-primary"
-							onclick="location.href='<%=request.getContextPath()%>/web/manufacturerWeb/assignBeatsForm';">
+							onclick="location.href='${contextPath}/web/manufacturerWeb/assignBeatsForm';">
 							Assign Beat To Manufacturer</button>
 				</div>
 	        </div>        
@@ -125,7 +125,7 @@
   								%>
 						</c:forEach>
 						<td><%= values %></td>
-						<td><a href="<%=request.getContextPath()%>/web/manufacturerWeb/assignedBeatManufacturerEditForm/${manufacturerBeats.manufacturer.code}">Edit</a>
+						<td><a href="${contextPath}/web/manufacturerWeb/assignedBeatManufacturerEditForm/${manufacturerBeats.manufacturer.code}">Edit</a>
 							|
 							<c:choose>
 								<c:when test = "${manufacturerBeats.hasActiveTransaction}">
@@ -182,7 +182,7 @@
 						});
 						//Click on confirm button
 						$('#delete').click(function(e){
-							window.location.href = "/crm/web/manufacturerWeb/deleteAssignedBeatManufacturerLink/" + code + "/" + tenantID
+							window.location.href = "${contextPath}/web/manufacturerWeb/deleteAssignedBeatManufacturerLink/" + code + "/" + tenantID
 						});
 					</script>
 				</div>

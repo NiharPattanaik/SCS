@@ -96,7 +96,7 @@ legend {
 				
 			<% if(resourcePermIDs.contains(ResourcePermissionEnum.MANUFACTURER_UPDATE.getResourcePermissionID())) { %>
 				<button type="submit" class="btn btn-primary"
-					onclick="location.href='<%=request.getContextPath()%>/web/manufacturerWeb/editManufacturerForm/${manufacturer.code}';">
+					onclick="location.href='${contextPath}/web/manufacturerWeb/editManufacturerForm/${manufacturer.code}';">
 					Modify</button>
 			<% } %>
 			
@@ -231,7 +231,7 @@ legend {
 				<button type="button" class="btn btn-primary" id="cancelbtn" onclick="window.history.back(); return false;"">Cancel</button>
 				<% if(resourcePermIDs.contains(ResourcePermissionEnum.MANUFACTURER_UPDATE.getResourcePermissionID())) { %>
 					<button type="submit" class="btn btn-primary"
-						onclick="location.href='<%=request.getContextPath()%>/web/manufacturerWeb/editManufacturerForm/${manufacturer.code}';">
+						onclick="location.href='${contextPath}/web/manufacturerWeb/editManufacturerForm/${manufacturer.code}';">
 						Modify</button>
 				<% } %>
 				
@@ -283,7 +283,7 @@ legend {
 					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
 					<script type="text/javascript">
 						$('#modalSubmit').click(function(){
-						   window.location.href = "/crm/web/manufacturerWeb/delete/${manufacturer.manufacturerID}"
+						   window.location.href = "${contextPath}/web/manufacturerWeb/delete/${manufacturer.manufacturerID}"
 						});
 					</script>
 				</div>

@@ -100,7 +100,7 @@ legend {
 			<button type="button" class="btn btn-primary" id="cancelbtn" onclick="window.history.back(); return false;"">Cancel</button>
 			<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_UPDATE.getResourcePermissionID())) { %>
 				<button type="submit" class="btn btn-primary"
-					onclick="location.href='<%=request.getContextPath()%>/web/beatWeb/editBeatForm/${beat.code}';">
+					onclick="location.href='${contextPath}/web/beatWeb/editBeatForm/${beat.code}';">
 					Modify</button>
 			<% } %>		
 			
@@ -171,7 +171,7 @@ legend {
 				<button type="button" class="btn btn-primary" id="cancelbtn" onclick="window.history.back(); return false;"">Cancel</button>
 				<% if(resourcePermIDs.contains(ResourcePermissionEnum.BEAT_UPDATE.getResourcePermissionID())) { %>
 					<button type="submit" class="btn btn-primary"
-						onclick="location.href='<%=request.getContextPath()%>/web/beatWeb/editBeatForm/${beat.code}';">
+						onclick="location.href='${contextPath}/web/beatWeb/editBeatForm/${beat.code}';">
 						Modify</button>
 				<% } %>		
 				
@@ -236,7 +236,7 @@ legend {
 					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
 					<script type="text/javascript">
 						$('#modalSubmit').click(function(){
-						   window.location.href = "/crm/web/beatWeb/delete/${beat.beatID}"
+						   window.location.href = "${contextPath}/web/beatWeb/delete/${beat.beatID}"
 						});
 					</script>
 				</div>

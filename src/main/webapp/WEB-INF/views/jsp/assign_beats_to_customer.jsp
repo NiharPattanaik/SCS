@@ -81,7 +81,7 @@ legend {
 		<div class="row top-height">
 			<div class="col-md-8 ">
 				<form:form modelAttribute="beat" method="post"
-					action="/crm/web/beatWeb/assignBeatsToCustomer" id="beatCustform" name="beatCustform">
+					action="${contextPath}/web/beatWeb/assignBeatsToCustomer" id="beatCustform" name="beatCustform">
 					<fieldset>
 						<legend>Assign Beats to Customer</legend>
 							<div class="form-group required">
@@ -129,7 +129,7 @@ legend {
 			if($('#beats').val() != -1){
 				$.ajax({
 						type : "GET",
-						url : "/crm/rest/customer/customersNotMappedToBeat/"+$('#tenantID').val(),
+						url : "${contextPath}/rest/customer/customersNotMappedToBeat/"+$('#tenantID').val(),
 						dataType : "json",
 						success : function(data) {
 							$('#customers').empty();

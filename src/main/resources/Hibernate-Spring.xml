@@ -15,13 +15,7 @@
 		<constructor-arg ref="hikariConfig" />
 	</bean>
 
-	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
-   	 	<property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
-		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/salescrm" />
-		<property name="username" value="*****" />
-		<property name="password" value="******" />
-	</bean>
-
+	
 	<!-- Hibernate 4 SessionFactory Bean definition -->
 	<bean id="hibernate4AnnotatedSessionFactory"
 		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">

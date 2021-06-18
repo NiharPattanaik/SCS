@@ -180,7 +180,7 @@
 						});
 						//Click on confirm button
 						$('#delete').click(function(e){
-							window.location.href = "/crm/web/salesExecWeb/deleteBeatsAssignment/" + manufID + "/" + salesEXecID
+							window.location.href = "${contextPath}/web/salesExecWeb/deleteBeatsAssignment/" + manufID + "/" + salesEXecID
 						});
 					</script>
 				</div>

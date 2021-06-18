@@ -79,7 +79,7 @@ text-align:right;
 			<div class="col-md-8 ">
 				<h2>Edit Reseller</h2>
 				<form:form modelAttribute="reseller" method="post"
-					action="/crm/web/resellerWeb/update">
+					action="${contextPath}/web/resellerWeb/update">
 					<fieldset>
 						<legend>Reseller Details</legend>
 						<div class="form-group">

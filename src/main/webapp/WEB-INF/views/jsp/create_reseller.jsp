@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <html lang="en">
 
 <head>
@@ -13,6 +14,8 @@
 	<script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
 	<link href="<%=request.getContextPath()%>/resources/css/bootstrap-datepicker.css" rel="stylesheet">
 	<script	src="<%=request.getContextPath()%>/resources/js/bootstrap-datepicker.js"></script>
+
+<c:set var="contextPath" value="${pageContext.request.contextPath}"/>
 
 <style>
 .dpHeaderWrap {
@@ -83,7 +86,7 @@ legend {
 			<div class="col-md-8 ">
 				<h2>Add New Reseller</h2>
 				<form:form modelAttribute="reseller" method="post"
-					action="/crm/web/resellerWeb/saveReseller">
+					action="${contextPath}/web/resellerWeb/saveReseller">
 					<fieldset>
 						<legend>Reseller Details</legend>
 						<div class="form-group">

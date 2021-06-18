@@ -109,7 +109,7 @@
 		</div>
 		<div class="row top-height">
 			<form:form modelAttribute="orderBookingSchedule" method="post"
-				action="/crm/web/orderWeb/scheduleOrderBooking" name="myForm"
+				action="${contextPath}/web/orderWeb/scheduleOrderBooking" name="myForm"
 				id="myForm">
 				<div class="col-md-1 style="padding-right: 1px;">
 					<div class="form-group">
@@ -207,7 +207,7 @@
                 		<tr>
 		                 	<td>${orderBookingSchedule.bookingScheduleID}</td>
 		                 	<% if(pageContext.getAttribute("orderBookingSchedule") != null &&  ((OrderBookingSchedule)pageContext.getAttribute("orderBookingSchedule")).getOrderID() != 0 ){%>
-		                		<td><a href="<%=request.getContextPath()%>/web/orderWeb/${orderBookingSchedule.orderID}">${orderBookingSchedule.orderID}</a></td>
+		                		<td><a href="${contextPath}/web/orderWeb/${orderBookingSchedule.orderID}">${orderBookingSchedule.orderID}</a></td>
 		                	<%}else{ %>
 		                		<td>-</td>
 		                	<% } %>	
@@ -245,7 +245,7 @@
 			}
 			$.ajax({
 				type : "GET",
-				url : "/crm/rest/orderReST/orderScheduleReport/"+$('#sales_exec').val()+"/"+$('#beat_id').val()+"/"+date+"/"+$('#cust_id').val()+"/"+$('#status').val()+"/"+$('#tenantID').val(),
+				url : "${contextPath}/rest/orderReST/orderScheduleReport/"+$('#sales_exec').val()+"/"+$('#beat_id').val()+"/"+date+"/"+$('#cust_id').val()+"/"+$('#status').val()+"/"+$('#tenantID').val(),
 				dataType : "json",
 				success : function(data) {
 					$("#reportTbl > tbody").empty();
@@ -255,12 +255,12 @@
 						var row_data = "<tr><td>"+schedule.bookingScheduleID+"</td>";
 						var orderTD="<td>-</td>";
 						if(schedule.orderID != 0){
-							orderTD = "<td><a href=/crm/web/orderWeb/"+schedule.orderID+">"+schedule.orderID+"</a></td>";
+							orderTD = "<td><a href=${contextPath}/web/orderWeb/"+schedule.orderID+">"+schedule.orderID+"</a></td>";
 						}
 						
 						var actionTD="<td>-</td>";
 						if(schedule.status == 60){
-							actionTD="<td><a href=/crm/web/orderWeb/createOrderForm/"+schedule.bookingScheduleID+"/"+ schedule.customerID +"/"+ schedule.customerName +">Create Order</a></td>";
+							actionTD="<td><a href=${contextPath}/web/orderWeb/createOrderForm/"+schedule.bookingScheduleID+"/"+ schedule.customerID +"/"+ schedule.customerName +">Create Order</a></td>";
 						}
 						row_data = row_data + orderTD +"<td>"+schedule.beatName+"</td><td>"+schedule.customerName+"</td><td>"+schedule.salesExecName+"</td><td>"+schedule.visitDateAsString+"</td><td>"+schedule.statusAsString+"</td>"+ actionTD + "</tr>";
 		                $("#reportTbl > tbody").append(row_data);

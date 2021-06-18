@@ -192,20 +192,20 @@
 		
 		$('#newCustomer').click(function(){
 			$('#customerForm').attr('method', "GET");
-			$('#customerForm').attr('action', "/crm/web/customerWeb/createCustomerForm").submit();
+			$('#customerForm').attr('action', "${contextPath}/web/customerWeb/createCustomerForm").submit();
 			
 		});
 		
 		$('#downloadTmp').click(function(){
 			$('#customerForm').attr('method', "GET");
-			$('#customerForm').attr('action', "/crm/web/customerWeb/downloadAddCustomerTemplate").submit();
+			$('#customerForm').attr('action', "${contextPath}/web/customerWeb/downloadAddCustomerTemplate").submit();
 			
 		});
 		
 		$('#upload').change(function(){
 			$('#customerForm').attr("enctype", "multipart/form-data");
 			$('#customerForm').attr('method', "POST");
-			$('#customerForm').attr('action', "/crm/web/customerWeb/fileUpload").submit();
+			$('#customerForm').attr('action', "${contextPath}/web/customerWeb/fileUpload").submit();
 		});
 		
 		$('#searchParam').change(function(){
@@ -227,7 +227,7 @@
 		$('#search').click(function(){
 			$.ajax({
 				type : "GET",
-				url : "/crm/rest/customer/search/"+$('#searchParam').val()+"/"+$('#searchVal').val(),
+				url : "${contextPath}/rest/customer/search/"+$('#searchParam').val()+"/"+$('#searchVal').val(),
 				dataType : "json",
 				success : function(data) {
 					$("#custTable > tbody").empty();

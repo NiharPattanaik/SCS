@@ -34,6 +34,7 @@ public class LoginFilter implements Filter {
         HttpSession session = request.getSession(false);
         String loginURI = request.getContextPath()+"/web/userWeb/login";
         String logoutURI = request.getContextPath()+"/logout";
+        String contextPath = request.getContextPath();
 
         boolean loggedIn = false;
         boolean loginRequest = false;
@@ -54,14 +55,14 @@ public class LoginFilter implements Filter {
 		}else{
 			loggedIn = session != null && session.getAttribute("user") != null;
 			loginRequest = request.getRequestURI().equals(loginURI);
-			restRequest = request.getRequestURI().contains("/crm/rest/") ? true : false;
-			createResellerForm = request.getRequestURI().contains("/web/resellerWeb/selfRegisterResellerForm") ? true : false;
-			saveReseller = request.getRequestURI().contains("/web/resellerWeb/saveReseller") ? true : false;
-			restValidateUser = request.getRequestURI().contains("crm/rest/userReST/validateUser") ? true : false;
-			selfRegistration = request.getRequestURI().contains("web/resellerWeb/selfRegisterReseller") ? true : false;
-			resources = request.getRequestURI().contains("/crm/resources/") ? true : false;
-			createTenantForm = request.getRequestURI().contains("/web/tenantWeb/selfRegisterTenantForm") ? true : false;
-			selfRegistrationTenant = request.getRequestURI().contains("web/tenantWeb/selfRegisterTenant") ? true : false;
+			restRequest = request.getRequestURI().contains(contextPath + "/rest/") ? true : false;
+			createResellerForm = request.getRequestURI().contains(contextPath + "/web/resellerWeb/selfRegisterResellerForm") ? true : false;
+			saveReseller = request.getRequestURI().contains(contextPath + "/web/resellerWeb/saveReseller") ? true : false;
+			restValidateUser = request.getRequestURI().contains(contextPath + "/rest/userReST/validateUser") ? true : false;
+			selfRegistration = request.getRequestURI().contains(contextPath + "web/resellerWeb/selfRegisterReseller") ? true : false;
+			resources = request.getRequestURI().contains(contextPath+ "/resources/") ? true : false;
+			createTenantForm = request.getRequestURI().contains(contextPath + "/web/tenantWeb/selfRegisterTenantForm") ? true : false;
+			selfRegistrationTenant = request.getRequestURI().contains(contextPath + "web/tenantWeb/selfRegisterTenant") ? true : false;
 			
 		}
 		

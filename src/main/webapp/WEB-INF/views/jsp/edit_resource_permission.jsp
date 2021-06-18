@@ -110,7 +110,7 @@ legend {
 			</div>
 		</div>
 		<form:form modelAttribute="resPermWebModel" method="post"
-			action="/crm/web/role/resource_permission/save" id="respermform">
+			action="${contextPath}/web/role/resource_permission/save" id="respermform">
 			<input type="checkbox" id="checkAll"> <b>Select All</b>
 			<c:forEach var="resPerms" items="${resPermMap}">
 				<fieldset>

@@ -2,6 +2,7 @@
 	pageEncoding="UTF-8"%>
 <%@taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <html lang="en">
 
 <head>
@@ -12,6 +13,8 @@
 	<link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
 	<script src="<%=request.getContextPath()%>/resources/js/jquery-3.2.0.min.js"></script>
 	<script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
+
+<c:set var="contextPath" value="${pageContext.request.contextPath}"/>
 
 <style>
 .dpHeaderWrap {
@@ -84,7 +87,7 @@ legend {
 					<li class="dropdown">
         				<a class="dropdown-toggle" data-toggle="dropdown" href="#"><%= (String)session.getAttribute("userFullName") %> <span class="glyphicon glyphicon-user"></span></a>
 	      				<ul class="dropdown-menu">
-				          	<li><a href="<%=request.getContextPath()%>/logout">logout</a></li>
+				          	<li><a href="${contextPath}/logout">logout</a></li>
 	      				</ul>
       				</li>	
 					
@@ -95,7 +98,7 @@ legend {
 			<div class="col-md-8 ">
 				<h2>Change Password</h2>
 				<form:form modelAttribute="user" method="post"
-					action="/crm/web/userWeb/updatePassword" id="passForm">
+					action="${contextPath}/web/userWeb/updatePassword" id="passForm">
 					<fieldset>
 						<legend>Change Password</legend>
 						<div class="form-group" >

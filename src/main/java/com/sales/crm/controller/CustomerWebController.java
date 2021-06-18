@@ -194,8 +194,8 @@ public class CustomerWebController {
 		return builder.toString();
 	}
 
-	@GetMapping(value="/deactivate/result/{customerID}/{status}")
-	public ModelAndView deactivateSuccess(@PathVariable("customerID") int customerID, @PathVariable("status")  int status){
+	@GetMapping(value="/deactivate/result/{customerCode}/{status}")
+	public ModelAndView deactivateSuccess(@PathVariable("customerCode") String customerCode, @PathVariable("status")  int status){
 		String msg = "";
 		Map<String, String> modelMap = new HashMap<String, String>();
 		if(status != 0) {
@@ -203,12 +203,12 @@ public class CustomerWebController {
 		}
 		modelMap.put("msg", msg);
 		modelMap.put("action", "Deactivated");
-		modelMap.put("customerID", String.valueOf(customerID));
+		modelMap.put("customerCode", customerCode);
 		return new ModelAndView("/update_customer_status_conf","map", modelMap);  
 	}
 	
-	@GetMapping(value="/activate/result/{customerID}/{status}")
-	public ModelAndView activateCustomer(@PathVariable("customerID") int customerID, @PathVariable("status")  int status){
+	@GetMapping(value="/activate/result/{customerCode}/{status}")
+	public ModelAndView activateCustomer(@PathVariable("customerCode") String customerCode, @PathVariable("status")  int status){
 		String msg = "";
 		Map<String, String> modelMap = new HashMap<String, String>();
 		if(status != 0) {
@@ -216,7 +216,7 @@ public class CustomerWebController {
 		}
 		modelMap.put("msg", msg);
 		modelMap.put("action", "Activated");
-		modelMap.put("customerID", String.valueOf(customerID));
+		modelMap.put("customerCode", customerCode);
 		return new ModelAndView("/update_customer_status_conf","map", modelMap);  
 	}
 	

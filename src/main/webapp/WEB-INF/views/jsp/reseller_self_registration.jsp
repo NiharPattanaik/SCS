@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <html lang="en">
 
 <head>
@@ -11,6 +12,9 @@
 	<link href="<%=request.getContextPath()%>/resources/css/bootstrap.min.css" rel="stylesheet" />
 	<script src="<%=request.getContextPath()%>/resources/js/jquery-3.2.0.min.js"></script>
 	<script src="<%=request.getContextPath()%>/resources/js/bootstrap.min.js"></script>
+	
+	<c:set var="contextPath" value="${pageContext.request.contextPath}"/>
+	
 	
 <style>
 .dpHeaderWrap {
@@ -87,7 +91,7 @@ legend {
 			<div class="col-md-8 ">
 				<h2>Self Registration Form</h2>
 				<form:form modelAttribute="reseller" method="post"
-					action="/crm/web/resellerWeb/selfRegisterReseller">
+					action="${contextPath}/web/resellerWeb/selfRegisterReseller">
 					<fieldset>
 						<legend>Reseller Details</legend>
 						<div class="form-group required" >
